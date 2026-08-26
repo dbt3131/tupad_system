@@ -406,42 +406,51 @@
         });
 
         // Forward to GSIS Letter Button Handler via AJAX
-        $(document).on('click', '.btn-forward-gsis', function() {
-            var fileName = $(this).data('filename');
-            
-            showCustomConfirm('Are you sure you want to forward the details of "' + fileName + '" to the GSIS Letter table?', function() {
-                var $btn = $(document).find('.btn-forward-gsis[data-filename="' + fileName + '"]');
-                $btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-1"></span> Forwarding...');
+$(document).on('click', '.btn-forward-gsis', function() {
+    var $btn = $(this);
+    var fileName = $btn.data('filename');
+    
+    showCustomConfirm('Are you sure you want to forward the details of "' + fileName + '" to the GSIS Letter table?', function() {
+        $btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-1"></span> Forwarding...');
 
-                $.ajax({
-                    url: "<?php echo site_url('tupad/forward_gsis_letter'); ?>",
-                    type: "POST",
-                    data: { file_name: fileName },
-                    dataType: "json",
-                    success: function(response) {
-                        $btn.prop('disabled', false).html('<i class="bi bi-send-fill me-1"></i> GSIS Letter');
-                        
-                        var isSuccess = (response.status === 'success' || response.success === true || response.status === true);
-                        
-                        if (isSuccess) {
-                            var msg = response.message || response.msg || 'Successfully forwarded to GSIS Letter.';
-                            showCustomAlert(msg, 'GSIS Forward');
-                        } else {
-                            var warningMsg = response.message || response.error || response.msg || 'Duplicate or notice encountered.';
-                            showCustomAlert(warningMsg, 'Duplicate / Notice');
-                        }
-                    },
-                    error: function(xhr) {
-                        $btn.prop('disabled', false).html('<i class="bi bi-send-fill me-1"></i> GSIS Letter');
-                        var errorMsg = 'An error occurred while forwarding details.';
-                        if (xhr.responseJSON && xhr.responseJSON.message) {
-                            errorMsg = xhr.responseJSON.message;
-                        }
-                        showCustomAlert(errorMsg, 'System Error');
-                    }
-                });
-            }, 'Confirm Forward');
+        $.ajax({
+            url: "<?php echo site_url('tupad/forward_gsis_letter'); ?>",
+            type: "POST",
+            data: { file_name: fileName },
+            dataType: "json",
+            success: function(response) {
+                var isSuccess = (response.status === 'success' || response.success === true || response.status === true);
+                
+                if (isSuccess) {
+                    $btn.prop('disabled', false).html('<i class="bi bi-send-fill me-1"></i> GSIS Letter');
+                    var msg = response.message || response.msg || 'Successfully forwarded to GSIS Letter.';
+                    showCustomAlert(msg, 'GSIS Forward');
+                } else if (response.status === 'exists') {
+                    // Disable and style button on duplicate detection
+                    $btn.prop('disabled', true)
+                        .addClass('disabled btn-secondary')
+                        .removeClass('btn-warning')
+                        .html('<i class="bi bi-check-circle-fill me-1"></i> Forwarded');
+                    
+                    var warningMsg = response.message || 'Duplicate details encountered.';
+                    showCustomAlert(warningMsg, 'Duplicate / Notice');
+                } else {
+                    $btn.prop('disabled', false).html('<i class="bi bi-send-fill me-1"></i> GSIS Letter');
+                    var warningMsg = response.message || response.error || response.msg || 'Notice encountered.';
+                    showCustomAlert(warningMsg, 'Notice');
+                }
+            },
+            error: function(xhr) {
+                $btn.prop('disabled', false).html('<i class="bi bi-send-fill me-1"></i> GSIS Letter');
+                var errorMsg = 'An error occurred while forwarding details.';
+                if (xhr.responseJSON && xhr.responseJSON.message) {
+                    errorMsg = xhr.responseJSON.message;
+                }
+                showCustomAlert(errorMsg, 'System Error');
+            }
         });
+    }, 'Confirm Forward');
+});
 
         const table = $('#filesTable').DataTable({
             processing: true,

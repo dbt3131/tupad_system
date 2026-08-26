@@ -17,7 +17,7 @@ class Tupad_model extends CI_Model {
         return $this->db->insert_batch($this->table, $data);
     }
 
-   public function get_uploaded_files() {
+  public function get_uploaded_files() {
     $sql = "SELECT t.file_name, 
                    t.reference_no, 
                    COUNT(t.id) as total_records, 
@@ -25,11 +25,16 @@ class Tupad_model extends CI_Model {
                    SUM(CASE WHEN t.tupad_active = 1 THEN 1 ELSE 0 END) as inactive_records,
                    MAX(t.uploaded_at) as uploaded_at,
                    u.reg_fname as uploader_fname, 
-                   u.reg_lname as uploader_lname
+                   u.reg_lname as uploader_lname,
+                   CASE WHEN g.gsis_letter_id IS NOT NULL THEN 1 ELSE 0 END as is_forwarded
             FROM tbl_tupad_list t
             LEFT JOIN users u ON u.id = t.user_id
+            LEFT JOIN gsis_letters g 
+                   ON g.reference_no = t.reference_no 
+                  AND g.adl_no = t.adl_no 
+                  AND g.implementor = t.area_of_implementation
             WHERE t.file_name IS NOT NULL
-            GROUP BY t.file_name, t.reference_no, u.reg_fname, u.reg_lname
+            GROUP BY t.file_name, t.reference_no, u.reg_fname, u.reg_lname, g.gsis_letter_id
             ORDER BY t.file_name ASC";
 
     return $this->db->query($sql)->result_array();

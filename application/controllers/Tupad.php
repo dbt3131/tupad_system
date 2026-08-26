@@ -655,17 +655,29 @@ public function upload_tupad_excel()
                 </div>
             ';
 
-            $actionButtons = '
-                <a href="' . site_url('tupad/view_file_data/' . $encoded_filename) . '" class="btn btn-sm btn-primary me-1">
-                    <i class="bi bi-eye me-1"></i> View
-                </a>
-                <a href="' . site_url('tupad/export_excel?file_name=' . $encoded_filename) . '" class="btn btn-sm btn-success me-1">
-                    <i class="bi bi-file-earmark-excel-fill me-1"></i>GPAI
-                </a>
-                <button type="button" class="btn btn-sm btn-warning btn-forward-gsis text-dark fw-semibold" data-filename="' . htmlspecialchars($f['file_name']) . '">
-                    <i class="bi bi-send-fill me-1"></i> GSIS Letter
-                </button>
-            ';
+          // Inside function get_files_json() in Tupad.php:
+
+$is_forwarded = !empty($f['is_forwarded']) && $f['is_forwarded'] == 1;
+
+if ($is_forwarded) {
+    $gsisButton = '
+        <button type="button" class="btn btn-sm btn-secondary disabled" disabled>
+            <i class="bi bi-check-circle-fill me-1"></i> GSIS Letter
+        </button>';
+} else {
+    $gsisButton = '
+        <button type="button" class="btn btn-sm btn-warning btn-forward-gsis text-dark fw-semibold" data-filename="' . htmlspecialchars($f['file_name']) . '">
+            <i class="bi bi-send-fill me-1"></i> GSIS Letter
+        </button>';
+}
+
+$actionButtons = '
+    <a href="' . site_url('tupad/view_file_data/' . $encoded_filename) . '" class="btn btn-sm btn-primary me-1">
+        <i class="bi bi-eye me-1"></i> View
+    </a>
+    <a href="' . site_url('tupad/export_excel?file_name=' . $encoded_filename) . '" class="btn btn-sm btn-success me-1">
+        <i class="bi bi-file-earmark-excel-fill me-1"></i> GPAI
+    </a>' . $gsisButton;
 
             $data[] = [
                 '<i class="bi bi-file-earmark-excel me-1 text-success"></i>' . htmlspecialchars($f['file_name']),
@@ -695,30 +707,39 @@ public function upload_tupad_excel()
     }
 
     public function forward_gsis_letter()
-    {
-        if (!$this->session->userdata('logged_in')) {
-            echo json_encode(['status' => 'error', 'message' => 'Unauthorized access.']);
-            return;
-        }
-
-        $file_name = $this->input->post('file_name');
-        if (empty($file_name)) {
-            echo json_encode(['status' => 'error', 'message' => 'No file specified.']);
-            return;
-        }
-
-        $user_name = $this->session->userdata('reg_fname') ? $this->session->userdata('reg_fname') : 'User';
-        
-        $result = $this->Tupad_model->forward_to_gsis_letter($file_name, $user_name);
-
-        if ($result === 'success') {
-            echo json_encode(['status' => 'success', 'message' => 'Details successfully forwarded to GSIS Letter table.']);
-        } elseif ($result === 'exists') {
-            echo json_encode(['status' => 'error', 'message' => 'Forwarding aborted: Matching details (Reference No., ADL No., and Implementor) already exist in the GSIS Letter table.']);
-        } else {
-            echo json_encode(['status' => 'error', 'message' => 'Failed to forward details or file contains no records.']);
-        }
+{
+    if (!$this->session->userdata('logged_in')) {
+        echo json_encode(['status' => 'error', 'message' => 'Unauthorized access.']);
+        return;
     }
+
+    $file_name = $this->input->post('file_name');
+    if (empty($file_name)) {
+        echo json_encode(['status' => 'error', 'message' => 'No file specified.']);
+        return;
+    }
+
+    $user_name = $this->session->userdata('reg_fname') ? $this->session->userdata('reg_fname') : 'User';
+    
+    $result = $this->Tupad_model->forward_to_gsis_letter($file_name, $user_name);
+
+    if ($result === 'success') {
+        echo json_encode([
+            'status' => 'success', 
+            'message' => 'Details successfully forwarded to GSIS Letter table.'
+        ]);
+    } elseif ($result === 'exists') {
+        echo json_encode([
+            'status' => 'exists', 
+            'message' => 'Forwarding aborted: Matching details (Reference No., ADL No., and Implementor) already exist in the GSIS Letter table.'
+        ]);
+    } else {
+        echo json_encode([
+            'status' => 'error', 
+            'message' => 'Failed to forward details or file contains no records.'
+        ]);
+    }
+}
 
     public function export_excel()
     {
