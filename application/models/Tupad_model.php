@@ -332,7 +332,7 @@ class Tupad_model extends CI_Model {
     }
 
     public function get_multi_level_duplicates($match_level, $province = null, $city = null, $barangay = null, $file_name = null) {
-        $this->db->select('tupad_fname, tupad_mname, tupad_lname, tupad_dob_month, tupad_dob_day, tupad_dob_year, tupad_id_no, tupad_province, tupad_municipality, tupad_barangay, file_name, COUNT(*) as duplicate_count');
+        $this->db->select('tupad_fname, tupad_mname, tupad_lname, tupad_dob_month, tupad_dob_day, tupad_dob_year, tupad_province, tupad_municipality, tupad_barangay, file_name, COUNT(*) as duplicate_count');
         $this->db->from($this->table);
 
         if (!empty($province)) { $this->db->where('tupad_province', $province); }
@@ -342,7 +342,7 @@ class Tupad_model extends CI_Model {
 
         switch ($match_level) {
             case 'exact':
-                $this->db->group_by(['tupad_fname', 'tupad_mname', 'tupad_lname', 'tupad_dob_month', 'tupad_dob_day', 'tupad_dob_year', 'tupad_id_no']);
+                $this->db->group_by(['tupad_fname', 'tupad_mname', 'tupad_lname', 'tupad_dob_month', 'tupad_dob_day', 'tupad_dob_year']);
                 break;
                 
             case 'highly_possible':

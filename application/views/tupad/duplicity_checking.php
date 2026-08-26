@@ -74,7 +74,7 @@
                     <div class="mb-3">
                         <label for="match_level" class="form-label fw-semibold">Select Duplicity Match Strictness Level:</label>
                         <select name="match_level" id="match_level" class="form-select" required>
-                            <option value="exact">Exact Match (Full Name + Exact Birthdate + ID Number)</option>
+                            <option value="exact">Exact Match (Full Name + Exact Birthdate)</option>
                             <option value="highly_possible">Highly Possible Match (Full Name + Exact Birthdate)</option>
                             <option value="possible">Possible Match (First & Last Name + Birth Year & Month)</option>
                             <option value="probable">Probable Match (Last Name + Exact Birthdate)</option>
