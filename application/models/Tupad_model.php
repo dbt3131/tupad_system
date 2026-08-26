@@ -277,28 +277,28 @@ class Tupad_model extends CI_Model {
     }
         
     public function get_total_active_workers() {
-       $this->db->where('tupad_active', 1);
-       return $this->db->count_all_results('tbl_tupad_list');
-    }
-
-    public function get_total_inactive_workers() {
        $this->db->where('tupad_active', 0);
        return $this->db->count_all_results('tbl_tupad_list');
     }
 
-    public function get_provincial_worker_stats() {
-        $result = array();
-        $this->db->select('refprovince.provDesc as name, COUNT(tbl_tupad_list.id) as workers');
-        $this->db->from('tbl_tupad_list');
-        $this->db->join('refprovince', 'refprovince.provCode = tbl_tupad_list.tupad_province', 'left');
-        $this->db->where('tbl_tupad_list.tupad_active', 1);
-        $this->db->group_by('refprovince.provDesc');
-        
-        $query = $this->db->get();
-        $result = $query->result_array();
-
-        return $result;
+    public function get_total_inactive_workers() {
+       $this->db->where('tupad_active', 1);
+       return $this->db->count_all_results('tbl_tupad_list');
     }
+
+    public function get_provincial_worker_stats() {
+    $result = array();
+    $this->db->select('refprovince.provDesc as name, COUNT(tbl_tupad_list.id) as workers');
+    $this->db->from('tbl_tupad_list');
+    $this->db->join('refprovince', 'refprovince.provCode = tbl_tupad_list.tupad_province', 'left');
+    $this->db->where('tbl_tupad_list.tupad_active', 0); // <--- THIS IS THE CAUSE
+    $this->db->group_by('refprovince.provDesc');
+    
+    $query = $this->db->get();
+    $result = $query->result_array();
+
+    return $result;
+}
 
     public function get_datatables_records_by_file($file_name, $limit, $start, $search) {
         $this->_get_records_by_file_query($file_name, $search);

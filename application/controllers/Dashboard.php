@@ -44,6 +44,7 @@ class Dashboard extends CI_Controller {
         'Pampanga' => ['lat' => 15.0620, 'lng' => 120.6823, 'color' => '#f59e0b'],
         'Tarlac' => ['lat' => 15.4802, 'lng' => 120.5979, 'color' => '#8b5cf6'],
         'Zambales' => ['lat' => 15.3262, 'lng' => 120.0430, 'color' => '#ec4899']
+        
     ];
 
     $map_data = [];
