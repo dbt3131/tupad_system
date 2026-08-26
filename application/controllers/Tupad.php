@@ -895,4 +895,156 @@ public function upload_tupad_excel()
             echo json_encode(['status' => 'error', 'message' => 'Failed to update record status.']);
         }
     }
+
+
+public function export_gsis_letter_excel()
+{
+    // Capture filter dates and inputs from the GET request
+    $start_date       = $this->input->get('start_date');
+    $end_date         = $this->input->get('end_date');
+    $date_effectivity = $this->input->get('date_effectivity');
+    $no_of_days       = $this->input->get('no_of_days');
+
+    // Fallbacks if empty
+    if (empty($start_date) || empty($end_date)) {
+        $start_date = date('Y-m-01');
+        $end_date = date('Y-m-t');
+    }
+
+    if (empty($date_effectivity)) {
+        $date_effectivity = date('Y-m-d', strtotime('+1 day'));
+    }
+
+    if (empty($no_of_days)) {
+        $no_of_days = 10;
+    }
+
+    // Fetch filtered summary data from Tupad_model based on date range
+    $summary_records = $this->Tupad_model->get_gsis_summary_by_date($start_date, $end_date);
+
+    $filename = 'GSIS_Letter_Report_' . date('Ymd_His') . '.xls';
+
+    // Set headers for Excel download
+    header('Content-Type: application/vnd.ms-excel');
+    header('Content-Disposition: attachment;filename="' . $filename . '"');
+    header('Cache-Control: max-age=0');
+
+    echo '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">';
+    echo '<head><meta charset="UTF-8"><style>body { font-family: Arial, sans-serif; font-size: 10pt; }</style></head><body>';
+    
+    // Outer wrapper table to constrain width and center content neatly
+    echo '<table width="750" style="margin: 0 auto; font-family: Arial, sans-serif; font-size: 10pt;">';
+    echo '<tr><td>';
+
+    // Letter Header Date
+    echo '<br>';
+    echo '<b>' . strtoupper(date('F d, Y')) . '</b><br><br>';
+
+    // Recipient Details
+    echo '<b>Ms. KRISTINE JOI G. MACAM</b><br>';
+    echo 'Branch Manager<br>';
+    echo '<b>Government Service Insurance System (GSIS)</b><br>';
+    echo 'Sindalan, City of San Fernando, Pampanga<br><br>';
+
+    // Salutation
+    echo 'Dear Ms. Macam:<br><br>';
+
+    // Opening Paragraph
+    $formatted_effectivity = date('F d, Y', strtotime($date_effectivity));
+    echo 'May we request the attached list of our beneficiaries under Tulong Panghanapbuhay sa Ating Disadvantaged/Displaced Workers (TUPAD) Program be enrolled under GSIS group insurance effective <b>' . $formatted_effectivity . '</b> with a covered period of work of <b>' . htmlspecialchars($no_of_days) . '</b> days. Below is the summary of our remittance:<br><br>';
+
+    // Summary Table Structure with fixed column widths to prevent excessive stretching
+    echo '<table border="1" cellspacing="0" cellpadding="4" style="border-collapse: collapse; width: 100%;">';
+    echo '<colgroup>';
+    echo '<col style="width: 35px;">';
+    echo '<col style="width: 320px;">';
+    echo '<col style="width: 45px;">';
+    echo '<col style="width: 45px;">';
+    echo '<col style="width: 45px;">';
+    echo '<col style="width: 70px;">';
+    echo '<col style="width: 90px;">';
+    echo '</colgroup>';
+
+    echo '<tr style="background-color: #f8f9fa; font-weight: bold; text-align: center;">';
+    echo '<th rowspan="2" style="vertical-align: middle;">#</th>';
+    echo '<th rowspan="2" style="vertical-align: middle;">PARTICULAR</th>';
+    echo '<th colspan="3">NO. OF BENEFICIARIES</th>';
+    echo '<th rowspan="2" style="vertical-align: middle;">RATE</th>';
+    echo '<th rowspan="2" style="vertical-align: middle;">AMOUNT</th>';
+    echo '</tr>';
+    echo '<tr style="background-color: #f8f9fa; font-weight: bold; text-align: center;">';
+    echo '<th>MALE</th>';
+    echo '<th>FEMALE</th>';
+    echo '<th>TOTAL</th>';
+    echo '</tr>';
+
+    $total_male = 0;
+    $total_female = 0;
+    $total_benefs = 0;
+    $total_amount = 0;
+    $rate = 50.00; 
+    $dst = 200.00; 
+
+    if (!empty($summary_records)) {
+        $i = 1;
+        foreach ($summary_records as $row) {
+            $m = $row['male'] ?? 0;
+            $f = $row['female'] ?? 0;
+            $sub_total = $m + $f;
+            $amount = $sub_total * $rate;
+
+            $total_male += $m;
+            $total_female += $f;
+            $total_benefs += $sub_total;
+            $total_amount += $amount;
+
+            echo '<tr>';
+            echo '<td style="text-align: center;">' . $i++ . '</td>';
+            echo '<td style="word-break: break-word;">' . htmlspecialchars(($row['implementor'] ?? '') . ' (' . ($row['reference_no'] ?? '') . ')') . '</td>';
+            echo '<td style="text-align: center;">' . number_format($m) . '</td>';
+            echo '<td style="text-align: center;">' . number_format($f) . '</td>';
+            echo '<td style="text-align: center; font-weight: bold;">' . number_format($sub_total) . '</td>';
+            echo '<td style="text-align: right;">' . number_format($rate, 2) . '</td>';
+            echo '<td style="text-align: right;">' . number_format($amount, 2) . '</td>';
+            echo '</tr>';
+        }
+    } else {
+        echo '<tr><td colspan="7" style="text-align: center; padding: 10px;">No records found for the selected date range.</td></tr>';
+    }
+
+    // Totals & Calculations Row
+    echo '<tr style="font-weight: bold; background-color: #f8f9fa;">';
+    echo '<td colspan="2" style="text-align: right;">TOTAL:</td>';
+    echo '<td style="text-align: center;">' . number_format($total_male) . '</td>';
+    echo '<td style="text-align: center;">' . number_format($total_female) . '</td>';
+    echo '<td style="text-align: center;">' . number_format($total_benefs) . '</td>';
+    echo '<td></td>';
+    echo '<td style="text-align: right;">' . number_format($total_amount, 2) . '</td>';
+    echo '</tr>';
+
+    echo '<tr>';
+    echo '<td colspan="6" style="text-align: right; font-weight: bold;">DST</td>';
+    echo '<td style="text-align: right; font-weight: bold;">' . number_format($dst, 2) . '</td>';
+    echo '</tr>';
+
+    $grand_total = $total_amount + ($total_amount > 0 ? $dst : 0);
+    echo '<tr style="font-weight: bold; background-color: #e2e8f0;">';
+    echo '<td colspan="6" style="text-align: right; text-transform: uppercase;">GRAND TOTAL</td>';
+    echo '<td style="text-align: right; color: #2563eb;">' . number_format($grand_total, 2) . '</td>';
+    echo '</tr>';
+
+    echo '</table><br>';
+
+    // Closing & Sign-off block
+    echo 'Thank you and warm regards.<br><br>';
+    echo 'Very truly yours,<br><br><br>';
+    echo '<b>AURITA L. LAXAMANA</b><br>';
+    echo 'CHIEF LEO, TSSD II<br>';
+
+    echo '</td></tr>';
+    echo '</table>';
+
+    echo '</body></html>';
+    exit;
+}
 }

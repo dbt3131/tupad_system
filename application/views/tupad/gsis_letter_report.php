@@ -94,9 +94,9 @@
                     <p class="text-muted small mb-0">Filter summary records by generation dates</p>
                 </div>
                 
-                <button type="button" class="btn btn-success" onclick="window.print()">
-                    <i class="bi bi-printer me-1"></i> Print / Export Report
-                </button>
+                <a href="<?= site_url('tupad/export_gsis_letter_excel?start_date=' . urlencode($start_date) . '&end_date=' . urlencode($end_date) . '&date_effectivity=' . urlencode($date_effectivity) . '&no_of_days=' . urlencode($no_of_days)); ?>" class="btn btn-success">
+    <i class="bi bi-file-earmark-excel me-1"></i> Download Excel Report
+</a>
             </div>
 
           <!-- Date Range & Letter Parameter Filter Form -->
