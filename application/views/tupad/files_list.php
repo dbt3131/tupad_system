@@ -271,12 +271,66 @@
         </footer>
     </div>
 
+    <!-- REUSABLE DYNAMIC MODAL (REQUIRED FOR ALERTS & DUPLICATE NOTIFICATIONS) -->
+    <div class="modal fade" id="appModal" tabindex="-1" aria-labelledby="appModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold" id="appModalLabel">Notification</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="appModalBody">
+                    <!-- Dynamic message inserted here -->
+                </div>
+                <div class="modal-footer" id="appModalFooter">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Bootstrap JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
     $(document).ready(function () {
-        var uploadModal = new bootstrap.Modal(document.getElementById('uploadModal'));
+        // Helper function to display alerts/duplicate notifications via modal
+        function showCustomAlert(message, title = 'Notification') {
+            $('#appModalLabel').text(title);
+            $('#appModalBody').html(message);
+            $('#appModalFooter').html('<button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>');
+            
+            var appModalEl = document.getElementById('appModal');
+            var appModal = bootstrap.Modal.getOrCreateInstance(appModalEl);
+            appModal.show();
+        }
+
+        // Helper function to display confirmation dialogs safely using hidden event listener
+        function showCustomConfirm(message, onConfirm, title = 'Confirmation') {
+            $('#appModalLabel').text(title);
+            $('#appModalBody').html(message);
+            $('#appModalFooter').html(`
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="appModalConfirmBtn">Confirm</button>
+            `);
+            
+            var appModalEl = document.getElementById('appModal');
+            var appModal = bootstrap.Modal.getOrCreateInstance(appModalEl);
+
+            $('#appModalConfirmBtn').off('click').on('click', function() {
+                appModal.hide();
+                
+                // Wait until confirmation modal is completely hidden before executing callback (avoids modal collision)
+                $(appModalEl).one('hidden.bs.modal', function () {
+                    if (typeof onConfirm === 'function') {
+                        onConfirm();
+                        onConfirm = null; 
+                    }
+                });
+            });
+
+            appModal.show();
+        }
 
         // Sidebar toggle
         $(document).on('click', '#sidebarToggle', function (e) {
@@ -292,10 +346,12 @@
         // Modal Open Trigger
         $('#btnOpenModal').on('click', function() {
             $('#uploadBatchForm')[0].reset();
+            var uploadModalEl = document.getElementById('uploadModal');
+            var uploadModal = bootstrap.Modal.getOrCreateInstance(uploadModalEl);
             uploadModal.show();
         });
 
-        // Submit Form via AJAX
+        // Submit Form via AJAX (Upload Modal with fallback cleanups)
         $('#btnSubmitBatch').on('click', function() {
             var form = $('#uploadBatchForm')[0];
             if (!form.checkValidity()) {
@@ -316,16 +372,35 @@
                 dataType: "json",
                 success: function(response) {
                     $btn.prop('disabled', false).html('<i class="bi bi-check-circle me-1"></i> Save & Upload');
-                    if (response.status === 'success') {
+                    
+                    if (response.status === 'success' || response.success === true) {
+                        var uploadModalEl = document.getElementById('uploadModal');
+                        var uploadModal = bootstrap.Modal.getOrCreateInstance(uploadModalEl);
                         uploadModal.hide();
                         location.reload();
                     } else {
-                        alert(response.message);
+                        var errorMsg = response.message || response.error || response.msg || 'An error occurred during upload.';
+                        
+                        $('#uploadModal').modal('hide');
+                        $('.modal-backdrop').remove();
+                        $('body').removeClass('modal-open').css('overflow', '');
+
+                        showCustomAlert(errorMsg, 'Duplicate / Upload Notice');
                     }
                 },
-                error: function() {
+                error: function(xhr) {
                     $btn.prop('disabled', false).html('<i class="bi bi-check-circle me-1"></i> Save & Upload');
-                    alert('An error occurred during file upload.');
+                    
+                    var errorMsg = 'An error occurred during file upload.';
+                    if (xhr.responseJSON) {
+                        errorMsg = xhr.responseJSON.message || xhr.responseJSON.error || xhr.responseJSON.msg || errorMsg;
+                    }
+                    
+                    $('#uploadModal').modal('hide');
+                    $('.modal-backdrop').remove();
+                    $('body').removeClass('modal-open').css('overflow', '');
+
+                    showCustomAlert(errorMsg, 'System Error');
                 }
             });
         });
@@ -333,27 +408,39 @@
         // Forward to GSIS Letter Button Handler via AJAX
         $(document).on('click', '.btn-forward-gsis', function() {
             var fileName = $(this).data('filename');
-            if (!confirm('Are you sure you want to forward the details of "' + fileName + '" to the GSIS Letter table?')) {
-                return;
-            }
+            
+            showCustomConfirm('Are you sure you want to forward the details of "' + fileName + '" to the GSIS Letter table?', function() {
+                var $btn = $(document).find('.btn-forward-gsis[data-filename="' + fileName + '"]');
+                $btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-1"></span> Forwarding...');
 
-            var $btn = $(this);
-            $btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-1"></span> Forwarding...');
-
-            $.ajax({
-                url: "<?php echo site_url('tupad/forward_gsis_letter'); ?>",
-                type: "POST",
-                data: { file_name: fileName },
-                dataType: "json",
-                success: function(response) {
-                    $btn.prop('disabled', false).html('<i class="bi bi-send-fill me-1"></i> GSIS Letter');
-                    alert(response.message);
-                },
-                error: function() {
-                    $btn.prop('disabled', false).html('<i class="bi bi-send-fill me-1"></i> GSIS Letter');
-                    alert('An error occurred while forwarding details.');
-                }
-            });
+                $.ajax({
+                    url: "<?php echo site_url('tupad/forward_gsis_letter'); ?>",
+                    type: "POST",
+                    data: { file_name: fileName },
+                    dataType: "json",
+                    success: function(response) {
+                        $btn.prop('disabled', false).html('<i class="bi bi-send-fill me-1"></i> GSIS Letter');
+                        
+                        var isSuccess = (response.status === 'success' || response.success === true || response.status === true);
+                        
+                        if (isSuccess) {
+                            var msg = response.message || response.msg || 'Successfully forwarded to GSIS Letter.';
+                            showCustomAlert(msg, 'GSIS Forward');
+                        } else {
+                            var warningMsg = response.message || response.error || response.msg || 'Duplicate or notice encountered.';
+                            showCustomAlert(warningMsg, 'Duplicate / Notice');
+                        }
+                    },
+                    error: function(xhr) {
+                        $btn.prop('disabled', false).html('<i class="bi bi-send-fill me-1"></i> GSIS Letter');
+                        var errorMsg = 'An error occurred while forwarding details.';
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errorMsg = xhr.responseJSON.message;
+                        }
+                        showCustomAlert(errorMsg, 'System Error');
+                    }
+                });
+            }, 'Confirm Forward');
         });
 
         const table = $('#filesTable').DataTable({
