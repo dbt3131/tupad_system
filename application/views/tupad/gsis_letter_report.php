@@ -175,7 +175,7 @@
                                 $total_benefs = 0;
                                 $total_amount = 0;
                                 $rate = 50.00; 
-                                $dst = 200.00; 
+                                
 
                                 if (!empty($summary_records)): 
                                     $i = 1;
@@ -189,6 +189,28 @@
                                         $total_female += $f;
                                         $total_benefs += $sub_total;
                                         $total_amount += $amount;
+
+     if($sub_total=='1'){
+                $dst = 0;
+                }
+            elseif ($sub_total >= 2 && $sub_total <= 4) {
+                $dst = 20.00;
+            }
+            elseif ($sub_total >= 5 && $sub_total <= 7) {
+                $dst = 50.00;
+            }
+            elseif ($sub_total >= 8 && $sub_total <= 11) {
+                $dst = 100.00;
+            }
+            elseif ($sub_total >= 12 && $sub_total <= 15) {
+                $dst = 150.00;
+            }
+             elseif ($sub_total >= 16) {
+                $dst = 200.00;
+            }
+
+
+
                                 ?>
                                     <tr>
                                         <td><?= $i++; ?></td>
