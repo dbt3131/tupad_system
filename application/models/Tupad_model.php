@@ -274,9 +274,9 @@ class Tupad_model extends CI_Model {
                            refbrgy.brgyDesc as barangay_name');
         $this->db->from($this->table);
         $this->db->join('users', 'users.id = tbl_tupad_list.user_id', 'left');
-        //$this->db->join('refprovince', 'refprovince.provCode = tbl_tupad_list.tupad_province', 'left');
-       // $this->db->join('refcitymun', 'refcitymun.cityCode = tbl_tupad_list.tupad_municipality', 'left');
-        //$this->db->join('refbrgy', 'refbrgy.brgyCode = tbl_tupad_list.tupad_barangay', 'left');
+        $this->db->join('refprovince', 'refprovince.provCode = tbl_tupad_list.tupad_province', 'left');
+        $this->db->join('refcitymun', 'refcitymun.cityCode = tbl_tupad_list.tupad_municipality', 'left');
+        $this->db->join('refbrgy', 'refbrgy.brgyCode = tbl_tupad_list.tupad_barangay', 'left');
         $this->db->where('tbl_tupad_list.file_name', urldecode($file_name));
 
         if (!empty($search)) {
