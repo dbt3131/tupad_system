@@ -350,16 +350,22 @@ public function upload_tupad_excel()
     // 3. DATABASE BATCH INSERTION
     if (!empty($insertData)) {
         $inserted = $this->Tupad_model->insert_batch($insertData);
-
+        
         if ($inserted) {
+            $this->load->model('Activity_Model'); // Ensure model is loaded if not autoloaded
+            $user_id = $this->session->userdata('user_id');
+            $this->Activity_Model->log_activity($user_id, 1);    
+
             $this->session->set_flashdata('success', 'Successfully uploaded ' . count($insertData) . ' record(s).');
             echo json_encode(['status' => 'success', 'message' => 'Batch processing completed.']);
+            
         } else {
             echo json_encode(['status' => 'error', 'message' => 'Failed to save records into database.']);
         }
     } else {
         echo json_encode(['status' => 'error', 'message' => 'The uploaded file was empty or contained no valid records.']);
     }
+    
 }
 
 

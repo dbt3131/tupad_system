@@ -229,6 +229,14 @@ $is_payroll_active  = in_array($current_controller, ['tupad_payrolls']);
       </a>
     </li>
 
+     <li>
+      <a href="<?= site_url('activity/activity_trail'); ?>" 
+         class="nav-link <?= ($current_controller === 'activity' || $current_controller === '') ? 'active' : ''; ?>">
+        <i class="bi bi-speedometer2"></i>
+        <span>Activities</span>
+      </a>
+    </li>
+
     <!-- TUPAD Workers Dropdown -->
  <li class="nav-item dropdown">
       <a href="#tupadSubmenu" 
