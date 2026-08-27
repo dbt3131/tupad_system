@@ -959,13 +959,16 @@ public function export_gsis_letter_excel()
     echo '<head><meta charset="UTF-8"><style>body { font-family: Arial, sans-serif; font-size: 10pt; }</style></head><body>';
     
     // Outer wrapper table to constrain width and center content neatly
-    echo '<table width="750" style="margin: 0 auto; font-family: Arial, sans-serif; font-size: 10pt;">';
+    echo '<table width="750" border="0" style="margin: 0 auto; font-family: Arial, sans-serif; font-size: 10pt;">';
+    
+    // Letter Header Date - Forced to Text (\@) and Left Alignment
+    $current_formatted_date = strtoupper(date('F d, Y'));
+    echo '<tr><td align="left" style="text-align: left; font-weight: bold; mso-number-format:\'\@\'; padding-top: 10px; padding-bottom: 15px;">';
+    echo $current_formatted_date;
+    echo '</td></tr>';
+
     echo '<tr><td>';
-
-    // Letter Header Date
     echo '<br>';
-    echo '<b>' . strtoupper(date('F d, Y')) . '</b><br><br>';
-
     // Recipient Details
     echo '<b>Ms. KRISTINE JOI G. MACAM</b><br>';
     echo 'Branch Manager<br>';
@@ -1073,7 +1076,6 @@ public function export_gsis_letter_excel()
     echo '</body></html>';
     exit;
 }
-
 public function delete_gsis_letter()
 {
     if (!$this->session->userdata('logged_in')) {
