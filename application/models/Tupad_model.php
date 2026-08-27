@@ -666,16 +666,22 @@ class Tupad_model extends CI_Model {
         $this->db->where('id', $id);
         return $this->db->update($this->table, ['tupad_active' => 1]);
     }
+
 public function get_gsis_summary_by_date($start_date, $end_date)
 {
-    $this->db->select('*');
-    $this->db->from('gsis_letters');
-    $this->db->where('date_generate >=', $start_date);
-    $this->db->where('date_generate <=', $end_date);
-    $this->db->order_by('date_generate', 'DESC');
+    $this->db->select('reference_no, area_of_implementation as implementor, 
+        SUM(CASE WHEN tupad_gender = "M" OR tupad_gender = "MALE" THEN 1 ELSE 0 END) as male,
+        SUM(CASE WHEN tupad_gender = "F" OR tupad_gender = "FEMALE" THEN 1 ELSE 0 END) as female
+    ');
+    $this->db->from('tbl_tupad_list'); // or your table name
+    $this->db->where('DATE(uploaded_at) >=', $start_date);
+    $this->db->where('DATE(uploaded_at) <=', $end_date);
     
-    $query = $this->db->get();
-    return $query->result_array();
+    // Add this line to only include records where tupad_active is 0
+    $this->db->where('tupad_active', 0); 
+
+    $this->db->group_by('reference_no, area_of_implementation');
+    return $this->db->get()->result_array();
 }
 
 public function remove_from_gsis_letter($file_name) {

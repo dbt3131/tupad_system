@@ -1040,6 +1040,7 @@ public function export_gsis_letter_excel()
     $total_benefs = 0;
     $total_amount = 0;
     $rate = 50.00; 
+    $dst = 0;
     
     if (!empty($summary_records)) {
         $i = 1;
@@ -1071,6 +1072,8 @@ public function export_gsis_letter_excel()
             }
              elseif ($sub_total >= 16) {
                 $dst = 200.00;
+            }else{
+                $dst = 0;
             }
 
 

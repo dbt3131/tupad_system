@@ -175,6 +175,8 @@
                                 $total_benefs = 0;
                                 $total_amount = 0;
                                 $rate = 50.00; 
+                                $dst = 0;
+                                
                                 
 
                                 if (!empty($summary_records)): 
@@ -207,6 +209,8 @@
             }
              elseif ($sub_total >= 16) {
                 $dst = 200.00;
+            }else{
+                $dst = 0;
             }
 
 
