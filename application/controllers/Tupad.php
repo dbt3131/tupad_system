@@ -905,6 +905,11 @@ $actionButtons = '
 
         echo '</table>';
         echo '</body></html>';
+
+            $this->load->model('Activity_Model'); // Ensure model is loaded if not autoloaded
+            $user_id = $this->session->userdata('user_id');
+            $this->Activity_Model->log_activity($user_id, 2);  
+
         exit;
     }
 
