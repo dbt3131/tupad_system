@@ -23,5 +23,38 @@ class Activity_Model extends CI_Model {
         
         return $this->db->insert('audit_trail', $data);
     }
+
+public function get_activity_trail() {
+        $sql = "SELECT 
+                    audit_trail.trail_id, 
+                    audit_trail.activity_date, 
+                    users.reg_fname, 
+                    audit_trail_code.activity_desc
+                FROM audit_trail
+                LEFT JOIN users ON users.id = audit_trail.user_id
+                LEFT JOIN audit_trail_code ON audit_trail_code.id = audit_trail.activity_id
+                ORDER BY audit_trail.activity_date DESC";
+
+        $query = $this->db->query($sql);
+        return $query->result_array();
+    }
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }
 

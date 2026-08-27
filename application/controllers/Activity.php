@@ -16,7 +16,9 @@ class Activity extends CI_Controller {
     }
 
        public function activity_trail() {
-        $this->load->view('users/user_activity');
+        $data['activities'] = $this->Activity_Model->get_activity_trail();
+        
+        $this->load->view('users/user_activity', $data);
     }
 
 

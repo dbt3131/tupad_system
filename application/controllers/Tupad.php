@@ -735,6 +735,9 @@ $actionButtons = '
     $result = $this->Tupad_model->forward_to_gsis_letter($file_name, $user_name);
 
     if ($result === 'success') {
+            $this->load->model('Activity_Model'); // Ensure model is loaded if not autoloaded
+            $user_id = $this->session->userdata('user_id');
+            $this->Activity_Model->log_activity($user_id, 3); 
         echo json_encode([
             'status' => 'success', 
             'message' => 'Details successfully forwarded to GSIS Letter table.'
@@ -1103,6 +1106,9 @@ public function delete_gsis_letter()
     $result = $this->Tupad_model->remove_from_gsis_letter($file_name);
 
     if ($result === 'success') {
+             $this->load->model('Activity_Model'); // Ensure model is loaded if not autoloaded
+            $user_id = $this->session->userdata('user_id');
+            $this->Activity_Model->log_activity($user_id, 4); 
         echo json_encode([
             'status' => 'success', 
             'message' => 'GSIS Letter entry successfully removed. You can now forward it again.'

@@ -232,7 +232,7 @@ $is_payroll_active  = in_array($current_controller, ['tupad_payrolls']);
      <li>
       <a href="<?= site_url('activity/activity_trail'); ?>" 
          class="nav-link <?= ($current_controller === 'activity' || $current_controller === '') ? 'active' : ''; ?>">
-        <i class="bi bi-speedometer2"></i>
+        <i class="bi bi-clock-history text-primary"></i>
         <span>Activities</span>
       </a>
     </li>
@@ -297,7 +297,7 @@ $is_payroll_active  = in_array($current_controller, ['tupad_payrolls']);
          class="nav-link <?= $is_alloc_active ? '' : 'collapsed'; ?>" 
          data-bs-toggle="collapse" 
          aria-expanded="<?= $is_alloc_active ? 'true' : 'false'; ?>">
-        <i class="bi bi-journal-text"></i>
+        <i class="bi bi-cash-stack"></i>
         <span>Tupad Allocations</span>
         <i class="bi bi-chevron-down ms-auto dropdown-chevron"></i>
       </a>
