@@ -1055,22 +1055,22 @@ public function export_gsis_letter_excel()
             $total_benefs += $sub_total;
             $total_amount += $amount;
             
-            if($sub_total=='1'){
+            if($total_benefs=='1'){
                 $dst = 0;
                 }
-            elseif ($sub_total >= 2 && $sub_total <= 4) {
+            elseif ($total_benefs >= 2 && $total_benefs <= 4) {
                 $dst = 20.00;
             }
-            elseif ($sub_total >= 5 && $sub_total <= 7) {
+            elseif ($total_benefs >= 5 && $total_benefs <= 7) {
                 $dst = 50.00;
             }
-            elseif ($sub_total >= 8 && $sub_total <= 11) {
+            elseif ($total_benefs >= 8 && $total_benefs <= 11) {
                 $dst = 100.00;
             }
-            elseif ($sub_total >= 12 && $sub_total <= 15) {
+            elseif ($total_benefs >= 12 && $total_benefs <= 15) {
                 $dst = 150.00;
             }
-             elseif ($sub_total >= 16) {
+             elseif ($total_benefs >= 16) {
                 $dst = 200.00;
             }else{
                 $dst = 0;
