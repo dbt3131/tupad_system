@@ -354,7 +354,7 @@ public function upload_tupad_excel()
         if ($inserted) {
             $this->load->model('Activity_Model'); // Ensure model is loaded if not autoloaded
             $user_id = $this->session->userdata('user_id');
-            $this->Activity_Model->log_activity($user_id, 1);    
+            $this->Activity_Model->log_activity($reference_no, $user_id, 1);    
 
             $this->session->set_flashdata('success', 'Successfully uploaded ' . count($insertData) . ' record(s).');
             echo json_encode(['status' => 'success', 'message' => 'Batch processing completed.']);
@@ -737,7 +737,7 @@ $actionButtons = '
     if ($result === 'success') {
             $this->load->model('Activity_Model'); // Ensure model is loaded if not autoloaded
             $user_id = $this->session->userdata('user_id');
-            $this->Activity_Model->log_activity($user_id, 3); 
+            $this->Activity_Model->log_activity($file_name, $user_id, 3); 
         echo json_encode([
             'status' => 'success', 
             'message' => 'Details successfully forwarded to GSIS Letter table.'
@@ -911,7 +911,7 @@ $actionButtons = '
 
             $this->load->model('Activity_Model'); // Ensure model is loaded if not autoloaded
             $user_id = $this->session->userdata('user_id');
-            $this->Activity_Model->log_activity($user_id, 2);  
+            $this->Activity_Model->log_activity($reference_no, $user_id, 2);  
 
         exit;
     }
@@ -1090,35 +1090,23 @@ public function export_gsis_letter_excel()
     echo '</body></html>';
     exit;
 }
-public function delete_gsis_letter()
-{
-    if (!$this->session->userdata('logged_in')) {
-        echo json_encode(['status' => 'error', 'message' => 'Unauthorized access.']);
-        return;
-    }
-
+public function delete_gsis_letter() {
+    // Retrieve the file name from the AJAX POST request
     $file_name = $this->input->post('file_name');
-    if (empty($file_name)) {
-        echo json_encode(['status' => 'error', 'message' => 'No file specified.']);
-        return;
+
+    if (!$file_name) {
+        return $this->output
+            ->set_content_type('application/json')
+            ->set_output(json_encode(['status' => 'error', 'message' => 'No file name provided.']));
     }
 
-    $result = $this->Tupad_model->remove_from_gsis_letter($file_name);
+    // Your delete logic here...
+    $this->Tupad_model->remove_from_gsis_letter($file_name);
 
-    if ($result === 'success') {
-             $this->load->model('Activity_Model'); // Ensure model is loaded if not autoloaded
-            $user_id = $this->session->userdata('user_id');
-            $this->Activity_Model->log_activity($user_id, 4); 
-        echo json_encode([
-            'status' => 'success', 
-            'message' => 'GSIS Letter entry successfully removed. You can now forward it again.'
-        ]);
-    } else {
-        echo json_encode([
-            'status' => 'error', 
-            'message' => 'Failed to remove the GSIS Letter entry.'
-        ]);
-    }
+    // Return JSON success response
+    return $this->output
+        ->set_content_type('application/json')
+        ->set_output(json_encode(['status' => 'success', 'message' => 'Successfully removed.']));
 }
 
 

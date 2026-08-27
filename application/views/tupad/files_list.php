@@ -454,36 +454,57 @@
             }, 'Confirm Forward');
         });
 
-        // Revert / Delete GSIS Letter Button Handler via AJAX
-        $(document).on('click', '.btn-delete-gsis', function() {
-            var $btn = $(this);
-            var fileName = $btn.data('filename');
-            
-            showCustomConfirm('Are you sure you want to remove "' + fileName + '" from the GSIS Letter table? This will revert its status.', function() {
-                $btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span>');
 
-                $.ajax({
-                    url: "<?php echo site_url('tupad/delete_gsis_letter'); ?>",
-                    type: "POST",
-                    data: { file_name: fileName },
-                    dataType: "json",
-                    success: function(response) {
-                        if (response.status === 'success' || response.success === true) {
-                            showCustomAlert(response.message, 'Success');
-                            // Reload DataTables to refresh button states back to "GSIS Letter"
-                            $('#filesTable').DataTable().ajax.reload(null, false);
-                        } else {
-                            $btn.prop('disabled', false).html('<i class="bi bi-trash-fill"></i>');
-                            showCustomAlert(response.message || 'Failed to delete GSIS entry.', 'Error');
-                        }
-                    },
-                    error: function(xhr) {
-                        $btn.prop('disabled', false).html('<i class="bi bi-trash-fill"></i>');
-                        showCustomAlert('An error occurred while removing the GSIS entry.', 'System Error');
-                    }
-                });
-            }, 'Confirm Revert');
+
+
+ // Revert / Delete GSIS Letter Button Handler via AJAX
+$(document).on('click', '.btn-delete-gsis', function() {
+    var $btn = $(this);
+    var fileName = $btn.data('filename');
+    
+    showCustomConfirm('Are you sure you want to remove "' + fileName + '" from the GSIS Letter table? This will revert its status.', function() {
+        $btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span>');
+
+        $.ajax({
+            url: "<?php echo site_url('tupad/delete_gsis_letter'); ?>",
+            type: "POST",
+            data: { file_name: fileName },
+            dataType: "json",
+            success: function(response) {
+                var isSuccess = (response.status === 'success' || response.success === true || response.status === true);
+                
+                if (isSuccess) {
+                    showCustomAlert(response.message || 'Successfully removed.', 'Success');
+                    $('#filesTable').DataTable().ajax.reload(null, false);
+                } else {
+                    $btn.prop('disabled', false).html('<i class="bi bi-trash-fill"></i>');
+                    showCustomAlert(response.message || response.error || 'Failed to delete GSIS entry.', 'Error');
+                }
+            },
+            error: function(xhr, status, error) {
+                $btn.prop('disabled', false).html('<i class="bi bi-trash-fill"></i>');
+                
+                // --- DEBUGGING STEP ---
+                console.log("AJAX Error Status: ", status);
+                console.log("HTTP Error: ", error);
+                console.log("Server Response Text: ", xhr.responseText);
+                
+                // This will display the actual PHP error or HTML trace on your screen temporarily
+                showCustomAlert('DEBUG ERROR: ' + (xhr.responseText ? xhr.responseText.substring(0, 150) : error), 'System Error');
+            }
         });
+    }, 'Confirm Revert');
+});
+
+
+
+
+
+
+
+
+
+
 
         const table = $('#filesTable').DataTable({
             processing: true,
