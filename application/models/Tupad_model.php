@@ -125,37 +125,43 @@ class Tupad_model extends CI_Model {
         return $this->db->count_all($this->table);
     }
 
-    public function count_filtered_records($search, $province, $city, $barangay, $file_name = null) {
-        $this->db->from($this->table);
-        
-        if (!empty($file_name)) {
-            $this->db->where('file_name', urldecode($file_name));
-        }
-
-        if (!empty($province)) {
-            $this->db->where('tupad_province', $province);
-        }
-        if (!empty($city)) {
-            $this->db->where('tupad_municipality', $city);
-        }
-        if (!empty($barangay)) {
-            $this->db->where('tupad_barangay', $barangay);
-        }
-
-        if (!empty($search)) {
-            $keywords = explode(' ', trim($search));
-            foreach ($keywords as $keyword) {
-                if (!empty($keyword)) {
-                    $escaped = $this->db->escape_like_str($keyword);
-                    $this->db->where("(tupad_id_no LIKE '%{$escaped}%' OR tupad_fname LIKE '%{$escaped}%' OR tupad_lname LIKE '%{$escaped}%')", NULL, FALSE);
-                }
-            }
-        }
-
-        return $this->db->count_all_results();
+   public function count_filtered_records($search, $province, $city, $barangay, $file_name = null) {
+    $this->db->from($this->table);
+    // Add missing joins so location descriptions can be searched
+    $this->db->join('refprovince', 'refprovince.provCode = tbl_tupad_list.tupad_province', 'left');
+    $this->db->join('refcitymun', 'refcitymun.cityCode = tbl_tupad_list.tupad_municipality', 'left');
+    $this->db->join('refbrgy', 'refbrgy.brgyCode = tbl_tupad_list.tupad_barangay', 'left');
+    
+    if (!empty($file_name)) {
+        $this->db->where('file_name', urldecode($file_name));
     }
 
+    if (!empty($province)) {
+        $this->db->where('tupad_province', $province);
+    }
+    if (!empty($city)) {
+        $this->db->where('tupad_municipality', $city);
+    }
+    if (!empty($barangay)) {
+        $this->db->where('tupad_barangay', $barangay);
+    }
+
+    if (!empty($search)) {
+        $keywords = explode(' ', trim($search));
+        foreach ($keywords as $keyword) {
+            if (!empty($keyword)) {
+                $escaped = $this->db->escape_like_str($keyword);
+                // Include location description columns in the search query
+                $this->db->where("(tupad_id_no LIKE '%{$escaped}%' OR tupad_fname LIKE '%{$escaped}%' OR tupad_mname LIKE '%{$escaped}%' OR tupad_lname LIKE '%{$escaped}%' OR refprovince.provDesc LIKE '%{$escaped}%' OR refcitymun.citymunDesc LIKE '%{$escaped}%' OR refbrgy.brgyDesc LIKE '%{$escaped}%')", NULL, FALSE);
+            }
+        }
+    }
+
+    return $this->db->count_all_results();
+}
+
     public function get_datatables_records($limit, $start, $search, $province, $city, $barangay) {
+        
         $this->_get_records_query($search, $province, $city, $barangay);
         
         if ($limit != -1) {
@@ -192,7 +198,7 @@ class Tupad_model extends CI_Model {
             $this->db->where('tbl_tupad_list.file_name', urldecode($file_name));
         }
 
-        if (!empty($search)) {
+     if (!empty($search)) {
             $keywords = explode(' ', trim($search));
             $where_clauses = array();
 
@@ -203,7 +209,10 @@ class Tupad_model extends CI_Model {
                         tbl_tupad_list.tupad_id_no LIKE '%{$escaped}%' OR 
                         tbl_tupad_list.tupad_fname LIKE '%{$escaped}%' OR 
                         tbl_tupad_list.tupad_mname LIKE '%{$escaped}%' OR 
-                        tbl_tupad_list.tupad_lname LIKE '%{$escaped}%'
+                        tbl_tupad_list.tupad_lname LIKE '%{$escaped}%' OR
+                        refprovince.provDesc LIKE '%{$escaped}%' OR
+                        refcitymun.citymunDesc LIKE '%{$escaped}%' OR
+                        refbrgy.brgyDesc LIKE '%{$escaped}%'
                     )";
                 }
             }
