@@ -657,7 +657,29 @@ public function get_gsis_summary_by_date($start_date, $end_date)
     return $query->result_array();
 }
 
-
+public function remove_from_gsis_letter($file_name) {
+    $file_name = urldecode($file_name);
+    
+    // Fetch file details to identify the exact match in gsis_letters
+    $this->db->where('file_name', $file_name);
+    $records = $this->db->get($this->table)->result_array();
+    
+    if (empty($records)) {
+        return 'failed';
+    }
+    
+    $first = $records[0];
+    $area_of_implementation = $first['area_of_implementation'] ?? '';
+    $adl_no                 = $first['adl_no'] ?? '';
+    $reference_no           = $first['reference_no'] ?? '';
+    
+    // Delete from gsis_letters table based on matching criteria
+    $this->db->where('reference_no', $reference_no);
+    $this->db->where('adl_no', $adl_no);
+    $this->db->where('implementor', $area_of_implementation);
+    
+    return $this->db->delete('gsis_letters') ? 'success' : 'failed';
+}
 
 
 

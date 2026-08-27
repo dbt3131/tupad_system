@@ -661,9 +661,14 @@ $is_forwarded = !empty($f['is_forwarded']) && $f['is_forwarded'] == 1;
 
 if ($is_forwarded) {
     $gsisButton = '
-        <button type="button" class="btn btn-sm btn-secondary disabled" disabled>
-            <i class="bi bi-check-circle-fill me-1"></i> GSIS Letter
-        </button>';
+        <div class="btn-group" role="group">
+            <button type="button" class="btn btn-sm btn-secondary disabled" disabled>
+                <i class="bi bi-check-circle-fill me-1"></i> Forwarded
+            </button>
+            <button type="button" class="btn btn-sm btn-danger btn-delete-gsis text-white" data-filename="' . htmlspecialchars($f['file_name']) . '" title="Revert GSIS Forward">
+                <i class="bi bi-trash-fill"></i>
+            </button>
+        </div>';
 } else {
     $gsisButton = '
         <button type="button" class="btn btn-sm btn-warning btn-forward-gsis text-dark fw-semibold" data-filename="' . htmlspecialchars($f['file_name']) . '">
@@ -1068,4 +1073,38 @@ public function export_gsis_letter_excel()
     echo '</body></html>';
     exit;
 }
+
+public function delete_gsis_letter()
+{
+    if (!$this->session->userdata('logged_in')) {
+        echo json_encode(['status' => 'error', 'message' => 'Unauthorized access.']);
+        return;
+    }
+
+    $file_name = $this->input->post('file_name');
+    if (empty($file_name)) {
+        echo json_encode(['status' => 'error', 'message' => 'No file specified.']);
+        return;
+    }
+
+    $result = $this->Tupad_model->remove_from_gsis_letter($file_name);
+
+    if ($result === 'success') {
+        echo json_encode([
+            'status' => 'success', 
+            'message' => 'GSIS Letter entry successfully removed. You can now forward it again.'
+        ]);
+    } else {
+        echo json_encode([
+            'status' => 'error', 
+            'message' => 'Failed to remove the GSIS Letter entry.'
+        ]);
+    }
+}
+
+
+
+
+
+
 }
