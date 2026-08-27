@@ -755,6 +755,8 @@ $actionButtons = '
     }
 }
 
+
+//GPAI EXPORT BUTTON
     public function export_excel()
     {
         $file_name = $this->input->get('file_name');
@@ -778,11 +780,16 @@ $actionButtons = '
 
         foreach ($records as $row) {
             $gender = strtoupper(trim($row['tupad_gender'] ?? ''));
+
             if ($gender === 'M' || $gender === 'MALE') {
                 $maleCount++;
+               
             } elseif ($gender === 'F' || $gender === 'FEMALE') {
                 $femaleCount++;
+             
             }
+
+            
             if (!empty($row['barangay_name'])) {
                 $brgySet[$row['barangay_name']] = true;
             }
@@ -850,11 +857,17 @@ $actionButtons = '
             } else {
                 $age = $row['tupad_age'] ?? '';
             }
-
+            
+            $gender = strtoupper(trim($row['tupad_gender'] ?? ''));
+                if ($gender === 'M' || $gender === 'MALE') {
+                $display_gender = 'M';
+            } elseif ($gender === 'F' || $gender === 'FEMALE') {
+                $display_gender = 'F';
+            }
             echo '<tr>';
             echo '<td style="text-align: center;">' . $no++ . '</td>';
             echo '<td>' . htmlspecialchars($fullName) . '</td>';
-            echo '<td style="text-align: center;">' . htmlspecialchars($row['tupad_gender']) . '</td>';
+            echo '<td style="text-align: center;">' . htmlspecialchars($display_gender) . '</td>';
             echo '<td style="text-align: center;">' . htmlspecialchars($dob) . '</td>';
             echo '<td style="text-align: center;">' . htmlspecialchars($age) . '</td>'; 
             echo '<td>' . htmlspecialchars($row['tupad_street']) . '</td>';
@@ -937,6 +950,7 @@ $actionButtons = '
     }
 
 
+//EXPORT GSIS LETTER
 public function export_gsis_letter_excel()
 {
     // Capture filter dates and inputs from the GET request
