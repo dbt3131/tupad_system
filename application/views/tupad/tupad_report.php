@@ -68,42 +68,91 @@
             <div class="container-fluid px-0">
                 <div class="row mb-4">
                     <div class="col-12">
-                        <h3 class="fw-bold mb-1">Activity History</h3>
-                        <p class="text-muted">All activities executed in the system are recorded here.</p>
+                        <h3 class="fw-bold mb-1">Reporting Page</h3>
+                        <p class="text-muted">All reports can be generated here.</p>
                     </div>
                 </div>
 
                 <!-- Modern DataTables Card -->
                 <div class="card shadow-sm">
                     <div class="card-body">
-                        <div class="table-responsive">
-                            <!-- Temporary Debug Check -->
+               
+<!-- Filter Form Section -->
+<form method="GET" action="<?= site_url('tupad_report/tupad_summ_report'); ?>" class="row g-3 mb-4 no-print">
+    <div class="col-md-3">
+        <label for="start_date" class="form-label fw-semibold small">Start Date</label>
+        <input type="date" class="form-control form-control-sm" id="start_date" name="start_date" value="<?= isset($start_date) ? html_escape($start_date) : '' ?>">
+    </div>
+    <div class="col-md-3">
+        <label for="end_date" class="form-label fw-semibold small">End Date</label>
+        <input type="date" class="form-control form-control-sm" id="end_date" name="end_date" value="<?= isset($end_date) ? html_escape($end_date) : '' ?>">
+    </div>
+    <div class="col-md-4 d-flex align-items-end">
+        <button type="submit" class="btn btn-primary btn-sm me-2"><i class="bi bi-filter"></i> Generate Report</button>
+        
+        <!-- Export Excel Button -->
+        <a href="<?= site_url('tupad_report/export_excel') ?>?start_date=<?= isset($start_date) ? urlencode($start_date) : '' ?>&end_date=<?= isset($end_date) ? urlencode($end_date) : '' ?>" class="btn btn-success btn-sm">
+            <i class="bi bi-file-earmark-excel"></i> Export Excel (.xlsx)
+        </a>
+    </div>
+</form>
 
-                            <table id="activityTable" class="table table-striped table-hover align-middle w-100">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th class="py-3">#</th>
-                                        <th class="py-3">User First Name</th>
-                                        <th class="py-3">Activity Description</th>
-                                         <th class="py-3">Remarks</th>
-                                        <th class="py-3">Activity Date</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-    <?php if (!empty($activities) && is_array($activities)): ?>
-        <?php $no = 1; foreach ($activities as $row): ?>
+<!-- Report Table Matching Excel Template -->
+<div class="table-responsive">
+    <table class="table table-bordered table-striped align-middle text-center small">
+        <thead class="table-primary text-uppercase">
             <tr>
-                <td><?= $no++; ?></td>
-                <td><?= htmlspecialchars($row['reg_fname'] ?? ''); ?></td>
-                <td><?= htmlspecialchars($row['activity_desc'] ?? ''); ?></td>
-                 <td><?= htmlspecialchars($row['remarks'] ?? ''); ?></td>
-                <td><?= htmlspecialchars($row['activity_date'] ?? ''); ?></td>
+                <th class="text-start">PROVINCE</th>
+                <?php if (!empty($report_data['bene_types'])): ?>
+                    <?php foreach ($report_data['bene_types'] as $type): ?>
+                        <th><?= html_escape($type['bene_type_desc']); ?></th>
+                    <?php endforeach; ?>
+                <?php endif; ?>
             </tr>
-        <?php endforeach; ?>
-    <?php endif; ?>
-</tbody>
-                            </table>
-                        </div>
+        </thead>
+        <tbody>
+            <?php 
+            // Initialize column totals array
+            $column_totals = [];
+            if (!empty($report_data['bene_types'])) {
+                foreach ($report_data['bene_types'] as $type) {
+                    $column_totals[$type['bene_type_id']] = 0;
+                }
+            }
+
+            if (!empty($report_data['provinces'])): 
+                foreach ($report_data['provinces'] as $prov): 
+            ?>
+                <tr>
+                    <td class="fw-bold text-start"><?= html_escape($prov['provDesc']); ?></td>
+                    <?php 
+                    foreach ($report_data['bene_types'] as $type): 
+                        $count = isset($report_data['matrix'][$prov['provCode']][$type['bene_type_id']]) 
+                                 ? $report_data['matrix'][$prov['provCode']][$type['bene_type_id']] 
+                                 : 0;
+                        
+                        // Accumulate column totals
+                        $column_totals[$type['bene_type_id']] += $count;
+                    ?>
+                        <td><?= $count > 0 ? $count : '-'; ?></td>
+                    <?php endforeach; ?>
+                </tr>
+            <?php 
+                endforeach; 
+            endif; 
+            ?>
+        </tbody>
+        <tfoot class="table-secondary fw-bold">
+            <tr>
+                <td class="text-start">TOTAL:</td>
+                <?php foreach ($report_data['bene_types'] as $type): ?>
+                    <td><?= $column_totals[$type['bene_type_id']] > 0 ? $column_totals[$type['bene_type_id']] : '-'; ?></td>
+                <?php endforeach; ?>
+            </tr>
+        </tfoot>
+    </table>
+</div>
+
                     </div>
                 </div>
 

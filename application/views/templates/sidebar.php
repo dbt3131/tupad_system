@@ -259,17 +259,6 @@ $is_payroll_active  = in_array($current_controller, ['tupad_payrolls']);
         </li>
       </ul>
 
-       <ul class="collapse submenu list-unstyled <?= $is_tupad_active ? 'show' : ''; ?>" id="tupadSubmenu">
-        <li>
-          <a href="<?= site_url('tupad/gsis_letter'); ?>" 
-             class="nav-sub-link <?= ($current_controller === 'tupad' && $current_method === 'gsis_letter') ? 'active' : ''; ?>">
-            <i class="bi bi-circle"></i>
-            <span>GSIS Letters</span>
-          </a>
-        </li>
-      </ul>
-
-
       <ul class="collapse submenu list-unstyled <?= $is_tupad_active ? 'show' : ''; ?>" id="tupadSubmenu">
         <li>
           <a href="<?= site_url('tupad/view_files_official'); ?>" 
@@ -289,6 +278,28 @@ $is_payroll_active  = in_array($current_controller, ['tupad_payrolls']);
           </a>
         </li>
       </ul>
+
+       <ul class="collapse submenu list-unstyled <?= $is_tupad_active ? 'show' : ''; ?>" id="tupadSubmenu">
+        <li>
+          <a href="<?= site_url('tupad/gsis_letter'); ?>" 
+             class="nav-sub-link <?= ($current_controller === 'tupad' && $current_method === 'gsis_letter') ? 'active' : ''; ?>">
+            <i class="bi bi-circle"></i>
+            <span>GSIS Letters</span>
+          </a>
+        </li>
+      </ul>
+
+       <ul class="collapse submenu list-unstyled <?= $is_tupad_active ? 'show' : ''; ?>" id="tupadSubmenu">
+        <li>
+          <a href="<?= site_url('tupad_report/tupad_summ_report'); ?>" 
+             class="nav-sub-link <?= ($current_controller === 'tupad_report' && $current_method === 'tupad_summ_report') ? 'active' : ''; ?>">
+            <i class="bi bi-circle"></i>
+            <span>Total Summary Report</span>
+          </a>
+        </li>
+      </ul>
+
+
 </li>
 
 <!-- TUPAD Workers Dropdown -->

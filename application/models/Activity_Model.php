@@ -30,6 +30,7 @@ public function get_activity_trail() {
                     audit_trail.trail_id, 
                     audit_trail.activity_date, 
                     users.reg_fname, 
+                    audit_trail.remarks,
                     audit_trail_code.activity_desc
                 FROM audit_trail
                 LEFT JOIN users ON users.id = audit_trail.user_id
