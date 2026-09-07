@@ -88,7 +88,8 @@
             <div class="container-fluid px-0">
                 <div class="form-card p-4 p-md-5">
                     
-                    <form action="<?= site_url('adl/store'); ?>" method="POST">
+                    <!-- Form with submission prevention binding -->
+                    <form action="<?= site_url('adl/store'); ?>" method="POST" id="adlForm">
                         <div class="row g-3">
                             
                             <div class="col-md-6">
@@ -104,14 +105,19 @@
                                 <input type="date" name="adl_date" class="form-control" required>
                             </div>
 
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <label class="form-label fw-semibold small">Date Received</label>
                                 <input type="date" name="date_received" class="form-control" required>
                             </div>
 
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <label class="form-label fw-semibold small">Target Beneficiaries</label>
                                 <input type="number" name="target_benefs" class="form-control" min="1" placeholder="Total target beneficiaries" required>
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold small">Amount</label>
+                                <input type="text" name="adl_amount" class="form-control" placeholder="Amount" required>
                             </div>
 
                             <div class="col-md-6">
@@ -139,7 +145,7 @@
 
                             <div class="col-12 mt-4 pt-3 border-top d-flex justify-content-end gap-2">
                                 <a href="<?= site_url('adl/ADL_encode'); ?>" class="btn btn-light border px-4">Cancel</a>
-                                <button type="submit" class="btn btn-primary px-4">
+                                <button type="submit" id="submitBtn" class="btn btn-primary px-4">
                                     <i class="bi bi-save me-1"></i> Save ADL Record
                                 </button>
                             </div>
@@ -172,6 +178,24 @@
             }
         });
 
+        // Prevent Multiple Form Submissions
+        $('#adlForm').on('submit', function (e) {
+            const $form = $(this);
+            const $submitBtn = $('#submitBtn');
+
+            // Optional: Check if form is valid using HTML5 validation before locking
+            if ($form[0].checkValidity() === false) {
+                return; // Let native validation handle errors
+            }
+
+            // Disable button and show a loading spinner
+            $submitBtn.prop('disabled', true);
+            $submitBtn.html(`
+                <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                Saving Record...
+            `);
+        });
+
         // Dynamic Dependent Dropdown for Municipalities/Cities based on Province Code
         $('#adl_province').on('change', function () {
             const provCode = $(this).val();
@@ -180,7 +204,6 @@
             if (provCode) {
                 $cityMunSelect.prop('disabled', true).html('<option value="">Loading municipalities...</option>');
 
-                // Perform AJAX request to fetch cities/municipalities matching the selected provCode
                 $.ajax({
                     url: "<?= site_url('adl/get_municipalities_by_province'); ?>",
                     type: "GET",

@@ -26,4 +26,27 @@ class ADL_Model extends CI_Model {
     public function insert_adl($data) {
         return $this->db->insert('adl_registry', $data);
     }
+
+
+public function get_ADL()
+    {
+      $query = $this->db->get('adl_registry'); 
+       return $query->result_array();
+    }
+
+// ADD THIS MISSING METHOD TO FIX THE ERROR
+    public function insert_transaction($data) {
+        return $this->db->insert('adl_transactions', $data);
+    }
+
+
+
+
+
+
+
+
+
+
+
 }

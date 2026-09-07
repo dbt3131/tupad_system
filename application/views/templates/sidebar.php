@@ -374,7 +374,7 @@ $is_adl_active  = in_array($current_controller, ['ADL']);
 
     <!-- TUPAD ADL Dropdown -->
     <li class="nav-item dropdown">
-      <a href="#payrollSubmenu" 
+      <a href="#ADLsubmenu" 
          class="nav-link <?= $is_adl_active ? '' : 'collapsed'; ?>" 
          data-bs-toggle="collapse" 
          aria-expanded="<?= $is_adl_active ? 'true' : 'false'; ?>">
@@ -384,7 +384,7 @@ $is_adl_active  = in_array($current_controller, ['ADL']);
       </a>
       
       <!-- Subcategory Menu -->
-      <ul class="collapse submenu list-unstyled <?= $is_adl_active ? 'show' : ''; ?>" id="payrollSubmenu">
+      <ul class="collapse submenu list-unstyled <?= $is_adl_active ? 'show' : ''; ?>" id="ADLsubmenu">
         <li>
           <a href="<?= site_url('ADL/ADL_encode'); ?>" 
              class="nav-sub-link <?= ($current_controller === 'ADL' && $current_method === 'ADL_encode') ? 'active' : ''; ?>">
@@ -394,6 +394,19 @@ $is_adl_active  = in_array($current_controller, ['ADL']);
         </li>
       </ul>
     </li>
+
+<ul class="collapse submenu list-unstyled <?= $is_adl_active ? 'show' : ''; ?>" id="ADLsubmenu">
+        <li>
+          <a href="<?= site_url('ADL/implementation_encode'); ?>" 
+             class="nav-sub-link <?= ($current_controller === 'ADL' && $current_method === 'implementation_encode') ? 'active' : ''; ?>">
+            <i class="bi bi-circle"></i>
+            <span>Encode Implementation</span>
+          </a>
+        </li>
+      </ul>
+
+
+
      
     </li>
 
