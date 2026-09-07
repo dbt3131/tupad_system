@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>New Page - DOLE TUPAD</title>
+    <title>ADL Implementation List - DOLE TUPAD</title>
     
     <!-- Select2 CSS CDN -->
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
@@ -17,6 +17,9 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     
+    <!-- DataTables Bootstrap 5 CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/dataTables.bootstrap5.min.css">
+
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 
@@ -72,104 +75,73 @@
             <div class="card border-0 shadow-sm">
                 <div class="card-body p-4">
                     
+                    <!-- Filter Card -->
+                    <div class="card border-0 shadow-sm mb-4">
+                        <div class="card-body">
+                            <form method="GET" action="" class="row g-3" id="filterForm">
+                                <div class="col-md-5">
+                                    <label for="implementation_province" class="form-label fw-semibold">Implementation Province</label>
+                                    <select name="implementation_province" id="implementation_province" class="form-select">
+                                        <option value="">-- Select Province --</option>
+                                        <?php foreach ($provinces as $prov): ?>
+                                            <option value="<?= $prov['provCode']; ?>" <?= ($selected_province == $prov['provCode']) ? 'selected' : ''; ?>>
+                                                <?= $prov['provDesc']; ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
 
-<div class="card border-0 shadow-sm mb-4">
-            <div class="card-body">
-                <form method="GET" action="" class="row g-3" id="filterForm">
-                    <div class="col-md-5">
-                        <label for="implementation_province" class="form-label fw-semibold">Implementation Province</label>
-                        <select name="implementation_province" id="implementation_province" class="form-select">
-                            <option value="">-- Select Province --</option>
-                            <?php foreach ($provinces as $prov): ?>
-                                <option value="<?= $prov['provCode']; ?>" <?= ($selected_province == $prov['provCode']) ? 'selected' : ''; ?>>
-                                    <?= $prov['provDesc']; ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
+                                <div class="col-md-5">
+                                    <label for="implementation_area" class="form-label fw-semibold">Implementation Area</label>
+                                    <select name="implementation_area" id="implementation_area" class="form-select">
+                                        <option value="">-- Select Area / Municipality --</option>
+                                        <!-- Populated dynamically via AJAX -->
+                                    </select>
+                                </div>
+
+                                <div class="col-md-2 d-flex align-items-end gap-2">
+                                    <button type="submit" class="btn btn-primary w-100">Filter</button>
+                                    <a href="<?= site_url('adl/transaction_report'); ?>" class="btn btn-secondary">Reset</a>
+                                </div>
+                            </form>
+                        </div>
                     </div>
 
-                    <div class="col-md-5">
-                        <label for="implementation_area" class="form-label fw-semibold">Implementation Area</label>
-                        <select name="implementation_area" id="implementation_area" class="form-select">
-                            <option value="">-- Select Area / Municipality --</option>
-                            <!-- Populated dynamically via AJAX -->
-                        </select>
+                    <!-- Data Table -->
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table id="transactionTable" class="table table-striped table-hover align-middle w-100">
+                                    <thead class="table-dark">
+                                        <tr>
+                                            <th>ADL No.</th>
+                                            <th>ADL Reference No.</th>
+                                            <th>Implementation Province</th>
+                                            <th>Implementation Area</th>
+                                            <th>Proponent</th>
+                                            <th>Sponsor</th>
+                                            <th>Date Coordinated</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php if (!empty($transactions)): ?>
+                                            <?php foreach ($transactions as $row): ?>
+                                                <tr>
+                                                    <td><strong><?= html_escape($row['adl_no']); ?></strong></td>
+                                                    <td><strong><?= html_escape($row['implementation_reference_no']); ?></strong></td>
+                                                    <td><?= html_escape($row['implementation_province_name'] ?? 'N/A'); ?></td>
+                                                    <td><?= html_escape($row['implementation_area_name'] ?? 'N/A'); ?></td>
+                                                    <td><?= html_escape($row['implementation_proponent']); ?></td>
+                                                    <td><?= html_escape($row['implementation_sponsor']); ?></td>
+                                                    <td><?= html_escape($row['date_coordinated']); ?></td>
+                                                </tr>
+                                            <?php endforeach; ?>
+                                        <?php endif; ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
                     </div>
-
-                    <div class="col-md-2 d-flex align-items-end gap-2">
-                        <button type="submit" class="btn btn-primary w-100">Filter</button>
-                        <a href="<?= site_url('adl/transaction_report'); ?>" class="btn btn-secondary">Reset</a>
-                    </div>
-                </form>
-            </div>
-        </div>
-
-        <!-- Data Table -->
-        <div class="card border-0 shadow-sm">
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-striped table-hover align-middle">
-                        <thead class="table-dark">
-                            <tr>
-                                <th>ADL No.</th>
-                                <th>ADL Reference No.</th>
-                                <th>Implementation Province</th>
-                                <th>Implementation Area</th>
-                                <th>Proponent</th>
-                                <th>Sponsor</th>
-                                <th>Date Coordinated</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php if (!empty($transactions)): ?>
-                                <?php foreach ($transactions as $row): ?>
-                                    <tr>
-                                        <td><strong><?= html_escape($row['adl_no']); ?></strong></td>
-                                        <td><strong><?= html_escape($row['implementation_reference_no']); ?></strong></td>
-                                        <td><?= html_escape($row['implementation_province_name'] ?? 'N/A'); ?></td>
-                                        <td><?= html_escape($row['implementation_area_name'] ?? 'N/A'); ?></td>
-                                        <td><?= html_escape($row['implementation_proponent']); ?></td>
-                                        <td><?= html_escape($row['implementation_sponsor']); ?></td>
-                                        <td><?= html_escape($row['date_coordinated']); ?></td>
-                                    </tr>
-                                <?php endforeach; ?>
-                            <?php else: ?>
-                                <tr>
-                                    <td colspan="6" class="text-center text-muted py-4">No transaction records found.</td>
-                                </tr>
-                            <?php endif; ?>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
                 </div>
             </div>
@@ -188,8 +160,21 @@
     <!-- Select2 JS CDN -->
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
+    <!-- DataTables JS -->
+    <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.8/js/dataTables.bootstrap5.min.js"></script>
+
     <script>
     $(document).ready(function () {
+        // Initialize DataTable with Pagination and Search
+        $('#transactionTable').DataTable({
+            "language": {
+                "emptyTable": "No transaction records found. Please select a filtered area."
+            },
+            "pageLength": 10,
+            "lengthMenu": [5, 10, 25, 50, 100]
+        });
+
         // Sidebar Toggle Handler
         $(document).on('click', '#sidebarToggle', function (e) {
             e.preventDefault();
@@ -236,8 +221,6 @@
             loadMunicipalities(initialProv, initialArea);
         }
     });
-
-    
     </script>
 </body>
 

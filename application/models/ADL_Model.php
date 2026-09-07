@@ -101,8 +101,13 @@ public function get_adl_report_breakdown($adl_no) {
     ];
 }
 
-// Fetch transactions with Province and Area names, supporting optional filters
+// Fetch transactions with Province and Area names, supporting flexible filters
 public function get_filtered_transactions($province = null, $area = null) {
+    // Return an empty array if no province is selected
+    if (empty($province)) {
+        return [];
+    }
+
     $this->db->select('
         adl_transactions.adl_no, 
         refcitymun.citymunDesc as implementation_area_name, 
@@ -115,9 +120,10 @@ public function get_filtered_transactions($province = null, $area = null) {
     $this->db->join('refprovince', 'adl_transactions.implementation_province = refprovince.provCode', 'left');
     $this->db->join('refcitymun', 'adl_transactions.implementation_area = refcitymun.cityCode', 'left');
 
-    if (!empty($province)) {
-        $this->db->where('adl_transactions.implementation_province', $province);
-    }
+    // Filter by province (mandatory if filtering)
+    $this->db->where('adl_transactions.implementation_province', $province);
+
+    // Filter by area only if it is provided
     if (!empty($area)) {
         $this->db->where('adl_transactions.implementation_area', $area);
     }
