@@ -17,7 +17,8 @@
     
     <!-- DataTables CSS Bootstrap 5 Integration -->
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/dataTables.bootstrap5.min.css">
-
+    <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.8/js/dataTables.bootstrap5.min.js"></script>
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 
@@ -122,16 +123,24 @@
     <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.8/js/dataTables.bootstrap5.min.js"></script>
 
-    <script>
+   <script>
     $(document).ready(function () {
-        // Initialize DataTables plugin
+        // Initialize DataTable with Pagination, Search, and Proper Date Sorting
         $('#activityTable').DataTable({
-            "order": [[3, "desc"]], // Sort by date descending by default
-            "pageLength": 10,
             "language": {
-                "search": "_INPUT_",
-                "searchPlaceholder": "Search activities..."
-            }
+                "emptyTable": "No activity history found."
+            },
+            "pageLength": 10,
+            "lengthMenu": [5, 10, 25, 50, 100],
+            "columnDefs": [
+                {
+                    // Target the first column (Activity Date - index 0)
+                    "targets": 0,
+                    "type": "string" 
+                }
+            ],
+            // Set default sorting on load: Column 0 (Activity Date), Descending (newest first)
+            "order": [[0, "desc"]] 
         });
 
         // Sidebar responsive toggle logic
