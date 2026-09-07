@@ -120,6 +120,22 @@ class ADL extends CI_Controller {
 
 
 
+// Load ADL Reporting view
+public function ADL_report() {
+    $data['adl_list'] = $this->ADL_Model->get_all_adl_numbers();
+    $this->load->view('tupad/ADL_reporting', $data);
+}
+
+// AJAX endpoint for fetching report data based on selected ADL No.
+public function get_report_data() {
+    $adl_no = $this->input->get('adl_no');
+    if ($adl_no) {
+        $report = $this->ADL_Model->get_adl_report_breakdown($adl_no);
+        echo json_encode(['status' => true, 'data' => $report]);
+    } else {
+        echo json_encode(['status' => false, 'data' => null]);
+    }
+}
 
 
 

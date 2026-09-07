@@ -395,12 +395,22 @@ $is_adl_active  = in_array($current_controller, ['ADL']);
       </ul>
     </li>
 
-<ul class="collapse submenu list-unstyled <?= $is_adl_active ? 'show' : ''; ?>" id="ADLsubmenu">
+    <ul class="collapse submenu list-unstyled <?= $is_adl_active ? 'show' : ''; ?>" id="ADLsubmenu">
         <li>
           <a href="<?= site_url('ADL/implementation_encode'); ?>" 
              class="nav-sub-link <?= ($current_controller === 'ADL' && $current_method === 'implementation_encode') ? 'active' : ''; ?>">
             <i class="bi bi-circle"></i>
             <span>Encode Implementation</span>
+          </a>
+        </li>
+      </ul>
+
+       <ul class="collapse submenu list-unstyled <?= $is_adl_active ? 'show' : ''; ?>" id="ADLsubmenu">
+        <li>
+          <a href="<?= site_url('ADL/ADL_report'); ?>" 
+             class="nav-sub-link <?= ($current_controller === 'ADL' && $current_method === 'ADL_report') ? 'active' : ''; ?>">
+            <i class="bi bi-circle"></i>
+            <span>ADL Report</span>
           </a>
         </li>
       </ul>

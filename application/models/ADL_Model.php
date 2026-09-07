@@ -56,7 +56,50 @@ public function get_gsis_rate() {
     return $row ? floatval($row['gsis_rate']) : 0;
 }
 
+// Fetch all ADL numbers for the filter dropdown
+public function get_all_adl_numbers() {
+    $query = $this->db->select('adl_no, adl_amount')->order_by('adl_no', 'DESC')->get('adl_registry');
+    return $query->result_array();
+}
 
+// Fetch ADL details and sum up transaction breakdowns for a specific adl_no
+public function get_adl_report_breakdown($adl_no) {
+    // Get main ADL registry information
+    $adl = $this->db->where('adl_no', $adl_no)->get('adl_registry')->row_array();
+    
+    if (!$adl) {
+        return null;
+    }
+
+    // Get aggregated transaction amounts for this specific ADL
+    $this->db->select('
+        COALESCE(SUM(payout_service_cost), 0) as total_service_cost,
+        COALESCE(SUM(payment_amount), 0) as total_payment,
+        COALESCE(SUM(ppes_amount), 0) as total_ppes,
+        COALESCE(SUM(gsis_enrollment_amount), 0) as total_gsis
+    ');
+    $this->db->where('adl_no', $adl_no);
+    $query = $this->db->get('adl_transactions');
+    $totals = $query->row_array();
+
+    // Calculate total deductions and remaining balance
+    $total_deductions = $totals['total_service_cost'] + $totals['total_payment'] + $totals['total_ppes'] + $totals['total_gsis'];
+    $remaining_balance = floatval($adl['adl_amount']) - $total_deductions;
+
+    return [
+        'adl_no'             => $adl['adl_no'],
+        'adl_date'           => $adl['adl_date'],
+        'date_received'      => $adl['date_received'],
+        'target_benefs'      => $adl['target_benefs'],
+        'adl_amount'         => floatval($adl['adl_amount']),
+        'payout_service_cost'=> floatval($totals['total_service_cost']),
+        'payment_amount'     => floatval($totals['total_payment']),
+        'ppes_amount'        => floatval($totals['total_ppes']),
+        'gsis_amount'        => floatval($totals['total_gsis']),
+        'total_deductions'   => $total_deductions,
+        'remaining_balance'  => $remaining_balance
+    ];
+}
 
 
 
