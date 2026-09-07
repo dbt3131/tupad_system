@@ -260,6 +260,7 @@ public function upload_tupad_excel()
         $fname = $row[1] ?? '';
         $mname = $row[2] ?? '';
         $lname = $row[3] ?? '';
+        $gender = $row[5] ?? ''; // Column 5 for gender
 
         // Validate First Name (Required)
         $err = $validate_name_field($fname, 'First Name', $row_num, true);
@@ -279,6 +280,15 @@ public function upload_tupad_excel()
         $err = $validate_name_field($lname, 'Last Name', $row_num, true);
         if ($err) {
             echo json_encode(['status' => 'error', 'message' => $err]);
+            return;
+        }
+
+        $err = $validate_name_field($gender, 'Gender', $row_num, true);
+        if ($gender === '') {
+            echo json_encode([
+                'status' => 'error', 
+                'message' => "Validation Error (Row {$row_num}): Gender cannot be blank."
+            ]);
             return;
         }
 
@@ -402,21 +412,24 @@ public function upload_tupad_excel()
         $this->load->view('tupad/duplicity_checking', $data);
     }
 
-    public function view_file_data($file_name = NULL)
-    {
-        if (empty($file_name)) {
-            $this->session->set_flashdata('error', 'No file selected.');
-            redirect('tupad'); 
-            return;
-        }
+    public function view_file_data()
+{
+    // Capture from query string instead of URL path segment
+    $file_name = $this->input->get('file_name');
 
-        $decoded_filename = urldecode($file_name);
-        $data['file_name'] = $decoded_filename;
-        $data['records']   = $this->Tupad_model->get_records_by_filename($decoded_filename);
-        $data['provinces'] = $this->Tupad_model->get_provinces();
-        
-        $this->load->view('tupad/file_details', $data);
+    if (empty($file_name)) {
+        $this->session->set_flashdata('error', 'No file selected.');
+        redirect('tupad'); 
+        return;
     }
+
+    $decoded_filename = urldecode($file_name);
+    $data['file_name'] = $decoded_filename;
+    $data['records']   = $this->Tupad_model->get_records_by_filename($decoded_filename);
+    $data['provinces'] = $this->Tupad_model->get_provinces();
+    
+    $this->load->view('tupad/file_details', $data);
+}
 
     public function view_files_official()
     {
@@ -683,7 +696,7 @@ if ($is_forwarded) {
 }
 
 $actionButtons = '
-    <a href="' . site_url('tupad/view_file_data/' . $encoded_filename) . '" class="btn btn-sm btn-primary me-1">
+    <a href="' . site_url('tupad/view_file_data?file_name=' . $encoded_filename) . '" class="btn btn-sm btn-primary me-1">
         <i class="bi bi-eye me-1"></i> View
     </a>
     <a href="' . site_url('tupad/export_excel?file_name=' . $encoded_filename) . '" class="btn btn-sm btn-success me-1">
