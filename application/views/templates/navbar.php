@@ -39,7 +39,7 @@ html {
 
   <!-- Right Navbar Elements -->
   <div class="d-flex align-items-center gap-3">
-    <button class="btn btn-light position-relative rounded-circle p-2" aria-label="Notifications">
+    
       <i class="bi bi-bell fs-5"></i>
       <span class="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle">
         <span class="visually-hidden">New alerts</span>

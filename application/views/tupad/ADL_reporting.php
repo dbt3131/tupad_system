@@ -5,7 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>ADL Breakdown Reporting - DOLE TUPAD</title>
-
+<!-- Select2 CSS CDN -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -63,26 +65,26 @@
                 </button>
             </div>
 
-            <!-- Filter Selection Card -->
-            <div class="card border-0 shadow-sm mb-4 no-print">
-                <div class="card-body">
-                    <div class="row align-items-center">
-                        <div class="col-md-4">
-                            <label class="form-label fw-semibold small">Select ADL Number:</label>
-                            <select id="filter_adl_no" class="form-select">
-                                <option value="" selected disabled>-- Choose ADL Number --</option>
-                                <?php if (!empty($adl_list)): ?>
-                                    <?php foreach ($adl_list as $item): ?>
-                                        <option value="<?= html_escape($item['adl_no']); ?>">
-                                            <?= html_escape($item['adl_no']); ?> (&#8369;<?= number_format($item['adl_amount'], 2); ?>)
-                                        </option>
-                                    <?php endforeach; ?>
-                                <?php endif; ?>
-                            </select>
-                        </div>
-                    </div>
-                </div>
+           <!-- Filter Selection Card -->
+<div class="card border-0 shadow-sm mb-4 no-print">
+    <div class="card-body">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <label class="form-label fw-semibold small">Search & Select ADL Number:</label>
+                <select id="filter_adl_no" class="form-select" style="width: 100%;">
+                    <option value="" selected disabled>-- Select or type ADL Number --</option>
+                    <?php if (!empty($adl_list)): ?>
+                        <?php foreach ($adl_list as $item): ?>
+                            <option value="<?= html_escape($item['adl_no']); ?>">
+                                <?= html_escape($item['adl_no']); ?> (&#8369;<?= number_format($item['adl_amount'], 2); ?>)
+                            </option>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </select>
             </div>
+        </div>
+    </div>
+</div>
 
             <!-- Report Display Container (Hidden until selected) -->
             <div id="reportContainer" style="display: none;">
@@ -171,61 +173,76 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-    <script>
-    $(document).ready(function () {
-        // Sidebar Toggle Handler
-        $(document).on('click', '#sidebarToggle', function (e) {
-            e.preventDefault();
-            if ($(window).width() < 992) {
-                $('#sidebar').toggleClass('show-mobile');
-            } else {
-                $('#sidebar').toggleClass('collapsed');
-                $('#main-content').toggleClass('expanded');
+    <!-- Select2 JS CDN -->
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<script>
+$(document).ready(function () {
+    // Initialize Select2 with Bootstrap 5 Theme
+    $('#filter_adl_no').select2({
+        theme: 'bootstrap-5',
+        placeholder: '-- Select or type ADL Number --',
+        allowClear: true
+    });
+
+    // Handle dropdown/typing selection change event
+    $('#filter_adl_no').on('change', function () {
+        const adlNo = $(this).val();
+
+        if (!adlNo) {
+            $('#reportContainer').hide();
+            $('#placeholderContainer').fadeIn();
+            return;
+        }
+
+        // Trigger AJAX report loading
+        $.ajax({
+            url: "<?= site_url('adl/get_report_data'); ?>",
+            type: "GET",
+            data: { adl_no: adlNo },
+            dataType: "json",
+            success: function (response) {
+                if (response.status && response.data) {
+                    const d = response.data;
+                    
+                    // Populate summary metric cards
+                    $('#displayAdlNo').text(d.adl_no);
+                    $('#lblAdlAmount').text('₱' + d.adl_amount.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}));
+                    $('#lblTotalDeductions').text('₱' + d.total_deductions.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}));
+                    $('#lblRemainingBalance').text('₱' + d.remaining_balance.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}));
+
+                    // Populate detailed table breakdown rows
+                    $('#valServiceCost').text('₱' + d.payout_service_cost.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}));
+                    $('#valPaymentAmount').text('₱' + d.payment_amount.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}));
+                    $('#valPpesAmount').text('₱' + d.ppes_amount.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}));
+                    $('#valGsisAmount').text('₱' + d.gsis_amount.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}));
+                    $('#valTableTotalDeductions').text('₱' + d.total_deductions.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}));
+
+                    // Show report container and hide placeholder instructions
+                    $('#placeholderContainer').hide();
+                    $('#reportContainer').fadeIn();
+                } else {
+                    alert('No transaction records found for this ADL number.');
+                }
+            },
+            error: function () {
+                alert('Error fetching report details. Please try again.');
             }
         });
-
-        // Handle ADL selection change for instant AJAX report generation
-        $('#filter_adl_no').on('change', function () {
-            const adlNo = $(this).val();
-
-            if (!adlNo) return;
-
-            $.ajax({
-                url: "<?= site_url('adl/get_report_data'); ?>",
-                type: "GET",
-                data: { adl_no: adlNo },
-                dataType: "json",
-                success: function (response) {
-                    if (response.status && response.data) {
-                        const d = response.data;
-                        
-                        // Populate labels
-                        $('#displayAdlNo').text(d.adl_no);
-                        $('#lblAdlAmount').text('₱' + d.adl_amount.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}));
-                        $('#lblTotalDeductions').text('₱' + d.total_deductions.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}));
-                        $('#lblRemainingBalance').text('₱' + d.remaining_balance.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}));
-
-                        // Populate table rows
-                        $('#valServiceCost').text('₱' + d.payout_service_cost.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}));
-                        $('#valPaymentAmount').text('₱' + d.payment_amount.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}));
-                        $('#valPpesAmount').text('₱' + d.ppes_amount.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}));
-                        $('#valGsisAmount').text('₱' + d.gsis_amount.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}));
-                        $('#valTableTotalDeductions').text('₱' + d.total_deductions.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}));
-
-                        // Show report container and hide placeholder
-                        $('#placeholderContainer').hide();
-                        $('#reportContainer').fadeIn();
-                    } else {
-                        alert('No transaction records found for this ADL number.');
-                    }
-                },
-                error: function () {
-                    alert('Error fetching report details. Please try again.');
-                }
-            });
-        });
     });
-    </script>
+
+    // Sidebar Toggle Handler
+    $(document).on('click', '#sidebarToggle', function (e) {
+        e.preventDefault();
+        if ($(window).width() < 992) {
+            $('#sidebar').toggleClass('show-mobile');
+        } else {
+            $('#sidebar').toggleClass('collapsed');
+            $('#main-content').toggleClass('expanded');
+        }
+    });
+});
+</script>
 </body>
 
 </html>
