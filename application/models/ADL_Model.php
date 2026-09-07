@@ -39,6 +39,19 @@ public function get_ADL()
         return $this->db->insert('adl_transactions', $data);
     }
 
+    // Fetch PPE rate from ppe_rate table
+public function get_ppe_rate() {
+    $query = $this->db->get('ppe_rate');
+    $row = $query->row_array();
+    return $row ? floatval($row['ppe_rate']) : 0;
+}
+
+// Fetch GSIS rate from gsis_rate table
+public function get_gsis_rate() {
+    $query = $this->db->get('gsis_rate');
+    $row = $query->row_array();
+    return $row ? floatval($row['gsis_rate']) : 0;
+}
 
 
 

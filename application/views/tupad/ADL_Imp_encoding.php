@@ -227,13 +227,13 @@
                                         <input type="date" name="ppes_date_issued" class="form-control">
                                     </div>
                                     <div class="col-md-3">
-                                        <label class="form-label fw-semibold small">PPES Count</label>
-                                        <input type="number" name="ppes_count" class="form-control" value="0">
-                                    </div>
-                                    <div class="col-md-3">
-                                        <label class="form-label fw-semibold small">PPES Amount</label>
-                                        <input type="text" name="ppes_amount" class="form-control" placeholder="0.00">
-                                    </div>
+    <label class="form-label fw-semibold small">PPES Count</label>
+    <input type="number" name="ppes_count" id="ppes_count" class="form-control" value="0">
+</div>
+<div class="col-md-3">
+    <label class="form-label fw-semibold small">PPES Amount</label>
+    <input type="text" name="ppes_amount" id="ppes_amount" class="form-control" placeholder="0.00" readonly>
+</div>
                                 </div>
                             </div>
 
@@ -258,11 +258,11 @@
                                     </div>
                                     <div class="col-md-4">
                                         <label class="form-label fw-semibold small">GSIS Beneficiaries</label>
-                                        <input type="number" name="gsis_enrollment_benefs" class="form-control" value="0">
+                                        <input type="number" name="gsis_enrollment_benefs" id="gsis_benefs" class="form-control" value="0">
                                     </div>
                                     <div class="col-md-4">
                                         <label class="form-label fw-semibold small">GSIS Amount</label>
-                                        <input type="text" name="gsis_enrollment_amount" class="form-control" placeholder="0.00">
+                                        <input type="text" name="gsis_enrollment_amount" id="gsis_amount" class="form-control" placeholder="0.00" readonly>
                                     </div>
                                 </div>
                             </div>
@@ -381,6 +381,25 @@
             }
         });
 
+// Safely output rates from your controller (with fallback defaults from tables)
+    const ppeRate = parseFloat("<?= $ppe_rate ?? 325; ?>") || 0;
+    const gsisRate = parseFloat("<?= $gsis_rate ?? 50; ?>") || 0; // Fallback to 50[cite: 13]
+
+    // Real-time calculation for PPES Amount
+    $('#ppes_count').on('input', function () {
+        const count = parseFloat($(this).val()) || 0;
+        const totalAmount = count * ppeRate;
+        $('#ppes_amount').val(totalAmount.toFixed(2));
+    });
+
+    // Real-time calculation for GSIS Amount
+    $('#gsis_benefs').on('input', function () {
+        const benefs = parseFloat($(this).val()) || 0;
+        const totalGsisAmount = benefs * gsisRate;
+        $('#gsis_amount').val(totalGsisAmount.toFixed(2));
+    });
+
+
         // Prevent Multiple Form Submissions
         $('#transactionForm').on('submit', function (e) {
             const $form = $(this);
@@ -432,6 +451,10 @@
             }
         });
     });
+
+
+
+    
     </script>
 </body>
 

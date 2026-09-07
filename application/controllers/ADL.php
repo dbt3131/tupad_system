@@ -19,6 +19,8 @@ class ADL extends CI_Controller {
 
      public function Implementation_encode() {
         $data['ADL'] = $this->ADL_Model->get_ADL();
+        $data['ppe_rate'] = $this->ADL_Model->get_ppe_rate();
+        $data['gsis_rate'] = $this->ADL_Model->get_gsis_rate();
         $data['provinces'] = $this->ADL_Model->get_provinces();
         $this->load->view('tupad/ADL_Imp_encoding', $data);
     }
