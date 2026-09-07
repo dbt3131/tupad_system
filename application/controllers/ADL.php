@@ -7,6 +7,7 @@ class ADL extends CI_Controller {
         parent::__construct();
         $this->load->database();
         $this->load->model('ADL_Model');
+        $this->load->model('Tupad_Payroll_Model');
         $this->load->helper(['url', 'form']);
         $this->load->library(['session']);
     }
@@ -22,6 +23,7 @@ class ADL extends CI_Controller {
         $data['ppe_rate'] = $this->ADL_Model->get_ppe_rate();
         $data['gsis_rate'] = $this->ADL_Model->get_gsis_rate();
         $data['provinces'] = $this->ADL_Model->get_provinces();
+        $data['payoutSite'] = $this->Tupad_Payroll_Model->get_payout_site();
         $this->load->view('tupad/ADL_Imp_encoding', $data);
     }
 

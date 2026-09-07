@@ -227,13 +227,13 @@
                                         <input type="date" name="ppes_date_issued" class="form-control">
                                     </div>
                                     <div class="col-md-3">
-    <label class="form-label fw-semibold small">PPES Count</label>
-    <input type="number" name="ppes_count" id="ppes_count" class="form-control" value="0">
-</div>
-<div class="col-md-3">
-    <label class="form-label fw-semibold small">PPES Amount</label>
-    <input type="text" name="ppes_amount" id="ppes_amount" class="form-control" placeholder="0.00" readonly>
-</div>
+                                        <label class="form-label fw-semibold small">PPES Count</label>
+                                        <input type="number" name="ppes_count" id="ppes_count" class="form-control" value="0">
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label fw-semibold small">PPES Amount</label>
+                                        <input type="text" name="ppes_amount" id="ppes_amount" class="form-control" placeholder="0.00" readonly>
+                                    </div>
                                 </div>
                             </div>
 
@@ -334,7 +334,16 @@
                                     </div>
                                     <div class="col-md-6">
                                         <label class="form-label fw-semibold small">Payout Method</label>
-                                        <input type="text" name="payout_method" class="form-control" placeholder="e.g., Direct Cash / Palawan / MLhuillier">
+                                        <select id="payout_method" name="payout_method" class="form-select" required>
+        <option value="">-- Select Payout Site --</option>
+        <?php if (!empty($payoutSite)): ?>
+            <?php foreach ($payoutSite as $pos): ?>
+                <option value="<?= html_escape($pos['payout_site_id']); ?>">
+                    <?= html_escape($pos['payout_site_name']); ?>
+                </option>
+            <?php endforeach; ?>
+        <?php endif; ?>
+    </select>
                                     </div>
                                 </div>
                             </div>
