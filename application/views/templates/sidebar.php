@@ -7,6 +7,7 @@ $is_tupad_active  = ($current_controller === 'tupad');
 // Include tupad_monitoring as active for this menu section
 $is_alloc_active  = in_array($current_controller, ['tupad_allocations', 'tupad_monitoring']);
 $is_payroll_active  = in_array($current_controller, ['tupad_payrolls']);
+$is_adl_active  = in_array($current_controller, ['ADL']);
 ?>
 
 <style>
@@ -370,6 +371,29 @@ $is_payroll_active  = in_array($current_controller, ['tupad_payrolls']);
       </ul>
     </li>
 
+
+    <!-- TUPAD ADL Dropdown -->
+    <li class="nav-item dropdown">
+      <a href="#payrollSubmenu" 
+         class="nav-link <?= $is_adl_active ? '' : 'collapsed'; ?>" 
+         data-bs-toggle="collapse" 
+         aria-expanded="<?= $is_adl_active ? 'true' : 'false'; ?>">
+        <i class="bi bi-journal-text"></i>
+        <span>Tupad ADL</span>
+        <i class="bi bi-chevron-down ms-auto dropdown-chevron"></i>
+      </a>
+      
+      <!-- Subcategory Menu -->
+      <ul class="collapse submenu list-unstyled <?= $is_adl_active ? 'show' : ''; ?>" id="payrollSubmenu">
+        <li>
+          <a href="<?= site_url('ADL/ADL_encode'); ?>" 
+             class="nav-sub-link <?= ($current_controller === 'ADL' && $current_method === 'ADL_encode') ? 'active' : ''; ?>">
+            <i class="bi bi-circle"></i>
+            <span>Encode ADLs</span>
+          </a>
+        </li>
+      </ul>
+    </li>
      
     </li>
 
