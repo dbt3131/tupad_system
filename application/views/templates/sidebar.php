@@ -378,7 +378,7 @@ $is_adl_active  = in_array($current_controller, ['ADL']);
          class="nav-link <?= $is_adl_active ? '' : 'collapsed'; ?>" 
          data-bs-toggle="collapse" 
          aria-expanded="<?= $is_adl_active ? 'true' : 'false'; ?>">
-        <i class="bi bi-journal-text"></i>
+        <i class="bi bi-list-check text-primary me-2"></i>
         <span>Tupad ADL</span>
         <i class="bi bi-chevron-down ms-auto dropdown-chevron"></i>
       </a>

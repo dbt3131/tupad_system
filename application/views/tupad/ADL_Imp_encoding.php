@@ -308,19 +308,19 @@
                                         <label class="form-label fw-semibold small">ALOB No.</label>
                                         <input type="text" name="payment_alob_no" class="form-control">
                                     </div>
-                                    <div class="col-md-3">
+                                    <div class="col-md-2">
                                         <label class="form-label fw-semibold small">DV No.</label>
                                         <input type="text" name="payment_dv_no" class="form-control">
                                     </div>
-                                    <div class="col-md-3">
+                                    <div class="col-md-2">
                                         <label class="form-label fw-semibold small">Check No.</label>
                                         <input type="text" name="payment_check_no" class="form-control">
                                     </div>
-                                    <div class="col-md-3">
+                                    <div class="col-md-2">
                                         <label class="form-label fw-semibold small">Payment Date</label>
                                         <input type="date" name="payment_date" class="form-control">
                                     </div>
-                                    <div class="col-md-4">
+                                    <div class="col-md-3">
                                         <label class="form-label fw-semibold small">Payment Amount</label>
                                         <input type="text" name="payment_amount" class="form-control" placeholder="0.00">
                                     </div>
@@ -329,21 +329,21 @@
                                         <input type="date" name="payout_date" class="form-control">
                                     </div>
                                     <div class="col-md-4">
-                                        <label class="form-label fw-semibold small">Service Cost</label>
-                                        <input type="text" name="payout_service_cost" class="form-control" placeholder="0.00">
-                                    </div>
-                                    <div class="col-md-6">
                                         <label class="form-label fw-semibold small">Payout Method</label>
                                         <select id="payout_method" name="payout_method" class="form-select" required>
-        <option value="">-- Select Payout Site --</option>
-        <?php if (!empty($payoutSite)): ?>
-            <?php foreach ($payoutSite as $pos): ?>
-                <option value="<?= html_escape($pos['payout_site_id']); ?>">
-                    <?= html_escape($pos['payout_site_name']); ?>
-                </option>
-            <?php endforeach; ?>
-        <?php endif; ?>
-    </select>
+                                         <option value="">-- Select Payout Site --</option>
+                                         <?php if (!empty($payoutSite)): ?>
+                                             <?php foreach ($payoutSite as $pos): ?>
+                                                 <option value="<?= html_escape($pos['payout_site_id']); ?>">
+                                                     <?= html_escape($pos['payout_site_name']); ?>
+                                                 </option>
+                                             <?php endforeach; ?>
+                                         <?php endif; ?>
+                                    </select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label fw-semibold small">Service Cost</label>
+                                        <input type="text" name="payout_service_cost" class="form-control" placeholder="0.00">
                                     </div>
                                 </div>
                             </div>
