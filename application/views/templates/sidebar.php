@@ -405,6 +405,16 @@ $is_adl_active  = in_array($current_controller, ['ADL']);
         </li>
       </ul>
 
+      <ul class="collapse submenu list-unstyled <?= $is_adl_active ? 'show' : ''; ?>" id="ADLsubmenu">
+        <li>
+          <a href="<?= site_url('ADL/transaction_report'); ?>" 
+             class="nav-sub-link <?= ($current_controller === 'ADL' && $current_method === 'transaction_report') ? 'active' : ''; ?>">
+            <i class="bi bi-circle"></i>
+            <span>List of Implementation</span>
+          </a>
+        </li>
+      </ul>
+
        <ul class="collapse submenu list-unstyled <?= $is_adl_active ? 'show' : ''; ?>" id="ADLsubmenu">
         <li>
           <a href="<?= site_url('ADL/ADL_report'); ?>" 

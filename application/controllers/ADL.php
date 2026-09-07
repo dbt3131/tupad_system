@@ -57,6 +57,11 @@ class ADL extends CI_Controller {
             $insert = $this->ADL_Model->insert_adl($data);
 
             if ($insert) {
+                 $this->load->model('Activity_Model');
+                 $reference_no = $this->input->post('adl_no', true);
+                 $user_id = $this->session->userdata('user_id');
+                 $this->Activity_Model->log_activity($reference_no, $user_id, 6); 
+
                 $this->session->set_flashdata('success', 'ADL record successfully saved!');
             } else {
                 $this->session->set_flashdata('error', 'Failed to save ADL record. Please try again.');
@@ -109,6 +114,11 @@ class ADL extends CI_Controller {
         $insert = $this->ADL_Model->insert_transaction($data); // Make sure to add insert_transaction function in ADL_Model
 
         if ($insert) {
+            $this->load->model('Activity_Model'); // Ensure model is loaded if not autoloaded
+            $reference_no = $this->input->post('implementation_reference_no', true);
+            $user_id = $this->session->userdata('user_id');
+            $this->Activity_Model->log_activity($reference_no, $user_id, 5);    
+
             $this->session->set_flashdata('success', 'ADL Transaction record successfully saved!');
         } else {
             $this->session->set_flashdata('error', 'Failed to save transaction record.');
@@ -138,7 +148,19 @@ public function get_report_data() {
 }
 
 
+public function transaction_report() {
+    $province = $this->input->get('implementation_province');
+    $area = $this->input->get('implementation_area');
 
+    $data['provinces'] = $this->ADL_Model->get_provinces(); //[cite: 3]
+    $data['transactions'] = $this->ADL_Model->get_filtered_transactions($province, $area);
+    
+    // Pass selected filters back to view to retain selection state
+    $data['selected_province'] = $province;
+    $data['selected_area'] = $area;
+
+    $this->load->view('tupad/ADL_Imp_List', $data);
+}
 
 
 

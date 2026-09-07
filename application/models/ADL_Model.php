@@ -101,6 +101,51 @@ public function get_adl_report_breakdown($adl_no) {
     ];
 }
 
+// Fetch transactions with Province and Area names, supporting optional filters
+public function get_filtered_transactions($province = null, $area = null) {
+    $this->db->select('
+        adl_transactions.adl_no, 
+        refcitymun.citymunDesc as implementation_area_name, 
+        refprovince.provDesc as implementation_province_name, 
+        adl_transactions.implementation_proponent, 
+        adl_transactions.implementation_sponsor, 
+        adl_transactions.implementation_reference_no,
+        adl_transactions.date_coordinated');
+    $this->db->from('adl_transactions');
+    $this->db->join('refprovince', 'adl_transactions.implementation_province = refprovince.provCode', 'left');
+    $this->db->join('refcitymun', 'adl_transactions.implementation_area = refcitymun.cityCode', 'left');
+
+    if (!empty($province)) {
+        $this->db->where('adl_transactions.implementation_province', $province);
+    }
+    if (!empty($area)) {
+        $this->db->where('adl_transactions.implementation_area', $area);
+    }
+
+    $query = $this->db->get();
+    return $query->result_array();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

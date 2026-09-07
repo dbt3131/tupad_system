@@ -6,8 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>ADL Breakdown Reporting - DOLE TUPAD</title>
 <!-- Select2 CSS CDN -->
-<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -65,26 +65,26 @@
                 </button>
             </div>
 
-           <!-- Filter Selection Card -->
-<div class="card border-0 shadow-sm mb-4 no-print">
-    <div class="card-body">
-        <div class="row align-items-center">
-            <div class="col-md-6">
-                <label class="form-label fw-semibold small">Search & Select ADL Number:</label>
-                <select id="filter_adl_no" class="form-select" style="width: 100%;">
-                    <option value="" selected disabled>-- Select or type ADL Number --</option>
-                    <?php if (!empty($adl_list)): ?>
-                        <?php foreach ($adl_list as $item): ?>
-                            <option value="<?= html_escape($item['adl_no']); ?>">
-                                <?= html_escape($item['adl_no']); ?> (&#8369;<?= number_format($item['adl_amount'], 2); ?>)
-                            </option>
-                        <?php endforeach; ?>
-                    <?php endif; ?>
-                </select>
-            </div>
-        </div>
-    </div>
-</div>
+                          <!-- Filter Selection Card -->
+                <div class="card border-0 shadow-sm mb-4 no-print">
+                   <div class="card-body">
+                       <div class="row align-items-center">
+                           <div class="col-md-6">
+                               <label class="form-label fw-semibold small">Search & Select ADL Number:</label>
+                               <select id="filter_adl_no" class="form-select" style="width: 100%;">
+                                   <option value="" selected disabled>-- Select or type ADL Number --</option>
+                                   <?php if (!empty($adl_list)): ?>
+                                       <?php foreach ($adl_list as $item): ?>
+                                           <option value="<?= html_escape($item['adl_no']); ?>">
+                                               <?= html_escape($item['adl_no']); ?> (&#8369;<?= number_format($item['adl_amount'], 2); ?>)
+                                           </option>
+                                       <?php endforeach; ?>
+                                   <?php endif; ?>
+                               </select>
+                           </div>
+                       </div>
+                   </div>
+                </div>
 
             <!-- Report Display Container (Hidden until selected) -->
             <div id="reportContainer" style="display: none;">

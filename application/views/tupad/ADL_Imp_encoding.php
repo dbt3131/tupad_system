@@ -110,7 +110,7 @@
                     <h3 class="fw-bold mb-1">
                         <i class="bi bi-clipboard2-data text-primary me-2"></i>ADL TRANSACTIONS ENCODING
                     </h3>
-                    <p class="text-muted small mb-0">Record and monitor transaction details for Authority to Debit Line</p>
+                    <p class="text-muted small mb-0">Record and monitor transaction details for ADL</p>
                 </div>
             </div>
 
