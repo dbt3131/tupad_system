@@ -82,22 +82,22 @@
                             <table id="activityTable" class="table table-striped table-hover align-middle w-100">
                                 <thead class="table-light">
                                     <tr>
-                                        <th class="py-3">#</th>
+                                        <th class="py-3">Activity Date</th>
                                         <th class="py-3">User First Name</th>
                                         <th class="py-3">Activity Description</th>
                                          <th class="py-3">Remarks</th>
-                                        <th class="py-3">Activity Date</th>
+                                        
                                     </tr>
                                 </thead>
                                 <tbody>
     <?php if (!empty($activities) && is_array($activities)): ?>
         <?php $no = 1; foreach ($activities as $row): ?>
             <tr>
-                <td><?= $no++; ?></td>
+                <td><?= htmlspecialchars($row['activity_date'] ?? ''); ?></td>
                 <td><?= htmlspecialchars($row['reg_fname'] ?? ''); ?></td>
                 <td><?= htmlspecialchars($row['activity_desc'] ?? ''); ?></td>
                  <td><?= htmlspecialchars($row['remarks'] ?? ''); ?></td>
-                <td><?= htmlspecialchars($row['activity_date'] ?? ''); ?></td>
+                
             </tr>
         <?php endforeach; ?>
     <?php endif; ?>

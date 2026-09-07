@@ -156,101 +156,87 @@
                 </div>
             </div>
 
-   
+            <div class="card border-0 shadow-sm mt-4">
+                <div class="card-header bg-white py-3 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+                    <h5 class="mb-0 fw-bold text-primary">
+                        <i class="bi bi-list-check me-2"></i>Registered ADL Records List
+                    </h5>
+                    
+                    <!-- Search Bar Input Field -->
+                    <div class="input-group" style="width: 300px;">
+                        <span class="input-group-text bg-light"><i class="bi bi-search"></i></span>
+                        <input type="text" id="adlSearchInput" class="form-control" placeholder="Search records...">
+                    </div>
+                </div>
+                
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>ADL No.</th>
+                                    <th>ADL Date</th>
+                                    <th>Date Received</th>
+                                    <th>Target Beneficiaries</th>
+                                    <th>Province</th>
+                                    <th>Area of Implementation</th>
+                                    <th>Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody id="adlTableBody">
+                                <?php if (!empty($adl_records)): ?>
+                                    <?php foreach ($adl_records as $row): ?>
+                                        <tr class="adl-row">
+                                            <td class="fw-semibold"><?= html_escape($row['adl_no']); ?></td>
+                                            <td><?= html_escape($row['adl_date']); ?></td>
+                                            <td><?= html_escape($row['date_received']); ?></td>
+                                            <td><?= number_format($row['target_benefs']); ?></td>
+                                            <td><?= html_escape($row['provDesc'] ?? 'N/A'); ?></td>
+                                            <td><?= html_escape($row['citymunDesc'] ?? 'N/A'); ?></td>
+                                            <td class="fw-semibold text-success">&#8369;<?= number_format($row['adl_amount'], 2); ?></td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
+                                    <tr id="noRecordsRow">
+                                        <td colspan="7" class="text-center text-muted py-4">No ADL records found.</td>
+                                    </tr>
+                                <?php endif; ?>
+                            </tbody>
+                        </table>
+                    </div>
 
+                    <!-- Pagination Controls Footer -->
+                    <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mt-3 gap-2">
+                        <div id="tablePaginationInfo" class="text-muted small"></div>
+                        <nav>
+                            <ul class="pagination pagination-sm mb-0" id="tablePaginationNav">
+                                <!-- Pagination buttons rendered dynamically via script -->
+                            </ul>
+                        </nav>
+                    </div>
 
+                </div>
+            </div>
 
-
-
-
-
-<div class="card border-0 shadow-sm mt-4">
-    <div class="card-header bg-white py-3 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
-        <h5 class="mb-0 fw-bold text-primary">
-            <i class="bi bi-list-check me-2"></i>Registered ADL Records List
-        </h5>
-        
-        <!-- Search Bar Input Field -->
-        <div class="input-group" style="width: 300px;">
-            <span class="input-group-text bg-light"><i class="bi bi-search"></i></span>
-            <input type="text" id="adlSearchInput" class="form-control" placeholder="Search records...">
-        </div>
-    </div>
-    
-    <div class="card-body">
-        <div class="table-responsive">
-            <table class="table table-striped table-hover align-middle">
-                <thead class="table-light">
-                    <tr>
-                        <th>ADL No.</th>
-                        <th>ADL Date</th>
-                        <th>Date Received</th>
-                        <th>Target Beneficiaries</th>
-                        <th>Province</th>
-                        <th>Area of Implementation</th>
-                        <th>Amount</th>
-                    </tr>
-                </thead>
-                <tbody id="adlTableBody">
-                    <?php if (!empty($adl_records)): ?>
-                        <?php foreach ($adl_records as $row): ?>
-                            <tr class="adl-row">
-                                <td class="fw-semibold"><?= html_escape($row['adl_no']); ?></td>
-                                <td><?= html_escape($row['adl_date']); ?></td>
-                                <td><?= html_escape($row['date_received']); ?></td>
-                                <td><?= number_format($row['target_benefs']); ?></td>
-                                <td><?= html_escape($row['provDesc'] ?? 'N/A'); ?></td>
-                                <td><?= html_escape($row['citymunDesc'] ?? 'N/A'); ?></td>
-                                <td class="fw-semibold text-success">&#8369;<?= number_format($row['adl_amount'], 2); ?></td>
-                            </tr>
-                        <?php endforeach; ?>
-                    <?php else: ?>
-                        <tr id="noRecordsRow">
-                            <td colspan="7" class="text-center text-muted py-4">No ADL records found.</td>
-                        </tr>
-                    <?php endif; ?>
-                </tbody>
-            </table>
-        </div>
-
-        <!-- Pagination Controls Footer -->
-        <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mt-3 gap-2">
-            <div id="tablePaginationInfo" class="text-muted small"></div>
-            <nav>
-                <ul class="pagination pagination-sm mb-0" id="tablePaginationNav">
-                    <!-- Pagination buttons rendered dynamically via script -->
-                </ul>
-            </nav>
-        </div>
-
-    </div>
-</div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+            <!-- Duplicate ADL Warning Modal -->
+            <div class="modal fade" id="duplicateAdlModal" tabindex="-1" aria-labelledby="duplicateAdlModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content border-0 shadow">
+                        <div class="modal-header bg-danger text-white">
+                            <h5 class="modal-title" id="duplicateAdlModalLabel">
+                                <i class="bi bi-exclamation-triangle-fill me-2"></i>Duplicate ADL Number Found
+                            </h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body py-4">
+                            <p class="mb-0">The ADL Number <strong id="modalDuplicateAdlNo"></strong> is already recorded in the database. Please use a unique ADL Number or check existing records.</p>
+                        </div>
+                        <div class="modal-footer bg-light">
+                            <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
         </main>
 
@@ -274,22 +260,45 @@
             }
         });
 
-        // Prevent Multiple Form Submissions
+        // Prevent Multiple Form Submissions and Check for Duplicate ADL via AJAX
         $('#adlForm').on('submit', function (e) {
+            e.preventDefault(); // Stop standard form submission temporarily
+
             const $form = $(this);
             const $submitBtn = $('#submitBtn');
+            const adlNoInput = $('input[name="adl_no"]').val().trim();
 
-            // Optional: Check if form is valid using HTML5 validation before locking
             if ($form[0].checkValidity() === false) {
+                $form[0].reportValidity();
                 return; // Let native validation handle errors
             }
 
-            // Disable button and show a loading spinner
-            $submitBtn.prop('disabled', true);
-            $submitBtn.html(`
-                <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                Saving Record...
-            `);
+            // Check duplicate via AJAX
+            $.ajax({
+                url: "<?= site_url('adl/check_duplicate_adl'); ?>",
+                type: "GET",
+                data: { adl_no: adlNoInput },
+                dataType: "json",
+                success: function (response) {
+                    if (response.exists) {
+                        // Show Duplicate Modal Prompt
+                        $('#modalDuplicateAdlNo').text(adlNoInput);
+                        const duplicateModal = new bootstrap.Modal(document.getElementById('duplicateAdlModal'));
+                        duplicateModal.show();
+                    } else {
+                        // Safe to proceed, lock button and submit form
+                        $submitBtn.prop('disabled', true);
+                        $submitBtn.html(`
+                            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                            Saving Record...
+                        `);
+                        $form[0].submit();
+                    }
+                },
+                error: function () {
+                    alert('Error checking database for duplicate records. Please try again.');
+                }
+            });
         });
 
         // Dynamic Dependent Dropdown for Municipalities/Cities based on Province Code
@@ -324,108 +333,87 @@
                 $cityMunSelect.prop('disabled', true).html('<option value="" selected disabled>Select Province First</option>');
             }
         });
-    });
 
-   
+        // Table Pagination and Search Logic
+        const rowsPerPage = 5; 
+        let currentPage = 1;
 
-$(document).ready(function () {
-    const rowsPerPage = 5; // Change this number to show more or fewer rows per page
-    let currentPage = 1;
+        function displayTablePage(page) {
+            currentPage = page;
+            const $rows = $('#adlTableBody tr.adl-row:visible');
+            const totalRows = $rows.length;
+            const totalPages = Math.ceil(totalRows / rowsPerPage) || 1;
 
-    function displayTablePage(page) {
-        currentPage = page;
-        const $rows = $('#adlTableBody tr.adl-row:visible');
-        const totalRows = $rows.length;
-        const totalPages = Math.ceil(totalRows / rowsPerPage) || 1;
+            if (currentPage > totalPages) {
+                currentPage = totalPages;
+            }
 
-        if (currentPage > totalPages) {
-            currentPage = totalPages;
+            const startIndex = (currentPage - 1) * rowsPerPage;
+            const endIndex = startIndex + rowsPerPage;
+
+            $('#adlTableBody tr.adl-row').hide();
+            $rows.slice(startIndex, endIndex).show();
+
+            const showingStart = totalRows > 0 ? startIndex + 1 : 0;
+            const showingEnd = Math.min(endIndex, totalRows);
+            $('#tablePaginationInfo').text(`Showing ${showingStart} to ${showingEnd} of ${totalRows} entries`);
+
+            renderPaginationControls(totalPages);
         }
 
-        const startIndex = (currentPage - 1) * rowsPerPage;
-        const endIndex = startIndex + rowsPerPage;
+        function renderPaginationControls(totalPages) {
+            const $nav = $('#tablePaginationNav');
+            $nav.empty();
 
-        // Hide all rows first, then show only the ones for the current page
-        $('#adlTableBody tr.adl-row').hide();
-        $rows.slice(startIndex, endIndex).show();
+            if (totalPages <= 1) return;
 
-        // Update pagination information text
-        const showingStart = totalRows > 0 ? startIndex + 1 : 0;
-        const showingEnd = Math.min(endIndex, totalRows);
-        $('#tablePaginationInfo').text(`Showing ${showingStart} to ${showingEnd} of ${totalRows} entries`);
-
-        // Render Pagination buttons
-        renderPaginationControls(totalPages);
-    }
-
-    function renderPaginationControls(totalPages) {
-        const $nav = $('#tablePaginationNav');
-        $nav.empty();
-
-        if (totalPages <= 1) return;
-
-        // Previous Button
-        $nav.append(`
-            <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
-                <a class="page-link" href="#" data-page="${currentPage - 1}">Previous</a>
-            </li>
-        `);
-
-        // Page Number Buttons
-        for (let i = 1; i <= totalPages; i++) {
             $nav.append(`
-                <li class="page-item ${currentPage === i ? 'active' : ''}">
-                    <a class="page-link" href="#" data-page="${i}">${i}</a>
+                <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+                    <a class="page-link" href="#" data-page="${currentPage - 1}">Previous</a>
+                </li>
+            `);
+
+            for (let i = 1; i <= totalPages; i++) {
+                $nav.append(`
+                    <li class="page-item ${currentPage === i ? 'active' : ''}">
+                        <a class="page-link" href="#" data-page="${i}">${i}</a>
+                    </li>
+                `);
+            }
+
+            $nav.append(`
+                <li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
+                    <a class="page-link" href="#" data-page="${currentPage + 1}">Next</a>
                 </li>
             `);
         }
 
-        // Next Button
-        $nav.append(`
-            <li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
-                <a class="page-link" href="#" data-page="${currentPage + 1}">Next</a>
-            </li>
-        `);
-    }
-
-    // Handle click on pagination buttons
-    $(document).on('click', '#tablePaginationNav .page-link', function (e) {
-        e.preventDefault();
-        const targetPage = parseInt($(this).data('page'));
-        if (!isNaN(targetPage) && !$(this).parent().hasClass('disabled')) {
-            displayTablePage(targetPage);
-        }
-    });
-
-    // Combined Search and Pagination filter
-    $('#adlSearchInput').on('keyup', function () {
-        const searchText = $(this).val().toLowerCase();
-
-        $('#adlTableBody tr.adl-row').each(function () {
-            const rowText = $(this).text().toLowerCase();
-            if (rowText.indexOf(searchText) > -1) {
-                $(this).addClass('search-match').show();
-            } else {
-                $(this).removeClass('search-match').hide();
+        $(document).on('click', '#tablePaginationNav .page-link', function (e) {
+            e.preventDefault();
+            const targetPage = parseInt($(this).data('page'));
+            if (!isNaN(targetPage) && !$(this).parent().hasClass('disabled')) {
+                displayTablePage(targetPage);
             }
         });
 
-        // Temporarily adjust visible rows class selector for pagination function
-        $('#adlTableBody tr.adl-row').removeClass('adl-row-active');
-        const $matches = $('#adlTableBody tr.adl-row').filter(function() {
-            return $(this).css('display') !== 'none';
+        $('#adlSearchInput').on('keyup', function () {
+            const searchText = $(this).val().toLowerCase();
+
+            $('#adlTableBody tr.adl-row').each(function () {
+                const rowText = $(this).text().toLowerCase();
+                if (rowText.indexOf(searchText) > -1) {
+                    $(this).show();
+                } else {
+                    $(this).hide();
+                }
+            });
+
+            displayTablePage(1);
         });
 
-        // Re-run pagination view on filtered results
+        $('#adlTableBody tr.adl-row').addClass('adl-row');
         displayTablePage(1);
     });
-
-    // Initialize table pagination on load
-    $('#adlTableBody tr.adl-row').addClass('adl-row');
-    displayTablePage(1);
-});
-
-
     </script>
 </body>
 

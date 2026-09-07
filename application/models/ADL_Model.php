@@ -126,8 +126,15 @@ public function get_filtered_transactions($province = null, $area = null) {
     return $query->result_array();
 }
 
+// Check if ADL No already exists
+public function check_adl_exists($adl_no) {
+    return $this->db->where('adl_no', $adl_no)->get('adl_registry')->num_rows() > 0;
+}
 
-
+// Check if Implementation Reference No already exists
+public function check_transaction_exists($ref_no) {
+    return $this->db->where('implementation_reference_no', $ref_no)->get('adl_transactions')->num_rows() > 0;
+}
 
 
 

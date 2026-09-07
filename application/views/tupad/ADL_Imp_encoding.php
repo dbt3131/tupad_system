@@ -366,16 +366,25 @@
                 </div>
             </div>
 
-
-
-
-
-
-
-
-
-
-            
+            <!-- Duplicate Reference Number Warning Modal -->
+            <div class="modal fade" id="duplicateTransactionModal" tabindex="-1" aria-labelledby="duplicateTransactionModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content border-0 shadow">
+                        <div class="modal-header bg-danger text-white">
+                            <h5 class="modal-title" id="duplicateTransactionModalLabel">
+                                <i class="bi bi-exclamation-triangle-fill me-2"></i>Duplicate Reference Number Found
+                            </h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body py-4">
+                            <p class="mb-0">The Implementation Reference Number <strong id="modalDuplicateRefNo"></strong> is already recorded in the database. Please use a unique Reference Number.</p>
+                        </div>
+                        <div class="modal-footer bg-light">
+                            <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
         </main>
 
@@ -401,43 +410,65 @@
             }
         });
 
-// Safely output rates from your controller (with fallback defaults from tables)
-    const ppeRate = parseFloat("<?= $ppe_rate ?? 325; ?>") || 0;
-    const gsisRate = parseFloat("<?= $gsis_rate ?? 50; ?>") || 0; // Fallback to 50[cite: 13]
+        const ppeRate = parseFloat("<?= $ppe_rate ?? 325; ?>") || 0;
+        const gsisRate = parseFloat("<?= $gsis_rate ?? 50; ?>") || 0;
 
-    // Real-time calculation for PPES Amount
-    $('#ppes_count').on('input', function () {
-        const count = parseFloat($(this).val()) || 0;
-        const totalAmount = count * ppeRate;
-        $('#ppes_amount').val(totalAmount.toFixed(2));
-    });
+        // Real-time calculation for PPES Amount
+        $('#ppes_count').on('input', function () {
+            const count = parseFloat($(this).val()) || 0;
+            const totalAmount = count * ppeRate;
+            $('#ppes_amount').val(totalAmount.toFixed(2));
+        });
 
-    // Real-time calculation for GSIS Amount
-    $('#gsis_benefs').on('input', function () {
-        const benefs = parseFloat($(this).val()) || 0;
-        const totalGsisAmount = benefs * gsisRate;
-        $('#gsis_amount').val(totalGsisAmount.toFixed(2));
-    });
+        // Real-time calculation for GSIS Amount
+        $('#gsis_benefs').on('input', function () {
+            const benefs = parseFloat($(this).val()) || 0;
+            const totalGsisAmount = benefs * gsisRate;
+            $('#gsis_amount').val(totalGsisAmount.toFixed(2));
+        });
 
-
-        // Prevent Multiple Form Submissions
+        // Prevent Multiple Form Submissions & Check Duplicate via AJAX
         $('#transactionForm').on('submit', function (e) {
+            e.preventDefault(); // Stop standard form submission temporarily
+
             const $form = $(this);
             const $submitBtn = $('#submitBtn');
+            const refNoInput = $('input[name="implementation_reference_no"]').val().trim();
 
             if ($form[0].checkValidity() === false) {
-                // If native HTML5 validation fails, optionally switch back to the tab containing the error
+                $form[0].reportValidity();
                 return; 
             }
 
-            $submitBtn.prop('disabled', true);
-            $submitBtn.html(`
-                <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                Saving Record...
-            `);
+            // Check duplicate via AJAX
+            $.ajax({
+                url: "<?= site_url('adl/check_duplicate_transaction'); ?>",
+                type: "GET",
+                data: { implementation_reference_no: refNoInput },
+                dataType: "json",
+                success: function (response) {
+                    if (response.exists) {
+                        // Show Duplicate Modal Prompt
+                        $('#modalDuplicateRefNo').text(refNoInput);
+                        const duplicateModal = new bootstrap.Modal(document.getElementById('duplicateTransactionModal'));
+                        duplicateModal.show();
+                    } else {
+                        // Safe to proceed, lock button and submit form
+                        $submitBtn.prop('disabled', true);
+                        $submitBtn.html(`
+                            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                            Saving Record...
+                        `);
+                        $form[0].submit();
+                    }
+                },
+                error: function () {
+                    alert('Error checking database for duplicate records. Please try again.');
+                }
+            });
         });
 
-        // Dynamic Dependent Dropdown for Implementation Area (City/Municipality) based on Province Code[cite: 5, 6]
+        // Dynamic Dependent Dropdown for Implementation Area (City/Municipality) based on Province Code
         $('#implementation_province').on('change', function () {
             const provCode = $(this).val();
             const $cityMunSelect = $('#implementation_area');
@@ -454,7 +485,6 @@
                         $cityMunSelect.empty().append('<option value="" selected disabled>Select City/Municipality</option>');
                         if (data && data.length > 0) {
                             $.each(data, function (index, item) {
-                                // Mapped using standard refcitymun column fields (citymunCode and citymunDesc)[cite: 5]
                                 $cityMunSelect.append('<option value="' + item.cityCode + '">' + item.citymunDesc + '</option>');
                             });
                             $cityMunSelect.prop('disabled', false);
@@ -471,10 +501,6 @@
             }
         });
     });
-
-
-
-    
     </script>
 </body>
 

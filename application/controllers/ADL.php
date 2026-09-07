@@ -162,7 +162,27 @@ public function transaction_report() {
     $this->load->view('tupad/ADL_Imp_List', $data);
 }
 
+// AJAX endpoint to verify if ADL No exists
+public function check_duplicate_adl() {
+    $adl_no = $this->input->get('adl_no');
+    if ($adl_no) {
+        $exists = $this->ADL_Model->check_adl_exists($adl_no);
+        echo json_encode(['exists' => $exists]);
+    } else {
+        echo json_encode(['exists' => false]);
+    }
+}
 
+// AJAX endpoint to verify if Implementation Reference No exists
+public function check_duplicate_transaction() {
+    $ref_no = $this->input->get('implementation_reference_no');
+    if ($ref_no) {
+        $exists = $this->ADL_Model->check_transaction_exists($ref_no);
+        echo json_encode(['exists' => $exists]);
+    } else {
+        echo json_encode(['exists' => false]);
+    }
+}
 
 
 
