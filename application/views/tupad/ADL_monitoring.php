@@ -156,6 +156,102 @@
                 </div>
             </div>
 
+   
+
+
+
+
+
+
+
+<div class="card border-0 shadow-sm mt-4">
+    <div class="card-header bg-white py-3 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+        <h5 class="mb-0 fw-bold text-primary">
+            <i class="bi bi-list-check me-2"></i>Registered ADL Records List
+        </h5>
+        
+        <!-- Search Bar Input Field -->
+        <div class="input-group" style="width: 300px;">
+            <span class="input-group-text bg-light"><i class="bi bi-search"></i></span>
+            <input type="text" id="adlSearchInput" class="form-control" placeholder="Search records...">
+        </div>
+    </div>
+    
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-striped table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>ADL No.</th>
+                        <th>ADL Date</th>
+                        <th>Date Received</th>
+                        <th>Target Beneficiaries</th>
+                        <th>Province</th>
+                        <th>Area of Implementation</th>
+                        <th>Amount</th>
+                    </tr>
+                </thead>
+                <tbody id="adlTableBody">
+                    <?php if (!empty($adl_records)): ?>
+                        <?php foreach ($adl_records as $row): ?>
+                            <tr class="adl-row">
+                                <td class="fw-semibold"><?= html_escape($row['adl_no']); ?></td>
+                                <td><?= html_escape($row['adl_date']); ?></td>
+                                <td><?= html_escape($row['date_received']); ?></td>
+                                <td><?= number_format($row['target_benefs']); ?></td>
+                                <td><?= html_escape($row['provDesc'] ?? 'N/A'); ?></td>
+                                <td><?= html_escape($row['citymunDesc'] ?? 'N/A'); ?></td>
+                                <td class="fw-semibold text-success">&#8369;<?= number_format($row['adl_amount'], 2); ?></td>
+                            </tr>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <tr id="noRecordsRow">
+                            <td colspan="7" class="text-center text-muted py-4">No ADL records found.</td>
+                        </tr>
+                    <?php endif; ?>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination Controls Footer -->
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mt-3 gap-2">
+            <div id="tablePaginationInfo" class="text-muted small"></div>
+            <nav>
+                <ul class="pagination pagination-sm mb-0" id="tablePaginationNav">
+                    <!-- Pagination buttons rendered dynamically via script -->
+                </ul>
+            </nav>
+        </div>
+
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         </main>
 
         <footer class="bg-white border-top p-3 text-center text-muted small no-print">
@@ -229,6 +325,107 @@
             }
         });
     });
+
+   
+
+$(document).ready(function () {
+    const rowsPerPage = 5; // Change this number to show more or fewer rows per page
+    let currentPage = 1;
+
+    function displayTablePage(page) {
+        currentPage = page;
+        const $rows = $('#adlTableBody tr.adl-row:visible');
+        const totalRows = $rows.length;
+        const totalPages = Math.ceil(totalRows / rowsPerPage) || 1;
+
+        if (currentPage > totalPages) {
+            currentPage = totalPages;
+        }
+
+        const startIndex = (currentPage - 1) * rowsPerPage;
+        const endIndex = startIndex + rowsPerPage;
+
+        // Hide all rows first, then show only the ones for the current page
+        $('#adlTableBody tr.adl-row').hide();
+        $rows.slice(startIndex, endIndex).show();
+
+        // Update pagination information text
+        const showingStart = totalRows > 0 ? startIndex + 1 : 0;
+        const showingEnd = Math.min(endIndex, totalRows);
+        $('#tablePaginationInfo').text(`Showing ${showingStart} to ${showingEnd} of ${totalRows} entries`);
+
+        // Render Pagination buttons
+        renderPaginationControls(totalPages);
+    }
+
+    function renderPaginationControls(totalPages) {
+        const $nav = $('#tablePaginationNav');
+        $nav.empty();
+
+        if (totalPages <= 1) return;
+
+        // Previous Button
+        $nav.append(`
+            <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+                <a class="page-link" href="#" data-page="${currentPage - 1}">Previous</a>
+            </li>
+        `);
+
+        // Page Number Buttons
+        for (let i = 1; i <= totalPages; i++) {
+            $nav.append(`
+                <li class="page-item ${currentPage === i ? 'active' : ''}">
+                    <a class="page-link" href="#" data-page="${i}">${i}</a>
+                </li>
+            `);
+        }
+
+        // Next Button
+        $nav.append(`
+            <li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
+                <a class="page-link" href="#" data-page="${currentPage + 1}">Next</a>
+            </li>
+        `);
+    }
+
+    // Handle click on pagination buttons
+    $(document).on('click', '#tablePaginationNav .page-link', function (e) {
+        e.preventDefault();
+        const targetPage = parseInt($(this).data('page'));
+        if (!isNaN(targetPage) && !$(this).parent().hasClass('disabled')) {
+            displayTablePage(targetPage);
+        }
+    });
+
+    // Combined Search and Pagination filter
+    $('#adlSearchInput').on('keyup', function () {
+        const searchText = $(this).val().toLowerCase();
+
+        $('#adlTableBody tr.adl-row').each(function () {
+            const rowText = $(this).text().toLowerCase();
+            if (rowText.indexOf(searchText) > -1) {
+                $(this).addClass('search-match').show();
+            } else {
+                $(this).removeClass('search-match').hide();
+            }
+        });
+
+        // Temporarily adjust visible rows class selector for pagination function
+        $('#adlTableBody tr.adl-row').removeClass('adl-row-active');
+        const $matches = $('#adlTableBody tr.adl-row').filter(function() {
+            return $(this).css('display') !== 'none';
+        });
+
+        // Re-run pagination view on filtered results
+        displayTablePage(1);
+    });
+
+    // Initialize table pagination on load
+    $('#adlTableBody tr.adl-row').addClass('adl-row');
+    displayTablePage(1);
+});
+
+
     </script>
 </body>
 

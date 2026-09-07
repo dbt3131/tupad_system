@@ -28,11 +28,14 @@ class ADL_Model extends CI_Model {
     }
 
 
-public function get_ADL()
-    {
-      $query = $this->db->get('adl_registry'); 
-       return $query->result_array();
-    }
+public function get_ADL() {
+    $this->db->select('adl_registry.*, refprovince.provDesc, refcitymun.citymunDesc');
+    $this->db->from('adl_registry');
+    $this->db->join('refprovince', 'adl_registry.adl_province = refprovince.provCode', 'left');
+    $this->db->join('refcitymun', 'adl_registry.area_of_implementation = refcitymun.cityCode', 'left');
+    $query = $this->db->get();
+    return $query->result_array();
+}
 
 // ADD THIS MISSING METHOD TO FIX THE ERROR
     public function insert_transaction($data) {

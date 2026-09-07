@@ -15,6 +15,7 @@ class ADL extends CI_Controller {
     // Load encoding view with provinces data
     public function ADL_encode() {
         $data['provinces'] = $this->ADL_Model->get_provinces();
+        $data['adl_records'] = $this->ADL_Model->get_ADL();
         $this->load->view('tupad/ADL_monitoring', $data);
     }
 

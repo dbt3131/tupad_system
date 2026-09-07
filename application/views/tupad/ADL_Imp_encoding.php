@@ -330,7 +330,7 @@
                                     </div>
                                     <div class="col-md-4">
                                         <label class="form-label fw-semibold small">Payout Method</label>
-                                        <select id="payout_method" name="payout_method" class="form-select" required>
+                                        <select id="payout_method" name="payout_method" class="form-select">
                                          <option value="">-- Select Payout Site --</option>
                                          <?php if (!empty($payoutSite)): ?>
                                              <?php foreach ($payoutSite as $pos): ?>
@@ -365,6 +365,17 @@
 
                 </div>
             </div>
+
+
+
+
+
+
+
+
+
+
+            
 
         </main>
 
