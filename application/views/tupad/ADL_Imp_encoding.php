@@ -203,12 +203,30 @@
                                             <option value="" selected disabled>Select Municipality First</option>
                                         </select>
                                     </div>
-                                    
 
-                                    <div class="col-md-4">
+                                    <div class="col-md-3">
+                                        <label class="form-label fw-semibold small">District</label>
+                                        <select name="implementation_district" id="implementation_district" class="form-select" required>
+                                            <option value="">--Select District--</option>
+                                            <option value="I">I</option>
+                                            <option value="II">II</option>
+                                            <option value="III">III</option>
+                                            <option value="IV">IV</option>
+                                            <option value="V">V</option>
+                                            <option value="VI">VI</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="col-md-2">
+                                        <label class="form-label fw-semibold small">LGU Classification</label>
+                                        <input type="text" name="implementation_classification" class="form-control" required>
+                                    </div>
+
+                                    <div class="col-md-3">
                                         <label class="form-label fw-semibold small">Proponent</label>
                                         <input type="text" name="imp_proponent" class="form-control" required>
                                     </div>
+
                                     <div class="col-md-4">
                                         <label class="form-label fw-semibold small">Sponsor</label>
                                         <input type="text" name="imp_sponsor" class="form-control" required>

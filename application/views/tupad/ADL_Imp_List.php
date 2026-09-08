@@ -138,8 +138,8 @@
                                 <table id="transactionTable" class="table table-striped table-hover align-middle w-100">
                                     <thead class="table-dark">
                                         <tr>
-                                            <th>ADL No.</th>
                                             <th>Date Encoded</th>
+                                            <th>ADL No.</th>
                                             <th>ADL Reference No.</th>
                                             <th>Implementation Province</th>
                                             <th>Implementation Area</th>
@@ -149,85 +149,68 @@
                                             <th class="text-center">Action</th>
                                         </tr>
                                     </thead>
-
-
-
-
-
                                     <tbody>
-    <?php if (!empty($transactions)): ?>
-        <?php foreach ($transactions as $row): ?>
-            <?php 
-                // Helper to check for a valid date
-                $isValidDate = function($date) {
-                    return !empty($date) && $date !== '0000-00-00';
-                };
+                                        <?php if (!empty($transactions)): ?>
+                                            <?php foreach ($transactions as $row): ?>
+                                                <?php 
+                                                    $isValidDate = function($date) {
+                                                        return !empty($date) && $date !== '0000-00-00';
+                                                    };
 
-                // Evaluate each of the 10 conditions
-                $c1  = $isValidDate($row['date_coordinated']);
-                $c2  = $isValidDate($row['appraisal_date_submitted']);
-                $c3  = $isValidDate($row['appraisal_date_approved']);
-                $c4  = !empty($row['ppes_issuance_ris']) && $isValidDate($row['ppes_date_issued']) && intval($row['ppes_count']) !== 0 && floatval($row['ppes_amount']) !== 0.0;
-                $c5  = $isValidDate($row['orientation_date']) && !empty($row['orientation_employment_period']);
-                $c6  = $isValidDate($row['gsis_enrollment_date']) && intval($row['gsis_enrollment_benefs']) !== 0 && floatval($row['gsis_enrollment_amount']) !== 0.0;
-                $c7  = $isValidDate($row['ongoing_implementation_start_date']) && $isValidDate($row['ongoing_implementation_end_date']) && intval($row['ongoing_implementation_benefs']) !== 0;
-                $c8  = !empty($row['completed_employment_period']) && intval($row['completed_employment_benefs']) !== 0 && !empty($row['completed_employment_amount']) && !empty($row['completed_employment_documentation']);
-                $c9  = !empty($row['payment_alob_no']) && !empty($row['payment_dv_no']) && !empty($row['payment_check_no']) && !empty($row['payment_amount']) && $isValidDate($row['payment_date']);
-                $c10 = $isValidDate($row['payout_date']) && !empty($row['payout_service_cost']) && !empty($row['payout_method']);
+                                                    $c1  = $isValidDate($row['date_coordinated']);
+                                                    $c2  = $isValidDate($row['appraisal_date_submitted']);
+                                                    $c3  = $isValidDate($row['appraisal_date_approved']);
+                                                    $c4  = !empty($row['ppes_issuance_ris']) && $isValidDate($row['ppes_date_issued']) && intval($row['ppes_count']) !== 0 && floatval($row['ppes_amount']) !== 0.0;
+                                                    $c5  = $isValidDate($row['orientation_date']) && !empty($row['orientation_employment_period']);
+                                                    $c6  = $isValidDate($row['gsis_enrollment_date']) && intval($row['gsis_enrollment_benefs']) !== 0 && floatval($row['gsis_enrollment_amount']) !== 0.0;
+                                                    $c7  = $isValidDate($row['ongoing_implementation_start_date']) && $isValidDate($row['ongoing_implementation_end_date']) && intval($row['ongoing_implementation_benefs']) !== 0;
+                                                    $c8  = !empty($row['completed_employment_period']) && intval($row['completed_employment_benefs']) !== 0 && !empty($row['completed_employment_amount']) && !empty($row['completed_employment_documentation']);
+                                                    $c9  = !empty($row['payment_alob_no']) && !empty($row['payment_dv_no']) && !empty($row['payment_check_no']) && !empty($row['payment_amount']) && $isValidDate($row['payment_date']);
+                                                    $c10 = $isValidDate($row['payout_date']) && !empty($row['payout_service_cost']) && !empty($row['payout_method']);
 
-                // Check if ALL conditions are true
-                $is_fully_complete = ($c1 && $c2 && $c3 && $c4 && $c5 && $c6 && $c7 && $c8 && $c9 && $c10);
-            ?>
-            <tr>
-                <td>
-                    <!-- CHECK LABEL FOR ADL NO WHEN FULLY COMPLETE -->
-                    <?php if ($is_fully_complete): ?>
-                        <div class="mb-1">
-                            <span class="badge bg-success text-white shadow-sm">
-                                <i class="bi bi-check-circle-fill me-1"></i> Fully Completed
-                            </span>
-                        </div>
-                    <?php endif; ?>
-                    <strong><?= html_escape($row['adl_no']); ?></strong>
-                </td>
-                <td><?= html_escape($row['encoded_date'] ?? 'N/A'); ?></td>
-                <td>
-                    <!-- STATUS LABELS / BADGES FOR REFERENCE NO (ALL WITH CHECK ICONS) -->
-                    <div class="mb-1 d-flex flex-wrap gap-1">
-                        <?php if ($c1): ?><span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Coordinated</span><?php endif; ?>
-                        <?php if ($c2): ?><span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Appraisal Submitted</span><?php endif; ?>
-                        <?php if ($c3): ?><span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Appraisal Approved</span><?php endif; ?>
-                        <?php if ($c4): ?><span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Issued PPEs</span><?php endif; ?>
-                        <?php if ($c5): ?><span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Oriented</span><?php endif; ?>
-                        <?php if ($c6): ?><span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>GSIS Enrolled</span><?php endif; ?>
-                        <?php if ($c7): ?><span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Implemented</span><?php endif; ?>
-                        <?php if ($c8): ?><span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Completed</span><?php endif; ?>
-                        <?php if ($c9): ?><span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Funding Processed</span><?php endif; ?>
-                        <?php if ($c10): ?><span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>For payout</span><?php endif; ?>
-                    </div>
-                    <strong><?= html_escape($row['implementation_reference_no']); ?></strong>
-                </td>
-                <td><?= html_escape($row['implementation_province_name'] ?? 'N/A'); ?></td>
-                <td><?= html_escape($row['implementation_area_name'] ?? 'N/A'); ?></td>
-                <td><?= html_escape($row['implementation_proponent']); ?></td>
-                <td><?= html_escape($row['implementation_sponsor']); ?></td>
-                <td><?= html_escape($row['date_coordinated']); ?></td>
-                <td class="text-center">
-                    <button type="button" class="btn btn-sm btn-primary edit-btn" data-id="<?= $row['adl_transact_id']; ?>">
-                        <i class="bi bi-pencil-square me-1"></i> Update
-                    </button>
-                </td>
-            </tr>
-        <?php endforeach; ?>
-    <?php endif; ?>
-</tbody>
-
-
-
-
-
-
-
+                                                    $is_fully_complete = ($c1 && $c2 && $c3 && $c4 && $c5 && $c6 && $c7 && $c8 && $c9 && $c10);
+                                                ?>
+                                                <tr>
+                                                     <td><?= html_escape($row['encoded_date'] ?? 'N/A'); ?></td>
+                                                    <td>
+                                                        <?php if ($is_fully_complete): ?>
+                                                            <div class="mb-1">
+                                                                <span class="badge bg-success text-white shadow-sm">
+                                                                    <i class="bi bi-check-circle-fill me-1"></i> Fully Completed
+                                                                </span>
+                                                            </div>
+                                                        <?php endif; ?>
+                                                        <strong><?= html_escape($row['adl_no']); ?></strong>
+                                                    </td>
+                                                    <td>
+                                                        <div class="mb-1 d-flex flex-wrap gap-1">
+                                                            <?php if ($c1): ?><span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Coordinated</span><?php endif; ?>
+                                                            <?php if ($c2): ?><span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Appraisal Submitted</span><?php endif; ?>
+                                                            <?php if ($c3): ?><span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Appraisal Approved</span><?php endif; ?>
+                                                            <?php if ($c4): ?><span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Issued PPEs</span><?php endif; ?>
+                                                            <?php if ($c5): ?><span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Oriented</span><?php endif; ?>
+                                                            <?php if ($c6): ?><span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>GSIS Enrolled</span><?php endif; ?>
+                                                            <?php if ($c7): ?><span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Implemented</span><?php endif; ?>
+                                                            <?php if ($c8): ?><span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Completed</span><?php endif; ?>
+                                                            <?php if ($c9): ?><span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Funding Processed</span><?php endif; ?>
+                                                            <?php if ($c10): ?><span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>For payout</span><?php endif; ?>
+                                                        </div>
+                                                        <strong><?= html_escape($row['implementation_reference_no']); ?></strong>
+                                                    </td>
+                                                    <td><?= html_escape($row['implementation_province_name'] ?? 'N/A'); ?></td>
+                                                    <td><?= html_escape($row['implementation_area_name'] ?? 'N/A'); ?></td>
+                                                    <td><?= html_escape($row['implementation_proponent']); ?></td>
+                                                    <td><?= html_escape($row['implementation_sponsor']); ?></td>
+                                                    <td><?= html_escape($row['date_coordinated']); ?></td>
+                                                    <td class="text-center">
+                                                        <button type="button" class="btn btn-sm btn-primary edit-btn" data-id="<?= $row['adl_transact_id']; ?>">
+                                                            <i class="bi bi-pencil-square me-1"></i> Update
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            <?php endforeach; ?>
+                                        <?php endif; ?>
+                                    </tbody>
                                 </table>
                             </div>
                         </div>
@@ -324,6 +307,23 @@
                                                 <option value="" selected disabled>Select Province First</option>
                                             </select>
                                         </div>
+                                        
+                                        <!-- UPDATED FIELDS ADDED -->
+                                        <div class="col-md-4">
+                                            <label class="form-label fw-semibold small">Implementation Barangay</label>
+                                            <select name="implementation_brgy" id="edit_implementation_brgy" class="form-select">
+                                                <option value="" selected disabled>Select Municipality First</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label fw-semibold small">Implementation District</label>
+                                            <input type="text" id="edit_implementation_district" name="implementation_district" class="form-control" required>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label fw-semibold small">Implementation Classification</label>
+                                            <input type="text" id="edit_implementation_classification" name="implementation_classification" class="form-control" required>
+                                        </div>
+
                                         <div class="col-md-6">
                                             <label class="form-label fw-semibold small">Proponent</label>
                                             <input type="text" id="edit_implementation_proponent" name="imp_proponent" class="form-control" required>
@@ -502,23 +502,18 @@
 
     <script>
     $(document).ready(function () {
-     $(document).ready(function () {
-    $('#transactionTable').DataTable({
-        "language": {
-            "emptyTable": "No transaction records found. Please select a filtered area."
-        },
-        "pageLength": 10,
-        "lengthMenu": [5, 10, 25, 50, 100],
-        "order": [[1, "desc"]] // Sorts by Date Encoded (Column index 1) in descending order (newest first)
-    });
-    
-    // ... rest of your script ...
-});
+        $('#transactionTable').DataTable({
+            "language": {
+                "emptyTable": "No transaction records found. Please select a filtered area."
+            },
+            "pageLength": 10,
+            "lengthMenu": [5, 10, 25, 50, 100],
+            "order": [[1, "desc"]]
+        });
 
         const ppeRate = parseFloat("<?= $ppe_rate ?? 325; ?>") || 0;
         const gsisRate = parseFloat("<?= $gsis_rate ?? 50; ?>") || 0;
 
-        // Real-time calculation inside modal
         $('#edit_ppes_count').on('input', function () {
             const count = parseFloat($(this).val()) || 0;
             $('#edit_ppes_amount').val((count * ppeRate).toFixed(2));
@@ -560,8 +555,40 @@
             loadMunicipalities(initialProv, initialArea);
         }
 
+        // Helper function for loading barangays inside the edit modal
+        function loadModalBarangays(citymunCode, selectedBrgy = '') {
+            const $brgySelect = $('#edit_implementation_brgy');
+            if (citymunCode) {
+                $brgySelect.prop('disabled', true).html('<option value="">Loading barangays...</option>');
+                $.ajax({
+                    url: "<?= site_url('adl/get_barangays_by_municipality'); ?>",
+                    type: "GET",
+                    data: { citymunCode: citymunCode },
+                    dataType: "json",
+                    success: function (data) {
+                        $brgySelect.empty().append('<option value="" selected disabled>Select Barangay</option>');
+                        if (data && data.length > 0) {
+                            $.each(data, function (index, item) {
+                                let isSelected = (item.brgyCode == selectedBrgy) ? 'selected' : '';
+                                $brgySelect.append('<option value="' + item.brgyCode + '" ' + isSelected + '>' + item.brgyDesc + '</option>');
+                            });
+                            $brgySelect.prop('disabled', false);
+                        } else {
+                            $brgySelect.append('<option value="" disabled>No barangays found</option>');
+                            $brgySelect.prop('disabled', false);
+                        }
+                    },
+                    error: function () {
+                        $brgySelect.prop('disabled', false).html('<option value="" disabled>Error loading data</option>');
+                    }
+                });
+            } else {
+                $brgySelect.prop('disabled', true).html('<option value="" selected disabled>Select Municipality First</option>');
+            }
+        }
+
         // Helper function for loading municipalities inside the edit modal
-        function loadModalMunicipalities(provCode, selectedArea = '') {
+        function loadModalMunicipalities(provCode, selectedArea = '', selectedBrgy = '') {
             const $cityMunSelect = $('#edit_implementation_area');
             if (provCode) {
                 $.ajax({
@@ -572,18 +599,29 @@
                     success: function (data) {
                         $cityMunSelect.empty().append('<option value="" selected disabled>Select City/Municipality</option>');
                         $.each(data, function (index, item) {
-                            let isSelected = (item.cityCode == selectedArea || item.citymunCode == selectedArea) ? 'selected' : '';
-                            $cityMunSelect.append('<option value="' + item.cityCode + '" ' + isSelected + '>' + item.citymunDesc + '</option>');
+                            let munCode = item.cityCode || item.citymunCode;
+                            let isSelected = (munCode == selectedArea) ? 'selected' : '';
+                            $cityMunSelect.append('<option value="' + munCode + '" ' + isSelected + '>' + item.citymunDesc + '</option>');
                         });
+
+                        if (selectedArea) {
+                            loadModalBarangays(selectedArea, selectedBrgy);
+                        }
                     }
                 });
             } else {
                 $cityMunSelect.empty().append('<option value="" selected disabled>Select Province First</option>');
+                $('#edit_implementation_brgy').empty().append('<option value="" selected disabled>Select Municipality First</option>');
             }
         }
 
         $('#edit_implementation_province').change(function () {
             loadModalMunicipalities($(this).val());
+            $('#edit_implementation_brgy').empty().append('<option value="" selected disabled>Select Municipality First</option>');
+        });
+
+        $('#edit_implementation_area').change(function () {
+            loadModalBarangays($(this).val());
         });
 
         // Open Edit Modal and Fetch Record Data via AJAX
@@ -606,8 +644,12 @@
                         $('#edit_date_coordinated').val(d.date_coordinated);
                         $('#edit_implementation_province').val(d.implementation_province);
                         
-                        // Load and set municipality
-                        loadModalMunicipalities(d.implementation_province, d.implementation_area);
+                        // Load and set municipality and barangay dependencies
+                        loadModalMunicipalities(d.implementation_province, d.implementation_area, d.implementation_brgy);
+
+                        // Populate new fields
+                        $('#edit_implementation_district').val(d.implementation_district);
+                        $('#edit_implementation_classification').val(d.implementation_classification);
 
                         $('#edit_implementation_proponent').val(d.implementation_proponent);
                         $('#edit_implementation_sponsor').val(d.implementation_sponsor);

@@ -75,6 +75,9 @@ class ADL extends CI_Controller {
             'implementation_reference_no'       => $this->input->post('implementation_reference_no', true),
             'implementation_province'           => $this->input->post('implementation_province', true),
             'implementation_area'               => $this->input->post('implementation_area', true),
+            'implementation_brgy'               => $this->input->post('implementation_brgy', true),
+            'implementation_district'           => $this->input->post('implementation_district', true),
+            'implementation_classification'     => $this->input->post('implementation_classification', true),
             'implementation_proponent'          => $this->input->post('imp_proponent', true),
             'implementation_sponsor'            => $this->input->post('imp_sponsor', true),
             'date_coordinated'                  => $this->input->post('status_date', true),
@@ -205,13 +208,17 @@ public function update_transaction_record() {
         
         // Capture filter values to retain them after redirect
         $province = $this->input->post('implementation_province', true);
+        $area_brgy = $this->input->post('implementation_brgy', true);
         $area = $this->input->post('implementation_area', true);
 
         $data = [
             'adl_no'                            => $this->input->post('adl_no', true),
             'implementation_reference_no'       => $this->input->post('implementation_reference_no', true),
             'implementation_province'           => $province,
+            'implementation_brgy'               => $area_brgy,
             'implementation_area'               => $area,
+            'implementation_district'           => $this->input->post('implementation_district', true),
+            'implementation_classification'     => $this->input->post('implementation_classification', true),
             'implementation_proponent'          => $this->input->post('imp_proponent', true),
             'implementation_sponsor'            => $this->input->post('imp_sponsor', true),
             'date_coordinated'                  => $this->input->post('status_date', true),
