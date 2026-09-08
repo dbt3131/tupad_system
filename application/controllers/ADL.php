@@ -72,24 +72,24 @@ class ADL extends CI_Controller {
     if ($this->input->method() === 'post') {
         $data = [
             'adl_no'                            => $this->input->post('adl_no', true),
-            'implementation_reference_no'       => $this->input->post('implementation_reference_no', true),
+            'implementation_reference_no'       => strtoupper($this->input->post('implementation_reference_no', true)),
             'implementation_province'           => $this->input->post('implementation_province', true),
             'implementation_area'               => $this->input->post('implementation_area', true),
             'implementation_brgy'               => $this->input->post('implementation_brgy', true),
-            'implementation_district'           => $this->input->post('implementation_district', true),
-            'implementation_classification'     => $this->input->post('implementation_classification', true),
-            'implementation_proponent'          => $this->input->post('imp_proponent', true),
-            'implementation_sponsor'            => $this->input->post('imp_sponsor', true),
+            'implementation_district'           => strtoupper($this->input->post('implementation_district', true)),
+            'implementation_classification'     => strtoupper($this->input->post('implementation_classification', true)),
+            'implementation_proponent'          => strtoupper($this->input->post('imp_proponent', true)),
+            'implementation_sponsor'            => strtoupper($this->input->post('imp_sponsor', true)),
             'date_coordinated'                  => $this->input->post('status_date', true),
             'appraisal_date_submitted'          => $this->input->post('appraisal_date_submitted', true),
             'appraisal_date_approved'           => $this->input->post('appraisal_date_approved', true),
-            'ppes_issuance_ris'                 => $this->input->post('ppes_issuance_ris', true),
+            'ppes_issuance_ris'                 => strtoupper($this->input->post('ppes_issuance_ris', true)),
             'ppes_date_issued'                  => $this->input->post('ppes_date_issued', true),
             'ppes_count'                        => $this->input->post('ppes_count', true),
             'ppes_amount'                       => $this->input->post('ppes_amount', true),
             'orientation_date'                  => $this->input->post('orientation_date', true),
             'orientation_benefs'                => $this->input->post('orientation_benefs', true),
-            'orientation_employment_period'     => $this->input->post('orientation_employment_period', true),
+            'orientation_employment_period'     => strtoupper($this->input->post('orientation_employment_period', true)),
             'gsis_enrollment_date'              => $this->input->post('gsis_enrollment_date', true),
             'gsis_enrollment_benefs'            => $this->input->post('gsis_enrollment_benefs', true),
             'gsis_enrollment_amount'            => $this->input->post('gsis_enrollment_amount', true),
@@ -99,7 +99,7 @@ class ADL extends CI_Controller {
             'completed_employment_period'       => $this->input->post('completed_employment_period', true),
             'completed_employment_benefs'       => $this->input->post('completed_employment_benefs', true),
             'completed_employment_amount'       => $this->input->post('completed_employment_amount', true),
-            'completed_employment_documentation'=> $this->input->post('completed_employment_documentation', true),
+            'completed_employment_documentation'=> strtoupper($this->input->post('completed_employment_documentation', true)),
             'payment_alob_no'                   => $this->input->post('payment_alob_no', true),
             'payment_dv_no'                     => $this->input->post('payment_dv_no', true),
             'payment_check_no'                  => $this->input->post('payment_check_no', true),
@@ -156,6 +156,11 @@ public function transaction_report() {
     $data['provinces'] = $this->ADL_Model->get_provinces();
     $data['transactions'] = $this->ADL_Model->get_filtered_transactions($province, $area);
     
+    // Fetch logged-in user's assigned province
+    $user_id = $this->session->userdata('user_id');
+    $user = $this->db->get_where('users', ['id' => $user_id])->row_array();
+    $data['user_assigned_prov'] = $user ? $user['assigned_prov'] : '';
+
     // Additional data required for the edit modal form layout
     $data['ADL'] = $this->ADL_Model->get_ADL();
     $data['ppe_rate'] = $this->ADL_Model->get_ppe_rate();
@@ -212,36 +217,36 @@ public function update_transaction_record() {
         $area = $this->input->post('implementation_area', true);
 
         $data = [
-            'implementation_reference_no'       => $this->input->post('implementation_reference_no', true),
+            'implementation_reference_no'       => strtoupper($this->input->post('implementation_reference_no', true)),
             'implementation_province'           => $province,
             'implementation_brgy'               => $area_brgy,
             'implementation_area'               => $area,
-            'implementation_district'           => $this->input->post('implementation_district', true),
-            'implementation_classification'     => $this->input->post('implementation_classification', true),
-            'implementation_proponent'          => $this->input->post('imp_proponent', true),
-            'implementation_sponsor'            => $this->input->post('imp_sponsor', true),
+            'implementation_district'           => strtoupper($this->input->post('implementation_district', true)),
+            'implementation_classification'     => strtoupper($this->input->post('implementation_classification', true)),
+            'implementation_proponent'          => strtoupper($this->input->post('imp_proponent', true)),
+            'implementation_sponsor'            => strtoupper($this->input->post('imp_sponsor', true)),
             'date_coordinated'                  => $this->input->post('status_date', true),
             'appraisal_date_submitted'          => $this->input->post('appraisal_date_submitted', true),
             'appraisal_date_approved'           => $this->input->post('appraisal_date_approved', true),
-            'ppes_issuance_ris'                 => $this->input->post('ppes_issuance_ris', true),
+            'ppes_issuance_ris'                 => strtoupper($this->input->post('ppes_issuance_ris', true)),
             'ppes_date_issued'                  => $this->input->post('ppes_date_issued', true),
             'ppes_count'                        => $this->input->post('ppes_count', true),
             'ppes_amount'                       => $this->input->post('ppes_amount', true),
             'orientation_date'                  => $this->input->post('orientation_date', true),
             'orientation_benefs'                => $this->input->post('orientation_benefs', true),
-            'orientation_employment_period'     => $this->input->post('orientation_employment_period', true),
+            'orientation_employment_period'     => strtoupper($this->input->post('orientation_employment_period', true)),
             'gsis_enrollment_date'              => $this->input->post('gsis_enrollment_date', true),
             'gsis_enrollment_benefs'            => $this->input->post('gsis_enrollment_benefs', true),
             'gsis_enrollment_amount'            => $this->input->post('gsis_enrollment_amount', true),
             'ongoing_implementation_start_date' => $this->input->post('ongoing_implementation_start_date', true),
             'ongoing_implementation_end_date'   => $this->input->post('ongoing_implementation_end_date', true),
             'ongoing_implementation_benefs'     => $this->input->post('ongoing_implementation_benefs', true),
-            'completed_employment_period'       => $this->input->post('completed_employment_period', true),
+            'completed_employment_period'       => strtoupper($this->input->post('completed_employment_period', true)),
             'completed_employment_benefs'       => $this->input->post('completed_employment_benefs', true),
             'completed_employment_amount'       => $this->input->post('completed_employment_amount', true),
-            'completed_employment_documentation'=> $this->input->post('completed_employment_documentation', true),
-            'payment_alob_no'                   => $this->input->post('payment_alob_no', true),
-            'payment_dv_no'                     => $this->input->post('payment_dv_no', true),
+            'completed_employment_documentation'=> strtoupper($this->input->post('completed_employment_documentation', true)),
+            'payment_alob_no'                   => strtoupper($this->input->post('payment_alob_no', true)),
+            'payment_dv_no'                     => strtoupper($this->input->post('payment_dv_no', true)),
             'payment_check_no'                  => $this->input->post('payment_check_no', true),
             'payment_date'                      => $this->input->post('payment_date', true),
             'payment_amount'                    => $this->input->post('payment_amount', true),

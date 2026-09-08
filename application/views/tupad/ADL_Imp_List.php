@@ -202,11 +202,17 @@
                                                     <td><?= html_escape($row['implementation_proponent']); ?></td>
                                                     <td><?= html_escape($row['implementation_sponsor']); ?></td>
                                                     <td><?= html_escape($row['date_coordinated']); ?></td>
-                                                    <td class="text-center">
-                                                        <button type="button" class="btn btn-sm btn-primary edit-btn" data-id="<?= $row['adl_transact_id']; ?>">
-                                                            <i class="bi bi-pencil-square me-1"></i> Update
-                                                        </button>
-                                                    </td>
+                                                   <td class="text-center">
+                                                       <?php if (isset($user_assigned_prov) && $user_assigned_prov === $row['implementation_province']): ?>
+                                                           <button type="button" class="btn btn-sm btn-primary edit-btn" data-id="<?= $row['adl_transact_id']; ?>">
+                                                               <i class="bi bi-pencil-square me-1"></i> Update
+                                                           </button>
+                                                       <?php else: ?>
+                                                           <button type="button" class="btn btn-sm btn-secondary view-btn" data-id="<?= $row['adl_transact_id']; ?>" title="You cannot update this province">
+                                                               <i class="bi bi-eye me-1"></i>
+                                                           </button>
+                                                       <?php endif; ?>
+                                                       </td>
                                                 </tr>
                                             <?php endforeach; ?>
                                         <?php endif; ?>

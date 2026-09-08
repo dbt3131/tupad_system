@@ -69,7 +69,11 @@ public function get_all_adl_numbers() {
     return $query->result_array();
 }
 
-// Fetch ADL details and sum up transaction breakdowns for a specific adl_no
+
+
+
+
+
 public function get_adl_report_breakdown($adl_no) {
     // Get main ADL registry information
     $adl = $this->db->where('adl_no', $adl_no)->get('adl_registry')->row_array();
@@ -78,19 +82,36 @@ public function get_adl_report_breakdown($adl_no) {
         return null;
     }
 
-    // Get aggregated transaction amounts for this specific ADL
+    // Get all transactions for this specific ADL with joined province and area names
     $this->db->select('
-        COALESCE(SUM(payout_service_cost), 0) as total_service_cost,
-        COALESCE(SUM(payment_amount), 0) as total_payment,
-        COALESCE(SUM(ppes_amount), 0) as total_ppes,
-        COALESCE(SUM(gsis_enrollment_amount), 0) as total_gsis
+        adl_transactions.*,
+        refprovince.provDesc as implementation_province_name,
+        refcitymun.citymunDesc as implementation_area_name
     ');
-    $this->db->where('adl_no', $adl_no);
-    $query = $this->db->get('adl_transactions');
-    $totals = $query->row_array();
+    $this->db->from('adl_transactions');
+    $this->db->join('refprovince', 'adl_transactions.implementation_province = refprovince.provCode', 'left');
+    $this->db->join('refcitymun', 'adl_transactions.implementation_area = refcitymun.cityCode', 'left');
+    $this->db->where('adl_transactions.adl_no', $adl_no);
+    $transactions = $this->db->get()->result_array();
 
-    // Calculate total deductions and remaining balance
-    $total_deductions = $totals['total_service_cost'] + $totals['total_payment'] + $totals['total_ppes'] + $totals['total_gsis'];
+    // Calculate totals across all transactions for this ADL
+    $total_service_cost = 0;
+    $total_payment = 0;
+    $total_ppes_amount = 0;
+    $total_gsis_amount = 0;
+    $total_ppes_count = 0;
+    $total_gsis_benefs = 0;
+
+    foreach ($transactions as $tx) {
+        $total_service_cost += floatval($tx['payout_service_cost']);
+        $total_payment += floatval($tx['payment_amount']);
+        $total_ppes_amount += floatval($tx['ppes_amount']);
+        $total_gsis_amount += floatval($tx['gsis_enrollment_amount']);
+        $total_ppes_count += intval($tx['ppes_count']);
+        $total_gsis_benefs += intval($tx['gsis_enrollment_benefs']);
+    }
+
+    $total_deductions = $total_service_cost + $total_payment + $total_ppes_amount + $total_gsis_amount;
     $remaining_balance = floatval($adl['adl_amount']) - $total_deductions;
 
     return [
@@ -99,14 +120,19 @@ public function get_adl_report_breakdown($adl_no) {
         'date_received'      => $adl['date_received'],
         'target_benefs'      => $adl['target_benefs'],
         'adl_amount'         => floatval($adl['adl_amount']),
-        'payout_service_cost'=> floatval($totals['total_service_cost']),
-        'payment_amount'     => floatval($totals['total_payment']),
-        'ppes_amount'        => floatval($totals['total_ppes']),
-        'gsis_amount'        => floatval($totals['total_gsis']),
+        'transactions'       => $transactions,
+        'total_service_cost' => $total_service_cost,
+        'total_payment'      => $total_payment,
+        'total_ppes_amount'  => $total_ppes_amount,
+        'total_gsis_amount'  => $total_gsis_amount,
+        'total_ppes_count'   => $total_ppes_count,
+        'total_gsis_benefs'  => $total_gsis_benefs,
         'total_deductions'   => $total_deductions,
         'remaining_balance'  => $remaining_balance
     ];
 }
+
+
 
 
 

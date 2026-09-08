@@ -65,26 +65,26 @@
                 </button>
             </div>
 
-                          <!-- Filter Selection Card -->
-                <div class="card border-0 shadow-sm mb-4 no-print">
-                   <div class="card-body">
-                       <div class="row align-items-center">
-                           <div class="col-md-6">
-                               <label class="form-label fw-semibold small">Search & Select ADL Number:</label>
-                               <select id="filter_adl_no" class="form-select" style="width: 100%;">
-                                   <option value="" selected disabled>-- Select or type ADL Number --</option>
-                                   <?php if (!empty($adl_list)): ?>
-                                       <?php foreach ($adl_list as $item): ?>
-                                           <option value="<?= html_escape($item['adl_no']); ?>">
-                                               <?= html_escape($item['adl_no']); ?> (&#8369;<?= number_format($item['adl_amount'], 2); ?>)
-                                           </option>
-                                       <?php endforeach; ?>
-                                   <?php endif; ?>
-                               </select>
-                           </div>
+            <!-- Filter Selection Card -->
+            <div class="card border-0 shadow-sm mb-4 no-print">
+               <div class="card-body">
+                   <div class="row align-items-center">
+                       <div class="col-md-6">
+                           <label class="form-label fw-semibold small">Search & Select ADL Number:</label>
+                           <select id="filter_adl_no" class="form-select" style="width: 100%;">
+                               <option value="" selected disabled>-- Select or type ADL Number --</option>
+                               <?php if (!empty($adl_list)): ?>
+                                   <?php foreach ($adl_list as $item): ?>
+                                       <option value="<?= html_escape($item['adl_no']); ?>">
+                                           <?= html_escape($item['adl_no']); ?> (&#8369;<?= number_format($item['adl_amount'], 2); ?>)
+                                       </option>
+                                   <?php endforeach; ?>
+                               <?php endif; ?>
+                           </select>
                        </div>
                    </div>
-                </div>
+               </div>
+            </div>
 
             <!-- Report Display Container (Hidden until selected) -->
             <div id="reportContainer" style="display: none;">
@@ -111,11 +111,11 @@
                     </div>
                 </div>
 
-                <!-- Detailed Breakdown Table -->
-                <div class="card border-0 shadow-sm">
+                <!-- 1. Original Summary Transaction Breakdown Table -->
+                <div class="card border-0 shadow-sm mb-4">
                     <div class="card-header bg-white py-3">
                         <h5 class="mb-0 fw-bold text-primary">
-                            <i class="bi bi-list-check me-2"></i>Transaction Breakdown for ADL: <span id="displayAdlNo" class="text-dark"></span>
+                            <i class="bi bi-list-check me-2"></i>Transaction Breakdown Summary for ADL: <span id="displayAdlNo" class="text-dark"></span>
                         </h5>
                     </div>
                     <div class="card-body">
@@ -148,6 +148,34 @@
                                         <td>Total Combined Deductions</td>
                                         <td class="text-end text-danger" id="valTableTotalDeductions">&#8369;0.00</td>
                                     </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. New Detailed Implementation Breakdown Table (Province, Area, counts vs amounts) -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="mb-0 fw-bold text-secondary">
+                            <i class="bi bi-geo-alt me-2"></i>Detailed Implementation & Itemized Breakdown List
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-striped align-middle">
+                                <thead class="table-light text-center align-middle">
+                                    <tr>
+                                        <th>Implementation Province / Area</th>
+                                        <th>Reference No. / ADL No.</th>
+                                        <th>PPES (Count vs Amount)</th>
+                                        <th>GSIS Enrollment (Benefs vs Amount)</th>
+                                        <th>Payout Service Cost</th>
+                                        <th>Payment Amount</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="detailedTransactionTableBody">
+                                    <!-- Populated dynamically via AJAX -->
                                 </tbody>
                             </table>
                         </div>
@@ -211,12 +239,50 @@ $(document).ready(function () {
                     $('#lblTotalDeductions').text('₱' + d.total_deductions.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}));
                     $('#lblRemainingBalance').text('₱' + d.remaining_balance.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}));
 
-                    // Populate detailed table breakdown rows
-                    $('#valServiceCost').text('₱' + d.payout_service_cost.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}));
-                    $('#valPaymentAmount').text('₱' + d.payment_amount.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}));
-                    $('#valPpesAmount').text('₱' + d.ppes_amount.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}));
-                    $('#valGsisAmount').text('₱' + d.gsis_amount.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}));
+                    // Populate original detailed table breakdown rows (Summary)
+                    $('#valServiceCost').text('₱' + d.total_service_cost.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}));
+                    $('#valPaymentAmount').text('₱' + d.total_payment.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}));
+                    $('#valPpesAmount').text('₱' + d.total_ppes_amount.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}));
+                    $('#valGsisAmount').text('₱' + d.total_gsis_amount.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}));
                     $('#valTableTotalDeductions').text('₱' + d.total_deductions.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}));
+
+                    // Populate the new detailed items table rows (Province, Area, ADL no, Counts vs Amounts)
+                    let detailedHtml = '';
+                    if (d.transactions && d.transactions.length > 0) {
+                        d.transactions.forEach(function(tx) {
+                            let provinceName = tx.implementation_province_name || tx.implementation_province;
+                            let areaName = tx.implementation_area_name || tx.implementation_area;
+                            
+                            let ppesAmt = parseFloat(tx.ppes_amount) || 0;
+                            let gsisAmt = parseFloat(tx.gsis_enrollment_amount) || 0;
+                            let serviceCost = parseFloat(tx.payout_service_cost) || 0;
+                            let paymentAmt = parseFloat(tx.payment_amount) || 0;
+
+                            detailedHtml += `<tr>
+                                <td>
+                                    <strong>${areaName}</strong><br>
+                                    <small class="text-muted"><i class="bi bi-geo-alt-fill me-1"></i>${provinceName}</small>
+                                </td>
+                                <td>
+                                    <strong>ADL:</strong> ${tx.adl_no}<br>
+                                    <small class="text-muted">Ref: <code>${tx.implementation_reference_no}</code></small>
+                                </td>
+                                <td class="text-end">
+                                    <span class="badge bg-info text-dark">${tx.ppes_count || 0} items</span><br>
+                                    ₱${ppesAmt.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+                                </td>
+                                <td class="text-end">
+                                    <span class="badge bg-secondary">${tx.gsis_enrollment_benefs || 0} benefs</span><br>
+                                    ₱${gsisAmt.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+                                </td>
+                                <td class="text-end text-danger">₱${serviceCost.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                                <td class="text-end text-danger">₱${paymentAmt.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                            </tr>`;
+                        });
+                    } else {
+                        detailedHtml = `<tr><td colspan="6" class="text-center text-muted py-3">No individual transaction mappings found for this ADL number.</td></tr>`;
+                    }
+                    $('#detailedTransactionTableBody').html(detailedHtml);
 
                     // Show report container and hide placeholder instructions
                     $('#placeholderContainer').hide();
