@@ -176,7 +176,7 @@
                                         <label class="form-label fw-semibold small">Date Coordinated</label>
                                         <input type="date" name="status_date" class="form-control" required>
                                     </div>
-                                    <div class="col-md-6">
+                                    <div class="col-md-4">
                                         <label class="form-label fw-semibold small">Implementation Province</label>
                                         <select name="implementation_province" id="implementation_province" class="form-select" required>
                                             <option value="" selected disabled>Select Province</option>
@@ -189,18 +189,27 @@
                                             <?php endif; ?>
                                         </select>
                                     </div>
-                                    <div class="col-md-6">
+                                    <div class="col-md-4">
                                         <label class="form-label fw-semibold small">Implementation Area (City/Municipality)</label>
                                         <select name="implementation_area" id="implementation_area" class="form-select" required disabled>
                                             <option value="" selected disabled>Select Province First</option>
                                         </select>
                                     </div>
 
-                                    <div class="col-md-6">
+                                    <!-- BARANGAY DROPDOWN FIELD -->
+                                    <div class="col-md-4">
+                                        <label class="form-label fw-semibold small">Barangay</label>
+                                        <select name="implementation_brgy" id="implementation_brgy" class="form-select" disabled>
+                                            <option value="" selected disabled>Select Municipality First</option>
+                                        </select>
+                                    </div>
+                                    
+
+                                    <div class="col-md-4">
                                         <label class="form-label fw-semibold small">Proponent</label>
                                         <input type="text" name="imp_proponent" class="form-control" required>
                                     </div>
-                                    <div class="col-md-6">
+                                    <div class="col-md-4">
                                         <label class="form-label fw-semibold small">Sponsor</label>
                                         <input type="text" name="imp_sponsor" class="form-control" required>
                                     </div>
@@ -469,35 +478,79 @@
         });
 
         // Dynamic Dependent Dropdown for Implementation Area (City/Municipality) based on Province Code
-        $('#implementation_province').on('change', function () {
-            const provCode = $(this).val();
-            const $cityMunSelect = $('#implementation_area');
+$(document).on('change', '#implementation_province', function () {
+    const provCode = $(this).val();
+    const $cityMunSelect = $('#implementation_area');
+    const $brgySelect = $('#implementation_brgy');
 
-            if (provCode) {
-                $cityMunSelect.prop('disabled', true).html('<option value="">Loading areas...</option>');
+    // Reset and disable Barangay dropdown when Province changes
+    $brgySelect.prop('disabled', true).html('<option value="" selected disabled>Select Municipality First</option>');
+
+    if (provCode) {
+        $cityMunSelect.prop('disabled', true).html('<option value="">Loading areas...</option>');
+
+        $.ajax({
+            url: "<?= site_url('adl/get_municipalities_by_province'); ?>",
+            type: "GET",
+            data: { provCode: provCode },
+            dataType: "json",
+            success: function (data) {
+                console.log("Municipality Data Received:", data); // Check F12 Console to see exact keys
+                
+                $cityMunSelect.empty().append('<option value="" selected disabled>Select City/Municipality</option>');
+                if (data && data.length > 0) {
+                    $.each(data, function (index, item) {
+                        // Ensure we use the correct property name for the code and description.
+                        // If item.citymunCode is undefined, it might be item.cityCode or item.city_mun_code
+                        const munCode = item.citymunCode || item.cityCode; 
+                        const munDesc = item.citymunDesc || item.cityDesc;
+
+                        $cityMunSelect.append('<option value="' + munCode + '">' + munDesc + '</option>');
+                    });
+                    $cityMunSelect.prop('disabled', false);
+                } else {
+                    $cityMunSelect.append('<option value="" disabled>No implementation areas found</option>');
+                }
+            },
+            error: function () {
+                $cityMunSelect.prop('disabled', false).html('<option value="" disabled>Error loading data</option>');
+            }
+        });
+    } else {
+        $cityMunSelect.prop('disabled', true).html('<option value="" selected disabled>Select Province First</option>');
+    }
+});
+
+        // Dynamic Dependent Dropdown for Barangay based on City/Municipality Code (Using Event Delegation)
+        $(document).on('change', '#implementation_area', function () {
+            const citymunCode = $(this).val();
+            const $brgySelect = $('#implementation_brgy');
+
+            if (citymunCode) {
+                $brgySelect.prop('disabled', true).html('<option value="">Loading barangays...</option>');
 
                 $.ajax({
-                    url: "<?= site_url('adl/get_municipalities_by_province'); ?>",
+                    url: "<?= site_url('adl/get_barangays_by_municipality'); ?>",
                     type: "GET",
-                    data: { provCode: provCode },
+                    data: { citymunCode: citymunCode },
                     dataType: "json",
                     success: function (data) {
-                        $cityMunSelect.empty().append('<option value="" selected disabled>Select City/Municipality</option>');
+                        $brgySelect.empty().append('<option value="" selected disabled>Select Barangay</option>');
                         if (data && data.length > 0) {
                             $.each(data, function (index, item) {
-                                $cityMunSelect.append('<option value="' + item.cityCode + '">' + item.citymunDesc + '</option>');
+                                $brgySelect.append('<option value="' + item.brgyCode + '">' + item.brgyDesc + '</option>');
                             });
-                            $cityMunSelect.prop('disabled', false);
+                            $brgySelect.prop('disabled', false);
                         } else {
-                            $cityMunSelect.append('<option value="" disabled>No implementation areas found</option>');
+                            $brgySelect.append('<option value="" disabled>No barangays found</option>');
                         }
                     },
                     error: function () {
-                        $cityMunSelect.prop('disabled', false).html('<option value="" disabled>Error loading data</option>');
+                        $brgySelect.prop('disabled', false).html('<option value="" disabled>Error loading data</option>');
                     }
                 });
             } else {
-                $cityMunSelect.prop('disabled', true).html('<option value="" selected disabled>Select Province First</option>');
+                $brgySelect.prop('disabled', true).html('<option value="" selected disabled>Select Municipality First</option>');
             }
         });
     });

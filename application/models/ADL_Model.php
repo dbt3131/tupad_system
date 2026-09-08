@@ -155,7 +155,13 @@ public function update_transaction($id, $data) {
     return $this->db->where('adl_transact_id', $id)->update('adl_transactions', $data);
 }
 
-
+// Fetch barangays based on city/municipality code
+    public function get_barangays_by_municipality($citymunCode) {
+        $query = $this->db->where('citymunCode', $citymunCode)
+                          ->order_by('brgyDesc', 'ASC')
+                          ->get('refbrgy'); 
+        return $query->result_array();
+    }
 
 
 

@@ -262,7 +262,20 @@ public function update_transaction_record() {
     }
 }
 
+// AJAX endpoint for fetching barangays based on selected city/municipality code
+    public function get_barangays_by_municipality() {
+        $citymunCode = $this->input->get('citymunCode');
+        
+        // Explicitly load the model
+        $this->load->model('ADL_Model');
 
+        if ($citymunCode) {
+            $barangays = $this->ADL_Model->get_barangays_by_municipality($citymunCode);
+            echo json_encode($barangays);
+        } else {
+            echo json_encode([]);
+        }
+    }
 
 
 
