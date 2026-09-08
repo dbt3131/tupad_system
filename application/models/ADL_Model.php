@@ -120,6 +120,7 @@ public function get_filtered_transactions($province = null, $area = null) {
     }
 
     $this->db->select('
+        adl_transactions.adl_transact_id,
         adl_transactions.adl_no, 
         refcitymun.citymunDesc as implementation_area_name, 
         refprovince.provDesc as implementation_province_name, 
@@ -152,6 +153,37 @@ public function check_adl_exists($adl_no) {
 public function check_transaction_exists($ref_no) {
     return $this->db->where('implementation_reference_no', $ref_no)->get('adl_transactions')->num_rows() > 0;
 }
+
+// Fetch single transaction by ID for editing
+public function get_transaction_by_id($id) {
+    return $this->db->where('adl_transact_id', $id)->get('adl_transactions')->row_array();
+}
+
+// Update transaction record
+public function update_transaction($id, $data) {
+    return $this->db->where('adl_transact_id', $id)->update('adl_transactions', $data);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

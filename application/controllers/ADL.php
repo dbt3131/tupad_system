@@ -152,10 +152,15 @@ public function transaction_report() {
     $province = $this->input->get('implementation_province');
     $area = $this->input->get('implementation_area');
 
-    $data['provinces'] = $this->ADL_Model->get_provinces(); //[cite: 3]
+    $data['provinces'] = $this->ADL_Model->get_provinces();
     $data['transactions'] = $this->ADL_Model->get_filtered_transactions($province, $area);
     
-    // Pass selected filters back to view to retain selection state
+    // Additional data required for the edit modal form layout
+    $data['ADL'] = $this->ADL_Model->get_ADL();
+    $data['ppe_rate'] = $this->ADL_Model->get_ppe_rate();
+    $data['gsis_rate'] = $this->ADL_Model->get_gsis_rate();
+    $data['payoutSite'] = $this->Tupad_Payroll_Model->get_payout_site();
+
     $data['selected_province'] = $province;
     $data['selected_area'] = $area;
 
@@ -185,7 +190,79 @@ public function check_duplicate_transaction() {
 }
 
 
+// AJAX endpoint for fetching transaction data for the edit modal
+public function get_transaction_details() {
+    $id = $this->input->get('id');
+    if ($id) {
+        $transaction = $this->ADL_Model->get_transaction_by_id($id);
+        echo json_encode(['status' => true, 'data' => $transaction]);
+    } else {
+        echo json_encode(['status' => false, 'data' => null]);
+    }
+}
 
+public function update_transaction_record() {
+    if ($this->input->method() === 'post') {
+        $id = $this->input->post('adl_transact_id', true);
+        
+        // Capture filter values to retain them after redirect
+        $province = $this->input->post('implementation_province', true);
+        $area = $this->input->post('implementation_area', true);
+
+        $data = [
+            'adl_no'                            => $this->input->post('adl_no', true),
+            'implementation_reference_no'       => $this->input->post('implementation_reference_no', true),
+            'implementation_province'           => $province,
+            'implementation_area'               => $area,
+            'implementation_proponent'          => $this->input->post('imp_proponent', true),
+            'implementation_sponsor'            => $this->input->post('imp_sponsor', true),
+            'date_coordinated'                  => $this->input->post('status_date', true),
+            'appraisal_date_submitted'          => $this->input->post('appraisal_date_submitted', true),
+            'appraisal_date_approved'           => $this->input->post('appraisal_date_approved', true),
+            'ppes_issuance_ris'                 => $this->input->post('ppes_issuance_ris', true),
+            'ppes_date_issued'                  => $this->input->post('ppes_date_issued', true),
+            'ppes_count'                        => $this->input->post('ppes_count', true),
+            'ppes_amount'                       => $this->input->post('ppes_amount', true),
+            'orientation_date'                  => $this->input->post('orientation_date', true),
+            'orientation_benefs'                => $this->input->post('orientation_benefs', true),
+            'orientation_employment_period'     => $this->input->post('orientation_employment_period', true),
+            'gsis_enrollment_date'              => $this->input->post('gsis_enrollment_date', true),
+            'gsis_enrollment_benefs'            => $this->input->post('gsis_enrollment_benefs', true),
+            'gsis_enrollment_amount'            => $this->input->post('gsis_enrollment_amount', true),
+            'ongoing_implementation_start_date' => $this->input->post('ongoing_implementation_start_date', true),
+            'ongoing_implementation_end_date'   => $this->input->post('ongoing_implementation_end_date', true),
+            'ongoing_implementation_benefs'     => $this->input->post('ongoing_implementation_benefs', true),
+            'completed_employment_period'       => $this->input->post('completed_employment_period', true),
+            'completed_employment_benefs'       => $this->input->post('completed_employment_benefs', true),
+            'completed_employment_amount'       => $this->input->post('completed_employment_amount', true),
+            'completed_employment_documentation'=> $this->input->post('completed_employment_documentation', true),
+            'payment_alob_no'                   => $this->input->post('payment_alob_no', true),
+            'payment_dv_no'                     => $this->input->post('payment_dv_no', true),
+            'payment_check_no'                  => $this->input->post('payment_check_no', true),
+            'payment_date'                      => $this->input->post('payment_date', true),
+            'payment_amount'                    => $this->input->post('payment_amount', true),
+            'payout_date'                       => $this->input->post('payout_date', true),
+            'payout_service_cost'               => $this->input->post('payout_service_cost', true),
+            'payout_method'                     => $this->input->post('payout_method', true)
+        ];
+
+        $update = $this->ADL_Model->update_transaction($id, $data);
+
+        if ($update) {
+            $this->session->set_flashdata('success', 'ADL Transaction record successfully updated!');
+        } else {
+            $this->session->set_flashdata('error', 'Failed to update transaction record.');
+        }
+
+        // Build query string to pass filters back to the report page
+        $query_string = http_build_query([
+            'implementation_province' => $province,
+            'implementation_area'     => $area
+        ]);
+
+        redirect('adl/transaction_report?' . $query_string);
+    }
+}
 
 
 
