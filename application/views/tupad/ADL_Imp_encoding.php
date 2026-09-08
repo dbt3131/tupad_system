@@ -15,6 +15,10 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     
+    <!-- Select2 CSS CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
+
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 
@@ -157,8 +161,8 @@
                                 <div class="row g-3">
                                     <div class="col-md-4">
                                         <label class="form-label fw-semibold small">ADL Number</label>
-                                        <select id="adl_no" name="adl_no" class="form-select" required>
-                                            <option value="">-- Select ADL --</option>
+                                        <select id="adl_no" name="adl_no" class="form-select" style="width: 100%;" required>
+                                            <option value="">-- Select or type ADL --</option>
                                             <?php if (!empty($ADL)): ?>
                                                 <?php foreach ($ADL as $ad): ?>
                                                     <option value="<?= html_escape($ad['adl_no']); ?>" <?= set_select('adl_no', $ad['adl_no']); ?>>
@@ -423,9 +427,19 @@
     <!-- Bootstrap JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
+    <!-- Select2 JS CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
     <!-- Custom Scripts -->
     <script>
     $(document).ready(function () {
+        // Initialize Select2 with Bootstrap 5 Theme
+        $('#adl_no').select2({
+            theme: 'bootstrap-5',
+            placeholder: '-- Select or type ADL Number --',
+            allowClear: true
+        });
+
         // Sidebar Toggle Handler
         $(document).on('click', '#sidebarToggle', function (e) {
             e.preventDefault();
@@ -496,50 +510,46 @@
         });
 
         // Dynamic Dependent Dropdown for Implementation Area (City/Municipality) based on Province Code
-$(document).on('change', '#implementation_province', function () {
-    const provCode = $(this).val();
-    const $cityMunSelect = $('#implementation_area');
-    const $brgySelect = $('#implementation_brgy');
+        $(document).on('change', '#implementation_province', function () {
+            const provCode = $(this).val();
+            const $cityMunSelect = $('#implementation_area');
+            const $brgySelect = $('#implementation_brgy');
 
-    // Reset and disable Barangay dropdown when Province changes
-    $brgySelect.prop('disabled', true).html('<option value="" selected disabled>Select Municipality First</option>');
+            // Reset and disable Barangay dropdown when Province changes
+            $brgySelect.prop('disabled', true).html('<option value="" selected disabled>Select Municipality First</option>');
 
-    if (provCode) {
-        $cityMunSelect.prop('disabled', true).html('<option value="">Loading areas...</option>');
+            if (provCode) {
+                $cityMunSelect.prop('disabled', true).html('<option value="">Loading areas...</option>');
 
-        $.ajax({
-            url: "<?= site_url('adl/get_municipalities_by_province'); ?>",
-            type: "GET",
-            data: { provCode: provCode },
-            dataType: "json",
-            success: function (data) {
-                console.log("Municipality Data Received:", data); // Check F12 Console to see exact keys
-                
-                $cityMunSelect.empty().append('<option value="" selected disabled>Select City/Municipality</option>');
-                if (data && data.length > 0) {
-                    $.each(data, function (index, item) {
-                        // Ensure we use the correct property name for the code and description.
-                        // If item.citymunCode is undefined, it might be item.cityCode or item.city_mun_code
-                        const munCode = item.citymunCode || item.cityCode; 
-                        const munDesc = item.citymunDesc || item.cityDesc;
+                $.ajax({
+                    url: "<?= site_url('adl/get_municipalities_by_province'); ?>",
+                    type: "GET",
+                    data: { provCode: provCode },
+                    dataType: "json",
+                    success: function (data) {
+                        $cityMunSelect.empty().append('<option value="" selected disabled>Select City/Municipality</option>');
+                        if (data && data.length > 0) {
+                            $.each(data, function (index, item) {
+                                const munCode = item.citymunCode || item.cityCode; 
+                                const munDesc = item.citymunDesc || item.cityDesc;
 
-                        $cityMunSelect.append('<option value="' + munCode + '">' + munDesc + '</option>');
-                    });
-                    $cityMunSelect.prop('disabled', false);
-                } else {
-                    $cityMunSelect.append('<option value="" disabled>No implementation areas found</option>');
-                }
-            },
-            error: function () {
-                $cityMunSelect.prop('disabled', false).html('<option value="" disabled>Error loading data</option>');
+                                $cityMunSelect.append('<option value="' + munCode + '">' + munDesc + '</option>');
+                            });
+                            $cityMunSelect.prop('disabled', false);
+                        } else {
+                            $cityMunSelect.append('<option value="" disabled>No implementation areas found</option>');
+                        }
+                    },
+                    error: function () {
+                        $cityMunSelect.prop('disabled', false).html('<option value="" disabled>Error loading data</option>');
+                    }
+                });
+            } else {
+                $cityMunSelect.prop('disabled', true).html('<option value="" selected disabled>Select Province First</option>');
             }
         });
-    } else {
-        $cityMunSelect.prop('disabled', true).html('<option value="" selected disabled>Select Province First</option>');
-    }
-});
 
-        // Dynamic Dependent Dropdown for Barangay based on City/Municipality Code (Using Event Delegation)
+        // Dynamic Dependent Dropdown for Barangay based on City/Municipality Code
         $(document).on('change', '#implementation_area', function () {
             const citymunCode = $(this).val();
             const $brgySelect = $('#implementation_brgy');

@@ -212,7 +212,6 @@ public function update_transaction_record() {
         $area = $this->input->post('implementation_area', true);
 
         $data = [
-            'adl_no'                            => $this->input->post('adl_no', true),
             'implementation_reference_no'       => $this->input->post('implementation_reference_no', true),
             'implementation_province'           => $province,
             'implementation_brgy'               => $area_brgy,

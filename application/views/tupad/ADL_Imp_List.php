@@ -273,7 +273,7 @@
                                     <div class="row g-3">
                                         <div class="col-md-4">
                                             <label class="form-label fw-semibold small">ADL Number</label>
-                                            <select id="edit_adl_no" name="adl_no" class="form-select" required>
+                                            <select id="edit_adl_no" name="adl_no" class="form-select" disabled title="No hindi pwede edit! hehe!">
                                                 <option value="">-- Select ADL --</option>
                                                 <?php if (!empty($ADL)): ?>
                                                     <?php foreach ($ADL as $ad): ?>
