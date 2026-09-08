@@ -10,9 +10,14 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
+    <!-- Bootstrap 5 & Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     
+    <!-- DataTables Bootstrap 5 CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/dataTables.bootstrap5.min.css">
+
+    <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 
     <style>
@@ -156,22 +161,17 @@
                 </div>
             </div>
 
+            <!-- Data Table Card -->
             <div class="card border-0 shadow-sm mt-4">
-                <div class="card-header bg-white py-3 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+                <div class="card-header bg-white py-3">
                     <h5 class="mb-0 fw-bold text-primary">
                         <i class="bi bi-list-check me-2"></i>Registered ADL Records List
                     </h5>
-                    
-                    <!-- Search Bar Input Field -->
-                    <div class="input-group" style="width: 300px;">
-                        <span class="input-group-text bg-light"><i class="bi bi-search"></i></span>
-                        <input type="text" id="adlSearchInput" class="form-control" placeholder="Search records...">
-                    </div>
                 </div>
                 
                 <div class="card-body">
                     <div class="table-responsive">
-                        <table class="table table-striped table-hover align-middle">
+                        <table id="adlTable" class="table table-striped table-hover align-middle w-100">
                             <thead class="table-light">
                                 <tr>
                                     <th>ADL No.</th>
@@ -181,12 +181,13 @@
                                     <th>Province</th>
                                     <th>Area of Implementation</th>
                                     <th>Amount</th>
+                                    <th>Balance</th>
                                 </tr>
                             </thead>
-                            <tbody id="adlTableBody">
+                            <tbody>
                                 <?php if (!empty($adl_records)): ?>
                                     <?php foreach ($adl_records as $row): ?>
-                                        <tr class="adl-row">
+                                        <tr>
                                             <td class="fw-semibold"><?= html_escape($row['adl_no']); ?></td>
                                             <td><?= html_escape($row['adl_date']); ?></td>
                                             <td><?= html_escape($row['date_received']); ?></td>
@@ -194,27 +195,13 @@
                                             <td><?= html_escape($row['provDesc'] ?? 'N/A'); ?></td>
                                             <td><?= html_escape($row['citymunDesc'] ?? 'N/A'); ?></td>
                                             <td class="fw-semibold text-success">&#8369;<?= number_format($row['adl_amount'], 2); ?></td>
+                                            <td class="fw-semibold text-primary">&#8369;<?= number_format($row['balance'], 2); ?></td>
                                         </tr>
                                     <?php endforeach; ?>
-                                <?php else: ?>
-                                    <tr id="noRecordsRow">
-                                        <td colspan="7" class="text-center text-muted py-4">No ADL records found.</td>
-                                    </tr>
                                 <?php endif; ?>
                             </tbody>
                         </table>
                     </div>
-
-                    <!-- Pagination Controls Footer -->
-                    <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mt-3 gap-2">
-                        <div id="tablePaginationInfo" class="text-muted small"></div>
-                        <nav>
-                            <ul class="pagination pagination-sm mb-0" id="tablePaginationNav">
-                                <!-- Pagination buttons rendered dynamically via script -->
-                            </ul>
-                        </nav>
-                    </div>
-
                 </div>
             </div>
 
@@ -245,10 +232,25 @@
         </footer>
     </div>
 
+    <!-- Bootstrap Bundle JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- DataTables JS -->
+    <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.8/js/dataTables.bootstrap5.min.js"></script>
 
     <script>
     $(document).ready(function () {
+        // Initialize DataTable with built-in search, pagination, and sorting
+        $('#adlTable').DataTable({
+            "language": {
+                "emptyTable": "No ADL records found."
+            },
+            "pageLength": 10,
+            "lengthMenu": [5, 10, 25, 50, 100],
+            "order": [[1, "desc"]] // Orders by ADL Date column descending by default
+        });
+
         // Sidebar Toggle Handler
         $(document).on('click', '#sidebarToggle', function (e) {
             e.preventDefault();
@@ -262,7 +264,7 @@
 
         // Prevent Multiple Form Submissions and Check for Duplicate ADL via AJAX
         $('#adlForm').on('submit', function (e) {
-            e.preventDefault(); // Stop standard form submission temporarily
+            e.preventDefault(); 
 
             const $form = $(this);
             const $submitBtn = $('#submitBtn');
@@ -270,10 +272,9 @@
 
             if ($form[0].checkValidity() === false) {
                 $form[0].reportValidity();
-                return; // Let native validation handle errors
+                return; 
             }
 
-            // Check duplicate via AJAX
             $.ajax({
                 url: "<?= site_url('adl/check_duplicate_adl'); ?>",
                 type: "GET",
@@ -281,12 +282,10 @@
                 dataType: "json",
                 success: function (response) {
                     if (response.exists) {
-                        // Show Duplicate Modal Prompt
                         $('#modalDuplicateAdlNo').text(adlNoInput);
                         const duplicateModal = new bootstrap.Modal(document.getElementById('duplicateAdlModal'));
                         duplicateModal.show();
                     } else {
-                        // Safe to proceed, lock button and submit form
                         $submitBtn.prop('disabled', true);
                         $submitBtn.html(`
                             <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
@@ -333,86 +332,6 @@
                 $cityMunSelect.prop('disabled', true).html('<option value="" selected disabled>Select Province First</option>');
             }
         });
-
-        // Table Pagination and Search Logic
-        const rowsPerPage = 5; 
-        let currentPage = 1;
-
-        function displayTablePage(page) {
-            currentPage = page;
-            const $rows = $('#adlTableBody tr.adl-row:visible');
-            const totalRows = $rows.length;
-            const totalPages = Math.ceil(totalRows / rowsPerPage) || 1;
-
-            if (currentPage > totalPages) {
-                currentPage = totalPages;
-            }
-
-            const startIndex = (currentPage - 1) * rowsPerPage;
-            const endIndex = startIndex + rowsPerPage;
-
-            $('#adlTableBody tr.adl-row').hide();
-            $rows.slice(startIndex, endIndex).show();
-
-            const showingStart = totalRows > 0 ? startIndex + 1 : 0;
-            const showingEnd = Math.min(endIndex, totalRows);
-            $('#tablePaginationInfo').text(`Showing ${showingStart} to ${showingEnd} of ${totalRows} entries`);
-
-            renderPaginationControls(totalPages);
-        }
-
-        function renderPaginationControls(totalPages) {
-            const $nav = $('#tablePaginationNav');
-            $nav.empty();
-
-            if (totalPages <= 1) return;
-
-            $nav.append(`
-                <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
-                    <a class="page-link" href="#" data-page="${currentPage - 1}">Previous</a>
-                </li>
-            `);
-
-            for (let i = 1; i <= totalPages; i++) {
-                $nav.append(`
-                    <li class="page-item ${currentPage === i ? 'active' : ''}">
-                        <a class="page-link" href="#" data-page="${i}">${i}</a>
-                    </li>
-                `);
-            }
-
-            $nav.append(`
-                <li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
-                    <a class="page-link" href="#" data-page="${currentPage + 1}">Next</a>
-                </li>
-            `);
-        }
-
-        $(document).on('click', '#tablePaginationNav .page-link', function (e) {
-            e.preventDefault();
-            const targetPage = parseInt($(this).data('page'));
-            if (!isNaN(targetPage) && !$(this).parent().hasClass('disabled')) {
-                displayTablePage(targetPage);
-            }
-        });
-
-        $('#adlSearchInput').on('keyup', function () {
-            const searchText = $(this).val().toLowerCase();
-
-            $('#adlTableBody tr.adl-row').each(function () {
-                const rowText = $(this).text().toLowerCase();
-                if (rowText.indexOf(searchText) > -1) {
-                    $(this).show();
-                } else {
-                    $(this).hide();
-                }
-            });
-
-            displayTablePage(1);
-        });
-
-        $('#adlTableBody tr.adl-row').addClass('adl-row');
-        displayTablePage(1);
     });
     </script>
 </body>

@@ -29,10 +29,21 @@ class ADL_Model extends CI_Model {
 
 
 public function get_ADL() {
-    $this->db->select('adl_registry.*, refprovince.provDesc, refcitymun.citymunDesc');
+    $this->db->select('
+        adl_registry.*, 
+        refprovince.provDesc, 
+        refcitymun.citymunDesc,
+        COALESCE(t.total_deductions, 0) as total_deductions,
+        (CAST(adl_registry.adl_amount AS DECIMAL(15,2)) - COALESCE(t.total_deductions, 0)) as balance
+    ');
     $this->db->from('adl_registry');
     $this->db->join('refprovince', 'adl_registry.adl_province = refprovince.provCode', 'left');
     $this->db->join('refcitymun', 'adl_registry.area_of_implementation = refcitymun.cityCode', 'left');
+    $this->db->join('(SELECT adl_no, SUM(COALESCE(payout_service_cost,0) + COALESCE(payment_amount,0) + COALESCE(ppes_amount,0) + COALESCE(gsis_enrollment_amount,0)) as total_deductions FROM adl_transactions GROUP BY adl_no) t', 'adl_registry.adl_no = t.adl_no', 'left');
+    
+    // Order by ADL Date descending (newest first)
+    $this->db->order_by('adl_registry.adl_date', 'DESC');
+    
     $query = $this->db->get();
     return $query->result_array();
 }
