@@ -148,72 +148,61 @@
                                             <th class="text-center">Action</th>
                                         </tr>
                                     </thead>
+
+
+
+
+
                                     <tbody>
     <?php if (!empty($transactions)): ?>
         <?php foreach ($transactions as $row): ?>
             <?php 
-                // Helper to check for a valid date (not empty and not MySQL default '0000-00-00')
+                // Helper to check for a valid date
                 $isValidDate = function($date) {
                     return !empty($date) && $date !== '0000-00-00';
                 };
+
+                // Evaluate each of the 10 conditions
+                $c1  = $isValidDate($row['date_coordinated']);
+                $c2  = $isValidDate($row['appraisal_date_submitted']);
+                $c3  = $isValidDate($row['appraisal_date_approved']);
+                $c4  = !empty($row['ppes_issuance_ris']) && $isValidDate($row['ppes_date_issued']) && intval($row['ppes_count']) !== 0 && floatval($row['ppes_amount']) !== 0.0;
+                $c5  = $isValidDate($row['orientation_date']) && !empty($row['orientation_employment_period']);
+                $c6  = $isValidDate($row['gsis_enrollment_date']) && intval($row['gsis_enrollment_benefs']) !== 0 && floatval($row['gsis_enrollment_amount']) !== 0.0;
+                $c7  = $isValidDate($row['ongoing_implementation_start_date']) && $isValidDate($row['ongoing_implementation_end_date']) && intval($row['ongoing_implementation_benefs']) !== 0;
+                $c8  = !empty($row['completed_employment_period']) && intval($row['completed_employment_benefs']) !== 0 && !empty($row['completed_employment_amount']) && !empty($row['completed_employment_documentation']);
+                $c9  = !empty($row['payment_alob_no']) && !empty($row['payment_dv_no']) && !empty($row['payment_check_no']) && !empty($row['payment_amount']) && $isValidDate($row['payment_date']);
+                $c10 = $isValidDate($row['payout_date']) && !empty($row['payout_service_cost']) && !empty($row['payout_method']);
+
+                // Check if ALL conditions are true
+                $is_fully_complete = ($c1 && $c2 && $c3 && $c4 && $c5 && $c6 && $c7 && $c8 && $c9 && $c10);
             ?>
             <tr>
-                <td><strong><?= html_escape($row['adl_no']); ?></strong></td>
                 <td>
-                    <!-- STATUS LABELS / BADGES -->
+                    <!-- CHECK LABEL FOR ADL NO WHEN FULLY COMPLETE -->
+                    <?php if ($is_fully_complete): ?>
+                        <div class="mb-1">
+                            <span class="badge bg-success text-white shadow-sm">
+                                <i class="bi bi-check-circle-fill me-1"></i> Fully Completed
+                            </span>
+                        </div>
+                    <?php endif; ?>
+                    <strong><?= html_escape($row['adl_no']); ?></strong>
+                </td>
+                <td>
+                    <!-- STATUS LABELS / BADGES FOR REFERENCE NO (ALL WITH CHECK ICONS) -->
                     <div class="mb-1 d-flex flex-wrap gap-1">
-                        <!-- Condition 1 -->
-                        <?php if ($isValidDate($row['date_coordinated'])): ?>
-                            <span class="badge bg-success">Coordinated</span>
-                        <?php endif; ?>
-
-                        <!-- Condition 2 -->
-                        <?php if ($isValidDate($row['appraisal_date_submitted'])): ?>
-                            <span class="badge bg-success">Appraisal Submitted</span>
-                        <?php endif; ?>
-
-                        <!-- Condition 3 -->
-                        <?php if ($isValidDate($row['appraisal_date_approved'])): ?>
-                            <span class="badge bg-success">Appraisal Approved</span>
-                        <?php endif; ?>
-
-                        <!-- Condition 4 -->
-                        <?php if (!empty($row['ppes_issuance_ris']) && $isValidDate($row['ppes_date_issued']) && intval($row['ppes_count']) !== 0 && floatval($row['ppes_amount']) !== 0.0): ?>
-                            <span class="badge bg-success">Issued PPEs</span>
-                        <?php endif; ?>
-
-                        <!-- Condition 5 -->
-                        <?php if ($isValidDate($row['orientation_date']) && !empty($row['orientation_employment_period'])): ?>
-                            <span class="badge bg-success">Oriented</span>
-                        <?php endif; ?>
-
-                        <!-- Condition 6 -->
-                        <?php if ($isValidDate($row['gsis_enrollment_date']) && intval($row['gsis_enrollment_benefs']) !== 0 && floatval($row['gsis_enrollment_amount']) !== 0.0): ?>
-                            <span class="badge bg-success">GSIS Enrolled</span>
-                        <?php endif; ?>
-
-                        <!-- Condition 7 -->
-                        <?php if ($isValidDate($row['ongoing_implementation_start_date']) && $isValidDate($row['ongoing_implementation_end_date']) && intval($row['ongoing_implementation_benefs']) !== 0): ?>
-                            <span class="badge bg-success">Implemented</span>
-                        <?php endif; ?>
-
-                        <!-- Condition 8 -->
-                        <?php if (!empty($row['completed_employment_period']) && intval($row['completed_employment_benefs']) !== 0 && !empty($row['completed_employment_amount']) && !empty($row['completed_employment_documentation'])): ?>
-                            <span class="badge bg-success">Completed</span>
-                        <?php endif; ?>
-
-                        <!-- Condition 9 -->
-                        <?php if (!empty($row['payment_alob_no']) && !empty($row['payment_dv_no']) && !empty($row['payment_check_no']) && !empty($row['payment_amount']) && $isValidDate($row['payment_date'])): ?>
-                            <span class="badge bg-success">Funding Processed</span>
-                        <?php endif; ?>
-
-                        <!-- Condition 10 -->
-                        <?php if ($isValidDate($row['payout_date']) && !empty($row['payout_service_cost']) && !empty($row['payout_method'])): ?>
-                            <span class="badge bg-success">For payout</span>
-                        <?php endif; ?>
+                        <?php if ($c1): ?><span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Coordinated</span><?php endif; ?>
+                        <?php if ($c2): ?><span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Appraisal Submitted</span><?php endif; ?>
+                        <?php if ($c3): ?><span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Appraisal Approved</span><?php endif; ?>
+                        <?php if ($c4): ?><span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Issued PPEs</span><?php endif; ?>
+                        <?php if ($c5): ?><span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Oriented</span><?php endif; ?>
+                        <?php if ($c6): ?><span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>GSIS Enrolled</span><?php endif; ?>
+                        <?php if ($c7): ?><span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Implemented</span><?php endif; ?>
+                        <?php if ($c8): ?><span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Completed</span><?php endif; ?>
+                        <?php if ($c9): ?><span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Funding Processed</span><?php endif; ?>
+                        <?php if ($c10): ?><span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>For payout</span><?php endif; ?>
                     </div>
-
-                    <!-- Reference Number Display -->
                     <strong><?= html_escape($row['implementation_reference_no']); ?></strong>
                 </td>
                 <td><?= html_escape($row['implementation_province_name'] ?? 'N/A'); ?></td>
@@ -230,6 +219,13 @@
         <?php endforeach; ?>
     <?php endif; ?>
 </tbody>
+
+
+
+
+
+
+
                                 </table>
                             </div>
                         </div>
