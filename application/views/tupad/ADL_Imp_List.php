@@ -149,25 +149,87 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <?php if (!empty($transactions)): ?>
-                                            <?php foreach ($transactions as $row): ?>
-                                                <tr>
-                                                    <td><strong><?= html_escape($row['adl_no']); ?></strong></td>
-                                                    <td><strong><?= html_escape($row['implementation_reference_no']); ?></strong></td>
-                                                    <td><?= html_escape($row['implementation_province_name'] ?? 'N/A'); ?></td>
-                                                    <td><?= html_escape($row['implementation_area_name'] ?? 'N/A'); ?></td>
-                                                    <td><?= html_escape($row['implementation_proponent']); ?></td>
-                                                    <td><?= html_escape($row['implementation_sponsor']); ?></td>
-                                                    <td><?= html_escape($row['date_coordinated']); ?></td>
-                                                    <td class="text-center">
-                                                        <button type="button" class="btn btn-sm btn-primary edit-btn" data-id="<?= $row['adl_transact_id']; ?>">
-                                                            <i class="bi bi-pencil-square me-1"></i> Update
-                                                        </button>
-                                                    </td>
-                                                </tr>
-                                            <?php endforeach; ?>
-                                        <?php endif; ?>
-                                    </tbody>
+    <?php if (!empty($transactions)): ?>
+        <?php foreach ($transactions as $row): ?>
+            <?php 
+                // Helper to check for a valid date (not empty and not MySQL default '0000-00-00')
+                $isValidDate = function($date) {
+                    return !empty($date) && $date !== '0000-00-00';
+                };
+            ?>
+            <tr>
+                <td><strong><?= html_escape($row['adl_no']); ?></strong></td>
+                <td>
+                    <!-- STATUS LABELS / BADGES -->
+                    <div class="mb-1 d-flex flex-wrap gap-1">
+                        <!-- Condition 1 -->
+                        <?php if ($isValidDate($row['date_coordinated'])): ?>
+                            <span class="badge bg-success">Coordinated</span>
+                        <?php endif; ?>
+
+                        <!-- Condition 2 -->
+                        <?php if ($isValidDate($row['appraisal_date_submitted'])): ?>
+                            <span class="badge bg-success">Appraisal Submitted</span>
+                        <?php endif; ?>
+
+                        <!-- Condition 3 -->
+                        <?php if ($isValidDate($row['appraisal_date_approved'])): ?>
+                            <span class="badge bg-success">Appraisal Approved</span>
+                        <?php endif; ?>
+
+                        <!-- Condition 4 -->
+                        <?php if (!empty($row['ppes_issuance_ris']) && $isValidDate($row['ppes_date_issued']) && intval($row['ppes_count']) !== 0 && floatval($row['ppes_amount']) !== 0.0): ?>
+                            <span class="badge bg-success">Issued PPEs</span>
+                        <?php endif; ?>
+
+                        <!-- Condition 5 -->
+                        <?php if ($isValidDate($row['orientation_date']) && !empty($row['orientation_employment_period'])): ?>
+                            <span class="badge bg-success">Oriented</span>
+                        <?php endif; ?>
+
+                        <!-- Condition 6 -->
+                        <?php if ($isValidDate($row['gsis_enrollment_date']) && intval($row['gsis_enrollment_benefs']) !== 0 && floatval($row['gsis_enrollment_amount']) !== 0.0): ?>
+                            <span class="badge bg-success">GSIS Enrolled</span>
+                        <?php endif; ?>
+
+                        <!-- Condition 7 -->
+                        <?php if ($isValidDate($row['ongoing_implementation_start_date']) && $isValidDate($row['ongoing_implementation_end_date']) && intval($row['ongoing_implementation_benefs']) !== 0): ?>
+                            <span class="badge bg-success">Implemented</span>
+                        <?php endif; ?>
+
+                        <!-- Condition 8 -->
+                        <?php if (!empty($row['completed_employment_period']) && intval($row['completed_employment_benefs']) !== 0 && !empty($row['completed_employment_amount']) && !empty($row['completed_employment_documentation'])): ?>
+                            <span class="badge bg-success">Completed</span>
+                        <?php endif; ?>
+
+                        <!-- Condition 9 -->
+                        <?php if (!empty($row['payment_alob_no']) && !empty($row['payment_dv_no']) && !empty($row['payment_check_no']) && !empty($row['payment_amount']) && $isValidDate($row['payment_date'])): ?>
+                            <span class="badge bg-success">Funding Processed</span>
+                        <?php endif; ?>
+
+                        <!-- Condition 10 -->
+                        <?php if ($isValidDate($row['payout_date']) && !empty($row['payout_service_cost']) && !empty($row['payout_method'])): ?>
+                            <span class="badge bg-success">For payout</span>
+                        <?php endif; ?>
+                    </div>
+
+                    <!-- Reference Number Display -->
+                    <strong><?= html_escape($row['implementation_reference_no']); ?></strong>
+                </td>
+                <td><?= html_escape($row['implementation_province_name'] ?? 'N/A'); ?></td>
+                <td><?= html_escape($row['implementation_area_name'] ?? 'N/A'); ?></td>
+                <td><?= html_escape($row['implementation_proponent']); ?></td>
+                <td><?= html_escape($row['implementation_sponsor']); ?></td>
+                <td><?= html_escape($row['date_coordinated']); ?></td>
+                <td class="text-center">
+                    <button type="button" class="btn btn-sm btn-primary edit-btn" data-id="<?= $row['adl_transact_id']; ?>">
+                        <i class="bi bi-pencil-square me-1"></i> Update
+                    </button>
+                </td>
+            </tr>
+        <?php endforeach; ?>
+    <?php endif; ?>
+</tbody>
                                 </table>
                             </div>
                         </div>
