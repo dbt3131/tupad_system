@@ -139,6 +139,7 @@
                                     <thead class="table-dark">
                                         <tr>
                                             <th>ADL No.</th>
+                                            <th>Date Encoded</th>
                                             <th>ADL Reference No.</th>
                                             <th>Implementation Province</th>
                                             <th>Implementation Area</th>
@@ -189,6 +190,7 @@
                     <?php endif; ?>
                     <strong><?= html_escape($row['adl_no']); ?></strong>
                 </td>
+                <td><?= html_escape($row['encoded_date'] ?? 'N/A'); ?></td>
                 <td>
                     <!-- STATUS LABELS / BADGES FOR REFERENCE NO (ALL WITH CHECK ICONS) -->
                     <div class="mb-1 d-flex flex-wrap gap-1">
@@ -500,13 +502,18 @@
 
     <script>
     $(document).ready(function () {
-        $('#transactionTable').DataTable({
-            "language": {
-                "emptyTable": "No transaction records found. Please select a filtered area."
-            },
-            "pageLength": 10,
-            "lengthMenu": [5, 10, 25, 50, 100]
-        });
+     $(document).ready(function () {
+    $('#transactionTable').DataTable({
+        "language": {
+            "emptyTable": "No transaction records found. Please select a filtered area."
+        },
+        "pageLength": 10,
+        "lengthMenu": [5, 10, 25, 50, 100],
+        "order": [[1, "desc"]] // Sorts by Date Encoded (Column index 1) in descending order (newest first)
+    });
+    
+    // ... rest of your script ...
+});
 
         const ppeRate = parseFloat("<?= $ppe_rate ?? 325; ?>") || 0;
         const gsisRate = parseFloat("<?= $gsis_rate ?? 50; ?>") || 0;

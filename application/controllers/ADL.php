@@ -47,11 +47,9 @@ class ADL extends CI_Controller {
                 'adl_date'               => $this->input->post('adl_date', true),
                 'date_received'          => $this->input->post('date_received', true),
                 'target_benefs'          => $this->input->post('target_benefs', true),
-                'adl_province'           => $this->input->post('adl_province', true),
-                'area_of_implementation' => $this->input->post('area_of_implementation', true),
                 'adl_amount'             => $this->input->post('adl_amount', true),
                 'encoded_by'             => $this->session->userdata('user_id') ?? 'System User', // Adjust based on your session implementation
-                'encoded_date'           => date('Y-m-d')
+                'encoded_date'           => date('Y-m-d H:i:s')
             ];
 
             $insert = $this->ADL_Model->insert_adl($data);
@@ -107,7 +105,7 @@ class ADL extends CI_Controller {
             'payout_date'                       => $this->input->post('payout_date', true),
             'payout_service_cost'               => $this->input->post('payout_service_cost', true),
             'payout_method'                     => $this->input->post('payout_method', true),
-            'encoded_date'                      => date('Y-m-d'),
+            'encoded_date'                      => date('Y-m-d H:i:s'),
             'encoded_by'                        => $this->session->userdata('user_id') ?? 1
         ];
 

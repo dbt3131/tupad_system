@@ -125,27 +125,6 @@
                                 <input type="text" name="adl_amount" class="form-control" placeholder="Amount" required>
                             </div>
 
-                            <div class="col-md-6">
-                                <label class="form-label fw-semibold small">Province</label>
-                                <select name="adl_province" id="adl_province" class="form-select" required>
-                                    <option value="" selected disabled>Select Province</option>
-                                    <?php if (!empty($provinces)): ?>
-                                        <?php foreach ($provinces as $prov): ?>
-                                            <option value="<?= html_escape($prov['provCode']); ?>">
-                                                <?= html_escape($prov['provDesc']); ?>
-                                            </option>
-                                        <?php endforeach; ?>
-                                    <?php endif; ?>
-                                </select>
-                            </div>
-
-                            <div class="col-md-6">
-                                <label class="form-label fw-semibold small">Area of Implementation (City/Municipality)</label>
-                                <select name="area_of_implementation" id="area_of_implementation" class="form-select" required disabled>
-                                    <option value="" selected disabled>Select Province First</option>
-                                </select>
-                            </div>
-
                             <input type="hidden" name="encoded_date" value="<?= date('Y-m-d'); ?>">
 
                             <div class="col-12 mt-4 pt-3 border-top d-flex justify-content-end gap-2">
@@ -177,9 +156,7 @@
                                     <th>ADL No.</th>
                                     <th>ADL Date</th>
                                     <th>Date Received</th>
-                                    <th>Target Beneficiaries</th>
-                                    <th>Province</th>
-                                    <th>Area of Implementation</th>
+                                    <th>Target Beneficiaries</th>                             
                                     <th>Amount</th>
                                     <th>Balance</th>
                                 </tr>
@@ -192,8 +169,6 @@
                                             <td><?= html_escape($row['adl_date']); ?></td>
                                             <td><?= html_escape($row['date_received']); ?></td>
                                             <td><?= number_format($row['target_benefs']); ?></td>
-                                            <td><?= html_escape($row['provDesc'] ?? 'N/A'); ?></td>
-                                            <td><?= html_escape($row['citymunDesc'] ?? 'N/A'); ?></td>
                                             <td class="fw-semibold text-success">&#8369;<?= number_format($row['adl_amount'], 2); ?></td>
                                             <td class="fw-semibold text-primary">&#8369;<?= number_format($row['balance'], 2); ?></td>
                                         </tr>
