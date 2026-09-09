@@ -170,8 +170,8 @@
                                         <th>Reference No. / ADL No.</th>
                                         <th>PPES (Count vs Amount)</th>
                                         <th>GSIS Enrollment (Benefs vs Amount)</th>
-                                        <th>Payout Service Cost</th>
-                                        <th>Payment Amount</th>
+                                        <th>Payout Service Fee</th>
+                                        <th>Salaries Amount</th>
                                     </tr>
                                 </thead>
                                 <tbody id="detailedTransactionTableBody">

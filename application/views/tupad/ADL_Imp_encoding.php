@@ -174,13 +174,13 @@
                                     </div>
                                     <div class="col-md-4">
                                         <label class="form-label fw-semibold small">Implementation Reference No.</label>
-                                        <input type="text" name="implementation_reference_no" class="form-control" placeholder="Reference No." required>
+                                        <input type="text" name="implementation_reference_no" class="form-control" required>
                                     </div>
                                     <div class="col-md-4">
                                         <label class="form-label fw-semibold small">Date Coordinated</label>
                                         <input type="date" name="status_date" class="form-control" required>
                                     </div>
-                                    <div class="col-md-4">
+                                    <div class="col-md-3">
                                         <label class="form-label fw-semibold small">Implementation Province</label>
                                         <select name="implementation_province" id="implementation_province" class="form-select" required>
                                             <option value="" selected disabled>Select Province</option>
@@ -193,15 +193,15 @@
                                             <?php endif; ?>
                                         </select>
                                     </div>
-                                    <div class="col-md-4">
-                                        <label class="form-label fw-semibold small">Implementation Area (City/Municipality)</label>
+                                    <div class="col-md-3">
+                                        <label class="form-label fw-semibold small">Implementation Area</label>
                                         <select name="implementation_area" id="implementation_area" class="form-select" required disabled>
                                             <option value="" selected disabled>Select Province First</option>
                                         </select>
                                     </div>
 
                                     <!-- BARANGAY DROPDOWN FIELD -->
-                                    <div class="col-md-4">
+                                    <div class="col-md-3">
                                         <label class="form-label fw-semibold small">Barangay</label>
                                         <select name="implementation_brgy" id="implementation_brgy" class="form-select" disabled>
                                             <option value="" selected disabled>Select Municipality First</option>
@@ -220,8 +220,27 @@
                                             <option value="VI">VI</option>
                                         </select>
                                     </div>
+
+                                    <div class="col-md-3">
+                                    <label class="form-label fw-semibold small">Wage Percentage</label>
+                                        <select name="wage_percentage" id="wage_percentage" class="form-select" required>
+                                            <option value="">--Select Percentage--</option>
+                                            <option value="2.5">2.5%</option>
+                                            <option value="3">3%</option>                          
+                                        </select>
+                                    </div>
+
+                                     <div class="col-md-3">
+                                        <label class="form-label fw-semibold small">GPAI INFO (Funds)</label>
+                                        <input type="text" name="gpai_info" class="form-control" required>
+                                    </div>
+
+                                    <div class="col-md-3">
+                                        <label class="form-label fw-semibold small">WAGE INFO (Funds)</label>
+                                        <input type="text" name="wage_info" class="form-control" required>
+                                    </div>
                                     
-                                    <div class="col-md-2">
+                                    <div class="col-md-3">
                                         <label class="form-label fw-semibold small">LGU Classification</label>
                                         <input type="text" name="implementation_classification" class="form-control" required>
                                     </div>
@@ -234,6 +253,11 @@
                                     <div class="col-md-4">
                                         <label class="form-label fw-semibold small">Sponsor</label>
                                         <input type="text" name="imp_sponsor" class="form-control" required>
+                                    </div>
+
+                                    <div class="col-md-5">
+                                        <label class="form-label fw-semibold small">Overall Remarks</label>
+                                        <input type="text" name="remarks" class="form-control" required>
                                     </div>
                                 </div>
                             </div>
@@ -251,7 +275,7 @@
                                     </div>
                                     <div class="col-md-3">
                                         <label class="form-label fw-semibold small">PPES Issuance RIS</label>
-                                        <input type="text" name="ppes_issuance_ris" class="form-control" placeholder="RIS Number">
+                                        <input type="text" name="ppes_issuance_ris" class="form-control">
                                     </div>
                                     <div class="col-md-3">
                                         <label class="form-label fw-semibold small">PPES Date Issued</label>
@@ -281,7 +305,7 @@
                                     </div>
                                     <div class="col-md-4">
                                         <label class="form-label fw-semibold small">Employment Period</label>
-                                        <input type="text" name="orientation_employment_period" class="form-control" placeholder="e.g., 10 Days">
+                                        <input type="text" name="orientation_employment_period" class="form-control">
                                     </div>
                                     <div class="col-md-4">
                                         <label class="form-label fw-semibold small">GSIS Enrollment Date</label>
