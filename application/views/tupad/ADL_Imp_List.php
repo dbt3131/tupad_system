@@ -288,7 +288,7 @@
                                 <!-- TAB 1: GENERAL INFORMATION -->
                                 <div class="tab-pane fade show active" id="edit-general-pane" role="tabpanel">
                                     <div class="row g-3">
-                                        <div class="col-md-4">
+                                        <div class="col-md-3">
                                             <label class="form-label fw-semibold small">ADL Number</label>
                                             <select id="edit_adl_no" name="adl_no" class="form-select" disabled title="No hindi pwede edit! hehe!">
                                                 <option value="">-- Select ADL --</option>
@@ -299,13 +299,21 @@
                                                 <?php endif; ?>
                                             </select>
                                         </div>
-                                        <div class="col-md-4">
-                                            <label class="form-label fw-semibold small">Implementation Reference No.</label>
+                                        <div class="col-md-3">
+                                            <label class="form-label fw-semibold small">Reference No.</label>
                                             <input type="text" id="edit_implementation_reference_no" name="implementation_reference_no" class="form-control" required>
                                         </div>
-                                        <div class="col-md-4">
+                                        <div class="col-md-2    ">
                                             <label class="form-label fw-semibold small">Date Coordinated</label>
                                             <input type="date" id="edit_date_coordinated" name="status_date" class="form-control" required>
+                                        </div>
+                                        <div class="col-md-2    ">
+                                            <label class="form-label fw-semibold small">No of Days</label>
+                                            <input type="text" id="no_of_days" name="no_of_days" class="form-control" required>
+                                        </div>
+                                         <div class="col-md-2    ">
+                                            <label class="form-label fw-semibold small">Target</label>
+                                            <input type="text" id="target" name="target" class="form-control" required>
                                         </div>
                                         <div class="col-md-3">
                                             <label class="form-label fw-semibold small">Implementation Province</label>
@@ -367,7 +375,7 @@
                                         </div>
                                         <div class="col-md-4">
                                             <label class="form-label fw-semibold small">Overall Remarks</label>
-                                            <input type="text" id="edit_remarks" name="remarks" class="form-control" required>
+                                            <input type="text" id="edit_remarks" name="remarks" class="form-control">
                                         </div>
                                     </div>
                                 </div>
@@ -694,6 +702,8 @@
                         $('#edit_implementation_classification').val(d.implementation_classification);
                         $('#edit_implementation_proponent').val(d.implementation_proponent);
                         $('#edit_implementation_sponsor').val(d.implementation_sponsor);
+                        $('#no_of_days').val(d.no_of_days);
+                        $('#target').val(d.target);
                         $('#edit_appraisal_date_submitted').val(d.appraisal_date_submitted);
                         $('#edit_appraisal_date_approved').val(d.appraisal_date_approved);
                         $('#edit_ppes_issuance_ris').val(d.ppes_issuance_ris);

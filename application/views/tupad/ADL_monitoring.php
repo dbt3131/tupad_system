@@ -122,7 +122,7 @@
 
                             <div class="col-md-4">
                                 <label class="form-label fw-semibold small">Amount</label>
-                                <input type="text" name="adl_amount" class="form-control" placeholder="Amount" required>
+                                <input type="number" name="adl_amount" class="form-control" placeholder="Amount" required>
                             </div>
 
                             <input type="hidden" name="encoded_date" value="<?= date('Y-m-d'); ?>">

@@ -159,10 +159,10 @@
                             <!-- TAB 1: GENERAL INFORMATION -->
                             <div class="tab-pane fade show active" id="general-pane" role="tabpanel" aria-labelledby="general-tab">
                                 <div class="row g-3">
-                                    <div class="col-md-4">
+                                    <div class="col-md-3">
                                         <label class="form-label fw-semibold small">ADL Number</label>
                                         <select id="adl_no" name="adl_no" class="form-select" style="width: 100%;" required>
-                                            <option value="">-- Select or type ADL --</option>
+                                            <option value="">-Select ADL-</option>
                                             <?php if (!empty($ADL)): ?>
                                                 <?php foreach ($ADL as $ad): ?>
                                                     <option value="<?= html_escape($ad['adl_no']); ?>" <?= set_select('adl_no', $ad['adl_no']); ?>>
@@ -172,13 +172,21 @@
                                             <?php endif; ?>
                                         </select>
                                     </div>
-                                    <div class="col-md-4">
+                                    <div class="col-md-3">
                                         <label class="form-label fw-semibold small">Implementation Reference No.</label>
                                         <input type="text" name="implementation_reference_no" class="form-control" required>
                                     </div>
-                                    <div class="col-md-4">
+                                    <div class="col-md-3">
                                         <label class="form-label fw-semibold small">Date Coordinated</label>
                                         <input type="date" name="status_date" class="form-control" required>
+                                    </div>
+                                    <div class="col-md-1">
+                                        <label class="form-label fw-semibold small"># of Days</label>
+                                        <input type="text" name="no_of_days" class="form-control" required>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label class="form-label fw-semibold small">Target Benefs</label>
+                                        <input type="text" name="target" class="form-control" required>
                                     </div>
                                     <div class="col-md-3">
                                         <label class="form-label fw-semibold small">Implementation Province</label>
@@ -460,7 +468,7 @@
         // Initialize Select2 with Bootstrap 5 Theme
         $('#adl_no').select2({
             theme: 'bootstrap-5',
-            placeholder: '-- Select or type ADL Number --',
+            placeholder: '-Select or Type ADL-',
             allowClear: true
         });
 
