@@ -232,12 +232,12 @@
 
                                      <div class="col-md-3">
                                         <label class="form-label fw-semibold small">GPAI INFO (Funds)</label>
-                                        <input type="text" name="gpai_info" class="form-control" required>
+                                        <input type="text" name="gpai_info" class="form-control">
                                     </div>
 
                                     <div class="col-md-3">
                                         <label class="form-label fw-semibold small">WAGE INFO (Funds)</label>
-                                        <input type="text" name="wage_info" class="form-control" required>
+                                        <input type="text" name="wage_info" class="form-control" >
                                     </div>
                                     
                                     <div class="col-md-3">

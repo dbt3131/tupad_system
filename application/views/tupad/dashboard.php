@@ -33,23 +33,23 @@
       padding: 0.85rem 1rem;
     }
     .pagination .page-item .page-link {
-      width: 32px;
       height: 32px;
       display: flex;
       align-items: center;
       justify-content: center;
       margin: 0 2px;
-      border-radius: 6px !important;
     }
     .pagination .page-item.active .page-link {
       background-color: var(--bs-primary);
       color: white;
+      border-color: var(--bs-primary);
     }
   </style>
 </head>
 <body>
 
 <?php $this->load->view('templates/navbar'); ?>
+
   <!-- ================= MAIN CONTENT WRAPPER ================= -->
   <div id="main-content">
     <?php $this->load->view('templates/sidebar'); ?>
@@ -92,22 +92,38 @@
         </div>
       </div>
 
-<!-- Modern ADL Transactions Table Section -->
+      <!-- Alternative ADL Transactions Table Section with Search and Pagination -->
       <div class="row g-3 mb-4">
         <div class="col-12">
           <div class="content-card shadow-sm border-0 rounded-4 overflow-hidden bg-white">
             
-            <!-- Card Header with Search and Entries Dropdown -->
-            <div class="p-4 border-bottom bg-light bg-opacity-50 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+            <!-- Modern Toolbar Header -->
+            <div class="card-header bg-white py-3 px-4 border-bottom d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
               <div>
-                <h5 class="fw-bold mb-1 text-dark"><i class="bi bi-table text-primary me-2"></i>ADL Transactions Overview</h5>
+                <h5 class="fw-bold mb-1 text-dark">
+                  <i class="bi bi-file-earmark-text text-primary me-2"></i>ADL Transactions Overview
+                </h5>
                 <p class="text-muted small mb-0">Active Authorized Disbursement List (ADL) records and fund balances.</p>
+              </div>
+              
+              <!-- Search and Limit Controls Toolbar -->
+              <div class="d-flex align-items-center gap-2 flex-wrap">
+                <div class="input-group input-group-sm bg-light rounded-pill px-2 border" style="width: 240px;">
+                  <span class="input-group-text bg-transparent border-0 text-muted ps-1"><i class="bi bi-search"></i></span>
+                  <input type="text" id="altAdlSearch" class="form-control form-control-sm bg-transparent border-0 shadow-none" placeholder="Search ADL records...">
+                </div>
+                <select id="altAdlLimit" class="form-select form-select-sm rounded-pill px-3 border text-secondary" style="width: 110px;">
+                  <option value="5">5 rows</option>
+                  <option value="10" selected>10 rows</option>
+                  <option value="25">25 rows</option>
+                  <option value="50">50 rows</option>
+                </select>
               </div>
             </div>
 
             <!-- Responsive Table Container -->
             <div class="table-responsive">
-              <table class="table table-hover align-middle mb-0 text-nowrap">
+              <table class="table table-hover align-middle mb-0 text-nowrap" id="altAdlTable">
                 <thead class="table-light text-uppercase fs-7 text-secondary fw-semibold">
                   <tr>
                     <th class="ps-4 py-3">ADL No.</th>
@@ -118,10 +134,10 @@
                     <th class="pe-4 py-3 text-end">Balance</th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody id="altAdlBody">
                   <?php if (!empty($adl_records)): ?>
                     <?php foreach ($adl_records as $row): ?>
-                      <tr>
+                      <tr class="adl-row">
                         <td class="ps-4 fw-bold text-dark">
                           <a href="#" class="text-decoration-none text-primary"><?= html_escape($row['adl_no']); ?></a>
                         </td>
@@ -141,7 +157,7 @@
                       </tr>
                     <?php endforeach; ?>
                   <?php else: ?>
-                    <tr>
+                    <tr id="altNoDataRow">
                       <td colspan="6" class="text-center py-4 text-muted">No ADL records found.</td>
                     </tr>
                   <?php endif; ?>
@@ -149,26 +165,21 @@
               </table>
             </div>
 
-            <!-- Card Footer -->
-            <div class="p-3 px-4 border-top bg-light bg-opacity-25 d-flex justify-content-between align-items-center">
-              <div class="text-muted small">
-                Total Registered Records: <span class="fw-semibold text-dark"><?= !empty($adl_records) ? count($adl_records) : 0; ?></span>
+            <!-- Clean Card Footer with Counter and Pagination -->
+            <div class="card-footer bg-white py-3 px-4 border-top d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
+              <div class="text-muted small" id="altAdlInfo">
+                Showing 0 entries
               </div>
+              <nav aria-label="Page navigation">
+                <ul class="pagination pagination-sm mb-0 shadow-sm" id="altAdlPagination">
+                  <!-- Pagination items injected via script -->
+                </ul>
+              </nav>
             </div>
 
           </div>
         </div>
       </div>
-
-           
-
-          </div>
-        </div>
-      </div>
-
-      
-
-       
 
     </main>
 
@@ -183,7 +194,7 @@
   <!-- Leaflet JS -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
-  <!-- Dashboard Functionality & Charts & Dynamic Database Map Integration -->
+  <!-- Dashboard Functionality & Map Integration & Table Script -->
   <script>
     // Sidebar Toggle
     const sidebar = document.getElementById('sidebar');
@@ -244,53 +255,104 @@
         .bindPopup(`<b>${item.name}</b><br>Table Count: <b>${workersCount.toLocaleString()}</b> workers`);
     });
 
-    // Extract arrays for Chart.js dynamically
-    const provinces = provinceData.map(p => p.name);
-    const servedWorkers = provinceData.map(p => Number(p.workers));
-    const chartColors = provinceData.map(p => p.color || '#2563eb');
+    // Standalone Pagination & Search Script for ADL Table
+    document.addEventListener("DOMContentLoaded", function () {
+      const searchInput = document.getElementById('altAdlSearch');
+      const limitSelect = document.getElementById('altAdlLimit');
+      const tableBody = document.getElementById('altAdlBody');
+      const paginationEl = document.getElementById('altAdlPagination');
+      const infoEl = document.getElementById('altAdlInfo');
+      
+      const allRows = Array.from(tableBody.querySelectorAll('.adl-row'));
+      let currentPage = 1;
 
-    // Chart 1: Bar Chart
-    const ctxBar = document.getElementById('provinceBarChart').getContext('2d');
-    new Chart(ctxBar, {
-      type: 'bar',
-      data: {
-        labels: provinces,
-        datasets: [{
-          label: 'Served TUPAD Workers',
-          data: servedWorkers,
-          backgroundColor: '#2563eb',
-          borderRadius: 6,
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: { legend: { display: false } },
-        scales: {
-          y: { beginAtZero: true, grid: { color: '#f1f5f9' } },
-          x: { grid: { display: false } }
-        }
-      }
-    });
+      function updateTable() {
+        const query = searchInput.value.toLowerCase().trim();
+        const limit = parseInt(limitSelect.value);
 
-    // Chart 2: Doughnut Chart
-    const ctxDoughnut = document.getElementById('provinceDoughnutChart').getContext('2d');
-    new Chart(ctxDoughnut, {
-      type: 'doughnut',
-      data: {
-        labels: provinces,
-        datasets: [{
-          data: servedWorkers,
-          backgroundColor: chartColors,
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } }
+        // Filter rows based on search input
+        const filtered = allRows.filter(row => {
+          return row.textContent.toLowerCase().includes(query);
+        });
+
+        // Pagination calculation
+        const totalPages = Math.ceil(filtered.length / limit) || 1;
+        if (currentPage > totalPages) currentPage = totalPages;
+
+        const start = (currentPage - 1) * limit;
+        const end = start + limit;
+
+        // Hide all rows first
+        allRows.forEach(r => r.style.display = 'none');
+
+        // Show current page slice
+        const currentSlice = filtered.slice(start, end);
+        currentSlice.forEach(r => r.style.display = '');
+
+        // Update info text
+        if (filtered.length > 0) {
+          infoEl.innerHTML = `Showing <b>${start + 1}</b> to <b>${Math.min(end, filtered.length)}</b> of <b>${filtered.length}</b> entries`;
+        } else {
+          infoEl.innerHTML = `No matching records found`;
         }
+
+        buildPagination(totalPages);
       }
+
+      function buildPagination(totalPages) {
+        paginationEl.innerHTML = '';
+
+        if (totalPages <= 1) return;
+
+        // Previous Button
+        const prevClass = currentPage === 1 ? 'disabled' : '';
+        paginationEl.innerHTML += `
+          <li class="page-item ${prevClass}">
+            <a class="page-link rounded-start-pill px-3" href="#" data-page="${currentPage - 1}">&laquo; Prev</a>
+          </li>`;
+
+        // Page Numbers
+        for (let i = 1; i <= totalPages; i++) {
+          const activeClass = i === currentPage ? 'active' : '';
+          paginationEl.innerHTML += `
+            <li class="page-item ${activeClass}">
+              <a class="page-link px-3" href="#" data-page="${i}">${i}</a>
+            </li>`;
+        }
+
+        // Next Button
+        const nextClass = currentPage === totalPages ? 'disabled' : '';
+        paginationEl.innerHTML += `
+          <li class="page-item ${nextClass}">
+            <a class="page-link rounded-end-pill px-3" href="#" data-page="${currentPage + 1}">Next &raquo;</a>
+          </li>`;
+
+        // Attach click events
+        paginationEl.querySelectorAll('.page-link').forEach(link => {
+          link.addEventListener('click', function(e) {
+            e.preventDefault();
+            const targetPage = parseInt(this.getAttribute('data-page'));
+            if (!isNaN(targetPage) && targetPage > 0 && targetPage <= totalPages) {
+              currentPage = targetPage;
+              updateTable();
+            }
+          });
+        });
+      }
+
+      // Event bindings
+      searchInput.addEventListener('input', () => {
+        currentPage = 1;
+        updateTable();
+      });
+
+      limitSelect.addEventListener('change', () => {
+        currentPage = 1;
+        updateTable();
+      });
+
+      // Run initial execution
+      updateTable();
     });
   </script>
 </body>
