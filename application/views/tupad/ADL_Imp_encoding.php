@@ -74,6 +74,52 @@
             border-color: transparent;
             color: var(--primary-light);
         }
+
+
+
+
+/* 1. Text Input Placeholder Style */
+.form-control::placeholder {
+    color: #797a7846;
+    font-style: italic;
+    opacity: 1;
+}
+
+/* 1. Unselected Date Input (Placeholder look - e.g., red/italic) */
+input[type="date"].form-control:invalid::-webkit-datetime-edit {
+    color: #797a7846;
+    font-style: italic;
+}
+
+/* 2. Selected Date Input (Turns black and normal style once a date is picked) */
+input[type="date"].form-control:valid {
+    color: #000000;
+    font-style: normal;
+}
+input[type="date"].form-control:valid::-webkit-datetime-edit {
+    color: #000000;
+    font-style: normal;
+}
+
+/* Calendar icon styling */
+input[type="date"].form-control::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    filter: invert(0.5);
+}
+
+/* 3. Select Dropdown "Placeholder" Style */
+select.form-select:invalid {
+    color: #797a7846;
+    font-style: italic;
+}
+/* Ensure regular options return to normal text styling once selected */
+select.form-select option {
+    color: #555;
+    font-style: normal;
+}
+
+
+
     </style>
 </head>
 
@@ -174,7 +220,7 @@
                                     </div>
                                     <div class="col-md-3">
                                         <label class="form-label fw-semibold small">Implementation Reference No.</label>
-                                        <input type="text" name="implementation_reference_no" class="form-control" required>
+                                        <input type="text" name="implementation_reference_no" class="form-control" placeholder="Reference No" required>
                                     </div>
                                     <div class="col-md-3">
                                         <label class="form-label fw-semibold small">Date Coordinated</label>
@@ -182,11 +228,11 @@
                                     </div>
                                     <div class="col-md-1">
                                         <label class="form-label fw-semibold small"># of Days</label>
-                                        <input type="text" name="no_of_days" class="form-control" required>
+                                        <input type="text" name="no_of_days" class="form-control" placeholder="0" required>
                                     </div>
                                     <div class="col-md-2">
                                         <label class="form-label fw-semibold small">Target Benefs</label>
-                                        <input type="text" name="target" class="form-control" required>
+                                        <input type="text" name="target" class="form-control" placeholder="0" required>
                                     </div>
                                     <div class="col-md-3">
                                         <label class="form-label fw-semibold small">Implementation Province</label>
@@ -240,32 +286,32 @@
 
                                      <div class="col-md-3">
                                         <label class="form-label fw-semibold small">GPAI INFO (Funds)</label>
-                                        <input type="text" name="gpai_info" class="form-control">
+                                        <input type="text" name="gpai_info" class="form-control" placeholder="GPAI Funding">
                                     </div>
 
                                     <div class="col-md-3">
                                         <label class="form-label fw-semibold small">WAGE INFO (Funds)</label>
-                                        <input type="text" name="wage_info" class="form-control" >
+                                        <input type="text" name="wage_info" class="form-control" placeholder="Wage Funding" >
                                     </div>
                                     
                                     <div class="col-md-3">
                                         <label class="form-label fw-semibold small">LGU Classification</label>
-                                        <input type="text" name="implementation_classification" class="form-control" required>
+                                        <input type="text" name="implementation_classification" class="form-control" placeholder="LGU Class" required>
                                     </div>
 
                                     <div class="col-md-3">
                                         <label class="form-label fw-semibold small">Proponent</label>
-                                        <input type="text" name="imp_proponent" class="form-control" required>
+                                        <input type="text" name="imp_proponent" class="form-control" placeholder="Proponent" required>
                                     </div>
 
                                     <div class="col-md-4">
                                         <label class="form-label fw-semibold small">Sponsor</label>
-                                        <input type="text" name="imp_sponsor" class="form-control" required>
+                                        <input type="text" name="imp_sponsor" class="form-control" placeholder="Sponsor" required>
                                     </div>
 
                                     <div class="col-md-5">
                                         <label class="form-label fw-semibold small">Overall Remarks</label>
-                                        <input type="text" name="remarks" class="form-control">
+                                        <input type="text" name="remarks" class="form-control" placeholder="Remarks">
                                     </div>
                                 </div>
                             </div>
@@ -275,23 +321,23 @@
                                 <div class="row g-3">
                                     <div class="col-md-6">
                                         <label class="form-label fw-semibold small">Appraisal Date Submitted</label>
-                                        <input type="date" name="appraisal_date_submitted" class="form-control" >
+                                        <input type="text" name="appraisal_date_submitted" class="form-control" placeholder="Date Submitted" onfocus="this.type='date'" onblur="if(!this.value)this.type='text'">
                                     </div>
                                     <div class="col-md-6">
                                         <label class="form-label fw-semibold small">Appraisal Date Approved</label>
-                                        <input type="date" name="appraisal_date_approved" class="form-control" >
+                                        <input type="text" name="appraisal_date_approved" class="form-control" placeholder="Date Approved" onfocus="this.type='date'" onblur="if(!this.value)this.type='text'" >
                                     </div>
                                     <div class="col-md-3">
                                         <label class="form-label fw-semibold small">PPES RIS No.</label>
-                                        <input type="text" name="ppes_issuance_ris" class="form-control">
+                                        <input type="text" name="ppes_issuance_ris" class="form-control" placeholder="RIS Number">
                                     </div>
                                     <div class="col-md-3">
                                         <label class="form-label fw-semibold small">PPES Date Issued</label>
-                                        <input type="date" name="ppes_date_issued" class="form-control">
+                                        <input type="text" name="ppes_date_issued" class="form-control" placeholder="Date Issued" onfocus="this.type='date'" onblur="if(!this.value)this.type='text'">
                                     </div>
                                     <div class="col-md-3">
                                         <label class="form-label fw-semibold small">PPES Count</label>
-                                        <input type="number" name="ppes_count" id="ppes_count" class="form-control" value="0">
+                                        <input type="number" name="ppes_count" id="ppes_count" class="form-control" placeholder="0">
                                     </div>
                                     <div class="col-md-3">
                                         <label class="form-label fw-semibold small">PPES Amount</label>
@@ -305,23 +351,23 @@
                                 <div class="row g-3">
                                     <div class="col-md-4">
                                         <label class="form-label fw-semibold small">Orientation Date</label>
-                                        <input type="date" name="orientation_date" class="form-control">
+                                        <input type="text" name="orientation_date" class="form-control" placeholder="Date Orientation" onfocus="this.type='date'" onblur="if(!this.value)this.type='text'">
                                     </div>
                                     <div class="col-md-4">
                                         <label class="form-label fw-semibold small">Orientation Beneficiaries</label>
-                                        <input type="number" name="orientation_benefs" class="form-control" value="0">
+                                        <input type="number" name="orientation_benefs" class="form-control" placeholder="0">
                                     </div>
                                     <div class="col-md-4">
                                         <label class="form-label fw-semibold small">Employment Period</label>
-                                        <input type="text" name="orientation_employment_period" class="form-control">
+                                        <input type="text" name="orientation_employment_period" class="form-control" placeholder="Employment Period">
                                     </div>
                                     <div class="col-md-4">
                                         <label class="form-label fw-semibold small">GSIS Enrollment Date</label>
-                                        <input type="date" name="gsis_enrollment_date" class="form-control">
+                                        <input type="text" name="gsis_enrollment_date" class="form-control" placeholder="GSIS Enrollment Date" onfocus="this.type='date'" onblur="if(!this.value)this.type='text'">
                                     </div>
                                     <div class="col-md-4">
                                         <label class="form-label fw-semibold small">GSIS Beneficiaries</label>
-                                        <input type="number" name="gsis_enrollment_benefs" id="gsis_benefs" class="form-control" value="0">
+                                        <input type="number" name="gsis_enrollment_benefs" id="gsis_benefs" class="form-control" placeholder="0">
                                     </div>
                                     <div class="col-md-4">
                                         <label class="form-label fw-semibold small">GSIS Amount</label>
@@ -335,15 +381,15 @@
                                 <div class="row g-3">
                                     <div class="col-md-4">
                                         <label class="form-label fw-semibold small">Ongoing Start Date</label>
-                                        <input type="date" name="ongoing_implementation_start_date" class="form-control">
+                                        <input type="text" name="ongoing_implementation_start_date" class="form-control" placeholder="Start Date" onfocus="this.type='date'" onblur="if(!this.value)this.type='text'">
                                     </div>
                                     <div class="col-md-4">
                                         <label class="form-label fw-semibold small">Ongoing End Date</label>
-                                        <input type="date" name="ongoing_implementation_end_date" class="form-control">
+                                        <input type="text" name="ongoing_implementation_end_date" class="form-control" placeholder="End Date" onfocus="this.type='date'" onblur="if(!this.value)this.type='text'">
                                     </div>
                                     <div class="col-md-4">
                                         <label class="form-label fw-semibold small">Ongoing Beneficiaries</label>
-                                        <input type="number" name="ongoing_implementation_benefs" class="form-control" value="0">
+                                        <input type="number" name="ongoing_implementation_benefs" class="form-control" placeholder="0">
                                     </div>
                                     <div class="col-md-3">
                                         <label class="form-label fw-semibold small">Completed Period</label>
@@ -351,7 +397,7 @@
                                     </div>
                                     <div class="col-md-3">
                                         <label class="form-label fw-semibold small">Completed Beneficiaries</label>
-                                        <input type="number" name="completed_employment_benefs" class="form-control" value="0">
+                                        <input type="number" name="completed_employment_benefs" class="form-control" placeholder="0">
                                     </div>
                                     <div class="col-md-3">
                                         <label class="form-label fw-semibold small">Completed Amount</label>
@@ -369,19 +415,19 @@
                                 <div class="row g-3">
                                     <div class="col-md-3">
                                         <label class="form-label fw-semibold small">ALOB No.</label>
-                                        <input type="text" name="payment_alob_no" class="form-control">
+                                        <input type="text" name="payment_alob_no" class="form-control" placeholder="ALOB Number">
                                     </div>
                                     <div class="col-md-2">
                                         <label class="form-label fw-semibold small">DV No.</label>
-                                        <input type="text" name="payment_dv_no" class="form-control">
+                                        <input type="text" name="payment_dv_no" class="form-control" placeholder="DV Number">
                                     </div>
                                     <div class="col-md-2">
                                         <label class="form-label fw-semibold small">Check No.</label>
-                                        <input type="text" name="payment_check_no" class="form-control">
+                                        <input type="text" name="payment_check_no" class="form-control" placeholder="Check Number">
                                     </div>
                                     <div class="col-md-2">
                                         <label class="form-label fw-semibold small">Payment Date</label>
-                                        <input type="date" name="payment_date" class="form-control">
+                                        <input type="text" name="payment_date" class="form-control" placeholder="Payment Date" onfocus="this.type='date'" onblur="if(!this.value)this.type='text'">
                                     </div>
                                     <div class="col-md-3">
                                         <label class="form-label fw-semibold small">Payment Amount</label>
@@ -389,12 +435,13 @@
                                     </div>
                                     <div class="col-md-4">
                                         <label class="form-label fw-semibold small">Payout Date</label>
-                                        <input type="date" name="payout_date" class="form-control">
+                                        <input type="text" name="payout_date" class="form-control" placeholder="Payout Date" onfocus="this.type='date'" onblur="if(!this.value)this.type='text'">
                                     </div>
                                     <div class="col-md-4">
                                         <label class="form-label fw-semibold small">Payout Method</label>
-                                        <select id="payout_method" name="payout_method" class="form-select">
-                                         <option value="">-- Select Payout Site --</option>
+                                        <select id="payout_method" name="payout_method" class="form-select" style="color: #7a7979a9; font-style: italic;" 
+        onchange="this.style.color='#000000'; this.style.fontStyle='normal';">
+                                         <option value="" disabled selected>-- Select Payout Site --</option>
                                          <?php if (!empty($payoutSite)): ?>
                                              <?php foreach ($payoutSite as $pos): ?>
                                                  <option value="<?= html_escape($pos['payout_site_id']); ?>">

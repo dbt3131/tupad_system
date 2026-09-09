@@ -52,6 +52,38 @@
             max-width: 900px;
             margin: 0 auto;
         }
+
+
+
+
+/* 1. Style for your Text Input Placeholder */
+.form-control::placeholder {
+    color: #797a7846;
+    font-style: italic;
+    opacity: 1;
+}
+
+/* 1. Unselected Date Input (Placeholder look - e.g., red/italic) */
+input[type="date"].form-control:invalid::-webkit-datetime-edit {
+    color: #797a7846;
+    font-style: italic;
+}
+
+/* 2. Selected Date Input (Turns black and normal style once a date is picked) */
+input[type="date"].form-control:valid {
+    color: #000000;
+    font-style: normal;
+}
+input[type="date"].form-control:valid::-webkit-datetime-edit {
+    color: #000000;
+    font-style: normal;
+}
+
+/* Calendar icon styling */
+input[type="date"].form-control::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    filter: invert(0.5);
+}
     </style>
 </head>
 
