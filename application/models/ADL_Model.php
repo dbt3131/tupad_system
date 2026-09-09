@@ -189,7 +189,24 @@ public function update_transaction($id, $data) {
         return $query->result_array();
     }
 
-
+public function get_transaction_details($id)
+{
+    $this->db->select('
+        t.*,
+        prov.provDesc AS implementation_province_name,
+        mun.citymunDesc AS implementation_area_name,
+        u.reg_fname AS encoder_name,
+        brgy.brgyDesc AS implementation_brgy_name
+    ');
+    $this->db->from('adl_transactions t');
+    $this->db->join('refprovince prov', 't.implementation_province = prov.provCode', 'left');
+    $this->db->join('refcitymun mun', 't.implementation_area = mun.cityCode', 'left');
+    $this->db->join('refbrgy brgy', 't.implementation_brgy = brgy.brgyCode', 'left');
+    $this->db->join('users u', 't.encoded_by = u.id', 'left' ); 
+    $this->db->where('t.adl_transact_id', $id);
+    
+    return $this->db->get()->row_array();
+}
 
 
 

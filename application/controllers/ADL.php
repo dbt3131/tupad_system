@@ -296,7 +296,21 @@ public function update_transaction_record() {
         }
     }
 
+public function view_pdf($id)
+{
+    // 1. Load the model first
+    $this->load->model('ADL_model');
 
+    // 2. Now call the model method safely
+    $data['transaction'] = $this->ADL_model->get_transaction_details($id);
+
+    if (empty($data['transaction'])) {
+        show_404();
+    }
+
+    // 3. Load your PDF view template
+    $this->load->view('tupad/ADL_Imp_details_PDF', $data);
+}
 
 
 
