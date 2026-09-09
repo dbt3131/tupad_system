@@ -19,6 +19,33 @@
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+  <style>
+    /* Custom Modern Dashboard Additions */
+    .fs-7 {
+      font-size: 0.75rem;
+      letter-spacing: 0.05em;
+    }
+    .content-card {
+      border: 1px solid rgba(0, 0, 0, 0.04);
+      box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.03);
+    }
+    .table > :not(caption) > * > * {
+      padding: 0.85rem 1rem;
+    }
+    .pagination .page-item .page-link {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 2px;
+      border-radius: 6px !important;
+    }
+    .pagination .page-item.active .page-link {
+      background-color: var(--bs-primary);
+      color: white;
+    }
+  </style>
 </head>
 <body>
 
@@ -45,75 +72,12 @@
           </button>
         </div>
       </div>
-
-      <!-- KPI Summary Cards -->
-      <div class="row g-3 mb-4">
-        <!-- Card 1 -->
-        <div class="col-12 col-sm-6 col-xl-3">
-          <div class="stat-card">
-            <div class="d-flex align-items-center justify-content-between">
-              <div>
-                <span class="text-muted small fw-medium">Total Active Tupad Workers</span>
-                <h3 class="fw-bold my-1"><?php echo isset($total_active_workers) ? $total_active_workers : '0'; ?></h3>
-              </div>
-              <div class="icon-badge bg-primary-subtle text-primary">
-                <i class="bi bi-people-fill"></i>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Card 2 -->
-        <div class="col-12 col-sm-6 col-xl-3">
-          <div class="stat-card">
-            <div class="d-flex align-items-center justify-content-between">
-              <div>
-                <span class="text-muted small fw-medium">Total Inactive Tupad Workers</span>
-               <h3 class="fw-bold my-1"><?php echo isset($total_inactive_workers) ? $total_inactive_workers : '0'; ?></h3>
-              </div>
-              <div class="icon-badge bg-info-subtle text-info">
-               <i class="bi bi-people-fill"></i>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Card 3 -->
-        <div class="col-12 col-sm-6 col-xl-3">
-          <div class="stat-card">
-            <div class="d-flex align-items-center justify-content-between">
-              <div>
-                <span class="text-muted small fw-medium">Total Funds Disbursed</span>
-                <h3 class="fw-bold my-1">₱ 229.1M</h3>
-              </div>
-              <div class="icon-badge bg-success-subtle text-success">
-                <i class="bi bi-currency-dollar"></i>
-              </div>
-            </div>
-          </div>
-        </div>
-
-       <!-- Card 4 -->
-        <div class="col-12 col-sm-6 col-xl-3">
-          <div class="stat-card">
-            <div class="d-flex align-items-center justify-content-between">
-              <div>
-                <span class="text-muted small fw-medium">Total Funds</span><br>
-             
-                <h3 class="fw-bold my-1">₱ 229.1M</h3>
-              </div>
-              <div class="icon-badge bg-success-subtle text-success">
-                <i class="bi bi-currency-dollar"></i>
-              </div>
-            </div>
-          </div>
-        </div>
-
+       
       <!-- Central Luzon Map Preview Section -->
       <div class="row g-3 mb-4">
         <div class="col-12">
-          <div class="content-card">
-            <div class="content-card-header d-flex justify-content-between align-items-center">
+          <div class="content-card bg-white rounded-4 overflow-hidden">
+            <div class="p-4 border-bottom d-flex justify-content-between align-items-center bg-light bg-opacity-50">
               <div>
                 <h6 class="fw-bold mb-0"><i class="bi bi-map text-primary me-2"></i>Central Luzon Geographic Deployment Preview</h6>
                 <p class="text-muted small mb-0">Interactive markers indicating active cluster concentrations across Region III provinces.</p>
@@ -128,166 +92,83 @@
         </div>
       </div>
 
-      <!-- Charts Section -->
+<!-- Modern ADL Transactions Table Section -->
       <div class="row g-3 mb-4">
-        <!-- Bar Chart -->
-        <div class="col-12 col-lg-8">
-          <div class="content-card h-100">
-            <div class="content-card-header">
-              <h6 class="fw-bold mb-0">TUPAD Beneficiaries per Province</h6>
-              <span class="badge bg-light text-dark border">FY 2026</span>
+        <div class="col-12">
+          <div class="content-card shadow-sm border-0 rounded-4 overflow-hidden bg-white">
+            
+            <!-- Card Header with Search and Entries Dropdown -->
+            <div class="p-4 border-bottom bg-light bg-opacity-50 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+              <div>
+                <h5 class="fw-bold mb-1 text-dark"><i class="bi bi-table text-primary me-2"></i>ADL Transactions Overview</h5>
+                <p class="text-muted small mb-0">Active Authorized Disbursement List (ADL) records and fund balances.</p>
+              </div>
             </div>
-            <div class="p-3">
-              <canvas id="provinceBarChart" style="max-height: 320px;"></canvas>
-            </div>
-          </div>
-        </div>
 
-        <!-- Doughnut / Share Chart -->
-        <div class="col-12 col-lg-4">
-          <div class="content-card h-100">
-            <div class="content-card-header">
-              <h6 class="fw-bold mb-0">Regional Share %</h6>
+            <!-- Responsive Table Container -->
+            <div class="table-responsive">
+              <table class="table table-hover align-middle mb-0 text-nowrap">
+                <thead class="table-light text-uppercase fs-7 text-secondary fw-semibold">
+                  <tr>
+                    <th class="ps-4 py-3">ADL No.</th>
+                    <th class="py-3">ADL Date</th>
+                    <th class="py-3">Date Received</th>
+                    <th class="py-3">Target Beneficiaries</th>
+                    <th class="py-3">Amount</th>
+                    <th class="pe-4 py-3 text-end">Balance</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <?php if (!empty($adl_records)): ?>
+                    <?php foreach ($adl_records as $row): ?>
+                      <tr>
+                        <td class="ps-4 fw-bold text-dark">
+                          <a href="#" class="text-decoration-none text-primary"><?= html_escape($row['adl_no']); ?></a>
+                        </td>
+                        <td class="text-secondary"><?= html_escape($row['adl_date']); ?></td>
+                        <td class="text-secondary"><?= html_escape($row['date_received']); ?></td>
+                        <td>
+                          <span class="badge bg-secondary-subtle text-dark fw-normal px-2 py-1">
+                            <?= number_format($row['target_benefs']); ?>
+                          </span>
+                        </td>
+                        <td class="fw-medium text-success">
+                          &#8369;<?= number_format($row['adl_amount'], 2); ?>
+                        </td>
+                        <td class="pe-4 text-end fw-bold text-primary">
+                          &#8369;<?= number_format($row['balance'], 2); ?>
+                        </td>
+                      </tr>
+                    <?php endforeach; ?>
+                  <?php else: ?>
+                    <tr>
+                      <td colspan="6" class="text-center py-4 text-muted">No ADL records found.</td>
+                    </tr>
+                  <?php endif; ?>
+                </tbody>
+              </table>
             </div>
-            <div class="p-3 d-flex align-items-center justify-content-center">
-              <canvas id="provinceDoughnutChart" style="max-height: 280px;"></canvas>
+
+            <!-- Card Footer -->
+            <div class="p-3 px-4 border-top bg-light bg-opacity-25 d-flex justify-content-between align-items-center">
+              <div class="text-muted small">
+                Total Registered Records: <span class="fw-semibold text-dark"><?= !empty($adl_records) ? count($adl_records) : 0; ?></span>
+              </div>
             </div>
+
           </div>
         </div>
       </div>
 
-      <!-- Data Table Section -->
-      <div class="content-card">
-        <div class="content-card-header">
-          <h6 class="fw-bold mb-0">Provincial Breakdown Details</h6>
-          <div class="input-group input-group-sm" style="max-width: 240px;">
-            <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
-            <input type="text" class="form-control" placeholder="Search province...">
+           
+
           </div>
         </div>
-
-        <div class="table-responsive">
-          <table class="table table-hover align-middle mb-0">
-            <thead>
-              <tr>
-                <th>Province</th>
-                <th>Target Workers</th>
-                <th>Served Workers</th>
-                <th>Completion Rate</th>
-                <th>Budget Allocated</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td><span class="fw-semibold">Bulacan</span></td>
-                <td>11,000</td>
-                <td>10,450</td>
-                <td>
-                  <div class="d-flex align-items-center gap-2">
-                    <div class="progress flex-grow-1" style="height: 6px;">
-                      <div class="progress-bar bg-success" style="width: 95%;"></div>
-                    </div>
-                    <small class="fw-bold">95%</small>
-                  </div>
-                </td>
-                <td>₱ 52,250,000</td>
-                <td><span class="badge bg-success-subtle text-success">Ongoing</span></td>
-              </tr>
-              <tr>
-                <td><span class="fw-semibold">Pampanga</span></td>
-                <td>10,000</td>
-                <td>9,800</td>
-                <td>
-                  <div class="d-flex align-items-center gap-2">
-                    <div class="progress flex-grow-1" style="height: 6px;">
-                      <div class="progress-bar bg-success" style="width: 98%;"></div>
-                    </div>
-                    <small class="fw-bold">98%</small>
-                  </div>
-                </td>
-                <td>₱ 49,000,000</td>
-                <td><span class="badge bg-success-subtle text-success">Ongoing</span></td>
-              </tr>
-              <tr>
-                <td><span class="fw-semibold">Nueva Ecija</span></td>
-                <td>9,500</td>
-                <td>8,900</td>
-                <td>
-                  <div class="d-flex align-items-center gap-2">
-                    <div class="progress flex-grow-1" style="height: 6px;">
-                      <div class="progress-bar bg-primary" style="width: 93%;"></div>
-                    </div>
-                    <small class="fw-bold">93%</small>
-                  </div>
-                </td>
-                <td>₱ 44,500,000</td>
-                <td><span class="badge bg-success-subtle text-success">Ongoing</span></td>
-              </tr>
-              <tr>
-                <td><span class="fw-semibold">Tarlac</span></td>
-                <td>6,500</td>
-                <td>6,100</td>
-                <td>
-                  <div class="d-flex align-items-center gap-2">
-                    <div class="progress flex-grow-1" style="height: 6px;">
-                      <div class="progress-bar bg-primary" style="width: 93%;"></div>
-                    </div>
-                    <small class="fw-bold">93%</small>
-                  </div>
-                </td>
-                <td>₱ 30,500,000</td>
-                <td><span class="badge bg-success-subtle text-success">Ongoing</span></td>
-              </tr>
-              <tr>
-                <td><span class="fw-semibold">Bataan</span></td>
-                <td>5,000</td>
-                <td>4,750</td>
-                <td>
-                  <div class="d-flex align-items-center gap-2">
-                    <div class="progress flex-grow-1" style="height: 6px;">
-                      <div class="progress-bar bg-info" style="width: 95%;"></div>
-                    </div>
-                    <small class="fw-bold">95%</small>
-                  </div>
-                </td>
-                <td>₱ 23,750,000</td>
-                <td><span class="badge bg-success-subtle text-success">Ongoing</span></td>
-              </tr>
-              <tr>
-                <td><span class="fw-semibold">Zambales</span></td>
-                <td>4,500</td>
-                <td>3,820</td>
-                <td>
-                  <div class="d-flex align-items-center gap-2">
-                    <div class="progress flex-grow-1" style="height: 6px;">
-                      <div class="progress-bar bg-warning" style="width: 84%;"></div>
-                    </div>
-                    <small class="fw-bold">84%</small>
-                  </div>
-                </td>
-                <td>₱ 19,100,000</td>
-                <td><span class="badge bg-warning-subtle text-warning">Pending Review</span></td>
-              </tr>
-              <tr>
-                <td><span class="fw-semibold">Aurora</span></td>
-                <td>2,200</td>
-                <td>2,000</td>
-                <td>
-                  <div class="d-flex align-items-center gap-2">
-                    <div class="progress flex-grow-1" style="height: 6px;">
-                      <div class="progress-bar bg-success" style="width: 90%;"></div>
-                    </div>
-                    <small class="fw-bold">90%</small>
-                  </div>
-                </td>
-                <td>₱ 10,000,000</td>
-                <td><span class="badge bg-success-subtle text-success">Ongoing</span></td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
       </div>
+
+      
+
+       
 
     </main>
 
@@ -302,7 +183,6 @@
   <!-- Leaflet JS -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
-  <!-- Dashboard Functionality & Charts & Map -->
   <!-- Dashboard Functionality & Charts & Dynamic Database Map Integration -->
   <script>
     // Sidebar Toggle
@@ -310,14 +190,16 @@
     const mainContent = document.getElementById('main-content');
     const sidebarToggle = document.getElementById('sidebarToggle');
 
-    sidebarToggle.addEventListener('click', () => {
-      if (window.innerWidth < 992) {
-        sidebar.classList.toggle('show-mobile');
-      } else {
-        sidebar.classList.toggle('collapsed');
-        mainContent.classList.toggle('expanded');
-      }
-    });
+    if(sidebarToggle) {
+      sidebarToggle.addEventListener('click', () => {
+        if (window.innerWidth < 992) {
+          sidebar.classList.toggle('show-mobile');
+        } else {
+          sidebar.classList.toggle('collapsed');
+          mainContent.classList.toggle('expanded');
+        }
+      });
+    }
 
     // Safely capture PHP JSON from your database query
     let provinceData = [];
@@ -326,8 +208,6 @@
     } catch(e) {
       console.error("JSON Parse Error:", e);
     }
-
-    console.log("Active Province Dataset from Database:", provinceData);
 
     // Initialize Leaflet Map centered over Central Luzon (Region III)
     const map = L.map('centralLuzonMap').setView([15.35, 120.75], 8);
@@ -341,13 +221,10 @@
     // Plot Province Circles and Pins strictly from database rows
     provinceData.forEach(item => {
       const workersCount = Number(item.workers) || 0;
-      
-      // Skip rendering if worker count is 0 and you don't want empty markers
       if (workersCount <= 0) return;
 
       const radiusSize = Math.max(workersCount * 0.45, 5000);
 
-      // Draw proportional boundary zone overlay
       L.circle([item.lat, item.lng], {
         color: item.color || '#2563eb',
         fillColor: item.color || '#2563eb',
@@ -355,7 +232,6 @@
         radius: radiusSize
       }).addTo(map).bindPopup(`<strong>${item.name} Province</strong><br>Database Workers: <strong>${workersCount.toLocaleString()}</strong>`);
 
-      // Add clickable marker pin
       const markerHtml = `<div style="background-color: ${item.color || '#2563eb'}; width: 16px; height: 16px; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 6px rgba(0,0,0,0.5);"></div>`;
       const customIcon = L.divIcon({
         html: markerHtml,
@@ -416,8 +292,6 @@
         }
       }
     });
-</script>
-</body>
-</html>
+  </script>
 </body>
 </html>

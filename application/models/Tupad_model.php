@@ -708,6 +708,13 @@ public function remove_from_gsis_letter($file_name) {
     return $this->db->delete('gsis_letters') ? 'success' : 'failed';
 }
 
+public function get_adl_transactions() {
+        $this->db->order_by('adl_transact_id', 'DESC');
+        return $this->db->get('adl_transactions')->result_array();
+    }
+
+
+
 
 
 }
