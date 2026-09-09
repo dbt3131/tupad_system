@@ -66,10 +66,10 @@
 
 <body>
 
-    <?php $this->load->view('templates/navbar'); ?>
+    <?php $this->load->view('templates/navbar');?>
 
     <div id="main-content">
-        <?php $this->load->view('templates/sidebar'); ?>
+        <?php $this->load->view('templates/sidebar');?>
 
         <main class="p-3 p-md-4 flex-grow-1">
             
@@ -296,7 +296,7 @@
                                             <label class="form-label fw-semibold small">Date Coordinated</label>
                                             <input type="date" id="edit_date_coordinated" name="status_date" class="form-control" required>
                                         </div>
-                                        <div class="col-md-6">
+                                        <div class="col-md-3">
                                             <label class="form-label fw-semibold small">Implementation Province</label>
                                             <select name="implementation_province" id="edit_implementation_province" class="form-select" required>
                                                 <option value="" selected disabled>Select Province</option>
@@ -307,36 +307,56 @@
                                                 <?php endif; ?>
                                             </select>
                                         </div>
-                                        <div class="col-md-6">
-                                            <label class="form-label fw-semibold small">Implementation Area (City/Municipality)</label>
+                                        <div class="col-md-3">
+                                            <label class="form-label fw-semibold small">Implementation Area</label>
                                             <select name="implementation_area" id="edit_implementation_area" class="form-select" required>
                                                 <option value="" selected disabled>Select Province First</option>
                                             </select>
                                         </div>
-                                        
-                                        <!-- UPDATED FIELDS ADDED -->
-                                        <div class="col-md-4">
+                                        <div class="col-md-3">
                                             <label class="form-label fw-semibold small">Implementation Barangay</label>
                                             <select name="implementation_brgy" id="edit_implementation_brgy" class="form-select">
                                                 <option value="" selected disabled>Select Municipality First</option>
                                             </select>
                                         </div>
-                                        <div class="col-md-4">
+                                        <div class="col-md-3">
                                             <label class="form-label fw-semibold small">Implementation District</label>
                                             <input type="text" id="edit_implementation_district" name="implementation_district" class="form-control" required>
                                         </div>
-                                        <div class="col-md-4">
-                                            <label class="form-label fw-semibold small">Implementation Classification</label>
+
+                                        <!-- NEW FIELDS ADDED HERE -->
+                                        <div class="col-md-3">
+                                            <label class="form-label fw-semibold small">Wage Percentage</label>
+                                            <select name="wage_percentage" id="edit_wage_percentage" class="form-select" required>
+                                                <option value="">--Select Percentage--</option>
+                                                <option value="2.5">2.5%</option>
+                                                <option value="3">3%</option>                          
+                                            </select>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label class="form-label fw-semibold small">GPAI INFO (Funds)</label>
+                                            <input type="text" id="edit_gpai_info" name="gpai_info" class="form-control" required>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label class="form-label fw-semibold small">WAGE INFO (Funds)</label>
+                                            <input type="text" id="edit_wage_info" name="wage_info" class="form-control" required>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label class="form-label fw-semibold small">LGU Classification</label>
                                             <input type="text" id="edit_implementation_classification" name="implementation_classification" class="form-control" required>
                                         </div>
 
-                                        <div class="col-md-6">
+                                        <div class="col-md-4">
                                             <label class="form-label fw-semibold small">Proponent</label>
                                             <input type="text" id="edit_implementation_proponent" name="imp_proponent" class="form-control" required>
                                         </div>
-                                        <div class="col-md-6">
+                                        <div class="col-md-4">
                                             <label class="form-label fw-semibold small">Sponsor</label>
                                             <input type="text" id="edit_implementation_sponsor" name="imp_sponsor" class="form-control" required>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label fw-semibold small">Overall Remarks</label>
+                                            <input type="text" id="edit_remarks" name="remarks" class="form-control" required>
                                         </div>
                                     </div>
                                 </div>
@@ -353,7 +373,7 @@
                                             <input type="date" id="edit_appraisal_date_approved" name="appraisal_date_approved" class="form-control">
                                         </div>
                                         <div class="col-md-3">
-                                            <label class="form-label fw-semibold small">PPES Issuance RIS</label>
+                                            <label class="form-label fw-semibold small">PPES RIS No.</label>
                                             <input type="text" id="edit_ppes_issuance_ris" name="ppes_issuance_ris" class="form-control">
                                         </div>
                                         <div class="col-md-3">
@@ -655,8 +675,12 @@
 
                         // Populate new fields
                         $('#edit_implementation_district').val(d.implementation_district);
-                        $('#edit_implementation_classification').val(d.implementation_classification);
+                        $('#edit_wage_percentage').val(d.wage_percentage);
+                        $('#edit_gpai_info').val(d.gpai_info);
+                        $('#edit_wage_info').val(d.wage_info);
+                        $('#edit_remarks').val(d.remarks);
 
+                        $('#edit_implementation_classification').val(d.implementation_classification);
                         $('#edit_implementation_proponent').val(d.implementation_proponent);
                         $('#edit_implementation_sponsor').val(d.implementation_sponsor);
                         $('#edit_appraisal_date_submitted').val(d.appraisal_date_submitted);

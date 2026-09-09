@@ -257,7 +257,7 @@
 
                                     <div class="col-md-5">
                                         <label class="form-label fw-semibold small">Overall Remarks</label>
-                                        <input type="text" name="remarks" class="form-control" required>
+                                        <input type="text" name="remarks" class="form-control">
                                     </div>
                                 </div>
                             </div>
@@ -274,7 +274,7 @@
                                         <input type="date" name="appraisal_date_approved" class="form-control" >
                                     </div>
                                     <div class="col-md-3">
-                                        <label class="form-label fw-semibold small">PPES Issuance RIS</label>
+                                        <label class="form-label fw-semibold small">PPES RIS No.</label>
                                         <input type="text" name="ppes_issuance_ris" class="form-control">
                                     </div>
                                     <div class="col-md-3">
