@@ -74,7 +74,8 @@ public function get_all_adl_numbers() {
 
 
 
-public function get_adl_report_breakdown($adl_no) {
+// Update get_adl_report_breakdown in ADL_Model.php
+public function get_adl_report_breakdown($adl_no, $province = null) {
     // Get main ADL registry information
     $adl = $this->db->where('adl_no', $adl_no)->get('adl_registry')->row_array();
     
@@ -92,6 +93,15 @@ public function get_adl_report_breakdown($adl_no) {
     $this->db->join('refprovince', 'adl_transactions.implementation_province = refprovince.provCode', 'left');
     $this->db->join('refcitymun', 'adl_transactions.implementation_area = refcitymun.cityCode', 'left');
     $this->db->where('adl_transactions.adl_no', $adl_no);
+
+    // Apply optional province filter if selected by the user
+    if (!empty($province)) {
+        $this->db->where('adl_transactions.implementation_province', $province);
+    }
+
+    // Sort from newest to oldest based on encoded date (or implementation date)
+    $this->db->order_by('adl_transactions.encoded_date', 'DESC');
+
     $transactions = $this->db->get()->result_array();
 
     // Calculate totals across all transactions for this ADL
@@ -208,7 +218,24 @@ public function get_transaction_details($id)
     return $this->db->get()->row_array();
 }
 
+//adl reporting data table
+public function get_all_or_filtered_transactions($province = null) {
+    $this->db->select('
+        adl_transactions.*, 
+        refcitymun.citymunDesc as implementation_area_name, 
+        refprovince.provDesc as implementation_province_name');
+    $this->db->from('adl_transactions');
+    $this->db->join('refprovince', 'adl_transactions.implementation_province = refprovince.provCode', 'left');
+    $this->db->join('refcitymun', 'adl_transactions.implementation_area = refcitymun.cityCode', 'left');
+    $this->db->order_by('adl_transactions.encoded_date', 'DESC');
+    
+    if (!empty($province)) {
+        $this->db->where('adl_transactions.implementation_province', $province);
+    }
 
+    $query = $this->db->get();
+    return $query->result_array();
+}
 
 
 

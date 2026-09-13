@@ -140,13 +140,25 @@ class ADL extends CI_Controller {
 // Load ADL Reporting view
 public function ADL_report() {
     $data['adl_list'] = $this->ADL_Model->get_all_adl_numbers();
+    $data['provinces'] = $this->ADL_Model->get_provinces(); // Load provinces for filter dropdown
+    $data['detailed_transactions'] = $this->ADL_Model->get_all_or_filtered_transactions(); // Load all data on page load
     $this->load->view('tupad/ADL_reporting', $data);
 }
 
+// ajax ADL Reporting View
+public function get_detailed_transactions_ajax() {
+    $province = $this->input->get('province');
+    $transactions = $this->ADL_Model->get_all_or_filtered_transactions($province);
+    echo json_encode(['status' => true, 'data' => $transactions]);
+}
+
+// Update or replace get_report_data method in ADL.php
 public function get_report_data() {
     $adl_no = $this->input->get('adl_no');
+    $province = $this->input->get('province'); // Optional province filter
+
     if ($adl_no) {
-        $report = $this->ADL_Model->get_adl_report_breakdown($adl_no);
+        $report = $this->ADL_Model->get_adl_report_breakdown($adl_no, $province);
         echo json_encode(['status' => true, 'data' => $report]);
     } else {
         echo json_encode(['status' => false, 'data' => null]);

@@ -5,9 +5,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>ADL Breakdown Reporting - DOLE TUPAD</title>
-<!-- Select2 CSS CDN -->
+    <!-- Select2 CSS CDN -->
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
+    
+    <!-- DataTables Bootstrap 5 CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -86,7 +90,7 @@
                </div>
             </div>
 
-            <!-- Report Display Container (Hidden until selected) -->
+            <!-- Report Display Container (Hidden until ADL selected) -->
             <div id="reportContainer" style="display: none;">
                 
                 <!-- Summary Metrics Row -->
@@ -154,41 +158,54 @@
                     </div>
                 </div>
 
-                <!-- 2. New Detailed Implementation Breakdown Table (Province, Area, counts vs amounts) -->
-                <div class="card border-0 shadow-sm mb-4">
-                    <div class="card-header bg-white py-3">
-                        <h5 class="mb-0 fw-bold text-secondary">
-                            <i class="bi bi-geo-alt me-2"></i>Detailed Implementation & Itemized Breakdown List
-                        </h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-bordered table-striped align-middle">
-                                <thead class="table-light text-center align-middle">
-                                    <tr>
-                                        <th>Implementation Province / Area</th>
-                                        <th>Reference No. / ADL No.</th>
-                                        <th>PPES (Count vs Amount)</th>
-                                        <th>GSIS Enrollment (Benefs vs Amount)</th>
-                                        <th>Payout Service Fee</th>
-                                        <th>Salaries Amount</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="detailedTransactionTableBody">
-                                    <!-- Populated dynamically via AJAX -->
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-
             </div>
 
             <!-- Initial Placeholder instruction -->
-            <div id="placeholderContainer" class="card border-0 shadow-sm text-center py-5">
+            <div id="placeholderContainer" class="card border-0 shadow-sm text-center py-5 mb-4">
                 <div class="card-body py-5">
                     <i class="bi bi-arrow-up-circle fs-1 text-muted"></i>
                     <p class="text-muted mt-2">Please select an ADL number from the dropdown filter above to view its transaction breakdown report.</p>
+                </div>
+            </div>
+
+            <!-- 2. Detailed Implementation Breakdown Table (Hidden initially, appears after ADL selection) -->
+            <div id="detailedTableCard" class="card border-0 shadow-sm mb-4" style="display: none;">
+                <div class="card-header bg-white py-3 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+                    <h5 class="mb-0 fw-bold text-secondary">
+                        <i class="bi bi-geo-alt me-2"></i>Detailed Implementation & Itemized Breakdown List
+                    </h5>
+                    <!-- Province Filter Dropdown -->
+                    <div style="width: 300px;">
+                        <select id="filter_province" class="form-select" style="width: 100%;">
+                            <option value="">-- All Provinces --</option>
+                            <?php if (!empty($provinces)): ?>
+                                <?php foreach ($provinces as $prov): ?>
+                                    <option value="<?= html_escape($prov['provCode']); ?>">
+                                        <?= html_escape($prov['provDesc']); ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </select>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table id="detailedTransactionsTable" class="table table-bordered table-striped align-middle w-100">
+                            <thead class="table-light text-center align-middle">
+                                <tr>
+                                    <th>Implementation Province / Area</th>
+                                    <th>Reference No. / ADL No.</th>
+                                    <th>PPES (Count vs Amount)</th>
+                                    <th>GSIS Enrollment (Benefs vs Amount)</th>
+                                    <th>Payout Service Fee</th>
+                                    <th>Salaries Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody id="detailedTransactionTableBody">
+                                <!-- Populated dynamically via AJAX -->
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
@@ -202,113 +219,145 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
     <!-- Select2 JS CDN -->
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
-<script>
-$(document).ready(function () {
-    // Initialize Select2 with Bootstrap 5 Theme
-    $('#filter_adl_no').select2({
-        theme: 'bootstrap-5',
-        placeholder: '-- Select or type ADL Number --',
-        allowClear: true
-    });
+    <!-- DataTables JS CDN -->
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
 
-    // Handle dropdown/typing selection change event
-    $('#filter_adl_no').on('change', function () {
-        const adlNo = $(this).val();
+    <script>
+    $(document).ready(function () {
+        // Initialize Select2 with Bootstrap 5 Theme for ADL Number Filter
+        $('#filter_adl_no').select2({
+            theme: 'bootstrap-5',
+            placeholder: '-- Select or type ADL Number --',
+            allowClear: true
+        });
 
-        if (!adlNo) {
-            $('#reportContainer').hide();
-            $('#placeholderContainer').fadeIn();
-            return;
+        // Initialize Select2 for Province Filter Dropdown
+        $('#filter_province').select2({
+            theme: 'bootstrap-5',
+            placeholder: '-- All Provinces --',
+            allowClear: true
+        });
+
+        // Initialize DataTable with Pagination & Sorting (initially empty instance)
+        const table = $('#detailedTransactionsTable').DataTable({
+            pageLength: 10,
+            lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
+            ordering: true,
+            responsive: true
+        });
+
+        // Function to load report data via AJAX
+        function loadReportData(adlNo, provinceCode = '') {
+            $.ajax({
+                url: "<?= site_url('adl/get_report_data'); ?>",
+                type: "GET",
+                data: { adl_no: adlNo, province: provinceCode },
+                dataType: "json",
+                success: function (response) {
+                    if (response.status && response.data) {
+                        const d = response.data;
+                        
+                        // Populate summary metric cards (only update if it's the base query without province restriction or update accordingly)
+                        if (!provinceCode) {
+                            $('#displayAdlNo').text(d.adl_no);
+                            $('#lblAdlAmount').text('₱' + d.adl_amount.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}));
+                            $('#lblTotalDeductions').text('₱' + d.total_deductions.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}));
+                            $('#lblRemainingBalance').text('₱' + d.remaining_balance.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}));
+
+                            // Populate summary table breakdown rows
+                            $('#valServiceCost').text('₱' + d.total_service_cost.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}));
+                            $('#valPaymentAmount').text('₱' + d.total_payment.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}));
+                            $('#valPpesAmount').text('₱' + d.total_ppes_amount.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}));
+                            $('#valGsisAmount').text('₱' + d.total_gsis_amount.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}));
+                            $('#valTableTotalDeductions').text('₱' + d.total_deductions.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}));
+                        }
+
+                        // Clear existing DataTable rows
+                        table.clear();
+
+                        // Populate the detailed items table rows
+                        if (d.transactions && d.transactions.length > 0) {
+                            d.transactions.forEach(function(tx) {
+                                let provinceName = tx.implementation_province_name || tx.implementation_province;
+                                let areaName = tx.implementation_area_name || tx.implementation_area;
+                                
+                                let ppesAmt = parseFloat(tx.ppes_amount) || 0;
+                                let gsisAmt = parseFloat(tx.gsis_enrollment_amount) || 0;
+                                let serviceCost = parseFloat(tx.payout_service_cost) || 0;
+                                let paymentAmt = parseFloat(tx.payment_amount) || 0;
+
+                                table.row.add([
+                                    `<strong>${areaName}</strong><br><small class="text-muted"><i class="bi bi-geo-alt-fill me-1"></i>${provinceName}</small>`,
+                                    `<strong>ADL:</strong> ${tx.adl_no}<br><small class="text-muted">Ref: <code>${tx.implementation_reference_no}</code></small>`,
+                                    `<span class="badge bg-info text-dark">${tx.ppes_count || 0} items</span><br>₱${ppesAmt.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`,
+                                    `<span class="badge bg-secondary">${tx.gsis_enrollment_benefs || 0} benefs</span><br>₱${gsisAmt.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`,
+                                    `<span class="text-danger">₱${serviceCost.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>`,
+                                    `<span class="text-danger">₱${paymentAmt.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>`
+                                ]);
+                            });
+                        }
+                        
+                        // Redraw DataTable
+                        table.draw();
+
+                        // Show report and detailed containers, hide placeholder
+                        $('#placeholderContainer').hide();
+                        $('#reportContainer').fadeIn();
+                        $('#detailedTableCard').fadeIn();
+                    } else {
+                        alert('No transaction records found for this ADL number.');
+                    }
+                },
+                error: function () {
+                    alert('Error fetching report details. Please try again.');
+                }
+            });
         }
 
-        // Trigger AJAX report loading
-        $.ajax({
-            url: "<?= site_url('adl/get_report_data'); ?>",
-            type: "GET",
-            data: { adl_no: adlNo },
-            dataType: "json",
-            success: function (response) {
-                if (response.status && response.data) {
-                    const d = response.data;
-                    
-                    // Populate summary metric cards
-                    $('#displayAdlNo').text(d.adl_no);
-                    $('#lblAdlAmount').text('₱' + d.adl_amount.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}));
-                    $('#lblTotalDeductions').text('₱' + d.total_deductions.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}));
-                    $('#lblRemainingBalance').text('₱' + d.remaining_balance.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}));
+        // Handle ADL selection change event
+        $('#filter_adl_no').on('change', function () {
+            const adlNo = $(this).val();
 
-                    // Populate original detailed table breakdown rows (Summary)
-                    $('#valServiceCost').text('₱' + d.total_service_cost.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}));
-                    $('#valPaymentAmount').text('₱' + d.total_payment.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}));
-                    $('#valPpesAmount').text('₱' + d.total_ppes_amount.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}));
-                    $('#valGsisAmount').text('₱' + d.total_gsis_amount.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}));
-                    $('#valTableTotalDeductions').text('₱' + d.total_deductions.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}));
+            if (!adlNo) {
+                $('#reportContainer').hide();
+                $('#detailedTableCard').hide();
+                $('#placeholderContainer').fadeIn();
+                $('#filter_province').val('').trigger('change.select2'); // Reset province filter
+                return;
+            }
 
-                    // Populate the new detailed items table rows (Province, Area, ADL no, Counts vs Amounts)
-                    let detailedHtml = '';
-                    if (d.transactions && d.transactions.length > 0) {
-                        d.transactions.forEach(function(tx) {
-                            let provinceName = tx.implementation_province_name || tx.implementation_province;
-                            let areaName = tx.implementation_area_name || tx.implementation_area;
-                            
-                            let ppesAmt = parseFloat(tx.ppes_amount) || 0;
-                            let gsisAmt = parseFloat(tx.gsis_enrollment_amount) || 0;
-                            let serviceCost = parseFloat(tx.payout_service_cost) || 0;
-                            let paymentAmt = parseFloat(tx.payment_amount) || 0;
+            // Reset province filter when a new ADL is chosen
+            $('#filter_province').val('').trigger('change.select2');
 
-                            detailedHtml += `<tr>
-                                <td>
-                                    <strong>${areaName}</strong><br>
-                                    <small class="text-muted"><i class="bi bi-geo-alt-fill me-1"></i>${provinceName}</small>
-                                </td>
-                                <td>
-                                    <strong>ADL:</strong> ${tx.adl_no}<br>
-                                    <small class="text-muted">Ref: <code>${tx.implementation_reference_no}</code></small>
-                                </td>
-                                <td class="text-end">
-                                    <span class="badge bg-info text-dark">${tx.ppes_count || 0} items</span><br>
-                                    ₱${ppesAmt.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}
-                                </td>
-                                <td class="text-end">
-                                    <span class="badge bg-secondary">${tx.gsis_enrollment_benefs || 0} benefs</span><br>
-                                    ₱${gsisAmt.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}
-                                </td>
-                                <td class="text-end text-danger">₱${serviceCost.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
-                                <td class="text-end text-danger">₱${paymentAmt.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
-                            </tr>`;
-                        });
-                    } else {
-                        detailedHtml = `<tr><td colspan="6" class="text-center text-muted py-3">No individual transaction mappings found for this ADL number.</td></tr>`;
-                    }
-                    $('#detailedTransactionTableBody').html(detailedHtml);
+            // Load data for selected ADL
+            loadReportData(adlNo, '');
+        });
 
-                    // Show report container and hide placeholder instructions
-                    $('#placeholderContainer').hide();
-                    $('#reportContainer').fadeIn();
-                } else {
-                    alert('No transaction records found for this ADL number.');
-                }
-            },
-            error: function () {
-                alert('Error fetching report details. Please try again.');
+        // Handle Province Filter change event via AJAX for the active ADL
+        $('#filter_province').on('change', function () {
+            const adlNo = $('#filter_adl_no').val();
+            const provCode = $(this).val();
+
+            if (adlNo) {
+                loadReportData(adlNo, provCode);
+            }
+        });
+
+        // Sidebar Toggle Handler
+        $(document).on('click', '#sidebarToggle', function (e) {
+            e.preventDefault();
+            if ($(window).width() < 992) {
+                $('#sidebar').toggleClass('show-mobile');
+            } else {
+                $('#sidebar').toggleClass('collapsed');
+                $('#main-content').toggleClass('expanded');
             }
         });
     });
-
-    // Sidebar Toggle Handler
-    $(document).on('click', '#sidebarToggle', function (e) {
-        e.preventDefault();
-        if ($(window).width() < 992) {
-            $('#sidebar').toggleClass('show-mobile');
-        } else {
-            $('#sidebar').toggleClass('collapsed');
-            $('#main-content').toggleClass('expanded');
-        }
-    });
-});
-</script>
+    </script>
 </body>
 
 </html>

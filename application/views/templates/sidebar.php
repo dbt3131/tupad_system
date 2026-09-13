@@ -303,7 +303,8 @@ $is_adl_active  = in_array($current_controller, ['ADL']);
 
 </li>
 
-<!-- TUPAD Workers Dropdown -->
+<!--
+
     <li class="nav-item dropdown">
       <a href="#allocSubmenu" 
          class="nav-link <?= $is_alloc_active ? '' : 'collapsed'; ?>" 
@@ -314,7 +315,7 @@ $is_adl_active  = in_array($current_controller, ['ADL']);
         <i class="bi bi-chevron-down ms-auto dropdown-chevron"></i>
       </a>
       
-      <!-- Subcategory Menu -->
+  
       <ul class="collapse submenu list-unstyled <?= $is_alloc_active ? 'show' : ''; ?>" id="allocSubmenu">
         <li>
           <a href="<?= site_url('tupad_allocations/tupad_encode'); ?>" 
@@ -348,7 +349,9 @@ $is_adl_active  = in_array($current_controller, ['ADL']);
       </ul>
     </li>
 
-<!-- TUPAD Workers Dropdown -->
+
+
+
     <li class="nav-item dropdown">
       <a href="#payrollSubmenu" 
          class="nav-link <?= $is_payroll_active ? '' : 'collapsed'; ?>" 
@@ -359,7 +362,7 @@ $is_adl_active  = in_array($current_controller, ['ADL']);
         <i class="bi bi-chevron-down ms-auto dropdown-chevron"></i>
       </a>
       
-      <!-- Subcategory Menu -->
+    
       <ul class="collapse submenu list-unstyled <?= $is_payroll_active ? 'show' : ''; ?>" id="payrollSubmenu">
         <li>
           <a href="<?= site_url('tupad_payrolls/payroll_encode'); ?>" 
@@ -370,7 +373,7 @@ $is_adl_active  = in_array($current_controller, ['ADL']);
         </li>
       </ul>
     </li>
-
+-->
 
     <!-- TUPAD ADL Dropdown -->
     <li class="nav-item dropdown">
