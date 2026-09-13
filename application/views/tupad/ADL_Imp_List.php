@@ -6,21 +6,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>ADL Implementation List - DOLE TUPAD</title>
     
-    <!-- Select2 CSS CDN -->
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-    <!-- Bootstrap 5 & Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     
-    <!-- DataTables Bootstrap 5 CSS -->
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/dataTables.bootstrap5.min.css">
 
-    <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 
     <style>
@@ -62,48 +58,39 @@
             #main-content { margin-left: 0 !important; }
         }
 
+        .form-control::placeholder {
+            color: #797a7846;
+            font-style: italic;
+            opacity: 1;
+        }
 
+        input[type="date"].form-control:invalid::-webkit-datetime-edit {
+            color: #797a7846;
+            font-style: italic;
+        }
 
-        /* 1. Text Input Placeholder Style */
-.form-control::placeholder {
-    color: #797a7846;
-    font-style: italic;
-    opacity: 1;
-}
+        input[type="date"].form-control:valid {
+            color: #000000;
+            font-style: normal;
+        }
+        input[type="date"].form-control:valid::-webkit-datetime-edit {
+            color: #000000;
+            font-style: normal;
+        }
 
-/* 1. Unselected Date Input (Placeholder look - e.g., red/italic) */
-input[type="date"].form-control:invalid::-webkit-datetime-edit {
-    color: #797a7846;
-    font-style: italic;
-}
+        input[type="date"].form-control::-webkit-calendar-picker-indicator {
+            cursor: pointer;
+            filter: invert(0.5);
+        }
 
-/* 2. Selected Date Input (Turns black and normal style once a date is picked) */
-input[type="date"].form-control:valid {
-    color: #000000;
-    font-style: normal;
-}
-input[type="date"].form-control:valid::-webkit-datetime-edit {
-    color: #000000;
-    font-style: normal;
-}
-
-/* Calendar icon styling */
-input[type="date"].form-control::-webkit-calendar-picker-indicator {
-    cursor: pointer;
-    filter: invert(0.5);
-}
-
-/* 3. Select Dropdown "Placeholder" Style */
-select.form-select:invalid {
-    color: #797a7846;
-    font-style: italic;
-}
-/* Ensure regular options return to normal text styling once selected */
-select.form-select option {
-    color: #555;
-    font-style: normal;
-}
-
+        select.form-select:invalid {
+            color: #797a7846;
+            font-style: italic;
+        }
+        select.form-select option {
+            color: #555;
+            font-style: normal;
+        }
     </style>
 </head>
 
@@ -116,7 +103,6 @@ select.form-select option {
 
         <main class="p-3 p-md-4 flex-grow-1">
             
-            <!-- FLASH MESSAGES -->
             <?php if ($this->session->flashdata('success')): ?>
                 <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
                     <i class="bi bi-check-circle-fill me-2"></i><?= html_escape($this->session->flashdata('success')); ?>
@@ -143,7 +129,6 @@ select.form-select option {
             <div class="card border-0 shadow-sm">
                 <div class="card-body p-4">
                     
-                    <!-- Filter Card -->
                     <div class="card border-0 shadow-sm mb-4">
                         <div class="card-body">
                             <form method="GET" action="" class="row g-3" id="filterForm">
@@ -174,7 +159,6 @@ select.form-select option {
                         </div>
                     </div>
 
-                    <!-- Data Table -->
                     <div class="card border-0 shadow-sm">
                         <div class="card-body">
                             <div class="table-responsive">
@@ -214,7 +198,7 @@ select.form-select option {
                                                     $is_fully_complete = ($c1 && $c2 && $c3 && $c4 && $c5 && $c6 && $c7 && $c8 && $c9 && $c10);
                                                 ?>
                                                 <tr>
-                                                     <td><?= html_escape($row['encoded_date'] ?? 'N/A'); ?></td>
+                                                    <td><?= html_escape($row['encoded_date'] ?? 'N/A'); ?></td>
                                                     <td>
                                                         <?php if ($is_fully_complete): ?>
                                                             <div class="mb-1">
@@ -245,26 +229,18 @@ select.form-select option {
                                                     <td><?= html_escape($row['implementation_proponent']); ?></td>
                                                     <td><?= html_escape($row['implementation_sponsor']); ?></td>
                                                     <td><?= html_escape($row['date_coordinated']); ?></td>
-
-
-                                                   <td class="text-center">
-    <div class="d-flex justify-content-center gap-1">
-        <?php if (isset($user_assigned_prov) && $user_assigned_prov === $row['implementation_province']): ?>
-            <button type="button" class="btn btn-sm btn-primary edit-btn" data-id="<?= $row['adl_transact_id']; ?>">
-                <i class="bi bi-pencil-square me-1"></i> Update
-            </button>
-        <?php else: ?>
-            
-        <?php endif; ?>
-
-        <!-- PDF View Button -->
-        <a href="<?= site_url('adl/view_pdf/' . $row['adl_transact_id']); ?>" target="_blank" class="btn btn-sm btn-danger" title="View PDF">
-            <i class="bi bi-file-earmark-pdf"></i>Details
-        </a>
-    </div>
-</td>
-
-
+                                                    <td class="text-center">
+                                                        <div class="d-flex justify-content-center gap-1">
+                                                            <?php if (isset($user_assigned_prov) && $user_assigned_prov === $row['implementation_province']): ?>
+                                                                <button type="button" class="btn btn-sm btn-primary edit-btn" data-id="<?= $row['adl_transact_id']; ?>">
+                                                                    <i class="bi bi-pencil-square me-1"></i> Update
+                                                                </button>
+                                                            <?php endif; ?>
+                                                            <a href="<?= site_url('adl/view_pdf/' . $row['adl_transact_id']); ?>" target="_blank" class="btn btn-sm btn-danger" title="View PDF">
+                                                                <i class="bi bi-file-earmark-pdf"></i>Details
+                                                            </a>
+                                                        </div>
+                                                    </td>
                                                 </tr>
                                             <?php endforeach; ?>
                                         <?php endif; ?>
@@ -279,7 +255,7 @@ select.form-select option {
 
         </main>
 
-        <!-- EDIT TRANSACTION MODAL (TAB BY TAB) -->
+        <!-- EDIT TRANSACTION MODAL -->
         <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
                 <div class="modal-content border-0 shadow">
@@ -294,7 +270,6 @@ select.form-select option {
                         <input type="hidden" name="adl_transact_id" id="edit_adl_transact_id">
 
                         <div class="modal-body p-4">
-                            <!-- TAB NAVIGATION HEADERS -->
                             <ul class="nav nav-tabs mb-4" id="editEncodingTabs" role="tablist">
                                 <li class="nav-item" role="presentation">
                                     <button class="nav-link active" id="edit-general-tab" data-bs-toggle="tab" data-bs-target="#edit-general-pane" type="button" role="tab">
@@ -323,15 +298,14 @@ select.form-select option {
                                 </li>
                             </ul>
 
-                            <!-- TAB CONTENT PANES -->
                             <div class="tab-content" id="editEncodingTabsContent">
                                 
                                 <!-- TAB 1: GENERAL INFORMATION -->
                                 <div class="tab-pane fade show active" id="edit-general-pane" role="tabpanel">
                                     <div class="row g-3">
-                                        <div class="col-md-3">
+                                        <div class="col-md-2">
                                             <label class="form-label fw-semibold small">ADL Number</label>
-                                            <select id="edit_adl_no" name="adl_no" class="form-select" disabled title="No hindi pwede edit! hehe!">
+                                            <select id="edit_adl_no" name="adl_no" class="form-select" disabled title="Cannot be edited">
                                                 <option value="">-- Select ADL --</option>
                                                 <?php if (!empty($ADL)): ?>
                                                     <?php foreach ($ADL as $ad): ?>
@@ -342,19 +316,23 @@ select.form-select option {
                                         </div>
                                         <div class="col-md-3">
                                             <label class="form-label fw-semibold small">Reference No.</label>
-                                            <input type="text" id="edit_implementation_reference_no" name="implementation_reference_no" class="form-control" required>
+                                            <input type="text" id="edit_implementation_reference_no" name="implementation_reference_no" class="form-control" disabled title="Cannot be edited">
                                         </div>
-                                        <div class="col-md-2    ">
+                                        <div class="col-md-2">
                                             <label class="form-label fw-semibold small">Date Coordinated</label>
-                                            <input type="date" id="edit_date_coordinated" name="status_date" class="form-control" required>
+                                            <input type="text" id="edit_date_coordinated" name="status_date" class="form-control" placeholder="Date Coordinated" onfocus="this.type='date'" onblur="if(!this.value)this.type='text'" required>
                                         </div>
-                                        <div class="col-md-2    ">
+                                        <div class="col-md-1">
                                             <label class="form-label fw-semibold small">No of Days</label>
-                                            <input type="text" id="no_of_days" name="no_of_days" class="form-control"  required>
+                                            <input type="text" id="no_of_days" name="no_of_days" class="form-control" placeholder="0" required>
                                         </div>
-                                         <div class="col-md-2    ">
+                                        <div class="col-md-2">
                                             <label class="form-label fw-semibold small">Target</label>
-                                            <input type="text" id="target" name="target" class="form-control" required>
+                                            <input type="text" id="target" name="target" class="form-control" placeholder="0" required>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <label class="form-label fw-semibold small">Reformulated Target</label>
+                                            <input type="text" id="edit_reformulated_target" name="reformulated_target" class="form-control" placeholder="0">
                                         </div>
                                         <div class="col-md-3">
                                             <label class="form-label fw-semibold small">Implementation Province</label>
@@ -381,10 +359,17 @@ select.form-select option {
                                         </div>
                                         <div class="col-md-3">
                                             <label class="form-label fw-semibold small">Implementation District</label>
-                                            <input type="text" id="edit_implementation_district" name="implementation_district" class="form-control" required>
+                                            <select name="implementation_district" id="edit_implementation_district" class="form-select" required>
+                                                <option value="">--Select District--</option>
+                                                <option value="I">I</option>
+                                                <option value="II">II</option>
+                                                <option value="III">III</option>
+                                                <option value="IV">IV</option>
+                                                <option value="V">V</option>
+                                                <option value="VI">VI</option>
+                                            </select>
                                         </div>
 
-                                        <!-- NEW FIELDS ADDED HERE -->
                                         <div class="col-md-3">
                                             <label class="form-label fw-semibold small">Wage Percentage</label>
                                             <select name="wage_percentage" id="edit_wage_percentage" class="form-select" required>
@@ -395,28 +380,28 @@ select.form-select option {
                                         </div>
                                         <div class="col-md-3">
                                             <label class="form-label fw-semibold small">GPAI INFO (Funds)</label>
-                                            <input type="text" id="edit_gpai_info" name="gpai_info" class="form-control" required>
+                                            <input type="text" id="edit_gpai_info" name="gpai_info" class="form-control" placeholder="GPAI Funding" required>
                                         </div>
                                         <div class="col-md-3">
                                             <label class="form-label fw-semibold small">WAGE INFO (Funds)</label>
-                                            <input type="text" id="edit_wage_info" name="wage_info" class="form-control" required>
+                                            <input type="text" id="edit_wage_info" name="wage_info" class="form-control" placeholder="Wage Funding" required>
                                         </div>
                                         <div class="col-md-3">
                                             <label class="form-label fw-semibold small">LGU Classification</label>
-                                            <input type="text" id="edit_implementation_classification" name="implementation_classification" class="form-control" required>
+                                            <input type="text" id="edit_implementation_classification" name="implementation_classification" class="form-control" placeholder="LGU Class" required>
                                         </div>
 
                                         <div class="col-md-4">
                                             <label class="form-label fw-semibold small">Proponent</label>
-                                            <input type="text" id="edit_implementation_proponent" name="imp_proponent" class="form-control" required>
+                                            <input type="text" id="edit_implementation_proponent" name="imp_proponent" class="form-control" placeholder="Proponent" required>
                                         </div>
                                         <div class="col-md-4">
                                             <label class="form-label fw-semibold small">Sponsor</label>
-                                            <input type="text" id="edit_implementation_sponsor" name="imp_sponsor" class="form-control" required>
+                                            <input type="text" id="edit_implementation_sponsor" name="imp_sponsor" class="form-control" placeholder="Sponsor" required>
                                         </div>
                                         <div class="col-md-4">
                                             <label class="form-label fw-semibold small">Overall Remarks</label>
-                                            <input type="text" id="edit_remarks" name="remarks" class="form-control">
+                                            <input type="text" id="edit_remarks" name="remarks" class="form-control" placeholder="Remarks">
                                         </div>
                                     </div>
                                 </div>
@@ -426,27 +411,31 @@ select.form-select option {
                                     <div class="row g-3">
                                         <div class="col-md-6">
                                             <label class="form-label fw-semibold small">Appraisal Date Submitted</label>
-                                            <input type="date" id="edit_appraisal_date_submitted" name="appraisal_date_submitted" class="form-control">
+                                            <input type="text" id="edit_appraisal_date_submitted" name="appraisal_date_submitted" class="form-control" placeholder="Date Submitted" onfocus="this.type='date'" onblur="if(!this.value)this.type='text'">
                                         </div>
                                         <div class="col-md-6">
                                             <label class="form-label fw-semibold small">Appraisal Date Approved</label>
-                                            <input type="date" id="edit_appraisal_date_approved" name="appraisal_date_approved" class="form-control">
+                                            <input type="text" id="edit_appraisal_date_approved" name="appraisal_date_approved" class="form-control" placeholder="Date Approved" onfocus="this.type='date'" onblur="if(!this.value)this.type='text'">
                                         </div>
                                         <div class="col-md-3">
                                             <label class="form-label fw-semibold small">PPES RIS No.</label>
-                                            <input type="text" id="edit_ppes_issuance_ris" name="ppes_issuance_ris" class="form-control">
+                                            <input type="text" id="edit_ppes_issuance_ris" name="ppes_issuance_ris" class="form-control" placeholder="RIS Number">
                                         </div>
                                         <div class="col-md-3">
                                             <label class="form-label fw-semibold small">PPES Date Issued</label>
-                                            <input type="date" id="edit_ppes_date_issued" name="ppes_date_issued" class="form-control">
+                                            <input type="text" id="edit_ppes_date_issued" name="ppes_date_issued" class="form-control" placeholder="Date Issued" onfocus="this.type='date'" onblur="if(!this.value)this.type='text'">
                                         </div>
-                                        <div class="col-md-3">
+                                        <div class="col-md-2">
                                             <label class="form-label fw-semibold small">PPES Count</label>
-                                            <input type="number" id="edit_ppes_count" name="ppes_count" class="form-control" placeholders="0">
+                                            <input type="number" id="edit_ppes_count" name="ppes_count" class="form-control" placeholder="0">
                                         </div>
-                                        <div class="col-md-3">
+                                        <div class="col-md-2">
+                                            <label class="form-label fw-semibold small">PPES Female</label>
+                                            <input type="number" id="edit_ppes_female" name="ppes_female" class="form-control" placeholder="0">
+                                        </div>
+                                        <div class="col-md-2">
                                             <label class="form-label fw-semibold small">PPES Amount</label>
-                                            <input type="text" id="edit_ppes_amount" name="ppes_amount" class="form-control" readonly>
+                                            <input type="text" id="edit_ppes_amount" name="ppes_amount" class="form-control" placeholder="0.00" readonly>
                                         </div>
                                     </div>
                                 </div>
@@ -456,27 +445,31 @@ select.form-select option {
                                     <div class="row g-3">
                                         <div class="col-md-4">
                                             <label class="form-label fw-semibold small">Orientation Date</label>
-                                            <input type="date" id="edit_orientation_date" name="orientation_date" class="form-control">
+                                            <input type="text" id="edit_orientation_date" name="orientation_date" class="form-control" placeholder="Date Orientation" onfocus="this.type='date'" onblur="if(!this.value)this.type='text'">
                                         </div>
                                         <div class="col-md-4">
                                             <label class="form-label fw-semibold small">Orientation Beneficiaries</label>
-                                            <input type="number" id="edit_orientation_benefs" name="orientation_benefs" class="form-control" value="0">
+                                            <input type="number" id="edit_orientation_benefs" name="orientation_benefs" class="form-control" placeholder="0" value="0">
                                         </div>
                                         <div class="col-md-4">
                                             <label class="form-label fw-semibold small">Employment Period</label>
-                                            <input type="text" id="edit_orientation_employment_period" name="orientation_employment_period" class="form-control">
+                                            <input type="text" id="edit_orientation_employment_period" name="orientation_employment_period" class="form-control" placeholder="Employment Period">
                                         </div>
                                         <div class="col-md-4">
                                             <label class="form-label fw-semibold small">GSIS Enrollment Date</label>
-                                            <input type="date" id="edit_gsis_enrollment_date" name="gsis_enrollment_date" class="form-control">
+                                            <input type="text" id="edit_gsis_enrollment_date" name="gsis_enrollment_date" class="form-control" placeholder="GSIS Enrollment Date" onfocus="this.type='date'" onblur="if(!this.value)this.type='text'">
                                         </div>
-                                        <div class="col-md-4">
+                                        <div class="col-md-3">
                                             <label class="form-label fw-semibold small">GSIS Beneficiaries</label>
-                                            <input type="number" id="edit_gsis_enrollment_benefs" name="gsis_enrollment_benefs" class="form-control" value="0">
+                                            <input type="number" id="edit_gsis_enrollment_benefs" name="gsis_enrollment_benefs" class="form-control" placeholder="0" value="0">
                                         </div>
-                                        <div class="col-md-4">
+                                        <div class="col-md-2">
+                                            <label class="form-label fw-semibold small">GSIS Female</label>
+                                            <input type="number" id="edit_gsis_enrollment_female" name="gsis_enrollment_female" class="form-control" placeholder="0" value="0">
+                                        </div>
+                                        <div class="col-md-3">
                                             <label class="form-label fw-semibold small">GSIS Amount</label>
-                                            <input type="text" id="edit_gsis_enrollment_amount" name="gsis_enrollment_amount" class="form-control" readonly>
+                                            <input type="text" id="edit_gsis_enrollment_amount" name="gsis_enrollment_amount" class="form-control" placeholder="0.00" readonly>
                                         </div>
                                     </div>
                                 </div>
@@ -486,31 +479,31 @@ select.form-select option {
                                     <div class="row g-3">
                                         <div class="col-md-4">
                                             <label class="form-label fw-semibold small">Ongoing Start Date</label>
-                                            <input type="date" id="edit_ongoing_implementation_start_date" name="ongoing_implementation_start_date" class="form-control">
+                                            <input type="text" id="edit_ongoing_implementation_start_date" name="ongoing_implementation_start_date" class="form-control" placeholder="Start Date" onfocus="this.type='date'" onblur="if(!this.value)this.type='text'">
                                         </div>
                                         <div class="col-md-4">
                                             <label class="form-label fw-semibold small">Ongoing End Date</label>
-                                            <input type="date" id="edit_ongoing_implementation_end_date" name="ongoing_implementation_end_date" class="form-control">
+                                            <input type="text" id="edit_ongoing_implementation_end_date" name="ongoing_implementation_end_date" class="form-control" placeholder="End Date" onfocus="this.type='date'" onblur="if(!this.value)this.type='text'">
                                         </div>
                                         <div class="col-md-4">
                                             <label class="form-label fw-semibold small">Ongoing Beneficiaries</label>
-                                            <input type="number" id="edit_ongoing_implementation_benefs" name="ongoing_implementation_benefs" class="form-control" value="0">
+                                            <input type="number" id="edit_ongoing_implementation_benefs" name="ongoing_implementation_benefs" class="form-control" placeholder="0" value="0">
                                         </div>
                                         <div class="col-md-3">
                                             <label class="form-label fw-semibold small">Completed Period</label>
-                                            <input type="text" id="edit_completed_employment_period" name="completed_employment_period" class="form-control">
+                                            <input type="text" id="edit_completed_employment_period" name="completed_employment_period" class="form-control" placeholder="Period">
                                         </div>
                                         <div class="col-md-3">
                                             <label class="form-label fw-semibold small">Completed Beneficiaries</label>
-                                            <input type="number" id="edit_completed_employment_benefs" name="completed_employment_benefs" class="form-control" value="0">
+                                            <input type="number" id="edit_completed_employment_benefs" name="completed_employment_benefs" class="form-control" placeholder="0" value="0">
                                         </div>
                                         <div class="col-md-3">
                                             <label class="form-label fw-semibold small">Completed Amount</label>
-                                            <input type="text" id="edit_completed_employment_amount" name="completed_employment_amount" class="form-control">
+                                            <input type="text" id="edit_completed_employment_amount" name="completed_employment_amount" class="form-control" placeholder="0.00">
                                         </div>
                                         <div class="col-md-3">
                                             <label class="form-label fw-semibold small">Documentation Status</label>
-                                            <input type="text" id="edit_completed_employment_documentation" name="completed_employment_documentation" class="form-control">
+                                            <input type="text" id="edit_completed_employment_documentation" name="completed_employment_documentation" class="form-control" placeholder="Remarks/Status">
                                         </div>
                                     </div>
                                 </div>
@@ -520,27 +513,27 @@ select.form-select option {
                                     <div class="row g-3">
                                         <div class="col-md-3">
                                             <label class="form-label fw-semibold small">ALOB No.</label>
-                                            <input type="text" id="edit_payment_alob_no" name="payment_alob_no" class="form-control">
+                                            <input type="text" id="edit_payment_alob_no" name="payment_alob_no" class="form-control" placeholder="ALOB Number">
                                         </div>
                                         <div class="col-md-2">
                                             <label class="form-label fw-semibold small">DV No.</label>
-                                            <input type="text" id="edit_payment_dv_no" name="payment_dv_no" class="form-control">
+                                            <input type="text" id="edit_payment_dv_no" name="payment_dv_no" class="form-control" placeholder="DV Number">
                                         </div>
                                         <div class="col-md-2">
                                             <label class="form-label fw-semibold small">Check No.</label>
-                                            <input type="text" id="edit_payment_check_no" name="payment_check_no" class="form-control">
+                                            <input type="text" id="edit_payment_check_no" name="payment_check_no" class="form-control" placeholder="Check Number">
                                         </div>
                                         <div class="col-md-2">
                                             <label class="form-label fw-semibold small">Payment Date</label>
-                                            <input type="date" id="edit_payment_date" name="payment_date" class="form-control">
+                                            <input type="text" id="edit_payment_date" name="payment_date" class="form-control" placeholder="Payment Date" onfocus="this.type='date'" onblur="if(!this.value)this.type='text'">
                                         </div>
                                         <div class="col-md-3">
                                             <label class="form-label fw-semibold small">Payment Amount</label>
-                                            <input type="text" id="edit_payment_amount" name="payment_amount" class="form-control">
+                                            <input type="text" id="edit_payment_amount" name="payment_amount" class="form-control" placeholder="0.00">
                                         </div>
                                         <div class="col-md-4">
                                             <label class="form-label fw-semibold small">Payout Date</label>
-                                            <input type="date" id="edit_payout_date" name="payout_date" class="form-control">
+                                            <input type="text" id="edit_payout_date" name="payout_date" class="form-control" placeholder="Payout Date" onfocus="this.type='date'" onblur="if(!this.value)this.type='text'">
                                         </div>
                                         <div class="col-md-4">
                                             <label class="form-label fw-semibold small">Payout Method</label>
@@ -555,7 +548,7 @@ select.form-select option {
                                         </div>
                                         <div class="col-md-4">
                                             <label class="form-label fw-semibold small">Service Cost</label>
-                                            <input type="text" id="edit_payout_service_cost" name="payout_service_cost" class="form-control">
+                                            <input type="text" id="edit_payout_service_cost" name="payout_service_cost" class="form-control" placeholder="0.00">
                                         </div>
                                     </div>
                                 </div>
@@ -579,12 +572,9 @@ select.form-select option {
         </footer>
     </div>
 
-    <!-- Bootstrap Bundle JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
-    <!-- DataTables JS -->
-    <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.8/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/datatables.net@1.13.8/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/datatables.net-bs5@1.13.8/js/dataTables.bootstrap5.min.js"></script>
 
     <script>
     $(document).ready(function () {
@@ -610,7 +600,6 @@ select.form-select option {
             $('#edit_gsis_enrollment_amount').val((benefs * gsisRate).toFixed(2));
         });
 
-        // Load Municipalities for Filter dropdown
         function loadMunicipalities(provCode, selectedArea = '') {
             if (provCode) {
                 $.ajax({
@@ -641,7 +630,6 @@ select.form-select option {
             loadMunicipalities(initialProv, initialArea);
         }
 
-        // Helper function for loading barangays inside the edit modal
         function loadModalBarangays(citymunCode, selectedBrgy = '') {
             const $brgySelect = $('#edit_implementation_brgy');
             if (citymunCode) {
@@ -673,7 +661,6 @@ select.form-select option {
             }
         }
 
-        // Helper function for loading municipalities inside the edit modal
         function loadModalMunicipalities(provCode, selectedArea = '', selectedBrgy = '') {
             const $cityMunSelect = $('#edit_implementation_area');
             if (provCode) {
@@ -710,7 +697,6 @@ select.form-select option {
             loadModalBarangays($(this).val());
         });
 
-        // Open Edit Modal and Fetch Record Data via AJAX
         $(document).on('click', '.edit-btn', function () {
             const transactionId = $(this).data('id');
 
@@ -723,17 +709,27 @@ select.form-select option {
                     if (response.status && response.data) {
                         const d = response.data;
                         
-                        // Populate Fields
                         $('#edit_adl_transact_id').val(d.adl_transact_id);
                         $('#edit_adl_no').val(d.adl_no);
                         $('#edit_implementation_reference_no').val(d.implementation_reference_no);
-                        $('#edit_date_coordinated').val(d.date_coordinated);
+                        
+                        // Handle date fields properly to trigger text-to-date behavior when data is populated
+                        ['edit_date_coordinated', 'edit_appraisal_date_submitted', 'edit_appraisal_date_approved', 
+                         'edit_ppes_date_issued', 'edit_orientation_date', 'edit_gsis_enrollment_date', 
+                         'edit_ongoing_implementation_start_date', 'edit_ongoing_implementation_end_date', 
+                         'edit_payment_date', 'edit_payout_date'].forEach(id => {
+                            let val = d[id.replace('edit_', '')];
+                            if (val && val !== '0000-00-00') {
+                                $('#' + id).val(val).attr('type', 'date');
+                            } else {
+                                $('#' + id).val('').attr('type', 'text');
+                            }
+                        });
+
                         $('#edit_implementation_province').val(d.implementation_province);
                         
-                        // Load and set municipality and barangay dependencies
                         loadModalMunicipalities(d.implementation_province, d.implementation_area, d.implementation_brgy);
 
-                        // Populate new fields
                         $('#edit_implementation_district').val(d.implementation_district);
                         $('#edit_wage_percentage').val(d.wage_percentage);
                         $('#edit_gpai_info').val(d.gpai_info);
@@ -745,20 +741,19 @@ select.form-select option {
                         $('#edit_implementation_sponsor').val(d.implementation_sponsor);
                         $('#no_of_days').val(d.no_of_days);
                         $('#target').val(d.target);
-                        $('#edit_appraisal_date_submitted').val(d.appraisal_date_submitted);
-                        $('#edit_appraisal_date_approved').val(d.appraisal_date_approved);
+                        $('#edit_reformulated_target').val(d.reformulated_target);
+
                         $('#edit_ppes_issuance_ris').val(d.ppes_issuance_ris);
-                        $('#edit_ppes_date_issued').val(d.ppes_date_issued);
                         $('#edit_ppes_count').val(d.ppes_count);
+                        $('#edit_ppes_female').val(d.ppes_female);
                         $('#edit_ppes_amount').val(d.ppes_amount);
-                        $('#edit_orientation_date').val(d.orientation_date);
+
                         $('#edit_orientation_benefs').val(d.orientation_benefs);
                         $('#edit_orientation_employment_period').val(d.orientation_employment_period);
-                        $('#edit_gsis_enrollment_date').val(d.gsis_enrollment_date);
                         $('#edit_gsis_enrollment_benefs').val(d.gsis_enrollment_benefs);
+                        $('#edit_gsis_enrollment_female').val(d.gsis_enrollment_female);
                         $('#edit_gsis_enrollment_amount').val(d.gsis_enrollment_amount);
-                        $('#edit_ongoing_implementation_start_date').val(d.ongoing_implementation_start_date);
-                        $('#edit_ongoing_implementation_end_date').val(d.ongoing_implementation_end_date);
+
                         $('#edit_ongoing_implementation_benefs').val(d.ongoing_implementation_benefs);
                         $('#edit_completed_employment_period').val(d.completed_employment_period);
                         $('#edit_completed_employment_benefs').val(d.completed_employment_benefs);
@@ -767,13 +762,10 @@ select.form-select option {
                         $('#edit_payment_alob_no').val(d.payment_alob_no);
                         $('#edit_payment_dv_no').val(d.payment_dv_no);
                         $('#edit_payment_check_no').val(d.payment_check_no);
-                        $('#edit_payment_date').val(d.payment_date);
                         $('#edit_payment_amount').val(d.payment_amount);
-                        $('#edit_payout_date').val(d.payout_date);
                         $('#edit_payout_method').val(d.payout_method);
                         $('#edit_payout_service_cost').val(d.payout_service_cost);
 
-                        // Show Modal
                         const editModal = new bootstrap.Modal(document.getElementById('editModal'));
                         editModal.show();
                     } else {

@@ -6,20 +6,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>ADL Transactions Encoding - DOLE TUPAD</title>
 
-    <!-- Google Fonts: Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-    <!-- Bootstrap 5.3 & Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     
-    <!-- Select2 CSS CDN -->
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
 
-    <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 
     <style>
@@ -75,69 +71,52 @@
             color: var(--primary-light);
         }
 
+        .form-control::placeholder {
+            color: #797a7846;
+            font-style: italic;
+            opacity: 1;
+        }
 
+        input[type="date"].form-control:invalid::-webkit-datetime-edit {
+            color: #797a7846;
+            font-style: italic;
+        }
 
+        input[type="date"].form-control:valid {
+            color: #000000;
+            font-style: normal;
+        }
+        input[type="date"].form-control:valid::-webkit-datetime-edit {
+            color: #000000;
+            font-style: normal;
+        }
 
-/* 1. Text Input Placeholder Style */
-.form-control::placeholder {
-    color: #797a7846;
-    font-style: italic;
-    opacity: 1;
-}
+        input[type="date"].form-control::-webkit-calendar-picker-indicator {
+            cursor: pointer;
+            filter: invert(0.5);
+        }
 
-/* 1. Unselected Date Input (Placeholder look - e.g., red/italic) */
-input[type="date"].form-control:invalid::-webkit-datetime-edit {
-    color: #797a7846;
-    font-style: italic;
-}
-
-/* 2. Selected Date Input (Turns black and normal style once a date is picked) */
-input[type="date"].form-control:valid {
-    color: #000000;
-    font-style: normal;
-}
-input[type="date"].form-control:valid::-webkit-datetime-edit {
-    color: #000000;
-    font-style: normal;
-}
-
-/* Calendar icon styling */
-input[type="date"].form-control::-webkit-calendar-picker-indicator {
-    cursor: pointer;
-    filter: invert(0.5);
-}
-
-/* 3. Select Dropdown "Placeholder" Style */
-select.form-select:invalid {
-    color: #797a7846;
-    font-style: italic;
-}
-/* Ensure regular options return to normal text styling once selected */
-select.form-select option {
-    color: #555;
-    font-style: normal;
-}
-
-
-
+        select.form-select:invalid {
+            color: #797a7846;
+            font-style: italic;
+        }
+        select.form-select option {
+            color: #555;
+            font-style: normal;
+        }
     </style>
 </head>
 
 <body>
 
-    <!-- NAVBAR TEMPLATE VIEW -->
     <?php $this->load->view('templates/navbar'); ?>
 
-    <!-- Main Content Wrapper -->
     <div id="main-content">
         
-        <!-- SIDEBAR TEMPLATE VIEW -->
         <?php $this->load->view('templates/sidebar'); ?>
 
-        <!-- Main Workspace -->
         <main class="p-3 p-md-4 flex-grow-1">
             
-            <!-- FLASH MESSAGES -->
             <?php if ($this->session->flashdata('success')): ?>
                 <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
                     <i class="bi bi-check-circle-fill me-2"></i>
@@ -154,7 +133,6 @@ select.form-select option {
                 </div>
             <?php endif; ?>
 
-            <!-- Page Header -->
             <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3 no-print">
                 <div>
                     <h3 class="fw-bold mb-1">
@@ -164,13 +142,11 @@ select.form-select option {
                 </div>
             </div>
 
-            <!-- Encoding Form Container -->
             <div class="container-fluid px-0">
                 <div class="form-card p-4 p-md-5">
                     
                     <form action="<?= site_url('adl/store_transaction'); ?>" method="POST" id="transactionForm">
                         
-                        <!-- TAB NAVIGATION HEADERS -->
                         <ul class="nav nav-tabs mb-4" id="encodingTabs" role="tablist">
                             <li class="nav-item" role="presentation">
                                 <button class="nav-link active" id="general-tab" data-bs-toggle="tab" data-bs-target="#general-pane" type="button" role="tab">
@@ -199,13 +175,12 @@ select.form-select option {
                             </li>
                         </ul>
 
-                        <!-- TAB CONTENT PANES -->
                         <div class="tab-content" id="encodingTabsContent">
                             
                             <!-- TAB 1: GENERAL INFORMATION -->
                             <div class="tab-pane fade show active" id="general-pane" role="tabpanel" aria-labelledby="general-tab">
                                 <div class="row g-3">
-                                    <div class="col-md-3">
+                                    <div class="col-md-2">
                                         <label class="form-label fw-semibold small">ADL Number</label>
                                         <select id="adl_no" name="adl_no" class="form-select" style="width: 100%;" required>
                                             <option value="">-Select ADL-</option>
@@ -222,7 +197,7 @@ select.form-select option {
                                         <label class="form-label fw-semibold small">Implementation Reference No.</label>
                                         <input type="text" name="implementation_reference_no" class="form-control" placeholder="Reference No" required>
                                     </div>
-                                    <div class="col-md-3">
+                                    <div class="col-md-2">
                                         <label class="form-label fw-semibold small">Date Coordinated</label>
                                         <input type="date" name="status_date" class="form-control" required>
                                     </div>
@@ -233,6 +208,10 @@ select.form-select option {
                                     <div class="col-md-2">
                                         <label class="form-label fw-semibold small">Target Benefs</label>
                                         <input type="text" name="target" class="form-control" placeholder="0" required>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label class="form-label fw-semibold small">Reformulated Target</label>
+                                        <input type="text" name="reformulated_target" class="form-control" placeholder="0">
                                     </div>
                                     <div class="col-md-3">
                                         <label class="form-label fw-semibold small">Implementation Province</label>
@@ -254,7 +233,6 @@ select.form-select option {
                                         </select>
                                     </div>
 
-                                    <!-- BARANGAY DROPDOWN FIELD -->
                                     <div class="col-md-3">
                                         <label class="form-label fw-semibold small">Barangay</label>
                                         <select name="implementation_brgy" id="implementation_brgy" class="form-select" disabled>
@@ -276,7 +254,7 @@ select.form-select option {
                                     </div>
 
                                     <div class="col-md-3">
-                                    <label class="form-label fw-semibold small">Wage Percentage</label>
+                                        <label class="form-label fw-semibold small">Wage Percentage</label>
                                         <select name="wage_percentage" id="wage_percentage" class="form-select" required>
                                             <option value="">--Select Percentage--</option>
                                             <option value="2.5">2.5%</option>
@@ -284,7 +262,7 @@ select.form-select option {
                                         </select>
                                     </div>
 
-                                     <div class="col-md-3">
+                                    <div class="col-md-3">
                                         <label class="form-label fw-semibold small">GPAI INFO (Funds)</label>
                                         <input type="text" name="gpai_info" class="form-control" placeholder="GPAI Funding">
                                     </div>
@@ -299,7 +277,7 @@ select.form-select option {
                                         <input type="text" name="implementation_classification" class="form-control" placeholder="LGU Class" required>
                                     </div>
 
-                                    <div class="col-md-3">
+                                    <div class="col-md-4">
                                         <label class="form-label fw-semibold small">Proponent</label>
                                         <input type="text" name="imp_proponent" class="form-control" placeholder="Proponent" required>
                                     </div>
@@ -309,7 +287,7 @@ select.form-select option {
                                         <input type="text" name="imp_sponsor" class="form-control" placeholder="Sponsor" required>
                                     </div>
 
-                                    <div class="col-md-5">
+                                    <div class="col-md-4">
                                         <label class="form-label fw-semibold small">Overall Remarks</label>
                                         <input type="text" name="remarks" class="form-control" placeholder="Remarks">
                                     </div>
@@ -335,11 +313,15 @@ select.form-select option {
                                         <label class="form-label fw-semibold small">PPES Date Issued</label>
                                         <input type="text" name="ppes_date_issued" class="form-control" placeholder="Date Issued" onfocus="this.type='date'" onblur="if(!this.value)this.type='text'">
                                     </div>
-                                    <div class="col-md-3">
+                                    <div class="col-md-2">
                                         <label class="form-label fw-semibold small">PPES Count</label>
                                         <input type="number" name="ppes_count" id="ppes_count" class="form-control" placeholder="0">
                                     </div>
-                                    <div class="col-md-3">
+                                    <div class="col-md-2">
+                                        <label class="form-label fw-semibold small">PPES Female</label>
+                                        <input type="number" name="ppes_female" id="ppes_female" class="form-control" placeholder="0">
+                                    </div>
+                                    <div class="col-md-2">
                                         <label class="form-label fw-semibold small">PPES Amount</label>
                                         <input type="text" name="ppes_amount" id="ppes_amount" class="form-control" placeholder="0.00" readonly>
                                     </div>
@@ -365,11 +347,15 @@ select.form-select option {
                                         <label class="form-label fw-semibold small">GSIS Enrollment Date</label>
                                         <input type="text" name="gsis_enrollment_date" class="form-control" placeholder="GSIS Enrollment Date" onfocus="this.type='date'" onblur="if(!this.value)this.type='text'">
                                     </div>
-                                    <div class="col-md-4">
+                                    <div class="col-md-3">
                                         <label class="form-label fw-semibold small">GSIS Beneficiaries</label>
                                         <input type="number" name="gsis_enrollment_benefs" id="gsis_benefs" class="form-control" placeholder="0">
                                     </div>
-                                    <div class="col-md-4">
+                                    <div class="col-md-2">
+                                        <label class="form-label fw-semibold small">GSIS Female</label>
+                                        <input type="number" name="gsis_enrollment_female" id="gsis_female" class="form-control" placeholder="0">
+                                    </div>
+                                    <div class="col-md-3">
                                         <label class="form-label fw-semibold small">GSIS Amount</label>
                                         <input type="text" name="gsis_enrollment_amount" id="gsis_amount" class="form-control" placeholder="0.00" readonly>
                                     </div>
@@ -380,11 +366,11 @@ select.form-select option {
                             <div class="tab-pane fade" id="implementation-pane" role="tabpanel" aria-labelledby="implementation-tab">
                                 <div class="row g-3">
                                     <div class="col-md-4">
-                                        <label class="form-label fw-semibold small">Ongoing Start Date</label>
+                                        <label class="form-label fw-semibold small">Implementation Start Date</label>
                                         <input type="text" name="ongoing_implementation_start_date" class="form-control" placeholder="Start Date" onfocus="this.type='date'" onblur="if(!this.value)this.type='text'">
                                     </div>
                                     <div class="col-md-4">
-                                        <label class="form-label fw-semibold small">Ongoing End Date</label>
+                                        <label class="form-label fw-semibold small">Implementation End Date</label>
                                         <input type="text" name="ongoing_implementation_end_date" class="form-control" placeholder="End Date" onfocus="this.type='date'" onblur="if(!this.value)this.type='text'">
                                     </div>
                                     <div class="col-md-4">
@@ -440,16 +426,16 @@ select.form-select option {
                                     <div class="col-md-4">
                                         <label class="form-label fw-semibold small">Payout Method</label>
                                         <select id="payout_method" name="payout_method" class="form-select" style="color: #7a7979a9; font-style: italic;" 
-        onchange="this.style.color='#000000'; this.style.fontStyle='normal';">
-                                         <option value="" disabled selected>-- Select Payout Site --</option>
-                                         <?php if (!empty($payoutSite)): ?>
-                                             <?php foreach ($payoutSite as $pos): ?>
-                                                 <option value="<?= html_escape($pos['payout_site_id']); ?>">
-                                                     <?= html_escape($pos['payout_site_name']); ?>
-                                                 </option>
-                                             <?php endforeach; ?>
-                                         <?php endif; ?>
-                                    </select>
+                                            onchange="this.style.color='#000000'; this.style.fontStyle='normal';">
+                                            <option value="" disabled selected>-- Select Payout Site --</option>
+                                            <?php if (!empty($payoutSite)): ?>
+                                                <?php foreach ($payoutSite as $pos): ?>
+                                                    <option value="<?= html_escape($pos['payout_site_id']); ?>">
+                                                        <?= html_escape($pos['payout_site_name']); ?>
+                                                    </option>
+                                                <?php endforeach; ?>
+                                            <?php endif; ?>
+                                        </select>
                                     </div>
                                     <div class="col-md-4">
                                         <label class="form-label fw-semibold small">Service Cost</label>
@@ -460,10 +446,8 @@ select.form-select option {
 
                         </div>
 
-                        <!-- Hidden Meta Fields -->
                         <input type="hidden" name="encoded_date" value="<?= date('Y-m-d'); ?>">
 
-                        <!-- Submit Action Buttons -->
                         <div class="col-12 mt-5 pt-3 border-top d-flex justify-content-end gap-2">
                             <a href="<?= site_url('adl/ADL_encode'); ?>" class="btn btn-light border px-4">Cancel</a>
                             <button type="submit" id="submitBtn" class="btn btn-primary px-4">
@@ -476,7 +460,6 @@ select.form-select option {
                 </div>
             </div>
 
-            <!-- Duplicate Reference Number Warning Modal -->
             <div class="modal fade" id="duplicateTransactionModal" tabindex="-1" aria-labelledby="duplicateTransactionModalLabel" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered">
                     <div class="modal-content border-0 shadow">
@@ -503,23 +486,17 @@ select.form-select option {
         </footer>
     </div>
 
-    <!-- Bootstrap JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
-    <!-- Select2 JS CDN -->
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
-    <!-- Custom Scripts -->
     <script>
     $(document).ready(function () {
-        // Initialize Select2 with Bootstrap 5 Theme
         $('#adl_no').select2({
             theme: 'bootstrap-5',
             placeholder: '-Select or Type ADL-',
             allowClear: true
         });
 
-        // Sidebar Toggle Handler
         $(document).on('click', '#sidebarToggle', function (e) {
             e.preventDefault();
             if ($(window).width() < 992) {
@@ -533,23 +510,20 @@ select.form-select option {
         const ppeRate = parseFloat("<?= $ppe_rate ?? 325; ?>") || 0;
         const gsisRate = parseFloat("<?= $gsis_rate ?? 50; ?>") || 0;
 
-        // Real-time calculation for PPES Amount
         $('#ppes_count').on('input', function () {
             const count = parseFloat($(this).val()) || 0;
             const totalAmount = count * ppeRate;
             $('#ppes_amount').val(totalAmount.toFixed(2));
         });
 
-        // Real-time calculation for GSIS Amount
         $('#gsis_benefs').on('input', function () {
             const benefs = parseFloat($(this).val()) || 0;
             const totalGsisAmount = benefs * gsisRate;
             $('#gsis_amount').val(totalGsisAmount.toFixed(2));
         });
 
-        // Prevent Multiple Form Submissions & Check Duplicate via AJAX
         $('#transactionForm').on('submit', function (e) {
-            e.preventDefault(); // Stop standard form submission temporarily
+            e.preventDefault();
 
             const $form = $(this);
             const $submitBtn = $('#submitBtn');
@@ -560,7 +534,6 @@ select.form-select option {
                 return; 
             }
 
-            // Check duplicate via AJAX
             $.ajax({
                 url: "<?= site_url('adl/check_duplicate_transaction'); ?>",
                 type: "GET",
@@ -568,12 +541,10 @@ select.form-select option {
                 dataType: "json",
                 success: function (response) {
                     if (response.exists) {
-                        // Show Duplicate Modal Prompt
                         $('#modalDuplicateRefNo').text(refNoInput);
                         const duplicateModal = new bootstrap.Modal(document.getElementById('duplicateTransactionModal'));
                         duplicateModal.show();
                     } else {
-                        // Safe to proceed, lock button and submit form
                         $submitBtn.prop('disabled', true);
                         $submitBtn.html(`
                             <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
@@ -588,13 +559,11 @@ select.form-select option {
             });
         });
 
-        // Dynamic Dependent Dropdown for Implementation Area (City/Municipality) based on Province Code
         $(document).on('change', '#implementation_province', function () {
             const provCode = $(this).val();
             const $cityMunSelect = $('#implementation_area');
             const $brgySelect = $('#implementation_brgy');
 
-            // Reset and disable Barangay dropdown when Province changes
             $brgySelect.prop('disabled', true).html('<option value="" selected disabled>Select Municipality First</option>');
 
             if (provCode) {
@@ -628,7 +597,6 @@ select.form-select option {
             }
         });
 
-        // Dynamic Dependent Dropdown for Barangay based on City/Municipality Code
         $(document).on('change', '#implementation_area', function () {
             const citymunCode = $(this).val();
             const $brgySelect = $('#implementation_brgy');

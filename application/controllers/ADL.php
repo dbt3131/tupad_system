@@ -48,7 +48,7 @@ class ADL extends CI_Controller {
                 'date_received'          => $this->input->post('date_received', true),
                 'target_benefs'          => $this->input->post('target_benefs', true),
                 'adl_amount'             => $this->input->post('adl_amount', true),
-                'encoded_by'             => $this->session->userdata('user_id') ?? 'System User', // Adjust based on your session implementation
+                'encoded_by'             => $this->session->userdata('user_id') ?? 'System User',
                 'encoded_date'           => date('Y-m-d H:i:s')
             ];
 
@@ -82,6 +82,7 @@ class ADL extends CI_Controller {
             'implementation_sponsor'            => strtoupper($this->input->post('imp_sponsor', true)),
             'no_of_days'                        => strtoupper($this->input->post('no_of_days', true)),
             'target'                            => strtoupper($this->input->post('target', true)),
+            'reformulated_target'               => strtoupper($this->input->post('reformulated_target', true)),
             'remarks'                           => strtoupper($this->input->post('remarks', true)),
             'wage_percentage'                   => strtoupper($this->input->post('wage_percentage', true)),
             'gpai_info'                         => strtoupper($this->input->post('gpai_info', true)),
@@ -92,12 +93,14 @@ class ADL extends CI_Controller {
             'ppes_issuance_ris'                 => strtoupper($this->input->post('ppes_issuance_ris', true)),
             'ppes_date_issued'                  => $this->input->post('ppes_date_issued', true),
             'ppes_count'                        => $this->input->post('ppes_count', true),
+            'ppes_female'                       => $this->input->post('ppes_female', true),
             'ppes_amount'                       => $this->input->post('ppes_amount', true),
             'orientation_date'                  => $this->input->post('orientation_date', true),
             'orientation_benefs'                => $this->input->post('orientation_benefs', true),
             'orientation_employment_period'     => strtoupper($this->input->post('orientation_employment_period', true)),
             'gsis_enrollment_date'              => $this->input->post('gsis_enrollment_date', true),
             'gsis_enrollment_benefs'            => $this->input->post('gsis_enrollment_benefs', true),
+            'gsis_enrollment_female'            => $this->input->post('gsis_enrollment_female', true),
             'gsis_enrollment_amount'            => $this->input->post('gsis_enrollment_amount', true),
             'ongoing_implementation_start_date' => $this->input->post('ongoing_implementation_start_date', true),
             'ongoing_implementation_end_date'   => $this->input->post('ongoing_implementation_end_date', true),
@@ -118,10 +121,10 @@ class ADL extends CI_Controller {
             'encoded_by'                        => $this->session->userdata('user_id') ?? 1
         ];
 
-        $insert = $this->ADL_Model->insert_transaction($data); // Make sure to add insert_transaction function in ADL_Model
+        $insert = $this->ADL_Model->insert_transaction($data);
 
         if ($insert) {
-            $this->load->model('Activity_Model'); // Ensure model is loaded if not autoloaded
+            $this->load->model('Activity_Model');
             $reference_no = $this->input->post('implementation_reference_no', true);
             $user_id = $this->session->userdata('user_id');
             $this->Activity_Model->log_activity($reference_no, $user_id, 5);    
@@ -134,16 +137,12 @@ class ADL extends CI_Controller {
     redirect('adl/Implementation_encode');
 }
 
-
-
-
 // Load ADL Reporting view
 public function ADL_report() {
     $data['adl_list'] = $this->ADL_Model->get_all_adl_numbers();
     $this->load->view('tupad/ADL_reporting', $data);
 }
 
-// AJAX endpoint for fetching report data based on selected ADL No.
 public function get_report_data() {
     $adl_no = $this->input->get('adl_no');
     if ($adl_no) {
@@ -154,7 +153,6 @@ public function get_report_data() {
     }
 }
 
-
 public function transaction_report() {
     $province = $this->input->get('implementation_province');
     $area = $this->input->get('implementation_area');
@@ -162,12 +160,10 @@ public function transaction_report() {
     $data['provinces'] = $this->ADL_Model->get_provinces();
     $data['transactions'] = $this->ADL_Model->get_filtered_transactions($province, $area);
     
-    // Fetch logged-in user's assigned province
     $user_id = $this->session->userdata('user_id');
     $user = $this->db->get_where('users', ['id' => $user_id])->row_array();
     $data['user_assigned_prov'] = $user ? $user['assigned_prov'] : '';
 
-    // Additional data required for the edit modal form layout
     $data['ADL'] = $this->ADL_Model->get_ADL();
     $data['ppe_rate'] = $this->ADL_Model->get_ppe_rate();
     $data['gsis_rate'] = $this->ADL_Model->get_gsis_rate();
@@ -179,7 +175,6 @@ public function transaction_report() {
     $this->load->view('tupad/ADL_Imp_List', $data);
 }
 
-// AJAX endpoint to verify if ADL No exists
 public function check_duplicate_adl() {
     $adl_no = $this->input->get('adl_no');
     if ($adl_no) {
@@ -190,7 +185,6 @@ public function check_duplicate_adl() {
     }
 }
 
-// AJAX endpoint to verify if Implementation Reference No exists
 public function check_duplicate_transaction() {
     $ref_no = $this->input->get('implementation_reference_no');
     if ($ref_no) {
@@ -201,8 +195,6 @@ public function check_duplicate_transaction() {
     }
 }
 
-
-// AJAX endpoint for fetching transaction data for the edit modal
 public function get_transaction_details() {
     $id = $this->input->get('id');
     if ($id) {
@@ -217,13 +209,11 @@ public function update_transaction_record() {
     if ($this->input->method() === 'post') {
         $id = $this->input->post('adl_transact_id', true);
         
-        // Capture filter values to retain them after redirect
         $province = $this->input->post('implementation_province', true);
         $area_brgy = $this->input->post('implementation_brgy', true);
         $area = $this->input->post('implementation_area', true);
 
         $data = [
-            'implementation_reference_no'       => strtoupper($this->input->post('implementation_reference_no', true)),
             'implementation_province'           => $province,
             'implementation_brgy'               => $area_brgy,
             'implementation_area'               => $area,
@@ -237,18 +227,21 @@ public function update_transaction_record() {
             'remarks'                           => strtoupper($this->input->post('remarks', true)),
             'no_of_days'                        => strtoupper($this->input->post('no_of_days', true)),
             'target'                            => strtoupper($this->input->post('target', true)),
+            'reformulated_target'               => strtoupper($this->input->post('reformulated_target', true)),
             'date_coordinated'                  => $this->input->post('status_date', true),
             'appraisal_date_submitted'          => $this->input->post('appraisal_date_submitted', true),
             'appraisal_date_approved'           => $this->input->post('appraisal_date_approved', true),
             'ppes_issuance_ris'                 => strtoupper($this->input->post('ppes_issuance_ris', true)),
             'ppes_date_issued'                  => $this->input->post('ppes_date_issued', true),
             'ppes_count'                        => $this->input->post('ppes_count', true),
+            'ppes_female'                       => $this->input->post('ppes_female', true),
             'ppes_amount'                       => $this->input->post('ppes_amount', true),
             'orientation_date'                  => $this->input->post('orientation_date', true),
             'orientation_benefs'                => $this->input->post('orientation_benefs', true),
             'orientation_employment_period'     => strtoupper($this->input->post('orientation_employment_period', true)),
             'gsis_enrollment_date'              => $this->input->post('gsis_enrollment_date', true),
             'gsis_enrollment_benefs'            => $this->input->post('gsis_enrollment_benefs', true),
+            'gsis_enrollment_female'            => $this->input->post('gsis_enrollment_female', true),
             'gsis_enrollment_amount'            => $this->input->post('gsis_enrollment_amount', true),
             'ongoing_implementation_start_date' => $this->input->post('ongoing_implementation_start_date', true),
             'ongoing_implementation_end_date'   => $this->input->post('ongoing_implementation_end_date', true),
@@ -259,7 +252,7 @@ public function update_transaction_record() {
             'completed_employment_documentation'=> strtoupper($this->input->post('completed_employment_documentation', true)),
             'payment_alob_no'                   => strtoupper($this->input->post('payment_alob_no', true)),
             'payment_dv_no'                     => strtoupper($this->input->post('payment_dv_no', true)),
-            'payment_check_no'                  => $this->input->post('payment_check_no', true),
+            'payment_check_no'                  => strtoupper($this->input->post('payment_check_no', true)),
             'payment_date'                      => $this->input->post('payment_date', true),
             'payment_amount'                    => $this->input->post('payment_amount', true),
             'payout_date'                       => $this->input->post('payout_date', true),
@@ -275,7 +268,6 @@ public function update_transaction_record() {
             $this->session->set_flashdata('error', 'Failed to update transaction record.');
         }
 
-        // Build query string to pass filters back to the report page
         $query_string = http_build_query([
             'implementation_province' => $province,
             'implementation_area'     => $area
@@ -285,55 +277,27 @@ public function update_transaction_record() {
     }
 }
 
-// AJAX endpoint for fetching barangays based on selected city/municipality code
-    public function get_barangays_by_municipality() {
-        $citymunCode = $this->input->get('citymunCode');
-        
-        // Explicitly load the model
-        $this->load->model('ADL_Model');
+public function get_barangays_by_municipality() {
+    $citymunCode = $this->input->get('citymunCode');
+    $this->load->model('ADL_Model');
 
-        if ($citymunCode) {
-            $barangays = $this->ADL_Model->get_barangays_by_municipality($citymunCode);
-            echo json_encode($barangays);
-        } else {
-            echo json_encode([]);
-        }
+    if ($citymunCode) {
+        $barangays = $this->ADL_Model->get_barangays_by_municipality($citymunCode);
+        echo json_encode($barangays);
+    } else {
+        echo json_encode([]);
     }
+}
 
-public function view_pdf($id)
-{
-    // 1. Load the model first
+public function view_pdf($id) {
     $this->load->model('ADL_model');
-
-    // 2. Now call the model method safely
     $data['transaction'] = $this->ADL_model->get_transaction_details($id);
 
     if (empty($data['transaction'])) {
         show_404();
     }
 
-    // 3. Load your PDF view template
     $this->load->view('tupad/ADL_Imp_details_PDF', $data);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 }
