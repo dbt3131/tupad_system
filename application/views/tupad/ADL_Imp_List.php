@@ -61,6 +61,49 @@
             #sidebar, .top-navbar, .no-print { display: none !important; }
             #main-content { margin-left: 0 !important; }
         }
+
+
+
+        /* 1. Text Input Placeholder Style */
+.form-control::placeholder {
+    color: #797a7846;
+    font-style: italic;
+    opacity: 1;
+}
+
+/* 1. Unselected Date Input (Placeholder look - e.g., red/italic) */
+input[type="date"].form-control:invalid::-webkit-datetime-edit {
+    color: #797a7846;
+    font-style: italic;
+}
+
+/* 2. Selected Date Input (Turns black and normal style once a date is picked) */
+input[type="date"].form-control:valid {
+    color: #000000;
+    font-style: normal;
+}
+input[type="date"].form-control:valid::-webkit-datetime-edit {
+    color: #000000;
+    font-style: normal;
+}
+
+/* Calendar icon styling */
+input[type="date"].form-control::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    filter: invert(0.5);
+}
+
+/* 3. Select Dropdown "Placeholder" Style */
+select.form-select:invalid {
+    color: #797a7846;
+    font-style: italic;
+}
+/* Ensure regular options return to normal text styling once selected */
+select.form-select option {
+    color: #555;
+    font-style: normal;
+}
+
     </style>
 </head>
 
@@ -307,7 +350,7 @@
                                         </div>
                                         <div class="col-md-2    ">
                                             <label class="form-label fw-semibold small">No of Days</label>
-                                            <input type="text" id="no_of_days" name="no_of_days" class="form-control" required>
+                                            <input type="text" id="no_of_days" name="no_of_days" class="form-control"  required>
                                         </div>
                                          <div class="col-md-2    ">
                                             <label class="form-label fw-semibold small">Target</label>
@@ -399,7 +442,7 @@
                                         </div>
                                         <div class="col-md-3">
                                             <label class="form-label fw-semibold small">PPES Count</label>
-                                            <input type="number" id="edit_ppes_count" name="ppes_count" class="form-control" value="0">
+                                            <input type="number" id="edit_ppes_count" name="ppes_count" class="form-control" placeholders="0">
                                         </div>
                                         <div class="col-md-3">
                                             <label class="form-label fw-semibold small">PPES Amount</label>
