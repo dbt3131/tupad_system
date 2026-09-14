@@ -104,7 +104,6 @@
             
             <div class="d-flex align-items-center justify-content-between mb-4">
                 <div>
-            
                     <h3 class="fw-bold mb-0">
                         <i class="bi bi-file-earmark-excel text-success me-2"></i>File Records
                     </h3>
@@ -155,6 +154,13 @@
                         <select id="filter_barangay" class="form-select form-select-sm" disabled>
                             <option value="">-- Select City First --</option>
                         </select>
+                    </div>
+
+                    <!-- NEW: Manual Filter Submit Button -->
+                    <div class="col-md-3 d-flex gap-2">
+                        <button type="button" id="applyFilter" class="btn btn-sm btn-primary w-100 fw-semibold">
+                            <i class="bi bi-search me-1"></i> Filter Records
+                        </button>
                     </div>
                 </div>
             </div>
@@ -228,8 +234,8 @@
             searchDelay: 500,
             deferLoading: 0,
             language: {
-                loadingRecords: "Please select a location filter above to load records...", 
-                emptyTable: "No records found. Please select a province, city, or barangay."
+                loadingRecords: "Please select a location filter and click 'Filter Records'...", 
+                emptyTable: "No records found. Please choose your filters and click 'Filter Records'."
             },
             ajax: {
                 url: ajaxUrl,
@@ -311,7 +317,6 @@
 
             $('#filter_city').html('<option value="">Loading Cities...</option>').prop('disabled', true);
             $('#filter_barangay').html('<option value="">-- Select City First --</option>').prop('disabled', true);
-            table.ajax.reload();
 
             if (provCode) {
                 $.ajax({
@@ -344,7 +349,6 @@
             localStorage.removeItem(storageKeyBrgy);
 
             $('#filter_barangay').html('<option value="">Loading Barangays...</option>').prop('disabled', true);
-            table.ajax.reload();
 
             if (citymunCode) {
                 $.ajax({
@@ -373,6 +377,10 @@
             } else {
                 localStorage.removeItem(storageKeyBrgy);
             }
+        });
+
+        // MANUALLY TRIGGER TABLE RELOAD WHEN BUTTON IS CLICKED
+        $('#applyFilter').on('click', function() {
             table.ajax.reload();
         });
 
