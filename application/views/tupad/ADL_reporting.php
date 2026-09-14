@@ -73,7 +73,7 @@
             <div class="card border-0 shadow-sm mb-4 no-print">
                <div class="card-body">
                    <div class="row align-items-center">
-                       <div class="col-md-6">
+                       <div class="col-md-12">
                            <label class="form-label fw-semibold small">Search & Select ADL Number:</label>
                            <select id="filter_adl_no" class="form-select" style="width: 100%;">
                                <option value="" selected disabled>-- Select or type ADL Number --</option>
@@ -170,22 +170,51 @@
 
             <!-- 2. Detailed Implementation Breakdown Table (Hidden initially, appears after ADL selection) -->
             <div id="detailedTableCard" class="card border-0 shadow-sm mb-4" style="display: none;">
-                <div class="card-header bg-white py-3 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+                <div class="card-header bg-white py-3 d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
                     <h5 class="mb-0 fw-bold text-secondary">
                         <i class="bi bi-geo-alt me-2"></i>Detailed Implementation & Itemized Breakdown List
                     </h5>
-                    <!-- Province Filter Dropdown -->
-                    <div style="width: 300px;">
-                        <select id="filter_province" class="form-select" style="width: 100%;">
-                            <option value="">-- All Provinces --</option>
-                            <?php if (!empty($provinces)): ?>
-                                <?php foreach ($provinces as $prov): ?>
-                                    <option value="<?= html_escape($prov['provCode']); ?>">
-                                        <?= html_escape($prov['provDesc']); ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            <?php endif; ?>
-                        </select>
+                    <!-- Filter Dropdowns Container (Province, Proponent, District) -->
+                    <div class="d-flex flex-wrap gap-2">
+                        <!-- Province Filter Dropdown -->
+                        <div style="width: 200px;">
+                            <select id="filter_province" class="form-select" style="width: 100%;">
+                                <option value="">-- All Provinces --</option>
+                                <?php if (!empty($provinces)): ?>
+                                    <?php foreach ($provinces as $prov): ?>
+                                        <option value="<?= html_escape($prov['provCode']); ?>">
+                                            <?= html_escape($prov['provDesc']); ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
+                            </select>
+                        </div>
+                        <!-- Proponent Filter Dropdown -->
+                        <div style="width: 200px;">
+                            <select id="filter_proponent" class="form-select" style="width: 100%;">
+                                <option value="">-- All Proponents --</option>
+                                <?php if (!empty($proponents)): ?>
+                                    <?php foreach ($proponents as $prop): ?>
+                                        <option value="<?= html_escape($prop['proponent_id']); ?>">
+                                            <?= html_escape($prop['proponent_name']); ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
+                            </select>
+                        </div>
+                        <!-- District Filter Dropdown -->
+                        <div style="width: 160px;">
+                            <select id="filter_district" class="form-select" style="width: 100%;">
+                                <option value="">-- All Districts --</option>
+                                <?php if (!empty($districts)): ?>
+                                    <?php foreach ($districts as $dist): ?>
+                                        <option value="<?= html_escape($dist['district_id']); ?>">
+                                            District <?= html_escape($dist['district_no']); ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
+                            </select>
+                        </div>
                     </div>
                 </div>
                 <div class="card-body">
@@ -227,21 +256,13 @@
 
     <script>
     $(document).ready(function () {
-        // Initialize Select2 with Bootstrap 5 Theme for ADL Number Filter
-        $('#filter_adl_no').select2({
-            theme: 'bootstrap-5',
-            placeholder: '-- Select or type ADL Number --',
-            allowClear: true
-        });
+        // Initialize Select2 with Bootstrap 5 Theme
+        $('#filter_adl_no').select2({ theme: 'bootstrap-5', placeholder: '-- Select or type ADL Number --', allowClear: true });
+        $('#filter_province').select2({ theme: 'bootstrap-5', placeholder: '-- All Provinces --', allowClear: true });
+        $('#filter_proponent').select2({ theme: 'bootstrap-5', placeholder: '-- All Proponents --', allowClear: true });
+        $('#filter_district').select2({ theme: 'bootstrap-5', placeholder: '-- All Districts --', allowClear: true });
 
-        // Initialize Select2 for Province Filter Dropdown
-        $('#filter_province').select2({
-            theme: 'bootstrap-5',
-            placeholder: '-- All Provinces --',
-            allowClear: true
-        });
-
-        // Initialize DataTable with Pagination & Sorting (initially empty instance)
+        // Initialize DataTable with Pagination & Sorting
         const table = $('#detailedTransactionsTable').DataTable({
             pageLength: 10,
             lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
@@ -250,24 +271,28 @@
         });
 
         // Function to load report data via AJAX
-        function loadReportData(adlNo, provinceCode = '') {
+        function loadReportData(adlNo, provinceCode = '', proponentName = '', districtNo = '') {
             $.ajax({
                 url: "<?= site_url('adl/get_report_data'); ?>",
                 type: "GET",
-                data: { adl_no: adlNo, province: provinceCode },
+                data: { 
+                    adl_no: adlNo, 
+                    province: provinceCode,
+                    proponent: proponentName,
+                    district: districtNo
+                },
                 dataType: "json",
                 success: function (response) {
                     if (response.status && response.data) {
                         const d = response.data;
                         
-                        // Populate summary metric cards (only update if it's the base query without province restriction or update accordingly)
-                        if (!provinceCode) {
+                        // Populate summary metric cards if it's the base query or handle accordingly
+                        if (!provinceCode && !proponentName && !districtNo) {
                             $('#displayAdlNo').text(d.adl_no);
                             $('#lblAdlAmount').text('₱' + d.adl_amount.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}));
                             $('#lblTotalDeductions').text('₱' + d.total_deductions.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}));
                             $('#lblRemainingBalance').text('₱' + d.remaining_balance.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}));
 
-                            // Populate summary table breakdown rows
                             $('#valServiceCost').text('₱' + d.total_service_cost.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}));
                             $('#valPaymentAmount').text('₱' + d.total_payment.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}));
                             $('#valPpesAmount').text('₱' + d.total_ppes_amount.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}));
@@ -283,6 +308,8 @@
                             d.transactions.forEach(function(tx) {
                                 let provinceName = tx.implementation_province_name || tx.implementation_province;
                                 let areaName = tx.implementation_area_name || tx.implementation_area;
+                                let proponentNameVal = tx.implementation_proponent_name;
+                                
                                 
                                 let ppesAmt = parseFloat(tx.ppes_amount) || 0;
                                 let gsisAmt = parseFloat(tx.gsis_enrollment_amount) || 0;
@@ -290,7 +317,7 @@
                                 let paymentAmt = parseFloat(tx.payment_amount) || 0;
 
                                 table.row.add([
-                                    `<strong>${areaName}</strong><br><small class="text-muted"><i class="bi bi-geo-alt-fill me-1"></i>${provinceName}</small>`,
+                                    `<strong>${areaName}</strong><br><small class="text-muted"><i class="bi bi-geo-alt-fill me-1"></i>${provinceName}</small><br><small class="text-muted"><i class="bi bi-person-fill me-1"></i>${proponentNameVal}</small>`,
                                     `<strong>ADL:</strong> ${tx.adl_no}<br><small class="text-muted">Ref: <code>${tx.implementation_reference_no}</code></small>`,
                                     `<span class="badge bg-info text-dark">${tx.ppes_count || 0} items</span><br>₱${ppesAmt.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`,
                                     `<span class="badge bg-secondary">${tx.gsis_enrollment_benefs || 0} benefs</span><br>₱${gsisAmt.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`,
@@ -300,15 +327,13 @@
                             });
                         }
                         
-                        // Redraw DataTable
                         table.draw();
 
-                        // Show report and detailed containers, hide placeholder
                         $('#placeholderContainer').hide();
                         $('#reportContainer').fadeIn();
                         $('#detailedTableCard').fadeIn();
                     } else {
-                        alert('No transaction records found for this ADL number.');
+                        alert('No transaction records found matching your filters.');
                     }
                 },
                 error: function () {
@@ -325,24 +350,29 @@
                 $('#reportContainer').hide();
                 $('#detailedTableCard').hide();
                 $('#placeholderContainer').fadeIn();
-                $('#filter_province').val('').trigger('change.select2'); // Reset province filter
+                $('#filter_province').val('').trigger('change.select2');
+                $('#filter_proponent').val('').trigger('change.select2');
+                $('#filter_district').val('').trigger('change.select2');
                 return;
             }
 
-            // Reset province filter when a new ADL is chosen
+            // Reset secondary filters when a new ADL is chosen
             $('#filter_province').val('').trigger('change.select2');
+            $('#filter_proponent').val('').trigger('change.select2');
+            $('#filter_district').val('').trigger('change.select2');
 
-            // Load data for selected ADL
-            loadReportData(adlNo, '');
+            loadReportData(adlNo, '', '', '');
         });
 
-        // Handle Province Filter change event via AJAX for the active ADL
-        $('#filter_province').on('change', function () {
+        // Handle Filter Changes (Province, Proponent, District)
+        $('#filter_province, #filter_proponent, #filter_district').on('change', function () {
             const adlNo = $('#filter_adl_no').val();
-            const provCode = $(this).val();
+            const provCode = $('#filter_province').val();
+            const proponentName = $('#filter_proponent').val();
+            const districtNo = $('#filter_district').val();
 
             if (adlNo) {
-                loadReportData(adlNo, provCode);
+                loadReportData(adlNo, provCode, proponentName, districtNo);
             }
         });
 

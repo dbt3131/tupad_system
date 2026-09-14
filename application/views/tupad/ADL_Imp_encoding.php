@@ -240,18 +240,19 @@
                                         </select>
                                     </div>
 
-                                    <div class="col-md-3">
-                                        <label class="form-label fw-semibold small">District</label>
-                                        <select name="implementation_district" id="implementation_district" class="form-select" required>
-                                            <option value="">--Select District--</option>
-                                            <option value="I">I</option>
-                                            <option value="II">II</option>
-                                            <option value="III">III</option>
-                                            <option value="IV">IV</option>
-                                            <option value="V">V</option>
-                                            <option value="VI">VI</option>
-                                        </select>
-                                    </div>
+                                   <div class="col-md-3">
+    <label class="form-label fw-semibold small">District</label>
+    <select name="implementation_district" id="implementation_district" class="form-select" style="width: 100%;" required>
+        <option value="" selected disabled>-- Select District --</option>
+        <?php if (!empty($districts)): ?>
+            <?php foreach ($districts as $dist): ?>
+                <option value="<?= html_escape($dist['district_id']); ?>">
+                    <?= html_escape($dist['district_no']); ?>
+                </option>
+            <?php endforeach; ?>
+        <?php endif; ?>
+    </select>
+</div>
 
                                     <div class="col-md-3">
                                         <label class="form-label fw-semibold small">Wage Percentage</label>
@@ -277,10 +278,30 @@
                                         <input type="text" name="implementation_classification" class="form-control" placeholder="LGU Class" required>
                                     </div>
 
+
+
+
+
+
+
+
                                     <div class="col-md-4">
-                                        <label class="form-label fw-semibold small">Proponent</label>
-                                        <input type="text" name="imp_proponent" class="form-control" placeholder="Proponent" required>
-                                    </div>
+    <label class="form-label fw-semibold small">Proponent</label>
+    <select name="imp_proponent" id="imp_proponent" class="form-select" style="width: 100%;" required>
+        <option value="" selected disabled>-- Select or type Proponent --</option>
+        <?php if (!empty($proponents)): ?>
+            <?php foreach ($proponents as $prop): ?>
+                <option value="<?= html_escape($prop['proponent_id']); ?>">
+                    <?= html_escape($prop['proponent_name']); ?>
+                </option>
+            <?php endforeach; ?>
+        <?php endif; ?>
+    </select>
+</div>
+
+
+
+
 
                                     <div class="col-md-4">
                                         <label class="form-label fw-semibold small">Sponsor</label>
@@ -629,6 +650,20 @@
             }
         });
     });
+
+    $(document).ready(function() {
+    $('#imp_proponent').select2({
+        theme: 'bootstrap-5',
+        placeholder: '-- Select or type Proponent --',
+        allowClear: true
+    });
+
+    $('#implementation_district').select2({
+        theme: 'bootstrap-5',
+        placeholder: '-- Select District --',
+        allowClear: true
+    });
+});
     </script>
 </body>
 

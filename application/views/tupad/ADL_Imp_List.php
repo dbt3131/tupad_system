@@ -226,7 +226,8 @@
                                                     </td>
                                                     <td><?= html_escape($row['implementation_province_name'] ?? 'N/A'); ?></td>
                                                     <td><?= html_escape($row['implementation_area_name'] ?? 'N/A'); ?></td>
-                                                    <td><?= html_escape($row['implementation_proponent']); ?></td>
+                                                    <!-- FIXED UNDEFINED VARIABLE ERROR -->
+                                                    <td><?= html_escape($row['implementation_proponent_name'] ?? 'N/A'); ?></td>
                                                     <td><?= html_escape($row['implementation_sponsor']); ?></td>
                                                     <td><?= html_escape($row['date_coordinated']); ?></td>
                                                     <td class="text-center">
@@ -357,16 +358,19 @@
                                                 <option value="" selected disabled>Select Municipality First</option>
                                             </select>
                                         </div>
+                                        
+                                        <!-- DISTRICT SELECT FIELD -->
                                         <div class="col-md-3">
-                                            <label class="form-label fw-semibold small">Implementation District</label>
-                                            <select name="implementation_district" id="edit_implementation_district" class="form-select" required>
-                                                <option value="">--Select District--</option>
-                                                <option value="I">I</option>
-                                                <option value="II">II</option>
-                                                <option value="III">III</option>
-                                                <option value="IV">IV</option>
-                                                <option value="V">V</option>
-                                                <option value="VI">VI</option>
+                                            <label class="form-label fw-semibold small">District</label>
+                                            <select name="implementation_district" id="edit_implementation_district" class="form-select" style="width: 100%;" required>
+                                                <option value="" selected disabled>-- Select District --</option>
+                                                <?php if (!empty($districts)): ?>
+                                                    <?php foreach ($districts as $dist): ?>
+                                                        <option value="<?= html_escape($dist['district_id']); ?>">
+                                                            <?= html_escape($dist['district_no']); ?>
+                                                        </option>
+                                                    <?php endforeach; ?>
+                                                <?php endif; ?>
                                             </select>
                                         </div>
 
@@ -391,10 +395,21 @@
                                             <input type="text" id="edit_implementation_classification" name="implementation_classification" class="form-control" placeholder="LGU Class" required>
                                         </div>
 
+                                        <!-- PROPONENT SELECT FIELD -->
                                         <div class="col-md-4">
                                             <label class="form-label fw-semibold small">Proponent</label>
-                                            <input type="text" id="edit_implementation_proponent" name="imp_proponent" class="form-control" placeholder="Proponent" required>
+                                            <select name="imp_proponent" id="edit_imp_proponent" class="form-select" style="width: 100%;" required>
+                                                <option value="" selected disabled>-- Select or type Proponent --</option>
+                                                <?php if (!empty($proponents)): ?>
+                                                    <?php foreach ($proponents as $prop): ?>
+                                                        <option value="<?= html_escape($prop['proponent_id']); ?>">
+                                                            <?= html_escape($prop['proponent_name']); ?>
+                                                        </option>
+                                                    <?php endforeach; ?>
+                                                <?php endif; ?>
+                                            </select>
                                         </div>
+
                                         <div class="col-md-4">
                                             <label class="form-label fw-semibold small">Sponsor</label>
                                             <input type="text" id="edit_implementation_sponsor" name="imp_sponsor" class="form-control" placeholder="Sponsor" required>
@@ -478,11 +493,11 @@
                                 <div class="tab-pane fade" id="edit-implementation-pane" role="tabpanel">
                                     <div class="row g-3">
                                         <div class="col-md-4">
-                                            <label class="form-label fw-semibold small">Ongoing Start Date</label>
+                                            <label class="form-label fw-semibold small">Implementation Start Date</label>
                                             <input type="text" id="edit_ongoing_implementation_start_date" name="ongoing_implementation_start_date" class="form-control" placeholder="Start Date" onfocus="this.type='date'" onblur="if(!this.value)this.type='text'">
                                         </div>
                                         <div class="col-md-4">
-                                            <label class="form-label fw-semibold small">Ongoing End Date</label>
+                                            <label class="form-label fw-semibold small">Implementation End Date</label>
                                             <input type="text" id="edit_ongoing_implementation_end_date" name="ongoing_implementation_end_date" class="form-control" placeholder="End Date" onfocus="this.type='date'" onblur="if(!this.value)this.type='text'">
                                         </div>
                                         <div class="col-md-4">
@@ -537,8 +552,9 @@
                                         </div>
                                         <div class="col-md-4">
                                             <label class="form-label fw-semibold small">Payout Method</label>
-                                            <select id="edit_payout_method" name="payout_method" class="form-select">
-                                                <option value="">-- Select Payout Site --</option>
+                                            <select id="edit_payout_method" name="payout_method" class="form-select" style="color: #7a7979a9; font-style: italic;" 
+                                                onchange="this.style.color='#000000'; this.style.fontStyle='normal';">
+                                                <option value="" disabled selected>-- Select Payout Site --</option>
                                                 <?php if (!empty($payoutSite)): ?>
                                                     <?php foreach ($payoutSite as $pos): ?>
                                                         <option value="<?= html_escape($pos['payout_site_id']); ?>"><?= html_escape($pos['payout_site_name']); ?></option>
@@ -573,6 +589,7 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/datatables.net@1.13.8/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/datatables.net-bs5@1.13.8/js/dataTables.bootstrap5.min.js"></script>
 
@@ -585,6 +602,20 @@
             "pageLength": 10,
             "lengthMenu": [5, 10, 25, 50, 100],
             "order": [[1, "desc"]]
+        });
+
+        $('#edit_imp_proponent').select2({
+            theme: 'bootstrap-5',
+            placeholder: '-- Select or type Proponent --',
+            allowClear: true,
+            dropdownParent: $('#editModal')
+        });
+
+        $('#edit_implementation_district').select2({
+            theme: 'bootstrap-5',
+            placeholder: '-- Select District --',
+            allowClear: true,
+            dropdownParent: $('#editModal')
         });
 
         const ppeRate = parseFloat("<?= $ppe_rate ?? 325; ?>") || 0;
@@ -713,7 +744,6 @@
                         $('#edit_adl_no').val(d.adl_no);
                         $('#edit_implementation_reference_no').val(d.implementation_reference_no);
                         
-                        // Handle date fields properly to trigger text-to-date behavior when data is populated
                         ['edit_date_coordinated', 'edit_appraisal_date_submitted', 'edit_appraisal_date_approved', 
                          'edit_ppes_date_issued', 'edit_orientation_date', 'edit_gsis_enrollment_date', 
                          'edit_ongoing_implementation_start_date', 'edit_ongoing_implementation_end_date', 
@@ -730,14 +760,15 @@
                         
                         loadModalMunicipalities(d.implementation_province, d.implementation_area, d.implementation_brgy);
 
-                        $('#edit_implementation_district').val(d.implementation_district);
+                        $('#edit_implementation_district').val(d.implementation_district).trigger('change');
+                        $('#edit_imp_proponent').val(d.implementation_proponent).trigger('change');
+
                         $('#edit_wage_percentage').val(d.wage_percentage);
                         $('#edit_gpai_info').val(d.gpai_info);
                         $('#edit_wage_info').val(d.wage_info);
                         $('#edit_remarks').val(d.remarks);
 
                         $('#edit_implementation_classification').val(d.implementation_classification);
-                        $('#edit_implementation_proponent').val(d.implementation_proponent);
                         $('#edit_implementation_sponsor').val(d.implementation_sponsor);
                         $('#no_of_days').val(d.no_of_days);
                         $('#target').val(d.target);

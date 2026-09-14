@@ -447,7 +447,7 @@ $is_adl_active  = in_array($current_controller, ['ADL']);
     const idleTimeLimit = 5; // Time limit in minutes (e.g., 5 minutes)
 
     // Increment the idle timer counter every minute
-    const idleInterval = setInterval(timerIncrement, 250000); 
+    const idleInterval = setInterval(timerIncrement, 300000); 
 
     // Zero the idle timer on mouse movement, keypress, or clicks
     window.onload = resetIdleTimer;
