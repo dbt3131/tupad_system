@@ -10,14 +10,12 @@ class Activity extends CI_Controller {
         if (!$this->session->userdata('logged_in')) {
             redirect('auth/login');
         }
-
         $this->load->model('Activity_Model');
         $this->load->helper(['url', 'form']);
     }
 
        public function activity_trail() {
-        $data['activities'] = $this->Activity_Model->get_activity_trail();
-        
+        $data['activities'] = $this->Activity_Model->get_activity_trail();     
         $this->load->view('users/user_activity', $data);
     }
 

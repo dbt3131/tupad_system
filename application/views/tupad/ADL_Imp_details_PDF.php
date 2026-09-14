@@ -112,11 +112,17 @@ function display_val($value, $type = 'text') {
                         <i class="bi bi-file-earmark-text me-2"></i>ADL Implementation Record Details
                     </h3>
                     <p class="text-muted small mb-0">Department of Labor and Employment &bull; Transaction Overview</p>
+                    <a href="javascript:window.close();" class="btn btn-sm btn-outline-secondary mb-1">
+    <i class="bi bi-arrow-left me-1"></i> Back
+</a>
                 </div>
+
                 <div>
                     <button onclick="window.print()" class="btn btn-primary shadow-sm px-4">
                         <i class="bi bi-printer me-2"></i>Print / Save PDF
                     </button>
+
+             
                 </div>
             </div>
 
