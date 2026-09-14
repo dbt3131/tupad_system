@@ -102,7 +102,7 @@ main.flex-grow-1 {
             <i class="bi bi-file-earmark-excel me-1"></i> Export to Excel
         </a>
         <a href="<?php echo site_url('tupad/duplicity_check'); ?>" class="btn btn-outline-secondary btn-sm">
-          <i class="bi bi-arrow-left"></i> Back to Results
+          <i class="bi bi-arrow-left"></i> Back
         </a>
     </div>
 </div>
@@ -126,7 +126,7 @@ main.flex-grow-1 {
                         <?php foreach ($cluster_members as $member): ?>
                             <tr>
                                 <td>
-                                    <a href="<?php echo site_url('tupad/view_profile/' . $member['id']); ?>" class="btn btn-sm btn-primary">
+                                    <a href="<?php echo site_url('tupad/view_profile/' . $member['id']); ?>" class="btn btn-sm btn-primary" target="_BLANK">
                                         <i class="bi bi-eye"></i> View Profile
                                     </a>
                                 </td>

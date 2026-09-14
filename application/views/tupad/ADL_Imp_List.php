@@ -596,13 +596,13 @@
     <script>
     $(document).ready(function () {
         $('#transactionTable').DataTable({
-            "language": {
-                "emptyTable": "No transaction records found. Please select a filtered area."
-            },
-            "pageLength": 10,
-            "lengthMenu": [5, 10, 25, 50, 100],
-            "order": [[1, "desc"]]
-        });
+        "language": {
+            "emptyTable": "No transaction records found. Please select a filtered area."
+        },
+        "pageLength": 10,
+        "lengthMenu": [5, 10, 25, 50, 100],
+        "order": [[0, "desc"]] // <-- Change this from [1, "desc"] to [0, "desc"] to sort by Date Encoded (newest first)
+    });
 
         $('#edit_imp_proponent').select2({
             theme: 'bootstrap-5',

@@ -321,8 +321,8 @@
                                     `<strong>ADL:</strong> ${tx.adl_no}<br><small class="text-muted">Ref: <code>${tx.implementation_reference_no}</code></small>`,
                                     `<span class="badge bg-info text-dark">${tx.ppes_count || 0} items</span><br>₱${ppesAmt.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`,
                                     `<span class="badge bg-secondary">${tx.gsis_enrollment_benefs || 0} benefs</span><br>₱${gsisAmt.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`,
-                                    `<span class="text-danger">₱${serviceCost.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>`,
-                                    `<span class="text-danger">₱${paymentAmt.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>`
+                                    `<span class="text-dark">₱${serviceCost.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>`,
+                                    `<span class="text-dark">₱${paymentAmt.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>`
                                 ]);
                             });
                         }
