@@ -353,8 +353,6 @@
                 </div>
               </div>
 
-
-
 <!-- Data Privacy Modal -->
   <div class="modal fade" id="privacyModal" tabindex="-1" aria-labelledby="privacyModalLabel" data-bs-backdrop="static" aria-hidden="true">
     <div class="modal-dialog modal-dialog-scrollable modal-lg">
@@ -388,26 +386,6 @@
       </div>
     </div>
   </div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
               <!-- Data Privacy Clause -->
               <div class="mb-3 form-check">
                 <input type="checkbox" class="form-check-input" id="privacy_policy" disabled onchange="updateFormState()">

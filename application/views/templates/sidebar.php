@@ -441,3 +441,31 @@ $is_adl_active  = in_array($current_controller, ['ADL']);
     
   </ul>
 </aside>
+
+<script>
+    let idleTime = 0;
+    const idleTimeLimit = 5; // Time limit in minutes (e.g., 5 minutes)
+
+    // Increment the idle timer counter every minute
+    const idleInterval = setInterval(timerIncrement, 250000); 
+
+    // Zero the idle timer on mouse movement, keypress, or clicks
+    window.onload = resetIdleTimer;
+    window.onmousemove = resetIdleTimer;
+    window.onmousedown = resetIdleTimer; // Catches clicks
+    window.onclick = resetIdleTimer;     // Catches taps on mobile
+    window.onkeypress = resetIdleTimer;
+    window.addEventListener('scroll', resetIdleTimer, true); // Catches scrolling
+
+    function timerIncrement() {
+        idleTime++;
+        if (idleTime >= idleTimeLimit) {
+            // Redirect to logout when time limit is reached
+            window.location.href = "<?= site_url('auth/logout'); ?>";
+        }
+    }
+
+    function resetIdleTimer() {
+        idleTime = 0;
+    }
+</script>
