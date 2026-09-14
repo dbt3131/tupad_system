@@ -616,10 +616,8 @@ class Tupad extends CI_Controller
         echo '<th>Last Name</th>';
         echo '<th>Extension</th>';
         echo '<th>Birthdate (MM/DD/YYYY)</th>';
-        echo '<th>Date Hired</th>';
         echo '<th>Province</th>';
         echo '<th>City/Muni</th>';
-        echo '<th>Barangay</th>';
         echo '<th>Source File</th>';
         echo '<th>Uploaded At</th>';
         echo '</tr>';
@@ -633,7 +631,6 @@ class Tupad extends CI_Controller
             echo '<td>' . htmlspecialchars($row['tupad_lname']) . '</td>';
             echo '<td>' . htmlspecialchars($row['tupad_ext']) . '</td>';
             echo '<td>' . htmlspecialchars($row['tupad_dob_month'] . '/' . $row['tupad_dob_day'] . '/' . $row['tupad_dob_year']) . '</td>';
-            echo '<td>' . htmlspecialchars($row['tupad_date_hired'] ?? '') . '</td>';
             echo '<td>' . htmlspecialchars($row['province_name']) . '</td>';
             echo '<td>' . htmlspecialchars($row['municipality_name']) . '</td>';
             echo '<td>' . htmlspecialchars($row['file_name']) . '</td>';

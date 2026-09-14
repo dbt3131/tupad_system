@@ -101,8 +101,8 @@ main.flex-grow-1 {
         <a href="<?php echo site_url('tupad/export_cluster_xlsx?' . $_SERVER['QUERY_STRING']); ?>" class="btn btn-success btn-sm me-2">
             <i class="bi bi-file-earmark-excel me-1"></i> Export to Excel
         </a>
-        <a href="javascript:window.history.back();" class="btn btn-outline-secondary btn-sm">
-            <i class="bi bi-arrow-left"></i> Back to Results
+        <a href="<?php echo site_url('tupad/duplicity_check'); ?>" class="btn btn-outline-secondary btn-sm">
+          <i class="bi bi-arrow-left"></i> Back to Results
         </a>
     </div>
 </div>

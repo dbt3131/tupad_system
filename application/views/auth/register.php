@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Register - CI3 CRUD System</title>
+  <title>Register - PRISM System</title>
 
   <!-- Google Fonts: Inter -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -48,7 +48,6 @@
       width: 100%;
     }
 
-    /* Fixed header layout to prevent logo clipping/disappearing on zoom */
     .register-card-header-wrapper {
       display: flex;
       flex-direction: column;
@@ -177,15 +176,6 @@
       color: #94a3b8;
       font-size: 0.85rem;
     }
-
-    @media (max-width: 575.98px) {
-      .register-card {
-        border-radius: 12px;
-      }
-      .form-control, .form-select {
-        font-size: 16px;
-      }
-    }
   </style>
 </head>
 
@@ -211,13 +201,12 @@
 
           <!-- Registration Form Body -->
           <div class="register-body">
-            <!-- CI3 Validation Errors -->
             <?= validation_errors(
               '<div class="alert alert-danger alert-dismissible fade show d-flex align-items-center mb-4" role="alert"><i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i><div>',
               '</div><button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>'
             ); ?>
 
-            <form method="post" action="<?= site_url('auth/register'); ?>" onsubmit="return validatePasswords();">
+            <form method="post" action="<?= site_url('auth/register'); ?>" onsubmit="return validateForm();">
               
               <!-- SECTION 1: Personal Details -->
               <div class="row g-2 g-sm-3 mb-3">
@@ -334,7 +323,7 @@
                   <label for="password" class="form-label fw-semibold">Password</label>
                   <div class="input-group">
                     <span class="input-group-text"><i class="bi bi-lock"></i></span>
-                    <input type="password" id="password" name="password" class="form-control" placeholder="Min. 6 characters" minlength="6" required>
+                    <input type="password" id="password" name="password" class="form-control" placeholder="Min. 8 characters" minlength="8" required>
                     <button type="button" class="btn-toggle-password" onclick="togglePassword('password', 'passwordIcon')">
                       <i class="bi bi-eye" id="passwordIcon"></i>
                     </button>
@@ -345,14 +334,22 @@
                   <label for="password_confirm" class="form-label fw-semibold">Confirm Password</label>
                   <div class="input-group">
                     <span class="input-group-text"><i class="bi bi-shield-lock"></i></span>
-                    <input type="password" id="password_confirm" name="password_confirm" class="form-control" placeholder="Re-enter password" minlength="6" required>
+                    <input type="password" id="password_confirm" name="password_confirm" class="form-control" placeholder="Re-enter password" minlength="8" required>
                     <button type="button" class="btn-toggle-password" onclick="togglePassword('password_confirm', 'confirmPasswordIcon')">
                       <i class="bi bi-eye" id="confirmPasswordIcon"></i>
                     </button>
                   </div>
                 </div>
-                <div class="col-12 mt-1">
-                  <div id="passwordMessage" class="form-text small"></div>
+
+                <!-- Live Password Requirements Checklist -->
+                <div class="col-12 mt-2">
+                  <ul class="list-unstyled small text-muted mb-0" id="passwordRequirements">
+                    <li id="req-length" class="text-danger"><i class="bi bi-x-circle me-1"></i> At least 8 characters</li>
+                    <li id="req-upper" class="text-danger"><i class="bi bi-x-circle me-1"></i> At least one uppercase letter</li>
+                    <li id="req-number" class="text-danger"><i class="bi bi-x-circle me-1"></i> At least one number</li>
+                    <li id="req-special" class="text-danger"><i class="bi bi-x-circle me-1"></i> At least one special character (!@#$%^&*)</li>
+                    <li id="req-match" class="text-danger"><i class="bi bi-x-circle me-1"></i> Passwords match</li>
+                  </ul>
                 </div>
               </div>
 
@@ -383,7 +380,6 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
   <script>
-    // Toggle Password Visibility
     function togglePassword(inputId, iconId) {
       const passwordInput = document.getElementById(inputId);
       const icon = document.getElementById(iconId);
@@ -397,24 +393,46 @@
       }
     }
 
-    // Dynamic Password Match Validation
-    function validatePasswords() {
+    function validatePasswordRules() {
       const password = document.getElementById("password").value;
       const confirmPassword = document.getElementById("password_confirm").value;
-      const message = document.getElementById("passwordMessage");
 
-      if (confirmPassword.length > 0 && password !== confirmPassword) {
-        message.innerHTML = '<span class="text-danger"><i class="bi bi-x-circle me-1"></i> Passwords do not match.</span>';
-        return false;
-      } else if (confirmPassword.length > 0 && password === confirmPassword) {
-        message.innerHTML = '<span class="text-success"><i class="bi bi-check-circle me-1"></i> Passwords match.</span>';
-        return true;
-      }
-      return true;
+      const hasLength = password.length >= 8;
+      const hasUpper = /[A-Z]/.test(password);
+      const hasNumber = /[0-9]/.test(password);
+      const hasSpecial = /[\W_]/.test(password);
+      const isMatch = password.length > 0 && password === confirmPassword;
+
+      updateRequirementUI('req-length', hasLength);
+      updateRequirementUI('req-upper', hasUpper);
+      updateRequirementUI('req-number', hasNumber);
+      updateRequirementUI('req-special', hasSpecial);
+      updateRequirementUI('req-match', isMatch);
+
+      return hasLength && hasUpper && hasNumber && hasSpecial && isMatch;
     }
 
-    document.getElementById("password_confirm").addEventListener("keyup", validatePasswords);
-    document.getElementById("password").addEventListener("keyup", validatePasswords);
+    function updateRequirementUI(elementId, isValid) {
+      const el = document.getElementById(elementId);
+      if (isValid) {
+        el.className = "text-success";
+        if (el.innerHTML.includes('bi-x-circle')) {
+          el.innerHTML = el.innerHTML.replace('bi-x-circle', 'bi-check-circle').replace('text-danger', 'text-success');
+        }
+      } else {
+        el.className = "text-danger";
+        if (el.innerHTML.includes('bi-check-circle')) {
+          el.innerHTML = el.innerHTML.replace('bi-check-circle', 'bi-x-circle').replace('text-success', 'text-danger');
+        }
+      }
+    }
+
+    function validateForm() {
+      return validatePasswordRules();
+    }
+
+    document.getElementById("password").addEventListener("keyup", validatePasswordRules);
+    document.getElementById("password_confirm").addEventListener("keyup", validatePasswordRules);
   </script>
 </body>
 </html>

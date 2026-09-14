@@ -59,20 +59,20 @@ class User_model extends CI_Model
 
     public function get_position()
     {
-      $query = $this->db->get('code_position'); 
-       return $query->result_array();
+        $query = $this->db->get('code_position');
+        return $query->result_array();
     }
 
     public function get_office()
     {
-      $query = $this->db->get('code_office'); 
-       return $query->result_array();
+        $query = $this->db->get('code_office');
+        return $query->result_array();
     }
 
     public function get_division()
     {
-      $query = $this->db->get('code_division'); 
-       return $query->result_array();
+        $query = $this->db->get('code_division');
+        return $query->result_array();
     }
 
     public function activate_user($user_id)
@@ -80,5 +80,4 @@ class User_model extends CI_Model
         $this->db->where('id', $user_id);
         return $this->db->update('users', array('activated' => 1));
     }
-
 }

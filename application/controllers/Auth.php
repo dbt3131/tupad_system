@@ -10,102 +10,131 @@ class Auth extends CI_Controller
         $this->load->library('form_validation');
     }
 
-public function register()
-{
-    // Redirect if already logged in
-    if ($this->session->userdata('logged_in')) {
-        redirect('users');
-    }
-
-    // --- FORM VALIDATION RULES ---
-    
-    // Personal Details
-    $this->form_validation->set_rules(
-        'reg_empno', 
-        'Employee No', 
-        'required|trim|regex_match[/^[0-9-]+$/]|is_unique[users.reg_empno]',
-        array(
-            'regex_match' => 'The %s field can only contain numbers and dashes.',
-            'is_unique'   => 'This %s is already registered.'
-        )
-    );
-    $this->form_validation->set_rules('reg_fname', 'First Name', 'required|trim');
-    $this->form_validation->set_rules('reg_mname', 'Middle Name', 'trim');
-    $this->form_validation->set_rules('reg_lname', 'Last Name', 'required|trim');
-    $this->form_validation->set_rules('reg_extname', 'Extension Name', 'trim');
-
-    // Organization Details
-    $this->form_validation->set_rules('position_id', 'Job Position', 'required|numeric');
-    $this->form_validation->set_rules('office_id', 'Office', 'required|numeric');
-    $this->form_validation->set_rules('division_id', 'Division', 'required|numeric');
-
-    // Account Credentials
-    $this->form_validation->set_rules(
-        'email', 
-        'Email',
-        'required|trim|valid_email|is_unique[users.email]',
-        array('is_unique' => 'The %s is already registered.')
-    );
-    $this->form_validation->set_rules('password', 'Password', 'required|min_length[6]');
-    $this->form_validation->set_rules('password_confirm', 'Confirm Password', 'required|matches[password]');
-
-    // --- EXECUTE VALIDATION ---
-    if ($this->form_validation->run() === FALSE) {
-        // Reload page dropdown options when validation fails
-        $data['positions'] = $this->User_model->get_position();
-        $data['office']    = $this->User_model->get_office();
-        $data['division']  = $this->User_model->get_division();
-        
-        $this->load->view('auth/register', $data);
-        return;
-    }
-
-    // --- PREPARE DATA FOR DATABASE ---
-    // Mapping HTML form names to database table columns
-    $insert_data = array(
-        'reg_empno'   => trim($this->input->post('reg_empno', TRUE)),
-        'reg_fname'   => strtoupper(trim($this->input->post('reg_fname', TRUE))),
-        'reg_mname'   => strtoupper(trim($this->input->post('reg_mname', TRUE))),
-        'reg_lname'   => strtoupper(trim($this->input->post('reg_lname', TRUE))),
-        'reg_extname' => strtoupper(trim($this->input->post('reg_extname', TRUE))),
-        'position_id' => $this->input->post('position_id', TRUE),
-        'office_id'   => $this->input->post('office_id', TRUE),
-        'division_id' => $this->input->post('division_id', TRUE),
-        'email'       => trim($this->input->post('email', TRUE)),
-        'password'    => password_hash($this->input->post('password'), PASSWORD_DEFAULT),
-        'created_at'  => date('Y-m-d H:i:s')
-    );
-
-    // Save to Database via Model
-    if ($this->User_model->register($insert_data)) {
-        $this->session->set_flashdata('success', 'Registration successful. Wait for the activation.');
-        redirect('auth/login');
-    } else {
-        $this->session->set_flashdata('error', 'Failed to register account. Please try again.');
-        redirect('auth/register');
-    }
-}
-
-public function login()
+    public function register()
     {
         // Redirect if already logged in[cite: 6]
+        if ($this->session->userdata('logged_in')) {
+            redirect('users');
+        }
+
+        // --- FORM VALIDATION RULES ---
+        
+        // Personal Details[cite: 6]
+        $this->form_validation->set_rules(
+            'reg_empno', 
+            'Employee No', 
+            'required|trim|regex_match[/^[0-9-]+$/]|is_unique[users.reg_empno]',
+            array(
+                'regex_match' => 'The %s field can only contain numbers and dashes.',
+                'is_unique'   => 'This %s is already registered.'
+            )
+        );
+        $this->form_validation->set_rules('reg_fname', 'First Name', 'required|trim');
+        $this->form_validation->set_rules('reg_mname', 'Middle Name', 'trim');
+        $this->form_validation->set_rules('reg_lname', 'Last Name', 'required|trim');
+        $this->form_validation->set_rules('reg_extname', 'Extension Name', 'trim');
+
+        // Organization Details[cite: 6]
+        $this->form_validation->set_rules('position_id', 'Job Position', 'required|numeric');
+        $this->form_validation->set_rules('office_id', 'Office', 'required|numeric');
+        $this->form_validation->set_rules('division_id', 'Division', 'required|numeric');
+
+        // Account Credentials[cite: 6]
+        $this->form_validation->set_rules(
+            'email', 
+            'Email',
+            'required|trim|valid_email|is_unique[users.email]',
+            array('is_unique' => 'The %s is already registered.')
+        );
+        
+        // Strict Password Validation Rules
+        $this->form_validation->set_rules(
+            'password', 
+            'Password', 
+            'required|min_length[8]|callback_check_password_strength',
+            array(
+                'min_length' => 'The %s must be at least 8 characters long.'
+            )
+        );
+        $this->form_validation->set_rules('password_confirm', 'Confirm Password', 'required|matches[password]');
+
+        // --- EXECUTE VALIDATION ---[cite: 6]
+        if ($this->form_validation->run() === FALSE) {
+            // Reload page dropdown options when validation fails[cite: 6]
+            $data['positions'] = $this->User_model->get_position();
+            $data['office']    = $this->User_model->get_office();
+            $data['division']  = $this->User_model->get_division();
+            
+            $this->load->view('auth/register', $data);
+            return;
+        }
+
+        // --- PREPARE DATA FOR DATABASE ---[cite: 6]
+        $insert_data = array(
+            'reg_empno'   => trim($this->input->post('reg_empno', TRUE)),
+            'reg_fname'   => strtoupper(trim($this->input->post('reg_fname', TRUE))),
+            'reg_mname'   => strtoupper(trim($this->input->post('reg_mname', TRUE))),
+            'reg_lname'   => strtoupper(trim($this->input->post('reg_lname', TRUE))),
+            'reg_extname' => strtoupper(trim($this->input->post('reg_extname', TRUE))),
+            'position_id' => $this->input->post('position_id', TRUE),
+            'office_id'   => $this->input->post('office_id', TRUE),
+            'division_id' => $this->input->post('division_id', TRUE),
+            'email'       => trim($this->input->post('email', TRUE)),
+            'password'    => password_hash($this->input->post('password'), PASSWORD_DEFAULT),
+            'created_at'  => date('Y-m-d H:i:s')
+        );
+
+        // Save to Database via Model[cite: 6]
+        if ($this->User_model->register($insert_data)) {
+            $this->session->set_flashdata('success', 'Registration successful. Wait for the activation.');
+            redirect('auth/login');
+        } else {
+            $this->session->set_flashdata('error', 'Failed to register account. Please try again.');
+            redirect('auth/register');
+        }
+    }
+
+    // Custom Callback to Validate Password Strength
+    public function check_password_strength($password)
+    {
+        $has_uppercase = preg_match('/[A-Z]/', $password);
+        $has_number    = preg_match('/[0-9]/', $password);
+        $has_special   = preg_match('/[\W_]/', $password);
+
+        if (!$has_uppercase || !$has_number || !$has_special) {
+            $this->form_validation->set_message(
+                'check_password_strength', 
+                'The Password field must contain at least one uppercase letter, one number, and one special character.'
+            );
+            return FALSE;
+        }
+        return TRUE;
+    }
+
+    public function login()
+    {
+        // Redirect if already logged in
         if ($this->session->userdata('logged_in')) {
             redirect('dashboard');
         }
 
-        // Set Form Validation Rules[cite: 6]
+        // Set Form Validation Rules
         $this->form_validation->set_rules('email', 'Email', 'required|trim|valid_email');
         $this->form_validation->set_rules('password', 'Password', 'required');
         $this->form_validation->set_rules('captcha', 'CAPTCHA Answer', 'required|numeric');
 
-        // Run Validation[cite: 6]
+        // Run Validation
         if ($this->form_validation->run() === FALSE) {
-            // Generate simple math CAPTCHA numbers
+            // 1. Generate random numbers for the math CAPTCHA
             $num1 = rand(1, 10);
             $num2 = rand(1, 10);
+            
+            // 2. Store the correct answer in the session
             $this->session->set_userdata('captcha_answer', $num1 + $num2);
             
+            // 3. Pass the question string to the view
             $data['captcha_question'] = "What is {$num1} + {$num2}?";
+            
             $this->load->view('auth/login', $data);
             return;
         }
@@ -126,23 +155,22 @@ public function login()
         $email = trim($this->input->post('email', TRUE));
         $password = $this->input->post('password');
 
-        // Fetch user record from database[cite: 6]
+        // Fetch user record from database
         $user = $this->User_model->get_user_by_email($email);
 
-        // Verify User Existence & Password[cite: 6]
+        // Verify User Existence & Password
         if ($user && password_verify($password, $user->password)) {
 
-            // --- BLOCK INACTIVE USERS ---[cite: 6]
+            // --- BLOCK INACTIVE USERS ---
             if ((int)$user->activated === 0) {
                 $this->session->set_flashdata('error', 'Your account is inactive or pending approval. Please contact the Systems Analyst II.');
                 redirect('auth/login');
                 return;
             }
 
-            // --- SUCCESSFUL LOGIN ---[cite: 6]
+            // --- SUCCESSFUL LOGIN ---
             $this->session->sess_regenerate(TRUE);
 
-            // Store user data in session[cite: 6]
             $this->session->set_userdata(array(
                 'user_id'         => $user->id,
                 'assigned_prov'   => $user->assigned_prov,
@@ -154,24 +182,14 @@ public function login()
             redirect('dashboard/index');
         }
 
-        // Invalid Credentials[cite: 6]
+        // Invalid Credentials
         $this->session->set_flashdata('error', 'Invalid email or password.');
         redirect('auth/login');
     }
 
-
-public function logout()
+    public function logout()
     {
         $this->session->sess_destroy();
-        // Use 'refresh' to force a clean HTTP redirect
         redirect('auth/login', 'refresh');
     }
-
-
-
-
-
-
-
-
 }
