@@ -67,7 +67,7 @@ class Tupad extends CI_Controller
             $no_of_days = 10;
         }
 
-        // Fetch filtered summary data from Tupad_model based on date range[cite: 9]
+        // Fetch filtered summary data from Tupad_model based on date range
         $data['summary_records'] = $this->Tupad_model->get_gsis_summary_by_date($start_date, $end_date);
         
         // Pass variables back to view to keep form inputs populated
@@ -79,326 +79,336 @@ class Tupad extends CI_Controller
         $this->load->view('tupad/gsis_letter_report', $data);
     }
 
+    public function upload_tupad_excel()
+    {
+        if (!$this->session->userdata('logged_in')) {
+            echo json_encode(['status' => 'error', 'message' => 'Unauthorized access.']);
+            return;
+        }
 
+        $uploadedBy = $this->session->userdata('user_id');
+        $uploadedDate = date('Y-m-d H:i:s'); 
 
+        // Extract pre-encoded metadata form values
+        $area_of_implementation = $this->input->post('area_of_implementation');
+        $period_of_coverage     = $this->input->post('period_of_coverage');
+        $adl_no                 = $this->input->post('adl_no');
+        $reference_no           = $this->input->post('reference_no');
+        $nature_of_work         = $this->input->post('nature_of_work');
 
+        $config['upload_path']   = './uploads/';
+        $config['allowed_types'] = 'xlsx|xls|csv';
+        $config['max_size']      = 10240; 
+        $config['encrypt_name']  = TRUE;
 
+        if (!is_dir($config['upload_path'])) {
+            mkdir($config['upload_path'], 0777, true);
+        }
 
+        $this->load->library('upload', $config);
 
+        if (!$this->upload->do_upload('excel_file')) {
+            echo json_encode([
+                'status' => 'error',
+                'message' => $this->upload->display_errors('', '')
+            ]);
+            return;
+        }
 
+        $fileData = $this->upload->data();
+        $filePath = $fileData['full_path'];
+        $originalFileName = $fileData['client_name'];
 
+        // Duplicate File Check
+        if ($this->Tupad_model->file_exists($originalFileName)) {
+            @unlink($filePath);  
+            echo json_encode([
+                'status' => 'error', 
+                'message' => 'Upload stopped: The file "' . $originalFileName . '" has already been imported into the database.'
+            ]);
+            return;
+        }
 
-public function upload_tupad_excel()
-{
-    if (!$this->session->userdata('logged_in')) {
-        echo json_encode(['status' => 'error', 'message' => 'Unauthorized access.']);
-        return;
-    }
+        $extension = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
+        $rows = [];
 
-    $uploadedBy = $this->session->userdata('user_id');
-    $uploadedDate = date('Y-m-d H:i:s'); 
-
-    // Extract pre-encoded metadata form values
-    $area_of_implementation = $this->input->post('area_of_implementation');
-    $period_of_coverage     = $this->input->post('period_of_coverage');
-    $adl_no                 = $this->input->post('adl_no');
-    $reference_no           = $this->input->post('reference_no');
-    $nature_of_work         = $this->input->post('nature_of_work');
-
-    $config['upload_path']   = './uploads/';
-    $config['allowed_types'] = 'xlsx|xls|csv';
-    $config['max_size']      = 10240; 
-    $config['encrypt_name']  = TRUE;
-
-    if (!is_dir($config['upload_path'])) {
-        mkdir($config['upload_path'], 0777, true);
-    }
-
-    $this->load->library('upload', $config);
-
-    if (!$this->upload->do_upload('excel_file')) {
-        echo json_encode([
-            'status' => 'error',
-            'message' => $this->upload->display_errors('', '')
-        ]);
-        return;
-    }
-
-    $fileData = $this->upload->data();
-    $filePath = $fileData['full_path'];
-    $originalFileName = $fileData['client_name'];
-
-    // Duplicate File Check
-    if ($this->Tupad_model->file_exists($originalFileName)) {
-        @unlink($filePath);  
-        echo json_encode([
-            'status' => 'error', 
-            'message' => 'Upload stopped: The file "' . $originalFileName . '" has already been imported into the database.'
-        ]);
-        return;
-    }
-
-    $extension = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
-    $rows = [];
-
-    if ($extension === 'csv') {
-        if (($handle = fopen($filePath, "r")) !== FALSE) {
-            while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
-                $rows[] = $data;
+        if ($extension === 'csv') {
+            if (($handle = fopen($filePath, "r")) !== FALSE) {
+                while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
+                    $rows[] = $data;
+                }
+                fclose($handle);
             }
-            fclose($handle);
-        }
-    } else {
-        if ($xlsx = SimpleXLSX::parse($filePath)) {
-            $rows = $xlsx->rows();
         } else {
-            @unlink($filePath);
-            echo json_encode([
-                'status' => 'error', 
-                'message' => 'Excel Parse Error: ' . SimpleXLSX::parseError()
-            ]);
-            return;
-        }
-    }
-
-    // ==========================================
-    // 1. TEMPLATE HEADER VALIDATION CHECK
-    // ==========================================
-    $expected_headers = [
-        'No', 'tupad_fname', 'tupad_mname', 'tupad_lname', 'tupad_ext', 'gender', 
-        'tupad_dob_month', 'tupad_dob_day', 'tupad_dob_year', 'tupad_province', 
-        'tupad_municipality', 'tupad_barangay', 'street', 'district', 'IDType', 
-        'IDNumber', 'tupad_contact_no', 'bene_type', 'training_Interest', 'skills', 
-        'tupad_epayment', 'tupad_account_no', 'tupad_occupation', 'civil_Status', 
-        'age', 'average_monthly', 'dependent', 'interested_employment', 'tupad_convergence'
-    ];
-
-    if (empty($rows) || count($rows) < 1) {
-        @unlink($filePath);
-        echo json_encode(['status' => 'error', 'message' => 'The uploaded file is empty.']);
-        return;
-    }
-
-    $uploaded_headers = array_map('trim', $rows[0]);
-
-    if (count($uploaded_headers) !== count($expected_headers)) {
-        @unlink($filePath);
-        echo json_encode([
-            'status' => 'error', 
-            'message' => 'Template Mismatch: Expected ' . count($expected_headers) . ' columns, but found ' . count($uploaded_headers) . ' columns.'
-        ]);
-        return;
-    }
-
-    foreach ($expected_headers as $index => $expected_col) {
-        $actual_col = $uploaded_headers[$index] ?? '';
-        if (strcasecmp($expected_col, $actual_col) !== 0) {
-            @unlink($filePath);
-            echo json_encode([
-                'status' => 'error', 
-                'message' => "Template Mismatch at Column " . ($index + 1) . ": Expected '{$expected_col}', but found '{$actual_col}'."
-            ]);
-            return;
-        }
-    }
-    // ==========================================
-
-    @unlink($filePath); 
-
-    $insertData = [];
-    $clean = function($val) {
-        return str_replace('.', '', trim($val ?? ''));
-    };
-
-    // Helper function for advanced name validation
-    $validate_name_field = function($name, $field_label, $row_num, $is_required = true) {
-        $name = trim($name);
-
-        if ($is_required && ($name === '' || mb_strlen($name) < 2)) {
-            return "Validation Error (Row {$row_num}): {$field_label} cannot be blank and must be at least 2 characters.";
+            if ($xlsx = SimpleXLSX::parse($filePath)) {
+                $rows = $xlsx->rows();
+            } else {
+                @unlink($filePath);
+                echo json_encode([
+                    'status' => 'error', 
+                    'message' => 'Excel Parse Error: ' . SimpleXLSX::parseError()
+                ]);
+                return;
+            }
         }
 
-        if (!$is_required && $name === '') {
-            return null; // Optional field and is empty, pass validation
-        }
-
-        // Check for numbers
-        if (preg_match('/[0-9]/', $name)) {
-            return "Validation Error (Row {$row_num}): {$field_label} '{$name}' cannot contain numbers.";
-        }
-
-        // Check for double spaces
-        if (strpos($name, '  ') !== false) {
-            return "Validation Error (Row {$row_num}): {$field_label} '{$name}' contains double spaces.";
-        }
-
-        // Check allowed characters (letters, spaces, hyphens)
-        if (!preg_match('/^[a-zA-Z\s\-]+$/', $name)) {
-            return "Validation Error (Row {$row_num}): {$field_label} '{$name}' contains invalid special characters (only hyphens '-' are allowed).";
-        }
-
-        // Check hyphen placement: must not start or end with a hyphen
-        if (str_starts_with($name, '-') || str_ends_with($name, '-')) {
-            return "Validation Error (Row {$row_num}): {$field_label} '{$name}' cannot start or end with a hyphen '-'. Hyphens must be strictly between characters.";
-        }
-
-        return null;
-    };
-
-    // ==========================================
-    // 2. DATA ROW PARSING & NAME VALIDATION
-    // ==========================================
-    for ($i = 1; $i < count($rows); $i++) {
-        $row = $rows[$i];
-
-        if (empty(array_filter($row))) {
-            continue;
-        }
-
-        $row_num = $i + 1;
-
-        $fname = $row[1] ?? '';
-        $mname = $row[2] ?? '';
-        $lname = $row[3] ?? '';
-        $gender = $row[5] ?? ''; // Column 5 for gender
-
-        // Validate First Name (Required)
-        $err = $validate_name_field($fname, 'First Name', $row_num, true);
-        if ($err) {
-            echo json_encode(['status' => 'error', 'message' => $err]);
-            return;
-        }
-
-        // Validate Middle Name (Optional)
-        $err = $validate_name_field($mname, 'Middle Name', $row_num, false);
-        if ($err) {
-            echo json_encode(['status' => 'error', 'message' => $err]);
-            return;
-        }
-
-        // Validate Last Name (Required)
-        $err = $validate_name_field($lname, 'Last Name', $row_num, true);
-        if ($err) {
-            echo json_encode(['status' => 'error', 'message' => $err]);
-            return;
-        }
-
-        $err = $validate_name_field($gender, 'Gender', $row_num, true);
-        if ($gender === '') {
-            echo json_encode([
-                'status' => 'error', 
-                'message' => "Validation Error (Row {$row_num}): Gender cannot be blank."
-            ]);
-            return;
-        }
-
-        // Location & Reference ID Lookups
-        $rawProv = $clean($row[9] ?? '');
-        $rawCity = $clean($row[10] ?? '');
-        $rawBrgy = $clean($row[11] ?? '');
-
-        $provCode = is_numeric($rawProv) ? $this->format_location_code($rawProv) : $this->Tupad_model->find_province_code_by_desc($rawProv);
-        $cityCode = is_numeric($rawCity) ? $this->format_location_code($rawCity) : $this->Tupad_model->find_city_code_by_desc($rawCity, $provCode);
-        $brgyCode = is_numeric($rawBrgy) ? $this->format_location_code($rawBrgy) : $this->Tupad_model->find_barangay_code_by_desc($rawBrgy, $cityCode);
-
-        $rawIdType = $clean($row[14] ?? '');
-        $idType = is_numeric($rawIdType) ? (int)$rawIdType : $this->Tupad_model->find_type_id_by_desc($rawIdType);
-
-        $rawBeneType = $clean($row[17] ?? '');
-        $beneType = is_numeric($rawBeneType) ? (int)$rawBeneType : $this->Tupad_model->find_bene_type_id_by_desc($rawBeneType);
-
-        $rawConvergence = $clean($row[28] ?? '');
-        $convergenceId = is_numeric($rawConvergence) ? (int)$rawConvergence : $this->Tupad_model->find_convergence_id_by_desc($rawConvergence);
-
-        $rawEpayment = $clean($row[20] ?? '');
-        $epaymentId  = is_numeric($rawEpayment) ? (int)$rawEpayment : $this->Tupad_model->find_epayment_id_by_desc($rawEpayment);
-
-        $rawSkills = $clean($row[19] ?? '');
-        $skillsId  = is_numeric($rawSkills) ? (int)$rawSkills : $this->Tupad_model->find_skills_id_by_desc($rawSkills);
-
-        $insertData[] = [
-            'tupad_id_no'                 => $clean($row[0] ?? ''),
-            'tupad_fname'                 => strtoupper(trim($fname)),
-            'tupad_mname'                 => strtoupper(trim($mname)),
-            'tupad_lname'                 => strtoupper(trim($lname)),
-            'tupad_ext'                   => strtoupper($clean($row[4] ?? '')),
-            'tupad_gender'                => strtoupper($clean($row[5] ?? '')),
-            'tupad_dob_month'             => $clean($row[6] ?? ''),
-            'tupad_dob_day'               => $clean($row[7] ?? ''),
-            'tupad_dob_year'              => $clean($row[8] ?? ''),
-            'tupad_province'              => $provCode,
-            'tupad_municipality'          => $cityCode,
-            'tupad_barangay'              => $brgyCode,
-            'tupad_street'                => $clean($row[12] ?? ''),
-            'tupad_district'              => $clean($row[13] ?? ''),
-            'tupad_idtype'                => $idType,
-            'tupad_idnumber'              => $clean($row[15] ?? ''),
-            'tupad_contact_no'            => $clean($row[16] ?? ''),
-            'tupad_type'                  => $beneType,
-            'tupad_training_Interest'     => $clean($row[18] ?? ''),
-            'tupad_skills'                => $skillsId, 
-            'tupad_epayment'              => $epaymentId, 
-            'tupad_account_no'            => $clean($row[21] ?? ''),
-            'tupad_occupation'            => $clean($row[22] ?? ''),
-            'tupad_civil_status'          => $clean($row[23] ?? ''),
-            'tupad_age'                   => $clean($row[24] ?? ''),
-            'tupad_average_monthly'       => $clean($row[25] ?? ''),
-            'tupad_dependent'             => $clean($row[26] ?? ''),
-            'tupad_interested_employment' => $clean($row[27] ?? ''),         
-            'tupad_convergence'           => $convergenceId,
-            'file_name'                   => $originalFileName,
-            'user_id'                     => $uploadedBy,
-            'uploaded_at'                 => $uploadedDate,
-            'area_of_implementation'      => $area_of_implementation,
-            'period_of_coverage'          => $period_of_coverage,
-            'adl_no'                      => $adl_no,
-            'reference_no'                => $reference_no,
-            'nature_of_work'              => $nature_of_work
+        // ==========================================
+        // 1. TEMPLATE HEADER VALIDATION CHECK
+        // ==========================================
+        $expected_headers = [
+            'No', 'tupad_fname', 'tupad_mname', 'tupad_lname', 'tupad_ext', 'gender', 
+            'tupad_dob_month', 'tupad_dob_day', 'tupad_dob_year', 'tupad_province', 
+            'tupad_municipality', 'tupad_barangay', 'street', 'district', 'IDType', 
+            'IDNumber', 'tupad_contact_no', 'bene_type', 'training_Interest', 'skills', 
+            'tupad_epayment', 'tupad_account_no', 'tupad_occupation', 'civil_Status', 
+            'age', 'average_monthly', 'dependent', 'interested_employment', 'tupad_convergence'
         ];
-    }
 
-    // 3. DATABASE BATCH INSERTION
-    if (!empty($insertData)) {
-        $inserted = $this->Tupad_model->insert_batch($insertData);
-        
-        if ($inserted) {
-            $this->load->model('Activity_Model'); // Ensure model is loaded if not autoloaded
-            $user_id = $this->session->userdata('user_id');
-            $this->Activity_Model->log_activity($reference_no, $user_id, 1);    
-
-            $this->session->set_flashdata('success', 'Successfully uploaded ' . count($insertData) . ' record(s).');
-            echo json_encode(['status' => 'success', 'message' => 'Batch processing completed.']);
-            
-        } else {
-            echo json_encode(['status' => 'error', 'message' => 'Failed to save records into database.']);
+        if (empty($rows) || count($rows) < 1) {
+            @unlink($filePath);
+            echo json_encode(['status' => 'error', 'message' => 'The uploaded file is empty.']);
+            return;
         }
-    } else {
-        echo json_encode(['status' => 'error', 'message' => 'The uploaded file was empty or contained no valid records.']);
+
+        $uploaded_headers = array_map('trim', $rows[0]);
+
+        if (count($uploaded_headers) !== count($expected_headers)) {
+            @unlink($filePath);
+            echo json_encode([
+                'status' => 'error', 
+                'message' => 'Template Mismatch: Expected ' . count($expected_headers) . ' columns, but found ' . count($uploaded_headers) . ' columns.'
+            ]);
+            return;
+        }
+
+        foreach ($expected_headers as $index => $expected_col) {
+            $actual_col = $uploaded_headers[$index] ?? '';
+            if (strcasecmp($expected_col, $actual_col) !== 0) {
+                @unlink($filePath);
+                echo json_encode([
+                    'status' => 'error', 
+                    'message' => "Template Mismatch at Column " . ($index + 1) . ": Expected '{$expected_col}', but found '{$actual_col}'."
+                ]);
+                return;
+            }
+        }
+        // ==========================================
+
+        $clean = function($val) {
+            return str_replace('.', '', trim($val ?? ''));
+        };
+
+        // Helper function for advanced name validation
+        $validate_name_field = function($name, $field_label, $row_num, $is_required = true) {
+            $name = trim($name);
+
+            if ($is_required && ($name === '' || mb_strlen($name) < 2)) {
+                return "Validation Error (Row {$row_num}): {$field_label} cannot be blank and must be at least 2 characters.";
+            }
+
+            if (!$is_required && $name === '') {
+                return null; // Optional field and is empty, pass validation
+            }
+
+            // Check for numbers
+            if (preg_match('/[0-9]/', $name)) {
+                return "Validation Error (Row {$row_num}): {$field_label} '{$name}' cannot contain numbers.";
+            }
+
+            // Check for double spaces
+            if (strpos($name, '  ') !== false) {
+                return "Validation Error (Row {$row_num}): {$field_label} '{$name}' contains double spaces.";
+            }
+
+            // Check allowed characters (letters, spaces, hyphens)
+            if (!preg_match('/^[a-zA-Z\s\-]+$/', $name)) {
+                return "Validation Error (Row {$row_num}): {$field_label} '{$name}' contains invalid special characters (only hyphens '-' are allowed).";
+            }
+
+            // Check hyphen placement: must not start or end with a hyphen
+            if (str_starts_with($name, '-') || str_ends_with($name, '-')) {
+                return "Validation Error (Row {$row_num}): {$field_label} '{$name}' cannot start or end with a hyphen '-'. Hyphens must be strictly between characters.";
+            }
+
+            return null;
+        };
+
+        // ==========================================
+        // 2. DATA ROW PARSING & DISCREPANCY COLLECTION
+        // ==========================================
+        $discrepancies = [];
+        for ($i = 1; $i < count($rows); $i++) {
+            $row = $rows[$i];
+
+            if (empty(array_filter($row))) {
+                continue;
+            }
+
+            $row_num = $i + 1;
+
+            $fname        = $row[1] ?? '';
+            $mname        = $row[2] ?? '';
+            $lname        = $row[3] ?? '';
+            $gender       = $row[5] ?? ''; // Column 5 for gender
+            $dob_month    = $row[6] ?? '';
+            $dob_day      = $row[7] ?? '';
+            $dob_year     = $row[8] ?? '';
+            $province     = $row[9] ?? '';
+            $municipality = $row[10] ?? '';
+            $barangay     = $row[11] ?? '';
+
+            // Validate First Name (Required)
+            $err = $validate_name_field($fname, 'First Name', $row_num, true);
+            if ($err) { $discrepancies[] = $err; }
+
+            // Validate Middle Name (Optional)
+            $err = $validate_name_field($mname, 'Middle Name', $row_num, false);
+            if ($err) { $discrepancies[] = $err; }
+
+            // Validate Last Name (Required)
+            $err = $validate_name_field($lname, 'Last Name', $row_num, true);
+            if ($err) { $discrepancies[] = $err; }
+
+            // Validate Gender
+            if (trim($gender) === '') {
+                $discrepancies[] = "Validation Error (Row {$row_num}): Gender cannot be blank.";
+            } else {
+                $err = $validate_name_field($gender, 'Gender', $row_num, true);
+                if ($err) { $discrepancies[] = $err; }
+            }
+
+            // Validate Birth Date Fields (Cannot be blank)
+            if (trim($dob_month) === '') {
+                $discrepancies[] = "Validation Error (Row {$row_num}): Birth Month (tupad_dob_month) cannot be blank.";
+            }
+            if (trim($dob_day) === '') {
+                $discrepancies[] = "Validation Error (Row {$row_num}): Birth Day (tupad_dob_day) cannot be blank.";
+            }
+            if (trim($dob_year) === '') {
+                $discrepancies[] = "Validation Error (Row {$row_num}): Birth Year (tupad_dob_year) cannot be blank.";
+            }
+
+            // Validate Location Fields (Cannot be blank)
+            if (trim($province) === '') {
+                $discrepancies[] = "Validation Error (Row {$row_num}): Province (tupad_province) cannot be blank.";
+            }
+            if (trim($municipality) === '') {
+                $discrepancies[] = "Validation Error (Row {$row_num}): Municipality (tupad_municipality) cannot be blank.";
+            }
+            if (trim($barangay) === '') {
+                $discrepancies[] = "Validation Error (Row {$row_num}): Barangay (tupad_barangay) cannot be blank.";
+            }
+        }
+
+        // If discrepancies exist, abort upload, delete temp file, and pass errors to flashdata
+        if (!empty($discrepancies)) {
+            @unlink($filePath);
+            $this->session->set_flashdata('upload_discrepancies', $discrepancies);
+            echo json_encode([
+                'status' => 'error', 
+                'message' => 'Upload failed due to ' . count($discrepancies) . ' data discrepancy/discrepancies found.',
+                'reload' => true
+            ]);
+            return;
+        }
+
+        @unlink($filePath); 
+        $insertData = [];
+
+        for ($i = 1; $i < count($rows); $i++) {
+            $row = $rows[$i];
+            if (empty(array_filter($row))) {
+                continue;
+            }
+
+            $fname = $row[1] ?? '';
+            $mname = $row[2] ?? '';
+            $lname = $row[3] ?? '';
+
+            // Location & Reference ID Lookups
+            $rawProv = $clean($row[9] ?? '');
+            $rawCity = $clean($row[10] ?? '');
+            $rawBrgy = $clean($row[11] ?? '');
+
+            $provCode = is_numeric($rawProv) ? $this->format_location_code($rawProv) : $this->Tupad_model->find_province_code_by_desc($rawProv);
+            $cityCode = is_numeric($rawCity) ? $this->format_location_code($rawCity) : $this->Tupad_model->find_city_code_by_desc($rawCity, $provCode);
+            $brgyCode = is_numeric($rawBrgy) ? $this->format_location_code($rawBrgy) : $this->Tupad_model->find_barangay_code_by_desc($rawBrgy, $cityCode);
+
+            $rawIdType = $clean($row[14] ?? '');
+            $idType = is_numeric($rawIdType) ? (int)$rawIdType : $this->Tupad_model->find_type_id_by_desc($rawIdType);
+
+            $rawBeneType = $clean($row[17] ?? '');
+            $beneType = is_numeric($rawBeneType) ? (int)$rawBeneType : $this->Tupad_model->find_bene_type_id_by_desc($rawBeneType);
+
+            $rawConvergence = $clean($row[28] ?? '');
+            $convergenceId = is_numeric($rawConvergence) ? (int)$rawConvergence : $this->Tupad_model->find_convergence_id_by_desc($rawConvergence);
+
+            $rawEpayment = $clean($row[20] ?? '');
+            $epaymentId  = is_numeric($rawEpayment) ? (int)$rawEpayment : $this->Tupad_model->find_epayment_id_by_desc($rawEpayment);
+
+            $rawSkills = $clean($row[19] ?? '');
+            $skillsId  = is_numeric($rawSkills) ? (int)$rawSkills : $this->Tupad_model->find_skills_id_by_desc($rawSkills);
+
+            $insertData[] = [
+                'tupad_id_no'                 => $clean($row[0] ?? ''),
+                'tupad_fname'                 => strtoupper(trim($fname)),
+                'tupad_mname'                 => strtoupper(trim($mname)),
+                'tupad_lname'                 => strtoupper(trim($lname)),
+                'tupad_ext'                   => strtoupper($clean($row[4] ?? '')),
+                'tupad_gender'                => strtoupper($clean($row[5] ?? '')),
+                'tupad_dob_month'             => $clean($row[6] ?? ''),
+                'tupad_dob_day'               => $clean($row[7] ?? ''),
+                'tupad_dob_year'              => $clean($row[8] ?? ''),
+                'tupad_province'              => $provCode,
+                'tupad_municipality'          => $cityCode,
+                'tupad_barangay'              => $brgyCode,
+                'tupad_street'                => $clean($row[12] ?? ''),
+                'tupad_district'              => $clean($row[13] ?? ''),
+                'tupad_idtype'                => $idType,
+                'tupad_idnumber'              => $clean($row[15] ?? ''),
+                'tupad_contact_no'            => $clean($row[16] ?? ''),
+                'tupad_type'                  => $beneType,
+                'tupad_training_Interest'     => $clean($row[18] ?? ''),
+                'tupad_skills'                => $skillsId, 
+                'tupad_epayment'              => $epaymentId, 
+                'tupad_account_no'            => $clean($row[21] ?? ''),
+                'tupad_occupation'            => $clean($row[22] ?? ''),
+                'tupad_civil_status'          => $clean($row[23] ?? ''),
+                'tupad_age'                   => $clean($row[24] ?? ''),
+                'tupad_average_monthly'       => $clean($row[25] ?? ''),
+                'tupad_dependent'             => $clean($row[26] ?? ''),
+                'tupad_interested_employment' => $clean($row[27] ?? ''),         
+                'tupad_convergence'           => $convergenceId,
+                'file_name'                   => $originalFileName,
+                'user_id'                     => $uploadedBy,
+                'uploaded_at'                 => $uploadedDate,
+                'area_of_implementation'      => $area_of_implementation,
+                'period_of_coverage'          => $period_of_coverage,
+                'adl_no'                      => $adl_no,
+                'reference_no'                => $reference_no,
+                'nature_of_work'              => $nature_of_work
+            ];
+        }
+
+        // 3. DATABASE BATCH INSERTION
+        if (!empty($insertData)) {
+            $inserted = $this->Tupad_model->insert_batch($insertData);
+            
+            if ($inserted) {
+                $this->load->model('Activity_Model'); 
+                $user_id = $this->session->userdata('user_id');
+                $this->Activity_Model->log_activity($reference_no, $user_id, 1);    
+
+                $this->session->set_flashdata('success', 'Successfully uploaded ' . count($insertData) . ' record(s).');
+                echo json_encode(['status' => 'success', 'message' => 'Batch processing completed.']);
+                
+            } else {
+                echo json_encode(['status' => 'error', 'message' => 'Failed to save records into database.']);
+            }
+        } else {
+            echo json_encode(['status' => 'error', 'message' => 'The uploaded file was empty or contained no valid records.']);
+        }
     }
-    
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     public function view_files()
     {
@@ -413,23 +423,22 @@ public function upload_tupad_excel()
     }
 
     public function view_file_data()
-{
-    // Capture from query string instead of URL path segment
-    $file_name = $this->input->get('file_name');
+    {
+        $file_name = $this->input->get('file_name');
 
-    if (empty($file_name)) {
-        $this->session->set_flashdata('error', 'No file selected.');
-        redirect('tupad'); 
-        return;
+        if (empty($file_name)) {
+            $this->session->set_flashdata('error', 'No file selected.');
+            redirect('tupad'); 
+            return;
+        }
+
+        $decoded_filename = urldecode($file_name);
+        $data['file_name'] = $decoded_filename;
+        $data['records']   = $this->Tupad_model->get_records_by_filename($decoded_filename);
+        $data['provinces'] = $this->Tupad_model->get_provinces();
+        
+        $this->load->view('tupad/file_details', $data);
     }
-
-    $decoded_filename = urldecode($file_name);
-    $data['file_name'] = $decoded_filename;
-    $data['records']   = $this->Tupad_model->get_records_by_filename($decoded_filename);
-    $data['provinces'] = $this->Tupad_model->get_provinces();
-    
-    $this->load->view('tupad/file_details', $data);
-}
 
     public function view_files_official()
     {
@@ -674,34 +683,32 @@ public function upload_tupad_excel()
                 </div>
             ';
 
-          // Inside function get_files_json() in Tupad.php:
+            $is_forwarded = !empty($f['is_forwarded']) && $f['is_forwarded'] == 1;
 
-$is_forwarded = !empty($f['is_forwarded']) && $f['is_forwarded'] == 1;
+            if ($is_forwarded) {
+                $gsisButton = '
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-sm btn-secondary disabled" disabled>
+                            <i class="bi bi-check-circle-fill me-1"></i> Forwarded
+                        </button>
+                        <button type="button" class="btn btn-sm btn-danger btn-delete-gsis text-white" data-filename="' . htmlspecialchars($f['file_name']) . '" title="Revert GSIS Forward">
+                            <i class="bi bi-trash-fill"></i>
+                        </button>
+                    </div>';
+            } else {
+                $gsisButton = '
+                    <button type="button" class="btn btn-sm btn-warning btn-forward-gsis text-dark fw-semibold" data-filename="' . htmlspecialchars($f['file_name']) . '">
+                        <i class="bi bi-send-fill me-1"></i> GSIS Letter
+                    </button>';
+            }
 
-if ($is_forwarded) {
-    $gsisButton = '
-        <div class="btn-group" role="group">
-            <button type="button" class="btn btn-sm btn-secondary disabled" disabled>
-                <i class="bi bi-check-circle-fill me-1"></i> Forwarded
-            </button>
-            <button type="button" class="btn btn-sm btn-danger btn-delete-gsis text-white" data-filename="' . htmlspecialchars($f['file_name']) . '" title="Revert GSIS Forward">
-                <i class="bi bi-trash-fill"></i>
-            </button>
-        </div>';
-} else {
-    $gsisButton = '
-        <button type="button" class="btn btn-sm btn-warning btn-forward-gsis text-dark fw-semibold" data-filename="' . htmlspecialchars($f['file_name']) . '">
-            <i class="bi bi-send-fill me-1"></i> GSIS Letter
-        </button>';
-}
-
-$actionButtons = '
-    <a href="' . site_url('tupad/view_file_data?file_name=' . $encoded_filename) . '" class="btn btn-sm btn-primary me-1">
-        <i class="bi bi-eye me-1"></i> View
-    </a>
-    <a href="' . site_url('tupad/export_excel?file_name=' . $encoded_filename) . '" class="btn btn-sm btn-success me-1">
-        <i class="bi bi-file-earmark-excel-fill me-1"></i> GPAI
-    </a>' . $gsisButton;
+            $actionButtons = '
+                <a href="' . site_url('tupad/view_file_data?file_name=' . $encoded_filename) . '" class="btn btn-sm btn-primary me-1">
+                    <i class="bi bi-eye me-1"></i> View
+                </a>
+                <a href="' . site_url('tupad/export_excel?file_name=' . $encoded_filename) . '" class="btn btn-sm btn-success me-1">
+                    <i class="bi bi-file-earmark-excel-fill me-1"></i> GPAI
+                </a>' . $gsisButton;
 
             $data[] = [
                 '<i class="bi bi-file-earmark-excel me-1 text-success"></i>' . htmlspecialchars($f['file_name']),
@@ -731,45 +738,43 @@ $actionButtons = '
     }
 
     public function forward_gsis_letter()
-{
-    if (!$this->session->userdata('logged_in')) {
-        echo json_encode(['status' => 'error', 'message' => 'Unauthorized access.']);
-        return;
-    }
+    {
+        if (!$this->session->userdata('logged_in')) {
+            echo json_encode(['status' => 'error', 'message' => 'Unauthorized access.']);
+            return;
+        }
 
-    $file_name = $this->input->post('file_name');
-    if (empty($file_name)) {
-        echo json_encode(['status' => 'error', 'message' => 'No file specified.']);
-        return;
-    }
+        $file_name = $this->input->post('file_name');
+        if (empty($file_name)) {
+            echo json_encode(['status' => 'error', 'message' => 'No file specified.']);
+            return;
+        }
 
-    $user_name = $this->session->userdata('reg_fname') ? $this->session->userdata('reg_fname') : 'User';
-    
-    $result = $this->Tupad_model->forward_to_gsis_letter($file_name, $user_name);
+        $user_name = $this->session->userdata('reg_fname') ? $this->session->userdata('reg_fname') : 'User';
+        
+        $result = $this->Tupad_model->forward_to_gsis_letter($file_name, $user_name);
 
-    if ($result === 'success') {
-            $this->load->model('Activity_Model'); // Ensure model is loaded if not autoloaded
+        if ($result === 'success') {
+            $this->load->model('Activity_Model'); 
             $user_id = $this->session->userdata('user_id');
             $this->Activity_Model->log_activity($file_name, $user_id, 3); 
-        echo json_encode([
-            'status' => 'success', 
-            'message' => 'Details successfully forwarded to GSIS Letter table.'
-        ]);
-    } elseif ($result === 'exists') {
-        echo json_encode([
-            'status' => 'exists', 
-            'message' => 'Forwarding aborted: Matching details (Reference No., ADL No., and Implementor) already exist in the GSIS Letter table.'
-        ]);
-    } else {
-        echo json_encode([
-            'status' => 'error', 
-            'message' => 'Failed to forward details or file contains no records.'
-        ]);
+            echo json_encode([
+                'status' => 'success', 
+                'message' => 'Details successfully forwarded to GSIS Letter table.'
+            ]);
+        } elseif ($result === 'exists') {
+            echo json_encode([
+                'status' => 'exists', 
+                'message' => 'Forwarding aborted: Matching details (Reference No., ADL No., and Implementor) already exist in the GSIS Letter table.'
+            ]);
+        } else {
+            echo json_encode([
+                'status' => 'error', 
+                'message' => 'Failed to forward details or file contains no records.'
+            ]);
+        }
     }
-}
 
-
-//GPAI EXPORT BUTTON
     public function export_excel()
     {
         $file_name = $this->input->get('file_name');
@@ -796,12 +801,9 @@ $actionButtons = '
 
             if ($gender === 'M' || $gender === 'MALE') {
                 $maleCount++;
-               
             } elseif ($gender === 'F' || $gender === 'FEMALE') {
                 $femaleCount++;
-             
             }
-
             
             if (!empty($row['barangay_name'])) {
                 $brgySet[$row['barangay_name']] = true;
@@ -852,7 +854,7 @@ $actionButtons = '
         echo '<th>Province</th>';
         echo '</tr>';
 
-       $no = 1;
+        $no = 1;
         foreach ($records as $row) {
             $fullName = trim($row['tupad_lname'] . ', ' . $row['tupad_fname'] . ' ' . $row['tupad_mname'] . ' ' . $row['tupad_ext']);
             
@@ -872,7 +874,7 @@ $actionButtons = '
             }
             
             $gender = strtoupper(trim($row['tupad_gender'] ?? ''));
-                if ($gender === 'M' || $gender === 'MALE') {
+            if ($gender === 'M' || $gender === 'MALE') {
                 $display_gender = 'M';
             } elseif ($gender === 'F' || $gender === 'FEMALE') {
                 $display_gender = 'F';
@@ -891,7 +893,7 @@ $actionButtons = '
             echo '</tr>';
         }
 
-       $user_id = $this->session->userdata('user_id');
+        $user_id = $this->session->userdata('user_id');
         $regfname = '';
         $regmname = '';
         $reglname = '';
@@ -935,9 +937,9 @@ $actionButtons = '
         echo '</table>';
         echo '</body></html>';
 
-            $this->load->model('Activity_Model'); // Ensure model is loaded if not autoloaded
-            $user_id = $this->session->userdata('user_id');
-            $this->Activity_Model->log_activity($reference_no, $user_id, 2);  
+        $this->load->model('Activity_Model'); 
+        $user_id = $this->session->userdata('user_id');
+        $this->Activity_Model->log_activity($reference_no, $user_id, 2);  
 
         exit;
     }
@@ -962,206 +964,177 @@ $actionButtons = '
         }
     }
 
+    public function export_gsis_letter_excel()
+    {
+        $start_date       = $this->input->get('start_date');
+        $end_date         = $this->input->get('end_date');
+        $date_effectivity = $this->input->get('date_effectivity');
+        $no_of_days       = $this->input->get('no_of_days');
 
-//EXPORT GSIS LETTER
-public function export_gsis_letter_excel()
-{
-    // Capture filter dates and inputs from the GET request
-    $start_date       = $this->input->get('start_date');
-    $end_date         = $this->input->get('end_date');
-    $date_effectivity = $this->input->get('date_effectivity');
-    $no_of_days       = $this->input->get('no_of_days');
-
-    // Fallbacks if empty
-    if (empty($start_date) || empty($end_date)) {
-        $start_date = date('Y-m-01');
-        $end_date = date('Y-m-t');
-    }
-
-    if (empty($date_effectivity)) {
-        $date_effectivity = date('Y-m-d', strtotime('+1 day'));
-    }
-
-    if (empty($no_of_days)) {
-        $no_of_days = 10;
-    }
-
-    // Fetch filtered summary data from Tupad_model based on date range
-    $summary_records = $this->Tupad_model->get_gsis_summary_by_date($start_date, $end_date);
-
-    $filename = 'GSIS_Letter_Report_' . date('Ymd_His') . '.xls';
-
-    // Set headers for Excel download
-    header('Content-Type: application/vnd.ms-excel');
-    header('Content-Disposition: attachment;filename="' . $filename . '"');
-    header('Cache-Control: max-age=0');
-
-    echo '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">';
-    echo '<head><meta charset="UTF-8"><style>body { font-family: Arial, sans-serif; font-size: 10pt; }</style></head><body>';
-    
-    // Outer wrapper table to constrain width and center content neatly
-    echo '<table width="750" border="0" style="margin: 0 auto; font-family: Arial, sans-serif; font-size: 10pt;">';
-    
-    // Letter Header Date - Forced to Text (\@) and Left Alignment
-    $current_formatted_date = strtoupper(date('F d, Y'));
-    echo '<tr><td align="left" style="text-align: left; font-weight: bold; mso-number-format:\'\@\'; padding-top: 10px; padding-bottom: 15px;">';
-    echo $current_formatted_date;
-    echo '</td></tr>';
-
-    echo '<tr><td>';
-    echo '<br>';
-    // Recipient Details
-    echo '<b>Ms. KRISTINE JOI G. MACAM</b><br>';
-    echo 'Branch Manager<br>';
-    echo '<b>Government Service Insurance System (GSIS)</b><br>';
-    echo 'Sindalan, City of San Fernando, Pampanga<br><br>';
-
-    // Salutation
-    echo 'Dear Ms. Macam:<br><br>';
-
-    // Opening Paragraph
-    $formatted_effectivity = date('F d, Y', strtotime($date_effectivity));
-    echo 'May we request the attached list of our beneficiaries under Tulong Panghanapbuhay sa Ating Disadvantaged/Displaced Workers (TUPAD) Program be enrolled under GSIS group insurance effective <b>' . $formatted_effectivity . '</b> with a covered period of work of <b>' . htmlspecialchars($no_of_days) . '</b> days. Below is the summary of our remittance:<br><br>';
-
-    // Summary Table Structure with fixed column widths to prevent excessive stretching
-    echo '<table border="1" cellspacing="0" cellpadding="4" style="border-collapse: collapse; width: 100%;">';
-    echo '<colgroup>';
-    echo '<col style="width: 35px;">';
-    echo '<col style="width: 320px;">';
-    echo '<col style="width: 45px;">';
-    echo '<col style="width: 45px;">';
-    echo '<col style="width: 45px;">';
-    echo '<col style="width: 70px;">';
-    echo '<col style="width: 90px;">';
-    echo '</colgroup>';
-
-    echo '<tr style="background-color: #f8f9fa; font-weight: bold; text-align: center;">';
-    echo '<th rowspan="2" style="vertical-align: middle;">#</th>';
-    echo '<th rowspan="2" style="vertical-align: middle;">PARTICULAR</th>';
-    echo '<th colspan="3">NO. OF BENEFICIARIES</th>';
-    echo '<th rowspan="2" style="vertical-align: middle;">RATE</th>';
-    echo '<th rowspan="2" style="vertical-align: middle;">AMOUNT</th>';
-    echo '</tr>';
-    echo '<tr style="background-color: #f8f9fa; font-weight: bold; text-align: center;">';
-    echo '<th>MALE</th>';
-    echo '<th>FEMALE</th>';
-    echo '<th>TOTAL</th>';
-    echo '</tr>';
-
-    $total_male = 0;
-    $total_female = 0;
-    $total_benefs = 0;
-    $total_amount = 0;
-    $rate = 50.00; 
-    $dst = 0;
-    
-    if (!empty($summary_records)) {
-        $i = 1;
-        foreach ($summary_records as $row) {
-            $m = $row['male'] ?? 0;
-            $f = $row['female'] ?? 0;
-            $sub_total = $m + $f;
-            $amount = $sub_total * $rate;
-
-            $total_male += $m;
-            $total_female += $f;
-            $total_benefs += $sub_total;
-            $total_amount += $amount;
-            
-            if($total_benefs=='1'){
-                $dst = 0;
-                }
-            elseif ($total_benefs >= 2 && $total_benefs <= 4) {
-                $dst = 20.00;
-            }
-            elseif ($total_benefs >= 5 && $total_benefs <= 7) {
-                $dst = 50.00;
-            }
-            elseif ($total_benefs >= 8 && $total_benefs <= 11) {
-                $dst = 100.00;
-            }
-            elseif ($total_benefs >= 12 && $total_benefs <= 15) {
-                $dst = 150.00;
-            }
-             elseif ($total_benefs >= 16) {
-                $dst = 200.00;
-            }else{
-                $dst = 0;
-            }
-
-
-
-            echo '<tr>';
-            echo '<td style="text-align: center;">' . $i++ . '</td>';
-            echo '<td style="word-break: break-word;">' . htmlspecialchars(($row['implementor'] ?? '') . ' (' . ($row['reference_no'] ?? '') . ')') . '</td>';
-            echo '<td style="text-align: center;">' . number_format($m) . '</td>';
-            echo '<td style="text-align: center;">' . number_format($f) . '</td>';
-            echo '<td style="text-align: center; font-weight: bold;">' . number_format($sub_total) . '</td>';
-            echo '<td style="text-align: right;">' . number_format($rate, 2) . '</td>';
-            echo '<td style="text-align: right;">' . number_format($amount, 2) . '</td>';
-            echo '</tr>';
+        if (empty($start_date) || empty($end_date)) {
+            $start_date = date('Y-m-01');
+            $end_date = date('Y-m-t');
         }
-    } else {
-        echo '<tr><td colspan="7" style="text-align: center; padding: 10px;">No records found for the selected date range.</td></tr>';
+
+        if (empty($date_effectivity)) {
+            $date_effectivity = date('Y-m-d', strtotime('+1 day'));
+        }
+
+        if (empty($no_of_days)) {
+            $no_of_days = 10;
+        }
+
+        $summary_records = $this->Tupad_model->get_gsis_summary_by_date($start_date, $end_date);
+
+        $filename = 'GSIS_Letter_Report_' . date('Ymd_His') . '.xls';
+
+        header('Content-Type: application/vnd.ms-excel');
+        header('Content-Disposition: attachment;filename="' . $filename . '"');
+        header('Cache-Control: max-age=0');
+
+        echo '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">';
+        echo '<head><meta charset="UTF-8"><style>body { font-family: Arial, sans-serif; font-size: 10pt; }</style></head><body>';
+        
+        echo '<table width="750" border="0" style="margin: 0 auto; font-family: Arial, sans-serif; font-size: 10pt;">';
+        
+        $current_formatted_date = strtoupper(date('F d, Y'));
+        echo '<tr><td align="left" style="text-align: left; font-weight: bold; mso-number-format:\'\@\'; padding-top: 10px; padding-bottom: 15px;">';
+        echo $current_formatted_date;
+        echo '</td></tr>';
+
+        echo '<tr><td>';
+        echo '<br>';
+        echo '<b>Ms. KRISTINE JOI G. MACAM</b><br>';
+        echo 'Branch Manager<br>';
+        echo '<b>Government Service Insurance System (GSIS)</b><br>';
+        echo 'Sindalan, City of San Fernando, Pampanga<br><br>';
+
+        echo 'Dear Ms. Macam:<br><br>';
+
+        $formatted_effectivity = date('F d, Y', strtotime($date_effectivity));
+        echo 'May we request the attached list of our beneficiaries under Tulong Panghanapbuhay sa Ating Disadvantaged/Displaced Workers (TUPAD) Program be enrolled under GSIS group insurance effective <b>' . $formatted_effectivity . '</b> with a covered period of work of <b>' . htmlspecialchars($no_of_days) . '</b> days. Below is the summary of our remittance:<br><br>';
+
+        echo '<table border="1" cellspacing="0" cellpadding="4" style="border-collapse: collapse; width: 100%;">';
+        echo '<colgroup>';
+        echo '<col style="width: 35px;">';
+        echo '<col style="width: 320px;">';
+        echo '<col style="width: 45px;">';
+        echo '<col style="width: 45px;">';
+        echo '<col style="width: 45px;">';
+        echo '<col style="width: 70px;">';
+        echo '<col style="width: 90px;">';
+        echo '</colgroup>';
+
+        echo '<tr style="background-color: #f8f9fa; font-weight: bold; text-align: center;">';
+        echo '<th rowspan="2" style="vertical-align: middle;">#</th>';
+        echo '<th rowspan="2" style="vertical-align: middle;">PARTICULAR</th>';
+        echo '<th colspan="3">NO. OF BENEFICIARIES</th>';
+        echo '<th rowspan="2" style="vertical-align: middle;">RATE</th>';
+        echo '<th rowspan="2" style="vertical-align: middle;">AMOUNT</th>';
+        echo '</tr>';
+        echo '<tr style="background-color: #f8f9fa; font-weight: bold; text-align: center;">';
+        echo '<th>MALE</th>';
+        echo '<th>FEMALE</th>';
+        echo '<th>TOTAL</th>';
+        echo '</tr>';
+
+        $total_male = 0;
+        $total_female = 0;
+        $total_benefs = 0;
+        $total_amount = 0;
+        $rate = 50.00; 
+        $dst = 0;
+        
+        if (!empty($summary_records)) {
+            $i = 1;
+            foreach ($summary_records as $row) {
+                $m = $row['male'] ?? 0;
+                $f = $row['female'] ?? 0;
+                $sub_total = $m + $f;
+                $amount = $sub_total * $rate;
+
+                $total_male += $m;
+                $total_female += $f;
+                $total_benefs += $sub_total;
+                $total_amount += $amount;
+                
+                if($total_benefs == '1'){
+                    $dst = 0;
+                } elseif ($total_benefs >= 2 && $total_benefs <= 4) {
+                    $dst = 20.00;
+                } elseif ($total_benefs >= 5 && $total_benefs <= 7) {
+                    $dst = 50.00;
+                } elseif ($total_benefs >= 8 && $total_benefs <= 11) {
+                    $dst = 100.00;
+                } elseif ($total_benefs >= 12 && $total_benefs <= 15) {
+                    $dst = 150.00;
+                } elseif ($total_benefs >= 16) {
+                    $dst = 200.00;
+                } else {
+                    $dst = 0;
+                }
+
+                echo '<tr>';
+                echo '<td style="text-align: center;">' . $i++ . '</td>';
+                echo '<td style="word-break: break-word;">' . htmlspecialchars(($row['implementor'] ?? '') . ' (' . ($row['reference_no'] ?? '') . ')') . '</td>';
+                echo '<td style="text-align: center;">' . number_format($m) . '</td>';
+                echo '<td style="text-align: center;">' . number_format($f) . '</td>';
+                echo '<td style="text-align: center; font-weight: bold;">' . number_format($sub_total) . '</td>';
+                echo '<td style="text-align: right;">' . number_format($rate, 2) . '</td>';
+                echo '<td style="text-align: right;">' . number_format($amount, 2) . '</td>';
+                echo '</tr>';
+            }
+        } else {
+            echo '<tr><td colspan="7" style="text-align: center; padding: 10px;">No records found for the selected date range.</td></tr>';
+        }
+
+        echo '<tr style="font-weight: bold; background-color: #f8f9fa;">';
+        echo '<td colspan="2" style="text-align: right;">TOTAL:</td>';
+        echo '<td style="text-align: center;">' . number_format($total_male) . '</td>';
+        echo '<td style="text-align: center;">' . number_format($total_female) . '</td>';
+        echo '<td style="text-align: center;">' . number_format($total_benefs) . '</td>';
+        echo '<td></td>';
+        echo '<td style="text-align: right;">' . number_format($total_amount, 2) . '</td>';
+        echo '</tr>';
+
+        echo '<tr>';
+        echo '<td colspan="6" style="text-align: right; font-weight: bold;">DST</td>';
+        echo '<td style="text-align: right; font-weight: bold;">' . number_format($dst, 2) . '</td>';
+        echo '</tr>';
+
+        $grand_total = $total_amount + ($total_amount > 0 ? $dst : 0);
+        echo '<tr style="font-weight: bold; background-color: #e2e8f0;">';
+        echo '<td colspan="6" style="text-align: right; text-transform: uppercase;">GRAND TOTAL</td>';
+        echo '<td style="text-align: right; color: #2563eb;">' . number_format($grand_total, 2) . '</td>';
+        echo '</tr>';
+
+        echo '</table><br>';
+
+        echo 'Thank you and warm regards.<br><br>';
+        echo 'Very truly yours,<br><br><br>';
+        echo '<b>AURITA L. LAXAMANA</b><br>';
+        echo 'CHIEF LEO, TSSD II<br>';
+
+        echo '</td></tr>';
+        echo '</table>';
+
+        echo '</body></html>';
+        exit;
     }
 
-    // Totals & Calculations Row
-    echo '<tr style="font-weight: bold; background-color: #f8f9fa;">';
-    echo '<td colspan="2" style="text-align: right;">TOTAL:</td>';
-    echo '<td style="text-align: center;">' . number_format($total_male) . '</td>';
-    echo '<td style="text-align: center;">' . number_format($total_female) . '</td>';
-    echo '<td style="text-align: center;">' . number_format($total_benefs) . '</td>';
-    echo '<td></td>';
-    echo '<td style="text-align: right;">' . number_format($total_amount, 2) . '</td>';
-    echo '</tr>';
+    public function delete_gsis_letter() {
+        $file_name = $this->input->post('file_name');
 
-    echo '<tr>';
-    echo '<td colspan="6" style="text-align: right; font-weight: bold;">DST</td>';
-    echo '<td style="text-align: right; font-weight: bold;">' . number_format($dst, 2) . '</td>';
-    echo '</tr>';
+        if (!$file_name) {
+            return $this->output
+                ->set_content_type('application/json')
+                ->set_output(json_encode(['status' => 'error', 'message' => 'No file name provided.']));
+        }
 
-    $grand_total = $total_amount + ($total_amount > 0 ? $dst : 0);
-    echo '<tr style="font-weight: bold; background-color: #e2e8f0;">';
-    echo '<td colspan="6" style="text-align: right; text-transform: uppercase;">GRAND TOTAL</td>';
-    echo '<td style="text-align: right; color: #2563eb;">' . number_format($grand_total, 2) . '</td>';
-    echo '</tr>';
+        $this->Tupad_model->remove_from_gsis_letter($file_name);
 
-    echo '</table><br>';
-
-    // Closing & Sign-off block
-    echo 'Thank you and warm regards.<br><br>';
-    echo 'Very truly yours,<br><br><br>';
-    echo '<b>AURITA L. LAXAMANA</b><br>';
-    echo 'CHIEF LEO, TSSD II<br>';
-
-    echo '</td></tr>';
-    echo '</table>';
-
-    echo '</body></html>';
-    exit;
-}
-public function delete_gsis_letter() {
-    // Retrieve the file name from the AJAX POST request
-    $file_name = $this->input->post('file_name');
-
-    if (!$file_name) {
         return $this->output
             ->set_content_type('application/json')
-            ->set_output(json_encode(['status' => 'error', 'message' => 'No file name provided.']));
+            ->set_output(json_encode(['status' => 'success', 'message' => 'Successfully removed.']));
     }
-
-    // Your delete logic here...
-    $this->Tupad_model->remove_from_gsis_letter($file_name);
-
-    // Return JSON success response
-    return $this->output
-        ->set_content_type('application/json')
-        ->set_output(json_encode(['status' => 'success', 'message' => 'Successfully removed.']));
-}
-
-
-
-
-
-
 }

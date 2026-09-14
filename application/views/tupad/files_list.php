@@ -123,6 +123,25 @@
                 </div>
             <?php endif; ?>
 
+            <!-- TEMPORARY DISPLAY OF UPLOAD DISCREPANCIES -->
+            <?php if ($this->session->flashdata('upload_discrepancies')): ?>
+                <div class="alert alert-warning alert-dismissible fade show shadow-sm mb-4 border-warning" role="alert">
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="bi bi-exclamation-triangle-fill fs-4 me-2 text-warning"></i>
+                        <h5 class="alert-heading fw-bold mb-0 text-dark">Excel Data Discrepancies Found</h5>
+                    </div>
+                    <p class="small text-muted mb-2">The uploaded file was rejected because of the following name/field validation errors:</p>
+                    <div class="bg-white border rounded p-3" style="max-height: 250px; overflow-y: auto;">
+                        <ul class="mb-0 ps-3">
+                            <?php foreach ($this->session->flashdata('upload_discrepancies') as $error): ?>
+                                <li class="small text-danger mb-1 fw-medium"><?= html_escape($error); ?></li>
+                            <?php endforeach; ?>
+                        </ul>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            <?php endif; ?>
+
             <!-- Page Header & Upload Trigger -->
             <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
                 <div>
@@ -271,7 +290,7 @@
         </footer>
     </div>
 
-    <!-- REUSABLE DYNAMIC MODAL (REQUIRED FOR ALERTS & DUPLICATE NOTIFICATIONS) -->
+    <!-- REUSABLE DYNAMIC MODAL -->
     <div class="modal fade" id="appModal" tabindex="-1" aria-labelledby="appModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -294,7 +313,6 @@
 
     <script>
     $(document).ready(function () {
-        // Helper function to display alerts/duplicate notifications via modal
         function showCustomAlert(message, title = 'Notification') {
             $('#appModalLabel').text(title);
             $('#appModalBody').html(message);
@@ -305,7 +323,6 @@
             appModal.show();
         }
 
-        // Helper function to display confirmation dialogs safely using hidden event listener
         function showCustomConfirm(message, onConfirm, title = 'Confirmation') {
             $('#appModalLabel').text(title);
             $('#appModalBody').html(message);
@@ -319,8 +336,6 @@
 
             $('#appModalConfirmBtn').off('click').on('click', function() {
                 appModal.hide();
-                
-                // Wait until confirmation modal is completely hidden before executing callback (avoids modal collision)
                 $(appModalEl).one('hidden.bs.modal', function () {
                     if (typeof onConfirm === 'function') {
                         onConfirm();
@@ -379,13 +394,17 @@
                         uploadModal.hide();
                         location.reload();
                     } else {
-                        var errorMsg = response.message || response.error || response.msg || 'An error occurred during upload.';
-                        
                         $('#uploadModal').modal('hide');
                         $('.modal-backdrop').remove();
                         $('body').removeClass('modal-open').css('overflow', '');
 
-                        showCustomAlert(errorMsg, 'Duplicate / Upload Notice');
+                        // If reload flag is present (discrepancy list), reload page to display them on files_list
+                        if (response.reload === true) {
+                            location.reload();
+                        } else {
+                            var errorMsg = response.message || response.error || response.msg || 'An error occurred during upload.';
+                            showCustomAlert(errorMsg, 'Upload Notice');
+                        }
                     }
                 },
                 error: function(xhr) {
@@ -425,7 +444,6 @@
                             $btn.prop('disabled', false).html('<i class="bi bi-send-fill me-1"></i> GSIS Letter');
                             var msg = response.message || response.msg || 'Successfully forwarded to GSIS Letter.';
                             showCustomAlert(msg, 'GSIS Forward');
-                            // Reload DataTables to show updated buttons
                             $('#filesTable').DataTable().ajax.reload(null, false);
                         } else if (response.status === 'exists') {
                             $btn.prop('disabled', true)
@@ -454,57 +472,37 @@
             }, 'Confirm Forward');
         });
 
+        // Revert / Delete GSIS Letter Button Handler via AJAX
+        $(document).on('click', '.btn-delete-gsis', function() {
+            var $btn = $(this);
+            var fileName = $btn.data('filename');
+            
+            showCustomConfirm('Are you sure you want to remove "' + fileName + '" from the GSIS Letter table? This will revert its status.', function() {
+                $btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span>');
 
-
-
- // Revert / Delete GSIS Letter Button Handler via AJAX
-$(document).on('click', '.btn-delete-gsis', function() {
-    var $btn = $(this);
-    var fileName = $btn.data('filename');
-    
-    showCustomConfirm('Are you sure you want to remove "' + fileName + '" from the GSIS Letter table? This will revert its status.', function() {
-        $btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span>');
-
-        $.ajax({
-            url: "<?php echo site_url('tupad/delete_gsis_letter'); ?>",
-            type: "POST",
-            data: { file_name: fileName },
-            dataType: "json",
-            success: function(response) {
-                var isSuccess = (response.status === 'success' || response.success === true || response.status === true);
-                
-                if (isSuccess) {
-                    showCustomAlert(response.message || 'Successfully removed.', 'Success');
-                    $('#filesTable').DataTable().ajax.reload(null, false);
-                } else {
-                    $btn.prop('disabled', false).html('<i class="bi bi-trash-fill"></i>');
-                    showCustomAlert(response.message || response.error || 'Failed to delete GSIS entry.', 'Error');
-                }
-            },
-            error: function(xhr, status, error) {
-                $btn.prop('disabled', false).html('<i class="bi bi-trash-fill"></i>');
-                
-                // --- DEBUGGING STEP ---
-                console.log("AJAX Error Status: ", status);
-                console.log("HTTP Error: ", error);
-                console.log("Server Response Text: ", xhr.responseText);
-                
-                // This will display the actual PHP error or HTML trace on your screen temporarily
-                showCustomAlert('DEBUG ERROR: ' + (xhr.responseText ? xhr.responseText.substring(0, 150) : error), 'System Error');
-            }
+                $.ajax({
+                    url: "<?php echo site_url('tupad/delete_gsis_letter'); ?>",
+                    type: "POST",
+                    data: { file_name: fileName },
+                    dataType: "json",
+                    success: function(response) {
+                        var isSuccess = (response.status === 'success' || response.success === true || response.status === true);
+                        
+                        if (isSuccess) {
+                            showCustomAlert(response.message || 'Successfully removed.', 'Success');
+                            $('#filesTable').DataTable().ajax.reload(null, false);
+                        } else {
+                            $btn.prop('disabled', false).html('<i class="bi bi-trash-fill"></i>');
+                            showCustomAlert(response.message || response.error || 'Failed to delete GSIS entry.', 'Error');
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        $btn.prop('disabled', false).html('<i class="bi bi-trash-fill"></i>');
+                        showCustomAlert('DEBUG ERROR: ' + (xhr.responseText ? xhr.responseText.substring(0, 150) : error), 'System Error');
+                    }
+                });
+            }, 'Confirm Revert');
         });
-    }, 'Confirm Revert');
-});
-
-
-
-
-
-
-
-
-
-
 
         const table = $('#filesTable').DataTable({
             processing: true,
