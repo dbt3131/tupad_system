@@ -137,7 +137,7 @@ function display_val($value, $type = 'text') {
                                 <label for="proponent_name" class="data-label">Proponent Name <span class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <span class="input-group-text bg-light text-primary"><i class="bi bi-person-badge"></i></span>
-                                    <input type="text" class="form-control" id="proponent_name" name="proponent_name" placeholder="Enter full name or organization of proponent" required>
+                                    <input type="text" autocomplete="OFF" class="form-control" id="proponent_name" name="proponent_name" placeholder="Enter full name or organization of proponent" required>
                                 </div>
                                 <div id="proponentFeedback" class="form-text small mt-1">This will be automatically saved in uppercase format.</div>
                             </div>

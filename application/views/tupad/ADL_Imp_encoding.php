@@ -241,18 +241,18 @@
                                     </div>
 
                                    <div class="col-md-3">
-    <label class="form-label fw-semibold small">District</label>
-    <select name="implementation_district" id="implementation_district" class="form-select" style="width: 100%;" required>
-        <option value="" selected disabled>-- Select District --</option>
-        <?php if (!empty($districts)): ?>
-            <?php foreach ($districts as $dist): ?>
-                <option value="<?= html_escape($dist['district_id']); ?>">
-                    <?= html_escape($dist['district_no']); ?>
-                </option>
-            <?php endforeach; ?>
-        <?php endif; ?>
-    </select>
-</div>
+                                     <label class="form-label fw-semibold small">District</label>
+                                     <select name="implementation_district" id="implementation_district" class="form-select" style="width: 100%;" required>
+                                         <option value="" selected disabled>-- Select District --</option>
+                                         <?php if (!empty($districts)): ?>
+                                             <?php foreach ($districts as $dist): ?>
+                                                 <option value="<?= html_escape($dist['district_id']); ?>">
+                                                     <?= html_escape($dist['district_no']); ?>
+                                                 </option>
+                                             <?php endforeach; ?>
+                                         <?php endif; ?>
+                                     </select>
+                                    </div>
 
                                     <div class="col-md-3">
                                         <label class="form-label fw-semibold small">Wage Percentage</label>
@@ -278,30 +278,20 @@
                                         <input type="text" name="implementation_classification" class="form-control" placeholder="LGU Class" required>
                                     </div>
 
-
-
-
-
-
-
-
                                     <div class="col-md-4">
-    <label class="form-label fw-semibold small">Proponent</label>
-    <select name="imp_proponent" id="imp_proponent" class="form-select" style="width: 100%;" required>
-        <option value="" selected disabled>-- Select or type Proponent --</option>
-        <?php if (!empty($proponents)): ?>
-            <?php foreach ($proponents as $prop): ?>
-                <option value="<?= html_escape($prop['proponent_id']); ?>">
-                    <?= html_escape($prop['proponent_name']); ?>
-                </option>
-            <?php endforeach; ?>
-        <?php endif; ?>
-    </select>
-</div>
-
-
-
-
+                                        <label class="form-label fw-semibold small">Proponent</label>
+                                        <select name="imp_proponent" id="imp_proponent" class="form-select" style="width: 100%;" required>
+                                            <option value="" selected disabled>-- Select or type Proponent --</option>
+                                            <?php if (!empty($proponents)): ?>
+                                                <?php foreach ($proponents as $prop): ?>
+                                                    <option value="<?= html_escape($prop['proponent_id']); ?>">
+                                                        <?= html_escape($prop['proponent_name']); ?>
+                                                    </option>
+                                                <?php endforeach; ?>
+                                            <?php endif; ?>
+                                        </select>
+                                        <i><font color="red" size="2px">* Proponent not listed? <a href="<?= site_url('ADL/proponent_encode'); ?>">Add it here</a></i></font>
+                                    </div>
 
                                     <div class="col-md-4">
                                         <label class="form-label fw-semibold small">Sponsor</label>
