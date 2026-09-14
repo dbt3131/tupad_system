@@ -91,9 +91,9 @@
             <!-- Header & Back Button -->
             <div class="d-flex align-items-center justify-content-between mb-3">
                 <div>
-                    <a href="javascript:window.history.back();" class="btn btn-sm btn-outline-secondary mb-1">
-                        <i class="bi bi-arrow-left me-1"></i> Back to List
-                    </a>
+                    <a href="javascript:window.close();" class="btn btn-sm btn-outline-secondary mb-1">
+    <i class="bi bi-arrow-left me-1"></i> Back
+</a>
                     <h4 class="fw-bold mb-0">
                         <i class="bi bi-person-badge text-primary me-2"></i>Beneficiary Profile Information
                     </h4>

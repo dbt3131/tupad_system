@@ -43,7 +43,6 @@
             padding: 0;
         }
 
-        /* --- MAIN CONTENT & NAVBAR --- */
         #main-content {
             margin-left: var(--sidebar-width);
             transition: all 0.3s ease-in-out;
@@ -86,7 +85,6 @@
             text-align: center !important;
         }
 
-        /* Responsive Fixes for Mobile / Small Screens (< 992px) */
         @media (max-width: 991.98px) {
             #main-content {
                 margin-left: 0 !important;
@@ -97,20 +95,16 @@
 </head>
 
 <body>
-     <?php $this->load->view('templates/navbar'); ?>
+     <?php $this->load->view('templates/navbar');?>
 
     <div id="main-content">
-         <?php $this->load->view('templates/sidebar'); ?>
+         <?php $this->load->view('templates/sidebar');?>
 
-        <!-- Main Workspace -->
         <main class="p-3 p-md-4 flex-grow-1">
             
-            <!-- Navigation Back Button & Title -->
             <div class="d-flex align-items-center justify-content-between mb-4">
                 <div>
-                    <a href="<?php echo site_url('tupad/view_files'); ?>" class="btn btn-sm btn-outline-secondary mb-2">
-                        <i class="bi bi-arrow-left me-1"></i> Back to File List
-                    </a>
+            
                     <h3 class="fw-bold mb-0">
                         <i class="bi bi-file-earmark-excel text-success me-2"></i>File Records
                     </h3>
@@ -162,9 +156,6 @@
                             <option value="">-- Select City First --</option>
                         </select>
                     </div>
-
-                    <!-- Duplicity Check Action Button -->
-                    <!-- Example Form Wrapper for Duplicity Check -->
                 </div>
             </div>
 
@@ -197,7 +188,6 @@
 
         </main>
 
-        <!-- Footer -->
         <footer class="bg-white border-top p-3 text-center text-muted small">
             &copy; 2026 Department of Labor and Employment. All rights reserved.
         </footer>
@@ -208,7 +198,6 @@
     
     <script>  
     $(document).ready(function () {
-        // Sidebar Toggle Trigger (Restored)
         $(document).on('click', '#sidebarToggle', function () {
             if ($(window).width() < 992) {
                 $('#sidebar').toggleClass('show-mobile');
@@ -219,11 +208,17 @@
         });
 
         var fileName = "<?php echo isset($file_name) ? addslashes($file_name) : ''; ?>";
-        
-        // Explicitly target get_records_json for this page layout
         var ajaxUrl = "<?php echo site_url('tupad/get_records_json'); ?>";
 
-        // 1. Initialize DataTables with Server-Side Processing
+        var storageKeyProv = 'tupad_filter_province_' + (fileName ? fileName : 'general');
+        var storageKeyCity = 'tupad_filter_city_' + (fileName ? fileName : 'general');
+        var storageKeyBrgy = 'tupad_filter_barangay_' + (fileName ? fileName : 'general');
+
+        // Clear out old local storage on fresh page load to prevent sticky filters
+        localStorage.removeItem(storageKeyProv);
+        localStorage.removeItem(storageKeyCity);
+        localStorage.removeItem(storageKeyBrgy);
+
         var table = $('#recordsTable').DataTable({
             pageLength: 25,
             responsive: true,
@@ -231,7 +226,7 @@
             deferRender: true,
             serverSide: true,
             searchDelay: 500,
-            deferLoading: 0, // <--- PREVENTS AUTOMATIC INITIAL LOAD
+            deferLoading: 0,
             language: {
                 loadingRecords: "Please select a location filter above to load records...", 
                 emptyTable: "No records found. Please select a province, city, or barangay."
@@ -244,26 +239,21 @@
                         d.file_name = fileName;
                     }
                     
-                    var province = $('#filter_province').val();
-                    var city = $('#filter_city').val();
-                    var barangay = $('#filter_barangay').val();
-
-                    // Attach custom dropdown location filters
-                    d.province = province;
-                    d.city = city;
-                    d.barangay = barangay;
+                    d.province = $('#filter_province').val();
+                    d.city = $('#filter_city').val();
+                    d.barangay = $('#filter_barangay').val();
 
                     return d; 
                 }
             },
-           columns: [
+            columns: [
                 { 
                     data: null,
                     orderable: false,
                     searchable: false,
                     render: function (data, type, row) {
                         var profileUrl = "<?php echo site_url('tupad/view_profile/'); ?>" + row.id;
-                        return '<a href="' + profileUrl + '" class="btn btn-sm btn-primary" title="View Profile">' +
+                        return '<a href="' + profileUrl + '" class="btn btn-sm btn-primary" title="View Profile" target="_blank">' +
                                 '<i class="bi bi-eye"></i> View</a>';
                     }
                 },
@@ -277,10 +267,9 @@
                         return (row.tupad_dob_month || '') + '/' + (row.tupad_dob_day || '') + '/' + (row.tupad_dob_year || '');
                     }
                 },
-                { data: 'province_name' },      // Now displays description from join query
-                { data: 'municipality_name' }, // Now displays description from join query
-                { data: 'barangay_name' },      // Now displays description from join query
-    
+                { data: 'province_name' },      
+                { data: 'municipality_name' }, 
+                { data: 'barangay_name' },      
                 { 
                     data: null, 
                     render: function (data, type, row) {
@@ -309,14 +298,17 @@
             ]
         });
 
-
-
-
-
-
-        // 1. PROVINCE FILTER
         $('#filter_province').on('change', function () {
             var provCode = $(this).val();
+            
+            if (provCode) {
+                localStorage.setItem(storageKeyProv, provCode);
+            } else {
+                localStorage.removeItem(storageKeyProv);
+            }
+            localStorage.removeItem(storageKeyCity);
+            localStorage.removeItem(storageKeyBrgy);
+
             $('#filter_city').html('<option value="">Loading Cities...</option>').prop('disabled', true);
             $('#filter_barangay').html('<option value="">-- Select City First --</option>').prop('disabled', true);
             table.ajax.reload();
@@ -341,9 +333,16 @@
             }
         });
 
-        // 2. CITY / MUNICIPALITY FILTER
         $('#filter_city').on('change', function () {
             var citymunCode = $(this).val();
+            
+            if (citymunCode) {
+                localStorage.setItem(storageKeyCity, citymunCode);
+            } else {
+                localStorage.removeItem(storageKeyCity);
+            }
+            localStorage.removeItem(storageKeyBrgy);
+
             $('#filter_barangay').html('<option value="">Loading Barangays...</option>').prop('disabled', true);
             table.ajax.reload();
 
@@ -367,11 +366,26 @@
             }
         });
 
-        // 3. BARANGAY FILTER
         $('#filter_barangay').on('change', function () {
+            var brgyCode = $(this).val();
+            if (brgyCode) {
+                localStorage.setItem(storageKeyBrgy, brgyCode);
+            } else {
+                localStorage.removeItem(storageKeyBrgy);
+            }
             table.ajax.reload();
         });
 
+        $('#resetFilters').on('click', function() {
+            localStorage.removeItem(storageKeyProv);
+            localStorage.removeItem(storageKeyCity);
+            localStorage.removeItem(storageKeyBrgy);
+
+            $('#filter_province').val('');
+            $('#filter_city').html('<option value="">-- Select Province First --</option>').prop('disabled', true);
+            $('#filter_barangay').html('<option value="">-- Select City First --</option>').prop('disabled', true);
+            table.clear().draw();
+        });
       
     });
     </script>

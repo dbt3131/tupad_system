@@ -227,9 +227,9 @@ class Tupad extends CI_Controller
             }
 
             // Check allowed characters (letters, spaces, hyphens)
-            if (!preg_match('/^[a-zA-Z\s\-]+$/', $name)) {
-                return "Validation Error (Row {$row_num}): {$field_label} '{$name}' contains invalid special characters (only hyphens '-' are allowed).";
-            }
+if (!preg_match('/^[a-zA-ZÑñ\s\-]+$/u', $name)) {
+    return "Validation Error (Row {$row_num}): {$field_label} '{$name}' contains invalid special characters (only letters, enye, and hyphens '-' are allowed).";
+}
 
             // Check hyphen placement: must not start or end with a hyphen
             if (str_starts_with($name, '-') || str_ends_with($name, '-')) {
@@ -455,31 +455,43 @@ class Tupad extends CI_Controller
         $this->load->view('tupad/official_list', $data);
     }
 
-    public function get_records_json()
-    {
-        $search_data  = $this->input->post('search');
-        $search_value = isset($search_data['value']) ? $search_data['value'] : '';
+public function get_records_json()
+{
+    $search_data  = $this->input->post('search');
+    $search_value = isset($search_data['value']) ? $search_data['value'] : '';
 
-        $limit     = $this->input->post('length');
-        $start     = $this->input->post('start');
-        $province  = $this->input->post('province');
-        $city      = $this->input->post('city');
-        $barangay  = $this->input->post('barangay');
-        $file_name = $this->input->post('file_name');
+    $limit     = $this->input->post('length');
+    $start     = $this->input->post('start');
+    $province  = $this->input->post('province');
+    $city      = $this->input->post('city');
+    $barangay  = $this->input->post('barangay');
+    $file_name = $this->input->post('file_name');
 
-        $list     = $this->Tupad_model->get_datatables_records($limit, $start, $search_value, $province, $city, $barangay, $file_name);
-        $total    = $this->Tupad_model->count_all_records($file_name);
-        $filtered = $this->Tupad_model->count_filtered_records($search_value, $province, $city, $barangay, $file_name);
-
+    // Prevent loading data if no location filter is selected
+    if (empty($province) && empty($city) && empty($barangay)) {
         $output = array(
             "draw"            => intval($this->input->post('draw')),
-            "recordsTotal"    => intval($total),
-            "recordsFiltered" => intval($filtered),
-            "data"            => $list,
+            "recordsTotal"    => 0,
+            "recordsFiltered" => 0,
+            "data"            => array(),
         );
-
         echo json_encode($output);
+        return;
     }
+
+    $list     = $this->Tupad_model->get_datatables_records($limit, $start, $search_value, $province, $city, $barangay, $file_name);
+    $total    = $this->Tupad_model->count_all_records($file_name);
+    $filtered = $this->Tupad_model->count_filtered_records($search_value, $province, $city, $barangay, $file_name);
+
+    $output = array(
+        "draw"            => intval($this->input->post('draw')),
+        "recordsTotal"    => intval($total),
+        "recordsFiltered" => intval($filtered),
+        "data"            => $list,
+    );
+
+    echo json_encode($output);
+}
 
     public function get_records_by_file_json()
     {
