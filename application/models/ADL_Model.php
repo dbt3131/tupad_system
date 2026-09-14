@@ -44,7 +44,6 @@ public function get_ADL() {
     return $query->result_array();
 }
 
-// ADD THIS MISSING METHOD TO FIX THE ERROR
     public function insert_transaction($data) {
         return $this->db->insert('adl_transactions', $data);
     }
@@ -70,11 +69,6 @@ public function get_all_adl_numbers() {
 }
 
 
-
-
-
-
-// Update get_adl_report_breakdown in ADL_Model.php
 public function get_adl_report_breakdown($adl_no, $province = null) {
     // Get main ADL registry information
     $adl = $this->db->where('adl_no', $adl_no)->get('adl_registry')->row_array();
@@ -141,11 +135,6 @@ public function get_adl_report_breakdown($adl_no, $province = null) {
         'remaining_balance'  => $remaining_balance
     ];
 }
-
-
-
-
-
 
 //DATATABLE FOR IMPLEMENTATION LIST
 public function get_filtered_transactions($province = null, $area = null) {

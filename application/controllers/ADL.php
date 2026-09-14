@@ -165,6 +165,7 @@ public function get_report_data() {
     }
 }
 
+// Breakdown reporting of ADL
 public function transaction_report() {
     $province = $this->input->get('implementation_province');
     $area = $this->input->get('implementation_area');
@@ -187,6 +188,7 @@ public function transaction_report() {
     $this->load->view('tupad/ADL_Imp_List', $data);
 }
 
+// Before adding the system will validate for same ADL number
 public function check_duplicate_adl() {
     $adl_no = $this->input->get('adl_no');
     if ($adl_no) {
@@ -197,6 +199,7 @@ public function check_duplicate_adl() {
     }
 }
 
+// Before adding the system will validate for same reference no
 public function check_duplicate_transaction() {
     $ref_no = $this->input->get('implementation_reference_no');
     if ($ref_no) {
@@ -207,6 +210,7 @@ public function check_duplicate_transaction() {
     }
 }
 
+// Per ADL transaction breakdown
 public function get_transaction_details() {
     $id = $this->input->get('id');
     if ($id) {
@@ -217,6 +221,7 @@ public function get_transaction_details() {
     }
 }
 
+//Updating ADL Implementation Data
 public function update_transaction_record() {
     if ($this->input->method() === 'post') {
         $id = $this->input->post('adl_transact_id', true);
@@ -311,5 +316,10 @@ public function view_pdf($id) {
 
     $this->load->view('tupad/ADL_Imp_details_PDF', $data);
 }
+
+
+
+
+
 
 }

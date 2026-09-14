@@ -10,7 +10,6 @@ class Tupad_Allocations extends CI_Controller {
         redirect('auth/login');
     }
 
-
         $this->load->model('Tupad_Allocation_Model');
         $this->load->model('Tupad_Model');
         $this->load->helper(['url', 'form']);
@@ -99,7 +98,6 @@ class Tupad_Allocations extends CI_Controller {
         $uploadedDate = date('Y-m-d H:i:s'); 
         $assigned_prov = $this->session->userdata('assigned_prov');
        
-
         $subsidy = floatval($this->input->post('subsidy'));
         $uniqueID = $this->input->post('unique_id');
          $remarks_parts = "Parts of PRISM ID: ".$uniqueID;
@@ -287,7 +285,6 @@ class Tupad_Allocations extends CI_Controller {
         $this->Tupad_Allocation_Model->update_entry($id, $data);
         redirect('tupad_allocations');
     }
-
 
 private function _get_common_view_data($assigned_prov = null) {
     $data['cities'] = $this->db->get('refcitymun')->result();

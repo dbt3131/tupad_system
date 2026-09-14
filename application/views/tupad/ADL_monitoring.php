@@ -54,8 +54,6 @@
         }
 
 
-
-
 /* 1. Style for your Text Input Placeholder */
 .form-control::placeholder {
     color: #797a7846;

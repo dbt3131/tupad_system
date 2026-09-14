@@ -153,7 +153,7 @@ class Tupad extends CI_Controller
         }
 
         // ==========================================
-        // 1. TEMPLATE HEADER VALIDATION CHECK
+        // TEMPLATE HEADER VALIDATION CHECK
         // ==========================================
         $expected_headers = [
             'No', 'tupad_fname', 'tupad_mname', 'tupad_lname', 'tupad_ext', 'gender', 
@@ -227,9 +227,9 @@ class Tupad extends CI_Controller
             }
 
             // Check allowed characters (letters, spaces, hyphens)
-if (!preg_match('/^[a-zA-ZÑñ\s\-]+$/u', $name)) {
-    return "Validation Error (Row {$row_num}): {$field_label} '{$name}' contains invalid special characters (only letters, enye, and hyphens '-' are allowed).";
-}
+            if (!preg_match('/^[a-zA-ZÑñ\s\-]+$/u', $name)) {
+                return "Validation Error (Row {$row_num}): {$field_label} '{$name}' contains invalid special characters (only letters, enye, and hyphens '-' are allowed).";
+            }
 
             // Check hyphen placement: must not start or end with a hyphen
             if (str_starts_with($name, '-') || str_ends_with($name, '-')) {
@@ -240,7 +240,7 @@ if (!preg_match('/^[a-zA-ZÑñ\s\-]+$/u', $name)) {
         };
 
         // ==========================================
-        // 2. DATA ROW PARSING & DISCREPANCY COLLECTION
+        // DATA ROW PARSING & DISCREPANCY COLLECTION
         // ==========================================
         $discrepancies = [];
         for ($i = 1; $i < count($rows); $i++) {
@@ -251,7 +251,6 @@ if (!preg_match('/^[a-zA-ZÑñ\s\-]+$/u', $name)) {
             }
 
             $row_num = $i + 1;
-
             $fname        = $clean($row[1] ?? '');
             $mname        = $clean($row[2] ?? '');
             $lname        = $clean($row[3] ?? '');
@@ -396,7 +395,7 @@ if (!preg_match('/^[a-zA-ZÑñ\s\-]+$/u', $name)) {
             ];
         }
 
-        // 3. DATABASE BATCH INSERTION
+        // DATABASE BATCH INSERTION
         if (!empty($insertData)) {
             $inserted = $this->Tupad_model->insert_batch($insertData);
             
@@ -1152,4 +1151,13 @@ public function get_records_json()
             ->set_content_type('application/json')
             ->set_output(json_encode(['status' => 'success', 'message' => 'Successfully removed.']));
     }
+
+
+
+
+
+
+
+
+    
 }

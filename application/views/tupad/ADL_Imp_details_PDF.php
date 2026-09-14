@@ -113,8 +113,8 @@ function display_val($value, $type = 'text') {
                     </h3>
                     <p class="text-muted small mb-0">Department of Labor and Employment &bull; Transaction Overview</p>
                     <a href="javascript:window.close();" class="btn btn-sm btn-outline-secondary mb-1">
-    <i class="bi bi-arrow-left me-1"></i> Back
-</a>
+                      <i class="bi bi-arrow-left me-1"></i> Back
+                    </a>
                 </div>
 
                 <div>

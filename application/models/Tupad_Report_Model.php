@@ -68,10 +68,6 @@ public function get_filtered_report($start_date = null, $end_date = null, $assig
     return $this->db->get()->result_array();
 }
 
-
-
-
-
     public function get_filtered_report_prov($start_date = null, $end_date = null, $assigned_prov = null) {
         if (empty($start_date) || empty($end_date)) {
             return [];

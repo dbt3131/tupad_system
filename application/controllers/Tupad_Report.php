@@ -143,4 +143,16 @@ class Tupad_Report extends CI_Controller {
         <?php
         exit;
     }
+
+
+
+
+
+
+
+
+
+
+
+    
 }

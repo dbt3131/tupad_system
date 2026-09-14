@@ -87,9 +87,7 @@ class Tupad_Payrolls extends CI_Controller {
 
         redirect('tupad_payrolls/payroll_encode');
     }
-
-       
-
+  
     /**
      * Helper method to parse form submissions
      */
@@ -127,4 +125,11 @@ class Tupad_Payrolls extends CI_Controller {
             'encoded_by'                    => $uploadedBy,
         ];
     }
+
+
+
+
+
+
+    
 }

@@ -353,8 +353,71 @@
                 </div>
               </div>
 
+
+
+<!-- Data Privacy Modal -->
+  <div class="modal fade" id="privacyModal" tabindex="-1" aria-labelledby="privacyModalLabel" data-bs-backdrop="static" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-lg">
+      <div class="modal-content">
+        <div class="modal-header bg-light">
+          <h5 class="modal-title fw-bold" id="privacyModalLabel">
+            <i class="bi bi-shield-lock-fill text-primary me-2"></i>Data Privacy Clause & Agreement
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body p-4" id="modalBody" style="max-height: 400px; overflow-y: auto;">
+          <p class="text-muted">Please scroll down and read through all the paragraphs to enable the agreement checkbox.</p>
+          <h6 class="fw-bold text-dark">1. Collection of Personal Information</h6>
+          <p>We collect personal information such as your Employee Number, Full Name, Email Address, and organizational details strictly for account registration, identification, and system access management within the PRISM system.</p>
+          
+          <h6 class="fw-bold text-dark">2. Use of Information</h6>
+          <p>The information collected will be used solely for authenticating your user role, processing administrative approvals, and maintaining security logs. Your data will not be shared with unauthorized third parties.</p>
+          
+          <h6 class="fw-bold text-dark">3. Data Protection and Security</h6>
+          <p>We implement robust organizational, physical, and technical security measures to protect your personal data against unauthorized access, alteration, disclosure, or destruction.</p>
+          
+          <h6 class="fw-bold text-dark">4. User Consent</h6>
+          <p class="mb-0">By clicking agree, you acknowledge that you have read, understood, and consented to the processing of your personal information in accordance with applicable data privacy laws.</p>
+        </div>
+        <div class="modal-footer bg-light">
+          <span id="scrollWarning" class="text-danger small me-auto">
+            <i class="bi bi-arrow-down-circle me-1"></i> Scroll to the bottom to unlock
+          </span>
+          <button type="button" class="btn btn-primary btn-sm" data-bs-dismiss="modal" id="modalCloseBtn" disabled onclick="acceptPrivacyClause()">I Have Read and Agree</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+              <!-- Data Privacy Clause -->
+              <div class="mb-3 form-check">
+                <input type="checkbox" class="form-check-input" id="privacy_policy" disabled onchange="updateFormState()">
+                <label class="form-check-input-label small text-muted" for="privacy_policy">
+                  I have read and agree to the <a href="#" data-bs-toggle="modal" data-bs-target="#privacyModal" class="text-primary text-decoration-none fw-semibold">Data Privacy Clause</a>. <span id="readNotice" class="text-danger d-block small mt-1"><i class="bi bi-info-circle me-1"></i> Please open and read the privacy clause to enable this checkbox.</span>
+                </label>
+              </div>
+
               <!-- Submit Button -->
-              <button type="submit" class="btn btn-primary btn-register w-100 mb-3">
+              <button type="submit" id="registerBtn" class="btn btn-primary btn-register w-100 mb-3">
                 <i class="bi bi-person-check-fill me-2"></i> Register Account
               </button>
             </form>
@@ -379,7 +442,7 @@
   <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-  <script>
+<script>
     function togglePassword(inputId, iconId) {
       const passwordInput = document.getElementById(inputId);
       const icon = document.getElementById(iconId);
@@ -393,10 +456,35 @@
       }
     }
 
-    function validatePasswordRules() {
+    // Monitor scrolling inside the modal body
+    const modalBody = document.getElementById("modalBody");
+    const privacyCheckbox = document.getElementById("privacy_policy");
+    const modalCloseBtn = document.getElementById("modalCloseBtn");
+    const scrollWarning = document.getElementById("scrollWarning");
+    const readNotice = document.getElementById("readNotice");
+
+    if (modalBody) {
+      modalBody.addEventListener("scroll", function () {
+        // Check if user has scrolled to the bottom (with a 5px threshold)
+        const isAtBottom = modalBody.scrollTop + modalBody.clientHeight >= modalBody.scrollHeight - 5;
+
+        if (isAtBottom) {
+          // Unlock the checkbox and modal button
+          privacyCheckbox.removeAttribute("disabled");
+          modalCloseBtn.removeAttribute("disabled");
+          scrollWarning.classList.replace("text-danger", "text-success");
+          scrollWarning.innerHTML = '<i class="bi bi-check-circle-fill me-1"></i> Read complete!';
+          readNotice.innerHTML = '<i class="bi bi-check-circle text-success me-1"></i> Privacy clause read successfully.';
+          readNotice.className = "text-success d-block small mt-1";
+        }
+      });
+    }
+
+    function updateFormState() {
       const password = document.getElementById("password").value;
       const confirmPassword = document.getElementById("password_confirm").value;
 
+      // Password rules evaluation
       const hasLength = password.length >= 8;
       const hasUpper = /[A-Z]/.test(password);
       const hasNumber = /[0-9]/.test(password);
@@ -409,7 +497,18 @@
       updateRequirementUI('req-special', hasSpecial);
       updateRequirementUI('req-match', isMatch);
 
-      return hasLength && hasUpper && hasNumber && hasSpecial && isMatch;
+      const isValidPassword = hasLength && hasUpper && hasNumber && hasSpecial && isMatch;
+      const isChecked = privacyCheckbox.checked;
+      const registerBtn = document.getElementById("registerBtn");
+
+      // Enable button ONLY if password is valid AND privacy checkbox is checked
+      if (isValidPassword && isChecked) {
+        registerBtn.removeAttribute("disabled");
+      } else {
+        registerBtn.setAttribute("disabled", "true");
+      }
+
+      return isValidPassword && isChecked;
     }
 
     function updateRequirementUI(elementId, isValid) {
@@ -428,11 +527,27 @@
     }
 
     function validateForm() {
-      return validatePasswordRules();
+      return updateFormState();
     }
 
-    document.getElementById("password").addEventListener("keyup", validatePasswordRules);
-    document.getElementById("password_confirm").addEventListener("keyup", validatePasswordRules);
+    // Listen for changes on passwords AND the checkbox
+    document.getElementById("password").addEventListener("keyup", updateFormState);
+    document.getElementById("password_confirm").addEventListener("keyup", updateFormState);
+    privacyCheckbox.addEventListener("change", updateFormState);
+
+    // Ensure clean state on page load
+    window.addEventListener("pageshow", function () {
+      privacyCheckbox.checked = false;
+      privacyCheckbox.setAttribute("disabled", "true");
+      updateFormState();
+    });
+
+    function acceptPrivacyClause() {
+      const privacyCheckbox = document.getElementById("privacy_policy");
+      privacyCheckbox.checked = true; // Automatically check the box
+      updateFormState(); // Re-evaluate button state
+    }
   </script>
+
 </body>
 </html>

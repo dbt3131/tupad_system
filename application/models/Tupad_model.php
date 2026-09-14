@@ -27,15 +27,15 @@ class Tupad_model extends CI_Model {
                    u.reg_fname as uploader_fname, 
                    u.reg_lname as uploader_lname,
                    CASE WHEN g.gsis_letter_id IS NOT NULL THEN 1 ELSE 0 END as is_forwarded
-            FROM tbl_tupad_list t
-            LEFT JOIN users u ON u.id = t.user_id
-            LEFT JOIN gsis_letters g 
+                   FROM tbl_tupad_list t
+                   LEFT JOIN users u ON u.id = t.user_id
+                   LEFT JOIN gsis_letters g 
                    ON g.reference_no = t.reference_no 
                   AND g.adl_no = t.adl_no 
                   AND g.implementor = t.area_of_implementation
-            WHERE t.file_name IS NOT NULL
-            GROUP BY t.file_name, t.reference_no, u.reg_fname, u.reg_lname, g.gsis_letter_id
-            ORDER BY t.file_name ASC";
+                  WHERE t.file_name IS NOT NULL
+                  GROUP BY t.file_name, t.reference_no, u.reg_fname, u.reg_lname, g.gsis_letter_id
+                  ORDER BY t.file_name ASC";
 
     return $this->db->query($sql)->result_array();
 }
@@ -127,7 +127,7 @@ class Tupad_model extends CI_Model {
 
    public function count_filtered_records($search, $province, $city, $barangay, $file_name = null) {
     $this->db->from($this->table);
-    // Add missing joins so location descriptions can be searched
+  
     $this->db->join('refprovince', 'refprovince.provCode = tbl_tupad_list.tupad_province', 'left');
     $this->db->join('refcitymun', 'refcitymun.cityCode = tbl_tupad_list.tupad_municipality', 'left');
     $this->db->join('refbrgy', 'refbrgy.brgyCode = tbl_tupad_list.tupad_barangay', 'left');
@@ -151,7 +151,7 @@ class Tupad_model extends CI_Model {
         foreach ($keywords as $keyword) {
             if (!empty($keyword)) {
                 $escaped = $this->db->escape_like_str($keyword);
-                // Include location description columns in the search query
+              
                 $this->db->where("(tupad_id_no LIKE '%{$escaped}%' OR tupad_fname LIKE '%{$escaped}%' OR tupad_mname LIKE '%{$escaped}%' OR tupad_lname LIKE '%{$escaped}%' OR refprovince.provDesc LIKE '%{$escaped}%' OR refcitymun.citymunDesc LIKE '%{$escaped}%' OR refbrgy.brgyDesc LIKE '%{$escaped}%')", NULL, FALSE);
             }
         }
@@ -180,7 +180,6 @@ class Tupad_model extends CI_Model {
         
         return $this->db->get()->result_array();
     }
-
 
     private function _get_records_query($search, $province, $city, $barangay, $file_name = null) {
     $this->db->select('tbl_tupad_list.*, 
@@ -233,18 +232,6 @@ class Tupad_model extends CI_Model {
         $this->db->where('tbl_tupad_list.tupad_barangay', $barangay);
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
     
     public function count_all_records_by_file($file_name) {
         $this->db->where('file_name', urldecode($file_name));
@@ -449,17 +436,17 @@ class Tupad_model extends CI_Model {
             ');
 
 
-        $this->db->from($this->table);
-        $this->db->join('refprovince', 'refprovince.provCode = tbl_tupad_list.tupad_province', 'left');
-        $this->db->join('refcitymun', 'refcitymun.cityCode = tbl_tupad_list.tupad_municipality', 'left');
-        $this->db->join('refbrgy', 'refbrgy.brgyCode = tbl_tupad_list.tupad_barangay', 'left');
-        $this->db->join('users', 'users.id = tbl_tupad_list.user_id', 'left');
-        $this->db->join('code_idtype', 'code_idtype.type_id = tbl_tupad_list.tupad_idtype', 'left');
-        $this->db->join('code_type_bene', 'code_type_bene.bene_type_id = tbl_tupad_list.tupad_type', 'left');
-        $this->db->join('code_skills', 'code_skills.code_skills_id = tbl_tupad_list.tupad_skills', 'left');
-        $this->db->join('code_epayment', 'code_epayment.epayment_id = tbl_tupad_list.tupad_epayment', 'left');
-        $this->db->where('tbl_tupad_list.id', $id);
-        return $this->db->get()->row_array();
+            $this->db->from($this->table);
+            $this->db->join('refprovince', 'refprovince.provCode = tbl_tupad_list.tupad_province', 'left');
+            $this->db->join('refcitymun', 'refcitymun.cityCode = tbl_tupad_list.tupad_municipality', 'left');
+            $this->db->join('refbrgy', 'refbrgy.brgyCode = tbl_tupad_list.tupad_barangay', 'left');
+            $this->db->join('users', 'users.id = tbl_tupad_list.user_id', 'left');
+            $this->db->join('code_idtype', 'code_idtype.type_id = tbl_tupad_list.tupad_idtype', 'left');
+            $this->db->join('code_type_bene', 'code_type_bene.bene_type_id = tbl_tupad_list.tupad_type', 'left');
+            $this->db->join('code_skills', 'code_skills.code_skills_id = tbl_tupad_list.tupad_skills', 'left');
+            $this->db->join('code_epayment', 'code_epayment.epayment_id = tbl_tupad_list.tupad_epayment', 'left');
+            $this->db->where('tbl_tupad_list.id', $id);
+            return $this->db->get()->row_array();
     }
 
     public function find_province_code_by_desc($desc) {

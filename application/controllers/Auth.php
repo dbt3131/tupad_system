@@ -12,14 +12,12 @@ class Auth extends CI_Controller
 
     public function register()
     {
-        // Redirect if already logged in[cite: 6]
+        // Redirect if already logged in
         if ($this->session->userdata('logged_in')) {
             redirect('users');
         }
-
-        // --- FORM VALIDATION RULES ---
         
-        // Personal Details[cite: 6]
+        // Personal Details
         $this->form_validation->set_rules(
             'reg_empno', 
             'Employee No', 
@@ -34,12 +32,12 @@ class Auth extends CI_Controller
         $this->form_validation->set_rules('reg_lname', 'Last Name', 'required|trim');
         $this->form_validation->set_rules('reg_extname', 'Extension Name', 'trim');
 
-        // Organization Details[cite: 6]
+        // Organization Details
         $this->form_validation->set_rules('position_id', 'Job Position', 'required|numeric');
         $this->form_validation->set_rules('office_id', 'Office', 'required|numeric');
         $this->form_validation->set_rules('division_id', 'Division', 'required|numeric');
 
-        // Account Credentials[cite: 6]
+        // Account Credentials
         $this->form_validation->set_rules(
             'email', 
             'Email',
@@ -58,9 +56,9 @@ class Auth extends CI_Controller
         );
         $this->form_validation->set_rules('password_confirm', 'Confirm Password', 'required|matches[password]');
 
-        // --- EXECUTE VALIDATION ---[cite: 6]
+        // --- EXECUTE VALIDATION ---
         if ($this->form_validation->run() === FALSE) {
-            // Reload page dropdown options when validation fails[cite: 6]
+            // Reload page dropdown options when validation fails
             $data['positions'] = $this->User_model->get_position();
             $data['office']    = $this->User_model->get_office();
             $data['division']  = $this->User_model->get_division();
@@ -69,7 +67,7 @@ class Auth extends CI_Controller
             return;
         }
 
-        // --- PREPARE DATA FOR DATABASE ---[cite: 6]
+        // --- PREPARE DATA FOR DATABASE ---
         $insert_data = array(
             'reg_empno'   => trim($this->input->post('reg_empno', TRUE)),
             'reg_fname'   => strtoupper(trim($this->input->post('reg_fname', TRUE))),
@@ -84,7 +82,7 @@ class Auth extends CI_Controller
             'created_at'  => date('Y-m-d H:i:s')
         );
 
-        // Save to Database via Model[cite: 6]
+        // Save to Database via Model
         if ($this->User_model->register($insert_data)) {
             $this->session->set_flashdata('success', 'Registration successful. Wait for the activation.');
             redirect('auth/login');
@@ -192,4 +190,13 @@ class Auth extends CI_Controller
         $this->session->sess_destroy();
         redirect('auth/login', 'refresh');
     }
+
+
+
+
+
+
+
+
+    
 }
