@@ -320,4 +320,41 @@ class ADL extends CI_Controller {
 
         $this->load->view('tupad/ADL_Imp_details_PDF', $data);
     }
+
+public function proponent_encode() {
+        $data['provinces'] = $this->ADL_Model->get_provinces();
+        $this->load->view('tupad/proponent_encoding', $data);
+    }
+
+public function store_proponent() {
+    if ($this->input->method() === 'post') {
+        $data = [
+            'proponent_name' => strtoupper($this->input->post('proponent_name', true)),
+            'encoded_date'   => date('Y-m-d'),
+            'encoded_by'     => $this->session->userdata('user_id') ?? 1
+        ];
+
+        // Insert logic model query
+        $insert = $this->db->insert('code_proponent', $data);
+
+        if ($insert) {
+            $this->session->set_flashdata('success', 'Proponent record successfully saved!');
+        } else {
+            $this->session->set_flashdata('error', 'Failed to save proponent record.');
+        }
+    }
+    redirect('adl/proponent_encode');
+}
+
+
+
+
+
+
+
+
+
+
+
+
 }

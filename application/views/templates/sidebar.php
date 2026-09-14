@@ -4,10 +4,12 @@ $current_controller = strtolower($this->uri->segment(1));
 $current_method     = strtolower($this->uri->segment(2)); 
 
 $is_tupad_active  = ($current_controller === 'tupad');
+
 // Include tupad_monitoring as active for this menu section
 $is_alloc_active  = in_array($current_controller, ['tupad_allocations', 'tupad_monitoring']);
 $is_payroll_active  = in_array($current_controller, ['tupad_payrolls']);
 $is_adl_active  = in_array($current_controller, ['ADL']);
+$is_config_active  = in_array($current_controller, ['ADL']);
 ?>
 
 <style>
@@ -233,7 +235,7 @@ $is_adl_active  = in_array($current_controller, ['ADL']);
      <li>
       <a href="<?= site_url('activity/activity_trail'); ?>" 
          class="nav-link <?= ($current_controller === 'activity' || $current_controller === '') ? 'active' : ''; ?>">
-        <i class="bi bi-clock-history text-primary"></i>
+        <i class="bi bi-clock-history"></i>
         <span>Activities</span>
       </a>
     </li>
@@ -381,7 +383,7 @@ $is_adl_active  = in_array($current_controller, ['ADL']);
          class="nav-link <?= $is_adl_active ? '' : 'collapsed'; ?>" 
          data-bs-toggle="collapse" 
          aria-expanded="<?= $is_adl_active ? 'true' : 'false'; ?>">
-        <i class="bi bi-list-check text-primary me-2"></i>
+        <i class="bi bi-list-check me-2"></i>
         <span>Tupad ADL</span>
         <i class="bi bi-chevron-down ms-auto dropdown-chevron"></i>
       </a>
@@ -427,13 +429,31 @@ $is_adl_active  = in_array($current_controller, ['ADL']);
           </a>
         </li>
       </ul>
-
-
-
-     
     </li>
 
+<li class="nav-item dropdown">
+      <a href="#proponentSubMenu" 
+         class="nav-link <?= $is_config_active ? '' : 'collapsed'; ?>" 
+         data-bs-toggle="collapse" 
+         aria-expanded="<?= $is_config_active ? 'true' : 'false'; ?>">
+        <i class="bi bi-gear me-2"></i>
+        <span>TUPAD Config</span>
+        <i class="bi bi-chevron-down ms-auto dropdown-chevron"></i>
+      </a>
+      
+      <!-- Subcategory Menu -->
+      <ul class="collapse submenu list-unstyled <?= $is_config_active ? 'show' : ''; ?>" id="proponentSubMenu">
+        <li>
+          <a href="<?= site_url('ADL/proponent_encode'); ?>" 
+             class="nav-sub-link <?= ($current_controller === 'ADL' && $current_method === 'proponent_encode') ? 'active' : ''; ?>">
+            <i class="bi bi-circle"></i>
+            <span>Encode Proponent</span>
+          </a>
+        </li>
+      </ul>
+    </li>
 
+    
 
 
 

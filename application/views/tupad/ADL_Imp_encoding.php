@@ -180,7 +180,7 @@
                             <!-- TAB 1: GENERAL INFORMATION -->
                             <div class="tab-pane fade show active" id="general-pane" role="tabpanel" aria-labelledby="general-tab">
                                 <div class="row g-3">
-                                    <div class="col-md-2">
+                                    <div class="col-md-3">
                                         <label class="form-label fw-semibold small">ADL Number</label>
                                         <select id="adl_no" name="adl_no" class="form-select" style="width: 100%;" required>
                                             <option value="">-Select ADL-</option>
@@ -193,8 +193,8 @@
                                             <?php endif; ?>
                                         </select>
                                     </div>
-                                    <div class="col-md-3">
-                                        <label class="form-label fw-semibold small">Implementation Reference No.</label>
+                                    <div class="col-md-2">
+                                        <label class="form-label fw-semibold small">Reference No.</label>
                                         <input type="text" name="implementation_reference_no" class="form-control" placeholder="Reference No" required>
                                     </div>
                                     <div class="col-md-2">
