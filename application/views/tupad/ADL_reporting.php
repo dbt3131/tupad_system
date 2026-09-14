@@ -11,6 +11,8 @@
     
     <!-- DataTables Bootstrap 5 CSS -->
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+    <!-- DataTables Buttons Bootstrap 5 CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.bootstrap5.min.css">
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -174,47 +176,51 @@
                     <h5 class="mb-0 fw-bold text-secondary">
                         <i class="bi bi-geo-alt me-2"></i>Detailed Implementation & Itemized Breakdown List
                     </h5>
-                    <!-- Filter Dropdowns Container (Province, Proponent, District) -->
-                    <div class="d-flex flex-wrap gap-2">
-                        <!-- Province Filter Dropdown -->
-                        <div style="width: 200px;">
-                            <select id="filter_province" class="form-select" style="width: 100%;">
-                                <option value="">-- All Provinces --</option>
-                                <?php if (!empty($provinces)): ?>
-                                    <?php foreach ($provinces as $prov): ?>
-                                        <option value="<?= html_escape($prov['provCode']); ?>">
-                                            <?= html_escape($prov['provDesc']); ?>
-                                        </option>
-                                    <?php endforeach; ?>
-                                <?php endif; ?>
-                            </select>
+                    <!-- Filter Dropdowns Container (Province, Proponent, District) & Excel Button -->
+                    <div class="d-flex flex-wrap align-items-center gap-2">
+                        <div class="d-flex flex-wrap gap-2">
+                            <!-- Province Filter Dropdown -->
+                            <div style="width: 180px;">
+                                <select id="filter_province" class="form-select" style="width: 100%;">
+                                    <option value="">-- All Provinces --</option>
+                                    <?php if (!empty($provinces)): ?>
+                                        <?php foreach ($provinces as $prov): ?>
+                                            <option value="<?= html_escape($prov['provCode']); ?>">
+                                                <?= html_escape($prov['provDesc']); ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    <?php endif; ?>
+                                </select>
+                            </div>
+                            <!-- Proponent Filter Dropdown -->
+                            <div style="width: 180px;">
+                                <select id="filter_proponent" class="form-select" style="width: 100%;">
+                                    <option value="">-- All Proponents --</option>
+                                    <?php if (!empty($proponents)): ?>
+                                        <?php foreach ($proponents as $prop): ?>
+                                            <option value="<?= html_escape($prop['proponent_id']); ?>">
+                                                <?= html_escape($prop['proponent_name']); ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    <?php endif; ?>
+                                </select>
+                            </div>
+                            <!-- District Filter Dropdown -->
+                            <div style="width: 140px;">
+                                <select id="filter_district" class="form-select" style="width: 100%;">
+                                    <option value="">-- All Districts --</option>
+                                    <?php if (!empty($districts)): ?>
+                                        <?php foreach ($districts as $dist): ?>
+                                            <option value="<?= html_escape($dist['district_id']); ?>">
+                                                District <?= html_escape($dist['district_no']); ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    <?php endif; ?>
+                                </select>
+                            </div>
                         </div>
-                        <!-- Proponent Filter Dropdown -->
-                        <div style="width: 200px;">
-                            <select id="filter_proponent" class="form-select" style="width: 100%;">
-                                <option value="">-- All Proponents --</option>
-                                <?php if (!empty($proponents)): ?>
-                                    <?php foreach ($proponents as $prop): ?>
-                                        <option value="<?= html_escape($prop['proponent_id']); ?>">
-                                            <?= html_escape($prop['proponent_name']); ?>
-                                        </option>
-                                    <?php endforeach; ?>
-                                <?php endif; ?>
-                            </select>
-                        </div>
-                        <!-- District Filter Dropdown -->
-                        <div style="width: 160px;">
-                            <select id="filter_district" class="form-select" style="width: 100%;">
-                                <option value="">-- All Districts --</option>
-                                <?php if (!empty($districts)): ?>
-                                    <?php foreach ($districts as $dist): ?>
-                                        <option value="<?= html_escape($dist['district_id']); ?>">
-                                            District <?= html_escape($dist['district_no']); ?>
-                                        </option>
-                                    <?php endforeach; ?>
-                                <?php endif; ?>
-                            </select>
-                        </div>
+                        <!-- Excel Export Button Container -->
+                        <div id="exportButtonContainer"></div>
                     </div>
                 </div>
                 <div class="card-body">
@@ -222,10 +228,14 @@
                         <table id="detailedTransactionsTable" class="table table-bordered table-striped align-middle w-100">
                             <thead class="table-light text-center align-middle">
                                 <tr>
-                                    <th>Implementation Province / Area</th>
-                                    <th>Reference No. / ADL No.</th>
-                                    <th>PPES (Count vs Amount)</th>
-                                    <th>GSIS Enrollment (Benefs vs Amount)</th>
+                                    <th>Implementation Province</th>
+                                    <th>Implementation Area</th>
+                                    <th>ADL No.</th>
+                                    <th>Reference No.</th>
+                                    <th>PPES Count</th>
+                                    <th>PPEs Amount</th>
+                                    <th>GSIS Enrollment Benefs</th>
+                                    <th>GSIS Enrollment Amount</th>
                                     <th>Payout Service Fee</th>
                                     <th>Salaries Amount</th>
                                 </tr>
@@ -253,22 +263,89 @@
     <!-- DataTables JS CDN -->
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    
+    <!-- JSZip (Required for Excel export) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+    <!-- DataTables Buttons JS & HTML5 Export Plugin -->
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
 
     <script>
-    $(document).ready(function () {
+$(document).ready(function () {
         // Initialize Select2 with Bootstrap 5 Theme
         $('#filter_adl_no').select2({ theme: 'bootstrap-5', placeholder: '-- Select or type ADL Number --', allowClear: true });
         $('#filter_province').select2({ theme: 'bootstrap-5', placeholder: '-- All Provinces --', allowClear: true });
         $('#filter_proponent').select2({ theme: 'bootstrap-5', placeholder: '-- All Proponents --', allowClear: true });
         $('#filter_district').select2({ theme: 'bootstrap-5', placeholder: '-- All Districts --', allowClear: true });
 
-        // Initialize DataTable with Pagination & Sorting
+        // Initialize DataTable with Pagination, Sorting, Column Formatting, and Excel Export Button
         const table = $('#detailedTransactionsTable').DataTable({
             pageLength: 10,
             lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
             ordering: true,
-            responsive: true
+            responsive: true,
+            dom: '<"row mb-3"<"col-md-6"l><"col-md-6 text-end"f>>rt<"row mt-3"<"col-md-6"i><"col-md-6"p>>',
+            columnDefs: [
+                {
+                    // Automatically format columns 5, 7, 8, 9 with commas and 2 decimal places for both screen and export
+                    targets: [5, 7, 8, 9],
+                    render: function (data, type, row) {
+                        let num = parseFloat(data);
+                        if (isNaN(num)) return '0.00';
+                        // Keep the formatted comma string for exports so style 25 can be safely applied universally
+                        return num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                    }
+                }
+            ],
+            buttons: [
+                {
+                    extend: 'excelHtml5',
+                    text: '<i class="bi bi-file-earmark-excel me-1"></i> Download Excel',
+                    className: 'btn btn-success btn-sm shadow-sm',
+                    title: '',
+                    filename: 'ADL_Financial_Breakdown_Report',
+                    exportOptions: {
+                        columns: ':visible'
+                    },
+                    customize: function (xlsx) {
+                        var sheet = xlsx.xl.worksheets['sheet1.xml'];
+
+                        // 1. Shift all rows down by 2 to make room for the main title block
+                        $('row', sheet).each(function () {
+                            var r = parseInt($(this).attr('r')) + 2;
+                            $(this).attr('r', r);
+                            $(this).find('c').each(function () {
+                                var cellRef = $(this).attr('r');
+                                var col = cellRef.replace(/[0-9]/g, '');
+                                $(this).attr('r', col + r);
+                            });
+                        });
+
+                        // 2. Apply DataTables built-in bordered style (index 25) universally to all table cells from Row 3 downwards
+                        $('row', sheet).each(function () {
+                            var r = parseInt($(this).attr('r'));
+                            if (r >= 3) {
+                                $(this).find('c').attr('s', '25');
+                            }
+                        });
+
+                        // 3. Insert the Title Header Row (Row 1)
+                        var row1 = '<row r="1">' +
+                                       '<c t="inlineStr" r="A1" s="51">' +
+                                           '<is><t>ADL BREAKDOWN REPORT</t></is>' +
+                                       '</c>' +
+                                   '</row>';
+                        
+                        $('sheetData', sheet).prepend(row1);
+                    }
+                }
+            ]
         });
+
+        // Append generated DataTables export button into custom header location container
+        table.buttons().container().appendTo('#exportButtonContainer');
 
         // Function to load report data via AJAX
         function loadReportData(adlNo, provinceCode = '', proponentName = '', districtNo = '') {
@@ -286,7 +363,6 @@
                     if (response.status && response.data) {
                         const d = response.data;
                         
-                        // Populate summary metric cards if it's the base query or handle accordingly
                         if (!provinceCode && !proponentName && !districtNo) {
                             $('#displayAdlNo').text(d.adl_no);
                             $('#lblAdlAmount').text('₱' + d.adl_amount.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}));
@@ -300,29 +376,31 @@
                             $('#valTableTotalDeductions').text('₱' + d.total_deductions.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}));
                         }
 
-                        // Clear existing DataTable rows
                         table.clear();
 
-                        // Populate the detailed items table rows
                         if (d.transactions && d.transactions.length > 0) {
                             d.transactions.forEach(function(tx) {
                                 let provinceName = tx.implementation_province_name || tx.implementation_province;
                                 let areaName = tx.implementation_area_name || tx.implementation_area;
-                                let proponentNameVal = tx.implementation_proponent_name;
                                 
-                                
+                                let ppesCount = parseInt(tx.ppes_count) || 0;
                                 let ppesAmt = parseFloat(tx.ppes_amount) || 0;
+                                let gsisBenefs = parseInt(tx.gsis_enrollment_benefs) || 0;
                                 let gsisAmt = parseFloat(tx.gsis_enrollment_amount) || 0;
                                 let serviceCost = parseFloat(tx.payout_service_cost) || 0;
                                 let paymentAmt = parseFloat(tx.payment_amount) || 0;
 
                                 table.row.add([
-                                    `<strong>${areaName}</strong><br><small class="text-muted"><i class="bi bi-geo-alt-fill me-1"></i>${provinceName}</small><br><small class="text-muted"><i class="bi bi-person-fill me-1"></i>${proponentNameVal}</small>`,
-                                    `<strong>ADL:</strong> ${tx.adl_no}<br><small class="text-muted">Ref: <code>${tx.implementation_reference_no}</code></small>`,
-                                    `<span class="badge bg-info text-dark">${tx.ppes_count || 0} items</span><br>₱${ppesAmt.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`,
-                                    `<span class="badge bg-secondary">${tx.gsis_enrollment_benefs || 0} benefs</span><br>₱${gsisAmt.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`,
-                                    `<span class="text-dark">₱${serviceCost.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>`,
-                                    `<span class="text-dark">₱${paymentAmt.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>`
+                                    provinceName,
+                                    areaName,
+                                    tx.adl_no,
+                                    tx.implementation_reference_no,
+                                    ppesCount,
+                                    ppesAmt,
+                                    gsisBenefs,
+                                    gsisAmt,
+                                    serviceCost,
+                                    paymentAmt
                                 ]);
                             });
                         }
@@ -356,7 +434,6 @@
                 return;
             }
 
-            // Reset secondary filters when a new ADL is chosen
             $('#filter_province').val('').trigger('change.select2');
             $('#filter_proponent').val('').trigger('change.select2');
             $('#filter_district').val('').trigger('change.select2');
@@ -364,7 +441,7 @@
             loadReportData(adlNo, '', '', '');
         });
 
-        // Handle Filter Changes (Province, Proponent, District)
+        // Handle Filter Changes
         $('#filter_province, #filter_proponent, #filter_district').on('change', function () {
             const adlNo = $('#filter_adl_no').val();
             const provCode = $('#filter_province').val();
