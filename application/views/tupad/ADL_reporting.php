@@ -280,7 +280,7 @@ $(document).ready(function () {
         $('#filter_proponent').select2({ theme: 'bootstrap-5', placeholder: '-- All Proponents --', allowClear: true });
         $('#filter_district').select2({ theme: 'bootstrap-5', placeholder: '-- All Districts --', allowClear: true });
 
-        // Initialize DataTable with Pagination, Sorting, Column Formatting, and Excel Export Button
+// Initialize DataTable with Pagination, Sorting, Column Formatting, and Excel Export Button
         const table = $('#detailedTransactionsTable').DataTable({
             pageLength: 10,
             lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
@@ -289,12 +289,11 @@ $(document).ready(function () {
             dom: '<"row mb-3"<"col-md-6"l><"col-md-6 text-end"f>>rt<"row mt-3"<"col-md-6"i><"col-md-6"p>>',
             columnDefs: [
                 {
-                    // Automatically format columns 5, 7, 8, 9 with commas and 2 decimal places for both screen and export
+                    // Format screen view with commas and decimals
                     targets: [5, 7, 8, 9],
                     render: function (data, type, row) {
                         let num = parseFloat(data);
                         if (isNaN(num)) return '0.00';
-                        // Keep the formatted comma string for exports so style 25 can be safely applied universally
                         return num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
                     }
                 }
@@ -323,11 +322,26 @@ $(document).ready(function () {
                             });
                         });
 
-                        // 2. Apply DataTables built-in bordered style (index 25) universally to all table cells from Row 3 downwards
+                        // 2. Format amount cells explicitly as inline strings with commas/decimals 
+                        // and apply style '25' universally for clean borders across all cells
                         $('row', sheet).each(function () {
                             var r = parseInt($(this).attr('r'));
                             if (r >= 3) {
-                                $(this).find('c').attr('s', '25');
+                                $(this).find('c').each(function (index) {
+                                    var cell = $(this);
+                                    cell.attr('s', '25'); // Apply border style to every cell
+
+                                    // If it's an amount column (indices 5, 7, 8, 9), format value with commas & decimals
+                                    if (r > 3 && (index === 5 || index === 7 || index === 8 || index === 9)) {
+                                        var rawVal = cell.text();
+                                        var num = parseFloat(rawVal);
+                                        if (!isNaN(num)) {
+                                            var formattedNum = num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                                            cell.attr('t', 'inlineStr');
+                                            cell.html('<is><t>' + formattedNum + '</t></is>');
+                                        }
+                                    }
+                                });
                             }
                         });
 
