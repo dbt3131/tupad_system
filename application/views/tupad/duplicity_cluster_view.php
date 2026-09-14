@@ -126,7 +126,7 @@ main.flex-grow-1 {
                         <?php foreach ($cluster_members as $member): ?>
                             <tr>
                                 <td>
-                                    <a href="<?php echo site_url('tupad/view_profile/' . $member['id']); ?>" class="btn btn-sm btn-primary" target="_blank">
+                                    <a href="<?php echo site_url('tupad/view_profile/' . $member['id']); ?>" class="btn btn-sm btn-primary">
                                         <i class="bi bi-eye"></i> View Profile
                                     </a>
                                 </td>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Login - CI3 CRUD System</title>
+    <title>Login - PRISM</title>
 
     <!-- Bootstrap 5 CSS & Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -152,6 +152,17 @@
                                 <button type="button" class="btn btn-outline-secondary" onclick="togglePassword()">
                                     <i class="bi bi-eye" id="toggleIcon"></i>
                                 </button>
+                            </div>
+                        </div>
+
+                        <!-- CAPTCHA Question Field -->
+                        <div class="mb-4">
+                            <label for="captcha" class="form-label fw-semibold">
+                                Security Check: <span class="text-primary"><?= isset($captcha_question) ? $captcha_question : 'What is ? + ?'; ?></span>
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-shield-check"></i></span>
+                                <input type="number" id="captcha" name="captcha" class="form-control" placeholder="Enter the sum" required>
                             </div>
                         </div>
 

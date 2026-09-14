@@ -372,7 +372,7 @@ class Tupad_model extends CI_Model {
                 break;
                 
             case 'highly_possible':
-                $this->db->group_by(['tupad_fname', 'tupad_mname', 'tupad_lname', 'tupad_dob_month', 'tupad_dob_day', 'tupad_dob_year']);
+                $this->db->group_by(['tupad_fname', 'tupad_lname', 'tupad_dob_month', 'tupad_dob_day', 'tupad_dob_year']);
                 break;
                 
             case 'possible':

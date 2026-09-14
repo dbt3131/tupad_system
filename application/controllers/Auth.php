@@ -86,62 +86,92 @@ public function register()
     }
 }
 
-    public function login()
-{
-    // Redirect if already logged in
-    if ($this->session->userdata('logged_in')) {
-        redirect('dashboard');
-    }
+public function login()
+    {
+        // Redirect if already logged in[cite: 6]
+        if ($this->session->userdata('logged_in')) {
+            redirect('dashboard');
+        }
 
-    // Set Form Validation Rules
-    $this->form_validation->set_rules('email', 'Email', 'required|trim|valid_email');
-    $this->form_validation->set_rules('password', 'Password', 'required');
+        // Set Form Validation Rules[cite: 6]
+        $this->form_validation->set_rules('email', 'Email', 'required|trim|valid_email');
+        $this->form_validation->set_rules('password', 'Password', 'required');
+        $this->form_validation->set_rules('captcha', 'CAPTCHA Answer', 'required|numeric');
 
-    // Run Validation
-    if ($this->form_validation->run() === FALSE) {
-        $this->load->view('auth/login');
-        return;
-    }
+        // Run Validation[cite: 6]
+        if ($this->form_validation->run() === FALSE) {
+            // Generate simple math CAPTCHA numbers
+            $num1 = rand(1, 10);
+            $num2 = rand(1, 10);
+            $this->session->set_userdata('captcha_answer', $num1 + $num2);
+            
+            $data['captcha_question'] = "What is {$num1} + {$num2}?";
+            $this->load->view('auth/login', $data);
+            return;
+        }
 
-    $email = trim($this->input->post('email', TRUE));
-    $password = $this->input->post('password');
+        // Verify CAPTCHA Answer
+        $user_captcha = $this->input->post('captcha');
+        $correct_captcha = $this->session->userdata('captcha_answer');
 
-    // Fetch user record from database
-    $user = $this->User_model->get_user_by_email($email);
-
-    // Verify User Existence & Password
-    if ($user && password_verify($password, $user->password)) {
-
-        // --- BLOCK INACTIVE USERS ---
-        if ((int)$user->activated === 0) {
-            $this->session->set_flashdata('error', 'Your account is inactive or pending approval. Please contact the Systems Analyst II.');
+        if ($user_captcha != $correct_captcha) {
+            $this->session->set_flashdata('error', 'Incorrect CAPTCHA answer. Please try again.');
             redirect('auth/login');
             return;
         }
 
-        // --- SUCCESSFUL LOGIN ---
-        $this->session->sess_regenerate(TRUE);
+        // Clear CAPTCHA session once verified
+        $this->session->unset_userdata('captcha_answer');
 
-        // Store user data in session
-        $this->session->set_userdata(array(
-            'user_id'   => $user->id,
-            'assigned_prov'   => $user->assigned_prov,
-            'reg_fname'      => $user->reg_fname,
-            'email'     => $user->email,
-            'logged_in' => TRUE
-        ));
+        $email = trim($this->input->post('email', TRUE));
+        $password = $this->input->post('password');
 
-        redirect('dashboard/index');
-    }
+        // Fetch user record from database[cite: 6]
+        $user = $this->User_model->get_user_by_email($email);
 
-    // Invalid Credentials
-    $this->session->set_flashdata('error', 'Invalid email or password.');
-    redirect('auth/login');
-    }
+        // Verify User Existence & Password[cite: 6]
+        if ($user && password_verify($password, $user->password)) {
 
-    public function logout()
-    {
-        $this->session->sess_destroy();
+            // --- BLOCK INACTIVE USERS ---[cite: 6]
+            if ((int)$user->activated === 0) {
+                $this->session->set_flashdata('error', 'Your account is inactive or pending approval. Please contact the Systems Analyst II.');
+                redirect('auth/login');
+                return;
+            }
+
+            // --- SUCCESSFUL LOGIN ---[cite: 6]
+            $this->session->sess_regenerate(TRUE);
+
+            // Store user data in session[cite: 6]
+            $this->session->set_userdata(array(
+                'user_id'         => $user->id,
+                'assigned_prov'   => $user->assigned_prov,
+                'reg_fname'       => $user->reg_fname,
+                'email'           => $user->email,
+                'logged_in'       => TRUE
+            ));
+
+            redirect('dashboard/index');
+        }
+
+        // Invalid Credentials[cite: 6]
+        $this->session->set_flashdata('error', 'Invalid email or password.');
         redirect('auth/login');
     }
+
+
+public function logout()
+    {
+        $this->session->sess_destroy();
+        // Use 'refresh' to force a clean HTTP redirect
+        redirect('auth/login', 'refresh');
+    }
+
+
+
+
+
+
+
+
 }

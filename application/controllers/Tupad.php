@@ -194,11 +194,17 @@ class Tupad extends CI_Controller
         }
         // ==========================================
 
+        // Automatically clean and strip commas, periods, and special characters except hyphens (-)
         $clean = function($val) {
-            return str_replace('.', '', trim($val ?? ''));
+            $val = trim($val ?? '');
+            // Removes periods, commas, and all symbols/special characters except spaces and hyphens (-)
+            $val = preg_replace('/[^\p{L}\p{N}\s\-]/u', '', $val);
+            // Replaces multiple whitespace sequences with a single space
+            $val = preg_replace('/\s+/', ' ', $val);
+            return $val;
         };
 
-        // Helper function for advanced name validation
+        // Helper function for advanced name validation (periods removed from restricted checks since they auto-clean)
         $validate_name_field = function($name, $field_label, $row_num, $is_required = true) {
             $name = trim($name);
 
@@ -207,7 +213,7 @@ class Tupad extends CI_Controller
             }
 
             if (!$is_required && $name === '') {
-                return null; // Optional field and is empty, pass validation
+                return null; 
             }
 
             // Check for numbers
@@ -246,10 +252,10 @@ class Tupad extends CI_Controller
 
             $row_num = $i + 1;
 
-            $fname        = $row[1] ?? '';
-            $mname        = $row[2] ?? '';
-            $lname        = $row[3] ?? '';
-            $gender       = $row[5] ?? ''; // Column 5 for gender
+            $fname        = $clean($row[1] ?? '');
+            $mname        = $clean($row[2] ?? '');
+            $lname        = $clean($row[3] ?? '');
+            $gender       = $clean($row[5] ?? ''); 
             $dob_month    = $row[6] ?? '';
             $dob_day      = $row[7] ?? '';
             $dob_year     = $row[8] ?? '';
@@ -321,9 +327,9 @@ class Tupad extends CI_Controller
                 continue;
             }
 
-            $fname = $row[1] ?? '';
-            $mname = $row[2] ?? '';
-            $lname = $row[3] ?? '';
+            $fname = $clean($row[1] ?? '');
+            $mname = $clean($row[2] ?? '');
+            $lname = $clean($row[3] ?? '');
 
             // Location & Reference ID Lookups
             $rawProv = $clean($row[9] ?? '');
@@ -362,31 +368,31 @@ class Tupad extends CI_Controller
                 'tupad_province'              => $provCode,
                 'tupad_municipality'          => $cityCode,
                 'tupad_barangay'              => $brgyCode,
-                'tupad_street'                => $clean($row[12] ?? ''),
-                'tupad_district'              => $clean($row[13] ?? ''),
-                'tupad_idtype'                => $idType,
+                'tupad_street'                => strtoupper($clean($row[12] ?? '')),
+                'tupad_district'              => strtoupper($clean($row[13] ?? '')),
+                'tupad_idtype'                => strtoupper($idType),
                 'tupad_idnumber'              => $clean($row[15] ?? ''),
                 'tupad_contact_no'            => $clean($row[16] ?? ''),
-                'tupad_type'                  => $beneType,
-                'tupad_training_Interest'     => $clean($row[18] ?? ''),
+                'tupad_type'                  => strtoupper($beneType),
+                'tupad_training_Interest'     => strtoupper($clean($row[18] ?? '')),
                 'tupad_skills'                => $skillsId, 
                 'tupad_epayment'              => $epaymentId, 
                 'tupad_account_no'            => $clean($row[21] ?? ''),
                 'tupad_occupation'            => $clean($row[22] ?? ''),
-                'tupad_civil_status'          => $clean($row[23] ?? ''),
+                'tupad_civil_status'          => strtoupper($clean($row[23] ?? '')),
                 'tupad_age'                   => $clean($row[24] ?? ''),
                 'tupad_average_monthly'       => $clean($row[25] ?? ''),
-                'tupad_dependent'             => $clean($row[26] ?? ''),
+                'tupad_dependent'             => strtoupper($clean($row[26] ?? '')),
                 'tupad_interested_employment' => $clean($row[27] ?? ''),         
                 'tupad_convergence'           => $convergenceId,
                 'file_name'                   => $originalFileName,
                 'user_id'                     => $uploadedBy,
                 'uploaded_at'                 => $uploadedDate,
-                'area_of_implementation'      => $area_of_implementation,
-                'period_of_coverage'          => $period_of_coverage,
+                'area_of_implementation'      => strtoupper($area_of_implementation),
+                'period_of_coverage'          => strtoupper($period_of_coverage),
                 'adl_no'                      => $adl_no,
                 'reference_no'                => $reference_no,
-                'nature_of_work'              => $nature_of_work
+                'nature_of_work'              => strtoupper($nature_of_work)
             ];
         }
 
