@@ -129,7 +129,7 @@ function display_val($value, $type = 'text') {
                 </div>
 
                 <!-- Form targeting your controller method -->
-                <form action="<?= site_url('adl/store_proponent'); ?>" method="POST">
+                <form action="<?= site_url('adl/store_proponent'); ?>" method="POST" id="proponentForm">
                     
                     <div class="row justify-content-center">
                         <div class="col-md-8">
@@ -139,7 +139,7 @@ function display_val($value, $type = 'text') {
                                     <span class="input-group-text bg-light text-primary"><i class="bi bi-person-badge"></i></span>
                                     <input type="text" class="form-control" id="proponent_name" name="proponent_name" placeholder="Enter full name or organization of proponent" required>
                                 </div>
-                                <div class="form-text text-muted small mt-1">This will be automatically saved in uppercase format.</div>
+                                <div id="proponentFeedback" class="form-text small mt-1">This will be automatically saved in uppercase format.</div>
                             </div>
                         </div>
                     </div>
@@ -150,7 +150,7 @@ function display_val($value, $type = 'text') {
                             <a href="<?= site_url('adl/proponent_encode'); ?>" class="btn btn-light border px-4">
                                 <i class="bi bi-arrow-counterclockwise me-1"></i> Reset
                             </a>
-                            <button type="submit" class="btn btn-primary px-4 shadow-sm">
+                            <button type="submit" id="submitBtn" class="btn btn-primary px-4 shadow-sm">
                                 <i class="bi bi-save me-1"></i> Save Proponent
                             </button>
                         </div>
@@ -180,6 +180,47 @@ function display_val($value, $type = 'text') {
             } else {
                 $('#sidebar').toggleClass('collapsed');
                 $('#main-content').toggleClass('expanded');
+            }
+        });
+
+        // Live Duplicate Check via AJAX
+        let timeout = null;
+        $('#proponent_name').on('input', function () {
+            clearTimeout(timeout);
+            let proponentName = $(this).val().trim();
+            let feedback = $('#proponentFeedback');
+            let submitBtn = $('#submitBtn');
+
+            if (proponentName === '') {
+                feedback.html('This will be automatically saved in uppercase format.').removeClass('text-danger text-success');
+                submitBtn.prop('disabled', false);
+                return;
+            }
+
+            timeout = setTimeout(function () {
+                $.ajax({
+                    url: "<?= site_url('adl/check_duplicate_proponent'); ?>",
+                    type: "GET",
+                    data: { proponent_name: proponentName },
+                    dataType: "json",
+                    success: function (response) {
+                        if (response.exists) {
+                            feedback.html('<i class="bi bi-exclamation-triangle-fill me-1"></i> This proponent name already exists!').addClass('text-danger').removeClass('text-success');
+                            submitBtn.prop('disabled', true);
+                        } else {
+                            feedback.html('<i class="bi bi-check-circle-fill me-1"></i> Proponent name is available.').addClass('text-success').removeClass('text-danger');
+                            submitBtn.prop('disabled', false);
+                        }
+                    }
+                });
+            }, 300);
+        });
+
+        // Prevent submission if duplicate detected
+        $('#proponentForm').on('submit', function (e) {
+            if ($('#submitBtn').prop('disabled')) {
+                e.preventDefault();
+                alert('Please use a unique proponent name before saving.');
             }
         });
     });

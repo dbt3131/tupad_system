@@ -326,15 +326,23 @@ public function proponent_encode() {
         $this->load->view('tupad/proponent_encoding', $data);
     }
 
+
 public function store_proponent() {
     if ($this->input->method() === 'post') {
+        $proponent_name = strtoupper(trim($this->input->post('proponent_name', true)));
+
+        // Server-side duplicate validation check
+        if ($this->ADL_Model->check_proponent_exists($proponent_name)) {
+            $this->session->set_flashdata('error', 'Proponent name already exists in the database.');
+            redirect('adl/proponent_encode');
+        }
+
         $data = [
-            'proponent_name' => strtoupper($this->input->post('proponent_name', true)),
+            'proponent_name' => $proponent_name,
             'encoded_date'   => date('Y-m-d'),
             'encoded_by'     => $this->session->userdata('user_id') ?? 1
         ];
 
-        // Insert logic model query
         $insert = $this->db->insert('code_proponent', $data);
 
         if ($insert) {
@@ -346,7 +354,16 @@ public function store_proponent() {
     redirect('adl/proponent_encode');
 }
 
-
+// AJAX check for duplicate proponent
+public function check_duplicate_proponent() {
+    $proponent_name = $this->input->get('proponent_name');
+    if ($proponent_name) {
+        $exists = $this->ADL_Model->check_proponent_exists($proponent_name);
+        echo json_encode(['exists' => $exists]);
+    } else {
+        echo json_encode(['exists' => false]);
+    }
+}
 
 
 

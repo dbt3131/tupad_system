@@ -259,4 +259,16 @@ class ADL_Model extends CI_Model {
         $query = $this->db->get();
         return $query->result_array();
     }
+
+
+public function check_proponent_exists($proponent_name) {
+    return $this->db->where('proponent_name', strtoupper(trim($proponent_name)))
+                    ->get('code_proponent')
+                    ->num_rows() > 0;
+}
+
+
+
+
+
 }
