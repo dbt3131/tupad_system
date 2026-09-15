@@ -216,6 +216,7 @@ class ADL_Model extends CI_Model {
             prov.provDesc AS implementation_province_name,
             mun.citymunDesc AS implementation_area_name,
             u.reg_fname AS encoder_name,
+            cp.proponent_name AS proponent_name,
             brgy.brgyDesc AS implementation_brgy_name
         ');
         $this->db->from('adl_transactions t');
@@ -223,6 +224,7 @@ class ADL_Model extends CI_Model {
         $this->db->join('refcitymun mun', 't.implementation_area = mun.cityCode', 'left');
         $this->db->join('refbrgy brgy', 't.implementation_brgy = brgy.brgyCode', 'left');
         $this->db->join('users u', 't.encoded_by = u.id', 'left' ); 
+        $this->db->join('code_proponent cp', 't.implementation_proponent = cp.proponent_id', 'left' ); 
 
         $this->db->where('t.adl_transact_id', $id);
         

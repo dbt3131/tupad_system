@@ -540,11 +540,6 @@
             const $submitBtn = $('#submitBtn');
             const refNoInput = $('input[name="implementation_reference_no"]').val().trim();
 
-            if ($form[0].checkValidity() === false) {
-                $form[0].reportValidity();
-                return; 
-            }
-
             $.ajax({
                 url: "<?= site_url('adl/check_duplicate_transaction'); ?>",
                 type: "GET",
@@ -642,18 +637,18 @@
     });
 
     $(document).ready(function() {
-    $('#imp_proponent').select2({
-        theme: 'bootstrap-5',
-        placeholder: '-- Select or type Proponent --',
-        allowClear: true
-    });
+        $('#imp_proponent').select2({
+            theme: 'bootstrap-5',
+            placeholder: '-- Select or type Proponent --',
+            allowClear: true
+        });
 
-    $('#implementation_district').select2({
-        theme: 'bootstrap-5',
-        placeholder: '-- Select District --',
-        allowClear: true
+        $('#implementation_district').select2({
+            theme: 'bootstrap-5',
+            placeholder: '-- Select District --',
+            allowClear: true
+        });
     });
-});
     </script>
 </body>
 
