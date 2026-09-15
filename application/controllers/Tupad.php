@@ -247,7 +247,10 @@ public function upload_tupad_excel()
         // ==========================================
         // DATA ROW PARSING & DISCREPANCY COLLECTION
         // ==========================================
-        $discrepancies = [];
+       $discrepancies = [];
+        $firstProvince = null;          // Tracks the province of the first valid row
+        $originalProvinceLabel = '';    // Keeps the original casing for clean error messages
+
         for ($i = 1; $i < count($rows); $i++) {
             $row = $rows[$i];
 
@@ -299,7 +302,7 @@ public function upload_tupad_excel()
             }
 
             // =========================================================================
-            // STRICT LOCATION VALIDATION: Check blanks, hierarchy, & relational match
+            // STRICT LOCATION VALIDATION: Check blanks, hierarchy, & single province rule
             // =========================================================================
             $prov_blank = ($rawProv === '');
             $mun_blank  = ($rawCity === '');
@@ -307,7 +310,17 @@ public function upload_tupad_excel()
 
             if ($prov_blank) {
                 $discrepancies[] = "Validation Error (Row {$row_num}): Province (tupad_province) cannot be blank.";
+            } else {
+                // Check if file contains mixed/multiple provinces
+                $normalizedProv = strtolower($rawProv);
+                if ($firstProvince === null) {
+                    $firstProvince = $normalizedProv;
+                    $originalProvinceLabel = $rawProv;
+                } elseif ($normalizedProv !== $firstProvince) {
+                    $discrepancies[] = "Validation Error (Row {$row_num}): Mixed provinces detected. File expects province '{$originalProvinceLabel}', but found '{$rawProv}'. All rows must belong to the same province.";
+                }
             }
+
             if ($mun_blank) {
                 $discrepancies[] = "Validation Error (Row {$row_num}): Municipality (tupad_municipality) cannot be blank.";
             }
@@ -319,8 +332,6 @@ public function upload_tupad_excel()
             if (!$prov_blank && !$mun_blank && !$brgy_blank) {
                 $provCodeVal = is_numeric($rawProv) ? $this->format_location_code($rawProv) : $this->Tupad_model->find_province_code_by_desc($rawProv);
                 $cityCodeVal = is_numeric($rawCity) ? $this->format_location_code($rawCity) : $this->Tupad_model->find_city_code_by_desc($rawCity, $provCodeVal);
-                
-                // Strictly passing $cityCodeVal ensures the model targets only barangays under this municipality
                 $brgyCodeVal = is_numeric($rawBrgy) ? $this->format_location_code($rawBrgy) : $this->Tupad_model->find_barangay_code_by_desc($rawBrgy, $cityCodeVal);
 
                 if (empty($provCodeVal)) {
@@ -330,8 +341,6 @@ public function upload_tupad_excel()
                 } elseif (empty($brgyCodeVal)) {
                     $discrepancies[] = "Validation Error (Row {$row_num}): Barangay '{$rawBrgy}' does not exist or does not belong under Municipality '{$rawCity}'.";
                 } else {
-                    // Optional safety check for province-to-municipality mapping only, 
-                    // trusting the model query to properly bind the barangay to the given municipality code.
                     $prov_prefix = substr($provCodeVal, 0, 4);
                     $city_prov_check = substr($cityCodeVal, 0, 4);
 
