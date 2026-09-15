@@ -20,29 +20,118 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <style>
-    /* Custom Modern Dashboard Additions */
+    :root {
+      --primary-gradient: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%);
+      --bg-body: #f4f6f9;
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --card-border: #e2e8f0;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background-color: var(--bg-body);
+      color: var(--text-main);
+    }
+
     .fs-7 {
       font-size: 0.75rem;
       letter-spacing: 0.05em;
     }
+
+    /* Modern Floating Card Containers */
     .content-card {
-      border: 1px solid rgba(0, 0, 0, 0.04);
-      box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.03);
+      background: #ffffff;
+      border: none;
+      border-radius: 1rem;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+      margin-bottom: 1.5rem;
+      overflow: hidden;
     }
-    .table > :not(caption) > * > * {
-      padding: 0.85rem 1rem;
+
+    /* Modernized Table Design */
+    .table {
+      border-collapse: separate;
+      border-spacing: 0 0.4rem;
+      margin-bottom: 0 !important;
     }
+
+    .table thead th {
+      background-color: #f8fafc !important;
+      color: #475569;
+      font-weight: 600;
+      border-top: none;
+      border-bottom: 1px solid #e2e8f0;
+      padding: 1rem 1rem;
+    }
+
+    .table tbody tr {
+      background-color: #ffffff;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.01);
+      transition: all 0.2s ease;
+    }
+
+    .table tbody tr:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.04);
+      background-color: #ffffff !important;
+    }
+
+    .table tbody td {
+      padding: 1rem 1rem;
+      vertical-align: middle;
+      border-top: 1px solid #f1f5f9;
+      border-bottom: 1px solid #f1f5f9;
+    }
+
+    .table tbody td:first-child {
+      border-left: 1px solid #f1f5f9;
+      border-top-left-radius: 0.5rem;
+      border-bottom-left-radius: 0.5rem;
+    }
+
+    .table tbody td:last-child {
+      border-right: 1px solid #f1f5f9;
+      border-top-right-radius: 0.5rem;
+      border-bottom-right-radius: 0.5rem;
+    }
+
+    /* Form Controls & Inputs */
+    .form-control, .form-select {
+      border: 1px solid var(--card-border);
+      border-radius: 0.5rem;
+      padding: 0.5rem 0.75rem;
+      background-color: #f8fafc;
+      transition: all 0.2s;
+      font-size: 0.875rem;
+    }
+
+    .form-control:focus, .form-select:focus {
+      background-color: #ffffff;
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+    }
+
+    /* Pagination Style */
     .pagination .page-item .page-link {
-      height: 32px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 0 2px;
+      border: none;
+      border-radius: 0.375rem;
+      margin: 0 3px;
+      color: #475569;
+      font-weight: 500;
+      padding: 0.5rem 0.75rem;
+      background-color: #f1f5f9;
     }
+
     .pagination .page-item.active .page-link {
-      background-color: var(--bs-primary);
-      color: white;
-      border-color: var(--bs-primary);
+      background: var(--primary-gradient);
+      color: #ffffff;
+      box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);
+    }
+
+    .pagination .page-item .page-link:hover {
+      background-color: #e2e8f0;
+      color: #1e293b;
     }
   </style>
 </head>
@@ -60,14 +149,14 @@
       <!-- Page Header -->
       <div class="d-flex flex-column flex-md-row justify-content-md-between align-items-md-center mb-4 gap-2">
         <div>
-          <h3 class="fw-bold mb-1">Region III TUPAD Overview</h3>
+          <h3 class="fw-bold mb-1 text-dark">Region III TUPAD Overview</h3>
           <p class="text-muted small mb-0">Summary of Tulong Panghanapbuhay sa Ating Disadvantaged/Displaced Workers by Province.</p>
         </div>
         <div class="d-flex gap-2">
-          <button class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1">
+          <button class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1 px-3 shadow-sm rounded-pill bg-white">
             <i class="bi bi-download"></i> Export Data
           </button>
-          <button class="btn btn-primary btn-sm d-flex align-items-center gap-1">
+          <button class="btn btn-primary btn-sm d-flex align-items-center gap-1 px-3 shadow-sm rounded-pill" style="background: var(--primary-gradient); border: none;">
             <i class="bi bi-plus-lg"></i> Add Worker Batch
           </button>
         </div>
@@ -76,17 +165,17 @@
       <!-- Central Luzon Map Preview Section -->
       <div class="row g-3 mb-4">
         <div class="col-12">
-          <div class="content-card bg-white rounded-4 overflow-hidden">
-            <div class="p-4 border-bottom d-flex justify-content-between align-items-center bg-light bg-opacity-50">
+          <div class="content-card">
+            <div class="p-4 border-bottom d-flex justify-content-between align-items-center bg-white">
               <div>
-                <h6 class="fw-bold mb-0"><i class="bi bi-map text-primary me-2"></i>Central Luzon Geographic Deployment Preview</h6>
+                <h6 class="fw-bold mb-0 text-dark"><i class="bi bi-map text-primary me-2"></i>Central Luzon Geographic Deployment Preview</h6>
                 <p class="text-muted small mb-0">Interactive markers indicating active cluster concentrations across Region III provinces.</p>
               </div>
-              <span class="badge bg-primary-subtle text-primary border border-primary-subtle">GIS Live View</span>
+              <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-2 rounded-pill fw-semibold">GIS Live View</span>
             </div>
             <div class="p-3">
               <!-- Map Container -->
-              <div id="centralLuzonMap" style="height: 380px; width: 100%; border-radius: 8px;"></div>
+              <div id="centralLuzonMap" style="height: 380px; width: 100%; border-radius: 0.75rem;"></div>
             </div>
           </div>
         </div>
@@ -95,10 +184,10 @@
       <!-- Alternative ADL Transactions Table Section with Search and Pagination -->
       <div class="row g-3 mb-4">
         <div class="col-12">
-          <div class="content-card shadow-sm border-0 rounded-4 overflow-hidden bg-white">
+          <div class="content-card">
             
             <!-- Modern Toolbar Header -->
-            <div class="card-header bg-white py-3 px-4 border-bottom d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
+            <div class="card-header bg-white py-4 px-4 border-bottom d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
               <div>
                 <h5 class="fw-bold mb-1 text-dark">
                   <i class="bi bi-file-earmark-text text-primary me-2"></i>ADL Transactions Overview
@@ -122,16 +211,16 @@
             </div>
 
             <!-- Responsive Table Container -->
-            <div class="table-responsive">
-              <table class="table table-hover align-middle mb-0 text-nowrap" id="altAdlTable">
-                <thead class="table-light text-uppercase fs-7 text-secondary fw-semibold">
+            <div class="table-responsive p-3">
+              <table class="table align-middle text-nowrap" id="altAdlTable">
+                <thead>
                   <tr>
-                    <th class="ps-4 py-3">ADL No.</th>
-                    <th class="py-3">ADL Date</th>
-                    <th class="py-3">Date Received</th>
-                    <th class="py-3">Target Beneficiaries</th>
-                    <th class="py-3">Amount</th>
-                    <th class="pe-4 py-3 text-end">Balance</th>
+                    <th class="ps-4">ADL No.</th>
+                    <th>ADL Date</th>
+                    <th>Date Received</th>
+                    <th>Target Beneficiaries</th>
+                    <th>Amount</th>
+                    <th class="pe-4 text-end">Balance</th>
                   </tr>
                 </thead>
                 <tbody id="altAdlBody">
@@ -144,7 +233,7 @@
                         <td class="text-secondary"><?= html_escape($row['adl_date']); ?></td>
                         <td class="text-secondary"><?= html_escape($row['date_received']); ?></td>
                         <td>
-                          <span class="badge bg-secondary-subtle text-dark fw-normal px-2 py-1">
+                          <span class="badge bg-secondary-subtle text-dark fw-normal px-2.5 py-1.5 rounded-pill border border-secondary-subtle">
                             <?= number_format($row['target_benefs']); ?>
                           </span>
                         </td>
@@ -171,7 +260,7 @@
                 Showing 0 entries
               </div>
               <nav aria-label="Page navigation">
-                <ul class="pagination pagination-sm mb-0 shadow-sm" id="altAdlPagination">
+                <ul class="pagination pagination-sm mb-0" id="altAdlPagination">
                   <!-- Pagination items injected via script -->
                 </ul>
               </nav>

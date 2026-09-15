@@ -30,11 +30,16 @@ public function get_activity_trail() {
                     audit_trail.trail_id, 
                     audit_trail.activity_date, 
                     users.reg_fname, 
+                    users.division_id,
+                    code_position.position_description,
+                    cd.division_description,
                     audit_trail.remarks,
                     audit_trail_code.activity_desc
                 FROM audit_trail
                 LEFT JOIN users ON users.id = audit_trail.user_id
+                LEFT JOIN code_position ON code_position.position_id = users.position_id
                 LEFT JOIN audit_trail_code ON audit_trail_code.id = audit_trail.activity_id
+                LEFT JOIN code_division cd ON cd.division_id = users.division_id
                 ORDER BY audit_trail.activity_date DESC";
 
         $query = $this->db->query($sql);

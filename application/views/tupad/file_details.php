@@ -8,7 +8,7 @@
     <!-- 
       DYNAMIC TITLE
       - Purpose: Displays the specific file name in the browser tab.
-      - Controller: Passed as `$file_name` from `Tupad.php` -> `view_file_data()` method.
+      - Controller: Passed as `$file_name` from `Tupad.php` -> `view_file_data()`.
     -->
     <title>File Records - <?php echo htmlspecialchars($file_name); ?></title>
 
@@ -32,10 +32,9 @@
     <style>
         :root {
             --sidebar-width: 260px;
-            --primary-color: #1e3a8a;
-            --primary-light: #2563eb;
-            --bg-body: #f8fafc;
-            --text-main: #0f172a;
+            --primary-gradient: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%);
+            --bg-body: #f4f6f9;
+            --text-main: #1e293b;
             --text-muted: #64748b;
             --card-border: #e2e8f0;
         }
@@ -61,11 +60,13 @@
             margin-left: 0;
         }
 
+        /* Modern Card Containers */
         .table-card {
             background: #ffffff;
-            border: 1px solid var(--card-border);
-            border-radius: 12px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            border: none;
+            border-radius: 1rem;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+            padding: 1.5rem 1.75rem;
             overflow: hidden;
             margin-bottom: 1.5rem;
             width: 100%;
@@ -74,6 +75,103 @@
         .table-responsive {
             width: 100%;
             overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* Floating Modernized Table Rows */
+        .table {
+            border-collapse: separate;
+            border-spacing: 0 0.5rem;
+            margin-bottom: 0 !important;
+            color: var(--text-main);
+        }
+
+        .table thead th {
+            background-color: #f8fafc !important;
+            color: #475569;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+            border-top: none;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 1rem 1rem;
+            white-space: nowrap;
+        }
+
+        .table tbody tr {
+            background-color: #ffffff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.01);
+            transition: all 0.2s ease;
+        }
+
+        .table tbody tr:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.04);
+            background-color: #ffffff !important;
+        }
+
+        .table tbody td {
+            padding: 1rem 1rem;
+            vertical-align: middle;
+            border-top: 1px solid #f1f5f9;
+            border-bottom: 1px solid #f1f5f9;
+            white-space: nowrap;
+        }
+
+        .table tbody td:first-child {
+            border-left: 1px solid #f1f5f9;
+            border-top-left-radius: 0.5rem;
+            border-bottom-left-radius: 0.5rem;
+        }
+
+        .table tbody td:last-child {
+            border-right: 1px solid #f1f5f9;
+            border-top-right-radius: 0.5rem;
+            border-bottom-right-radius: 0.5rem;
+        }
+
+        /* DataTables Inputs Modernization */
+        .dataTables_wrapper .dataTables_filter input {
+            border: 1px solid var(--card-border);
+            border-radius: 0.5rem;
+            padding: 0.4rem 1rem;
+            background-color: #f8fafc;
+        }
+
+        .dataTables_wrapper .dataTables_filter input:focus {
+            background-color: #ffffff;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+        }
+
+        .dataTables_wrapper .dataTables_length select {
+            border: 1px solid var(--card-border);
+            border-radius: 0.5rem;
+            padding: 0.3rem 2rem 0.3rem 0.75rem;
+            background-color: #f8fafc;
+        }
+
+        /* Pagination Style */
+        .pagination .page-item .page-link {
+            border: none;
+            border-radius: 0.375rem;
+            margin: 0 3px;
+            color: #475569;
+            font-weight: 500;
+            padding: 0.5rem 0.75rem;
+            background-color: #f1f5f9;
+        }
+
+        .pagination .page-item.active .page-link {
+            background: var(--primary-gradient);
+            color: #ffffff;
+            box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);
+        }
+
+        .pagination .page-item .page-link:hover {
+            background-color: #e2e8f0;
+            color: #1e293b;
         }
 
         /* Responsive Fixes for Mobile / Small Screens */
@@ -109,10 +207,10 @@
             <div class="d-flex align-items-center justify-content-between mb-4">
                 <div>
                     <!-- Back Button: Returns to the batch files list -->
-                    <a href="<?php echo site_url('tupad/view_files'); ?>" class="btn btn-sm btn-outline-secondary mb-2">
+                    <a href="<?php echo site_url('tupad/view_files'); ?>" class="btn btn-sm btn-outline-secondary mb-3 shadow-sm rounded-pill px-3 bg-white">
                         <i class="bi bi-arrow-left me-1"></i> Back to File List
                     </a>
-                    <h3 class="fw-bold mb-0 text-break">
+                    <h3 class="fw-bold mb-1 text-dark text-break">
                         <i class="bi bi-file-earmark-excel text-success me-2"></i><?php echo htmlspecialchars($file_name); ?>
                     </h3>
                     <p class="text-muted small mb-0">Displaying records imported from this file.</p>
@@ -121,13 +219,18 @@
 
             <!-- Table Card -->
             <div class="table-card">
-                <div class="p-3 table-responsive">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <h5 class="fw-bold m-0 text-dark d-flex align-items-center">
+                        <i class="bi bi-table text-primary me-2"></i> File Batch Records
+                    </h5>
+                </div>
+                <div class="table-responsive">
                     <!-- 
                       RECORDS TABLE (SERVER-SIDE)
                       - Purpose: To display thousands of records efficiently without crashing the browser.
                       - Note: <tbody> is empty because DataTables handles it dynamically via AJAX.
                     -->
-                    <table id="recordsTable" class="table table-striped table-hover align-middle text-nowrap w-100">
+                    <table id="recordsTable" class="table align-middle text-nowrap w-100">
                         <thead>
                             <tr>
                                 <th>First Name</th>
@@ -257,9 +360,9 @@
                         defaultContent: '0',
                         render: function (data) {
                             if (data == '0') {
-                                return '<span class="badge bg-success-subtle text-success fw-semibold">Active</span>';
+                                return '<span class="badge bg-success-subtle text-success px-2.5 py-1.5 fw-semibold border border-success-subtle rounded-pill">Active</span>';
                             } else {
-                                return '<span class="badge bg-secondary-subtle text-secondary fw-semibold">Inactive</span>';
+                                return '<span class="badge bg-secondary-subtle text-secondary px-2.5 py-1.5 fw-semibold border border-secondary-subtle rounded-pill">Inactive</span>';
                             }
                         }
                     },
@@ -272,7 +375,7 @@
                         defaultContent: '',
                         render: function (data, type, row) {
                             if (row.tupad_active == '0') {
-                                return '<button type="button" class="btn btn-sm btn-outline-danger btn-set-inactive" data-id="' + row.id + '">' +
+                                return '<button type="button" class="btn btn-sm btn-outline-danger btn-set-inactive px-3 shadow-sm rounded-pill fw-medium" data-id="' + row.id + '">' +
                                        '<i class="bi bi-x-circle me-1"></i> Set Inactive</button>';
                             }
                             return '<span class="text-muted small">N/A</span>';
