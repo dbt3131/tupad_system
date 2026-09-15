@@ -79,7 +79,18 @@ class Tupad extends CI_Controller
         $this->load->view('tupad/gsis_letter_report', $data);
     }
 
-    public function upload_tupad_excel()
+
+
+
+
+
+
+
+
+
+
+
+  public function upload_tupad_excel()
     {
         if (!$this->session->userdata('logged_in')) {
             echo json_encode(['status' => 'error', 'message' => 'Unauthorized access.']);
@@ -197,14 +208,12 @@ class Tupad extends CI_Controller
         // Automatically clean and strip commas, periods, and special characters except hyphens (-)
         $clean = function($val) {
             $val = trim($val ?? '');
-            // Removes periods, commas, and all symbols/special characters except spaces and hyphens (-)
             $val = preg_replace('/[^\p{L}\p{N}\s\-]/u', '', $val);
-            // Replaces multiple whitespace sequences with a single space
             $val = preg_replace('/\s+/', ' ', $val);
             return $val;
         };
 
-        // Helper function for advanced name validation (periods removed from restricted checks since they auto-clean)
+        // Helper function for advanced name validation
         $validate_name_field = function($name, $field_label, $row_num, $is_required = true) {
             $name = trim($name);
 
@@ -216,24 +225,20 @@ class Tupad extends CI_Controller
                 return null; 
             }
 
-            // Check for numbers
             if (preg_match('/[0-9]/', $name)) {
                 return "Validation Error (Row {$row_num}): {$field_label} '{$name}' cannot contain numbers.";
             }
 
-            // Check for double spaces
             if (strpos($name, '  ') !== false) {
                 return "Validation Error (Row {$row_num}): {$field_label} '{$name}' contains double spaces.";
             }
 
-            // Check allowed characters (letters, spaces, hyphens)
             if (!preg_match('/^[a-zA-ZÑñ\s\-]+$/u', $name)) {
-                return "Validation Error (Row {$row_num}): {$field_label} '{$name}' contains invalid special characters (only letters, enye, and hyphens '-' are allowed).";
+                return "Validation Error (Row {$row_num}): {$field_label} '{$name}' contains invalid special characters.";
             }
 
-            // Check hyphen placement: must not start or end with a hyphen
             if (str_starts_with($name, '-') || str_ends_with($name, '-')) {
-                return "Validation Error (Row {$row_num}): {$field_label} '{$name}' cannot start or end with a hyphen '-'. Hyphens must be strictly between characters.";
+                return "Validation Error (Row {$row_num}): {$field_label} '{$name}' cannot start or end with a hyphen '-'.";
             }
 
             return null;
@@ -250,7 +255,7 @@ class Tupad extends CI_Controller
                 continue;
             }
 
-            $row_num = $i + 1;
+            $row_num      = $i + 1;
             $fname        = $clean($row[1] ?? '');
             $mname        = $clean($row[2] ?? '');
             $lname        = $clean($row[3] ?? '');
@@ -258,9 +263,9 @@ class Tupad extends CI_Controller
             $dob_month    = $row[6] ?? '';
             $dob_day      = $row[7] ?? '';
             $dob_year     = $row[8] ?? '';
-            $province     = $row[9] ?? '';
-            $municipality = $row[10] ?? '';
-            $barangay     = $row[11] ?? '';
+            $province     = $clean($row[9] ?? '');
+            $municipality = $clean($row[10] ?? '');
+            $barangay     = $clean($row[11] ?? '');
 
             // Validate First Name (Required)
             $err = $validate_name_field($fname, 'First Name', $row_num, true);
@@ -293,15 +298,40 @@ class Tupad extends CI_Controller
                 $discrepancies[] = "Validation Error (Row {$row_num}): Birth Year (tupad_dob_year) cannot be blank.";
             }
 
-            // Validate Location Fields (Cannot be blank)
-            if (trim($province) === '') {
+            // =========================================================================
+            // STRICT LOCATION VALIDATION: Check for blanks & 4-digit matching
+            // =========================================================================
+            $prov_blank = ($province === '');
+            $mun_blank  = ($municipality === '');
+            $brgy_blank = ($barangay === '');
+
+            if ($prov_blank) {
                 $discrepancies[] = "Validation Error (Row {$row_num}): Province (tupad_province) cannot be blank.";
             }
-            if (trim($municipality) === '') {
+            if ($mun_blank) {
                 $discrepancies[] = "Validation Error (Row {$row_num}): Municipality (tupad_municipality) cannot be blank.";
             }
-            if (trim($barangay) === '') {
+            if ($brgy_blank) {
                 $discrepancies[] = "Validation Error (Row {$row_num}): Barangay (tupad_barangay) cannot be blank.";
+            }
+
+            // Only run prefix matching if all three location fields are present and not blank
+            if (!$prov_blank && !$mun_blank && !$brgy_blank) {
+                $provCodeVal = is_numeric($province) ? $this->format_location_code($province) : $this->Tupad_model->find_province_code_by_desc($province);
+                $cityCodeVal = is_numeric($municipality) ? $this->format_location_code($municipality) : $this->Tupad_model->find_city_code_by_desc($municipality, $provCodeVal);
+                $brgyCodeVal = is_numeric($barangay) ? $this->format_location_code($barangay) : $this->Tupad_model->find_barangay_code_by_desc($barangay, $cityCodeVal);
+
+                if (!empty($provCodeVal) && !empty($cityCodeVal) && !empty($brgyCodeVal)) {
+                    $prov_prefix = substr($provCodeVal, 0, 4);
+                    $city_prefix = substr($cityCodeVal, 0, 4);
+                    $brgy_prefix = substr($brgyCodeVal, 0, 4);
+
+                    if ($prov_prefix !== $city_prefix || $city_prefix !== $brgy_prefix) {
+                        $discrepancies[] = "Validation Error (Row {$row_num}): Location hierarchy mismatch. The first 4 digits of Province ('{$prov_prefix}'), Municipality ('{$city_prefix}'), and Barangay ('{$brgy_prefix}') must match.";
+                    }
+                } else {
+                    $discrepancies[] = "Validation Error (Row {$row_num}): Unable to resolve and verify location prefix for Province, Municipality, or Barangay.";
+                }
             }
         }
 
@@ -382,7 +412,7 @@ class Tupad extends CI_Controller
                 'tupad_age'                   => $clean($row[24] ?? ''),
                 'tupad_average_monthly'       => $clean($row[25] ?? ''),
                 'tupad_dependent'             => strtoupper($clean($row[26] ?? '')),
-                'tupad_interested_employment' => $clean($row[27] ?? ''),         
+                'tupad_interested_employment' => $clean($row[27] ?? ''),        
                 'tupad_convergence'           => $convergenceId,
                 'file_name'                   => $originalFileName,
                 'user_id'                     => $uploadedBy,
@@ -414,6 +444,23 @@ class Tupad extends CI_Controller
             echo json_encode(['status' => 'error', 'message' => 'The uploaded file was empty or contained no valid records.']);
         }
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     public function view_files()
     {
@@ -454,43 +501,42 @@ class Tupad extends CI_Controller
         $this->load->view('tupad/official_list', $data);
     }
 
-public function get_records_json()
-{
-    $search_data  = $this->input->post('search');
-    $search_value = isset($search_data['value']) ? $search_data['value'] : '';
+    public function get_records_json()
+    {
+        $search_data  = $this->input->post('search');
+        $search_value = isset($search_data['value']) ? $search_data['value'] : '';
 
-    $limit     = $this->input->post('length');
-    $start     = $this->input->post('start');
-    $province  = $this->input->post('province');
-    $city      = $this->input->post('city');
-    $barangay  = $this->input->post('barangay');
-    $file_name = $this->input->post('file_name');
+        $limit     = $this->input->post('length');
+        $start     = $this->input->post('start');
+        $province  = $this->input->post('province');
+        $city      = $this->input->post('city');
+        $barangay  = $this->input->post('barangay');
+        $file_name = $this->input->post('file_name');
 
-    // Prevent loading data if no location filter is selected
-    if (empty($province) && empty($city) && empty($barangay)) {
+        if (empty($province) && empty($city) && empty($barangay)) {
+            $output = array(
+                "draw"            => intval($this->input->post('draw')),
+                "recordsTotal"    => 0,
+                "recordsFiltered" => 0,
+                "data"            => array(),
+            );
+            echo json_encode($output);
+            return;
+        }
+
+        $list     = $this->Tupad_model->get_datatables_records($limit, $start, $search_value, $province, $city, $barangay, $file_name);
+        $total    = $this->Tupad_model->count_all_records($file_name);
+        $filtered = $this->Tupad_model->count_filtered_records($search_value, $province, $city, $barangay, $file_name);
+
         $output = array(
             "draw"            => intval($this->input->post('draw')),
-            "recordsTotal"    => 0,
-            "recordsFiltered" => 0,
-            "data"            => array(),
+            "recordsTotal"    => intval($total),
+            "recordsFiltered" => intval($filtered),
+            "data"            => $list,
         );
+
         echo json_encode($output);
-        return;
     }
-
-    $list     = $this->Tupad_model->get_datatables_records($limit, $start, $search_value, $province, $city, $barangay, $file_name);
-    $total    = $this->Tupad_model->count_all_records($file_name);
-    $filtered = $this->Tupad_model->count_filtered_records($search_value, $province, $city, $barangay, $file_name);
-
-    $output = array(
-        "draw"            => intval($this->input->post('draw')),
-        "recordsTotal"    => intval($total),
-        "recordsFiltered" => intval($filtered),
-        "data"            => $list,
-    );
-
-    echo json_encode($output);
-}
 
     public function get_records_by_file_json()
     {
@@ -1151,13 +1197,4 @@ public function get_records_json()
             ->set_content_type('application/json')
             ->set_output(json_encode(['status' => 'success', 'message' => 'Successfully removed.']));
     }
-
-
-
-
-
-
-
-
-    
 }
