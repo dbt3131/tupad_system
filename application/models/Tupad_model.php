@@ -489,24 +489,33 @@ class Tupad_model extends CI_Model {
         return ($shortestDistance <= 5) ? $closestCode : '';
     }
 
-    public function find_city_code_by_desc($desc, $provCode = null) {
-        if (empty($desc)) return '';
+   public function find_city_code_by_desc($desc, $provCode) {
+        if (empty($desc) || empty($provCode)) return '';
         $desc = trim($desc);
 
-        if (!empty($provCode)) {
-            $this->db->where('provCode', $provCode);
-        }
+        // Strictly restrict the database fetch to the specific province code passed
+        $this->db->where('provCode', $provCode);
         $cities = $this->db->select('cityCode, citymunDesc')->get('refcitymun')->result_array();
+
+        if (empty($cities)) {
+            return '';
+        }
 
         $closestCode = '';
         $shortestDistance = -1;
+        $exactMatchFound = false;
+
+        $cleanSearchDesc = str_ireplace('City of ', '', $desc);
 
         foreach ($cities as $c) {
             $cleanDbDesc = str_ireplace('City of ', '', $c['citymunDesc']);
-            $cleanSearchDesc = str_ireplace('City of ', '', $desc);
 
             $distance = levenshtein(strtolower($cleanSearchDesc), strtolower($cleanDbDesc));
-            if ($distance === 0) return $c['cityCode'];
+            
+            // If it's an exact match, accept it immediately
+            if ($distance === 0) {
+                return $c['cityCode'];
+            }
 
             if ($distance < $shortestDistance || $shortestDistance < 0) {
                 $closestCode = $c['cityCode'];
@@ -514,17 +523,46 @@ class Tupad_model extends CI_Model {
             }
         }
 
-        return ($shortestDistance <= 5) ? $closestCode : '';
+        // SAFETY FIX: 
+        // 1. Lower the threshold from 5 to 1 or 2 so typos are allowed, but completely different names are rejected.
+        // 2. Ensure the length difference isn't too huge (e.g., searching "Angat" (5 chars) shouldn't map to "Dinalupihan" (11 chars)).
+        if ($shortestDistance >= 0 && $shortestDistance <= 2) {
+            // Optional extra safeguard: check length discrepancy to prevent short words matching long words loosely
+            $matchedCityName = '';
+            foreach($cities as $c) {
+                if($c['cityCode'] === $closestCode) {
+                    $matchedCityName = str_ireplace('City of ', '', $c['citymunDesc']);
+                    break;
+                }
+            }
+            
+            // If length difference is too high, reject it as a false fuzzy match
+            if (abs(strlen($cleanSearchDesc) - strlen($matchedCityName)) <= 2) {
+                return $closestCode;
+            }
+        }
+
+        return ''; // Return empty string if no valid close match exists in this province
     }
 
-    public function find_barangay_code_by_desc($desc, $citymunCode = null) {
-        if (empty($desc)) return '';
+
+
+
+    
+public function find_barangay_code_by_desc($desc, $citymunCode = null) {
+        if (empty($desc) || empty($citymunCode)) {
+            // Strictly fail if no valid municipality code is passed
+            return '';
+        }
         $desc = trim($desc);
 
-        if (!empty($citymunCode)) {
-            $this->db->where('citymunCode', $citymunCode);
+        // Explicitly filter by citymunCode to guarantee it belongs to this municipality
+        $this->db->where('citymunCode', $citymunCode);
+        $barangays = $this->db->select('brgyCode, brgyDesc, citymunCode')->get('refbrgy')->result_array();
+
+        if (empty($barangays)) {
+            return '';
         }
-        $barangays = $this->db->select('brgyCode, brgyDesc')->get('refbrgy')->result_array();
 
         $closestCode = '';
         $shortestDistance = -1;
@@ -533,17 +571,26 @@ class Tupad_model extends CI_Model {
             $cleanDbBrgy = preg_replace('/^(brgy|barangay|poblacion)\.?\s+/i', '', $b['brgyDesc']);
             $cleanSearchBrgy = preg_replace('/^(brgy|barangay|poblacion)\.?\s+/i', '', $desc);
 
-            $distance = levenshtein(strtolower($cleanSearchBrgy), strtolower($cleanDbBrgy));
-            if ($distance === 0) return $b['brgyCode'];
+            // Exact case-insensitive match check first
+            if (strcasecmp(trim($cleanSearchBrgy), trim($cleanDbBrgy)) === 0) {
+                return $b['brgyCode'];
+            }
 
+            $distance = levenshtein(strtolower(trim($cleanSearchBrgy)), strtolower(trim($cleanDbBrgy)));
             if ($distance < $shortestDistance || $shortestDistance < 0) {
                 $closestCode = $b['brgyCode'];
                 $shortestDistance = $distance;
             }
         }
 
+        // Return code only if it's a close enough match within this specific municipality
         return ($shortestDistance <= 4) ? $closestCode : '';
     }
+
+
+
+
+
 
     public function find_bene_type_id_by_desc($desc) {
         if (empty($desc)) return 0;

@@ -90,7 +90,7 @@ class Tupad extends CI_Controller
 
 
 
-  public function upload_tupad_excel()
+public function upload_tupad_excel()
     {
         if (!$this->session->userdata('logged_in')) {
             echo json_encode(['status' => 'error', 'message' => 'Unauthorized access.']);
@@ -263,9 +263,9 @@ class Tupad extends CI_Controller
             $dob_month    = $row[6] ?? '';
             $dob_day      = $row[7] ?? '';
             $dob_year     = $row[8] ?? '';
-            $province     = $clean($row[9] ?? '');
-            $municipality = $clean($row[10] ?? '');
-            $barangay     = $clean($row[11] ?? '');
+            $rawProv      = $clean($row[9] ?? '');
+            $rawCity      = $clean($row[10] ?? '');
+            $rawBrgy      = $clean($row[11] ?? '');
 
             // Validate First Name (Required)
             $err = $validate_name_field($fname, 'First Name', $row_num, true);
@@ -299,11 +299,11 @@ class Tupad extends CI_Controller
             }
 
             // =========================================================================
-            // STRICT LOCATION VALIDATION: Check for blanks & 4-digit matching
+            // STRICT LOCATION VALIDATION: Check blanks, hierarchy, & relational match
             // =========================================================================
-            $prov_blank = ($province === '');
-            $mun_blank  = ($municipality === '');
-            $brgy_blank = ($barangay === '');
+            $prov_blank = ($rawProv === '');
+            $mun_blank  = ($rawCity === '');
+            $brgy_blank = ($rawBrgy === '');
 
             if ($prov_blank) {
                 $discrepancies[] = "Validation Error (Row {$row_num}): Province (tupad_province) cannot be blank.";
@@ -315,22 +315,29 @@ class Tupad extends CI_Controller
                 $discrepancies[] = "Validation Error (Row {$row_num}): Barangay (tupad_barangay) cannot be blank.";
             }
 
-            // Only run prefix matching if all three location fields are present and not blank
+            // Only run relational checks if all location fields are present
             if (!$prov_blank && !$mun_blank && !$brgy_blank) {
-                $provCodeVal = is_numeric($province) ? $this->format_location_code($province) : $this->Tupad_model->find_province_code_by_desc($province);
-                $cityCodeVal = is_numeric($municipality) ? $this->format_location_code($municipality) : $this->Tupad_model->find_city_code_by_desc($municipality, $provCodeVal);
-                $brgyCodeVal = is_numeric($barangay) ? $this->format_location_code($barangay) : $this->Tupad_model->find_barangay_code_by_desc($barangay, $cityCodeVal);
+                $provCodeVal = is_numeric($rawProv) ? $this->format_location_code($rawProv) : $this->Tupad_model->find_province_code_by_desc($rawProv);
+                $cityCodeVal = is_numeric($rawCity) ? $this->format_location_code($rawCity) : $this->Tupad_model->find_city_code_by_desc($rawCity, $provCodeVal);
+                
+                // Strictly passing $cityCodeVal ensures the model targets only barangays under this municipality
+                $brgyCodeVal = is_numeric($rawBrgy) ? $this->format_location_code($rawBrgy) : $this->Tupad_model->find_barangay_code_by_desc($rawBrgy, $cityCodeVal);
 
-                if (!empty($provCodeVal) && !empty($cityCodeVal) && !empty($brgyCodeVal)) {
-                    $prov_prefix = substr($provCodeVal, 0, 4);
-                    $city_prefix = substr($cityCodeVal, 0, 4);
-                    $brgy_prefix = substr($brgyCodeVal, 0, 4);
-
-                    if ($prov_prefix !== $city_prefix || $city_prefix !== $brgy_prefix) {
-                        $discrepancies[] = "Validation Error (Row {$row_num}): Location hierarchy mismatch. The first 4 digits of Province ('{$prov_prefix}'), Municipality ('{$city_prefix}'), and Barangay ('{$brgy_prefix}') must match.";
-                    }
+                if (empty($provCodeVal)) {
+                    $discrepancies[] = "Validation Error (Row {$row_num}): Invalid or unrecognized Province '{$rawProv}'.";
+                } elseif (empty($cityCodeVal)) {
+                    $discrepancies[] = "Validation Error (Row {$row_num}): Municipality '{$rawCity}' does not exist under Province '{$rawProv}'.";
+                } elseif (empty($brgyCodeVal)) {
+                    $discrepancies[] = "Validation Error (Row {$row_num}): Barangay '{$rawBrgy}' does not exist or does not belong under Municipality '{$rawCity}'.";
                 } else {
-                    $discrepancies[] = "Validation Error (Row {$row_num}): Unable to resolve and verify location prefix for Province, Municipality, or Barangay.";
+                    // Optional safety check for province-to-municipality mapping only, 
+                    // trusting the model query to properly bind the barangay to the given municipality code.
+                    $prov_prefix = substr($provCodeVal, 0, 4);
+                    $city_prov_check = substr($cityCodeVal, 0, 4);
+
+                    if ($prov_prefix !== $city_prov_check) {
+                        $discrepancies[] = "Validation Error (Row {$row_num}): Location hierarchy mismatch. Municipality '{$rawCity}' does not belong to Province '{$rawProv}'.";
+                    }
                 }
             }
         }
@@ -444,9 +451,6 @@ class Tupad extends CI_Controller
             echo json_encode(['status' => 'error', 'message' => 'The uploaded file was empty or contained no valid records.']);
         }
     }
-
-
-
 
 
 
