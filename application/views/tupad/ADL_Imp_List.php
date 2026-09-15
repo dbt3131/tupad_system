@@ -162,18 +162,13 @@
                     <div class="card border-0 shadow-sm">
                         <div class="card-body">
                             <div class="table-responsive">
-                                <table id="transactionTable" class="table table-striped table-hover align-middle w-100">
-                                    <thead class="table-dark">
+                                <table id="transactionTable" class="table table-hover align-middle w-100">
+                                    <thead class="table-light text-uppercase fs-7 text-muted border-bottom">
                                         <tr>
-                                            <th>Date Encoded</th>
-                                            <th>ADL No.</th>
-                                            <th>ADL Reference No.</th>
-                                            <th>Implementation Province</th>
-                                            <th>Implementation Area</th>
-                                            <th>Proponent</th>
-                                            <th>Sponsor</th>
-                                            <th>Date Coordinated</th>
-                                            <th class="text-center">Action</th>
+                                            <th class="py-3">Transaction Details</th>
+                                            <th class="py-3">Location & Stakeholders</th>
+                                            <th class="py-3">Progress Pipeline</th>
+                                            <th class="py-3 text-center">Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -198,48 +193,73 @@
                                                     $is_fully_complete = ($c1 && $c2 && $c3 && $c4 && $c5 && $c6 && $c7 && $c8 && $c9 && $c10);
                                                 ?>
                                                 <tr>
-                                                    <td><?= html_escape($row['encoded_date'] ?? 'N/A'); ?></td>
+                                                    <!-- Column 1: Core Identification & Dates -->
                                                     <td>
-                                                        <?php if ($is_fully_complete): ?>
-                                                            <div class="mb-1">
-                                                                <span class="badge bg-success text-white shadow-sm">
-                                                                    <i class="bi bi-check-circle-fill me-1"></i> Fully Completed
-                                                                </span>
+                                                        <div class="d-flex flex-column">
+                                                            <div class="d-flex align-items-center gap-2 mb-1">
+                                                                <span class="fw-bold text-primary fs-6"><?= html_escape($row['adl_no']); ?></span>
+                                                                <?php if ($is_fully_complete): ?>
+                                                                    <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-2 py-1">
+                                                                        <i class="bi bi-check-circle-fill me-1"></i> Completed
+                                                                    </span>
+                                                                <?php else: ?>
+                                                                    <span class="badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25 px-2 py-1">
+                                                                        In Progress
+                                                                    </span>
+                                                                <?php endif; ?>
                                                             </div>
-                                                        <?php endif; ?>
-                                                        <strong><?= html_escape($row['adl_no']); ?></strong>
-                                                    </td>
-                                                    <td>
-                                                        <div class="mb-1 d-flex flex-wrap gap-1">
-                                                            <?php if ($c1): ?><span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Coordinated</span><?php endif; ?>
-                                                            <?php if ($c2): ?><span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Appraisal Submitted</span><?php endif; ?>
-                                                            <?php if ($c3): ?><span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Appraisal Approved</span><?php endif; ?>
-                                                            <?php if ($c4): ?><span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Issued PPEs</span><?php endif; ?>
-                                                            <?php if ($c5): ?><span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Oriented</span><?php endif; ?>
-                                                            <?php if ($c6): ?><span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>GSIS Enrolled</span><?php endif; ?>
-                                                            <?php if ($c7): ?><span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Implemented</span><?php endif; ?>
-                                                            <?php if ($c8): ?><span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Completed</span><?php endif; ?>
-                                                            <?php if ($c9): ?><span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Funding Processed</span><?php endif; ?>
-                                                            <?php if ($c10): ?><span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>For payout</span><?php endif; ?>
+                                                            <span class="text-muted small mb-1 font-monospace">Ref: <?= html_escape($row['implementation_reference_no']); ?></span>
+                                                            <span class="text-secondary small"><i class="bi bi-calendar3 me-1"></i>Encoded: <?= html_escape($row['encoded_date'] ?? 'N/A'); ?></span>
                                                         </div>
-                                                        <strong><?= html_escape($row['implementation_reference_no']); ?></strong>
                                                     </td>
-                                                    <td><?= html_escape($row['implementation_province_name'] ?? 'N/A'); ?></td>
-                                                    <td><?= html_escape($row['implementation_area_name'] ?? 'N/A'); ?></td>
-                                                    <!-- FIXED UNDEFINED VARIABLE ERROR -->
-                                                    <td><?= html_escape($row['implementation_proponent_name'] ?? 'N/A'); ?></td>
-                                                    <td><?= html_escape($row['implementation_sponsor']); ?></td>
-                                                    <td><?= html_escape($row['date_coordinated']); ?></td>
+
+                                                    <!-- Column 2: Location & Proponent info -->
+                                                    <td>
+                                                        <div class="d-flex flex-column">
+                                                            <span class="fw-semibold text-dark mb-1">
+                                                                <i class="bi bi-geo-alt text-danger me-1"></i><?= html_escape($row['implementation_area_name'] ?? 'N/A'); ?>, <?= html_escape($row['implementation_province_name'] ?? 'N/A'); ?>
+                                                            </span>
+                                                            <span class="text-muted small"><strong>Proponent:</strong> <?= html_escape($row['implementation_proponent_name'] ?? 'N/A'); ?></span>
+                                                            <span class="text-muted small"><strong>Sponsor:</strong> <?= html_escape($row['implementation_sponsor'] ?: 'None'); ?></span>
+                                                        </div>
+                                                    </td>
+
+                                                    <!-- Column 3: Compact Status Pipeline Badges -->
+                                                    <td style="max-width: 320px;">
+                                                        <div class="d-flex flex-wrap gap-1 align-items-center">
+                                                            <?php if ($c1): ?><span class="badge bg-light text-dark border" title="Coordinated"><i class="bi bi-check text-success"></i> Coordinated</span><?php endif; ?>
+                                                            <?php if ($c2): ?><span class="badge bg-light text-dark border" title="Appraisal Submitted"><i class="bi bi-check text-success"></i> Appraisal Sub.</span><?php endif; ?>
+                                                            <?php if ($c3): ?><span class="badge bg-light text-dark border" title="Appraisal Approved"><i class="bi bi-check text-success"></i> Appraisal App.</span><?php endif; ?>
+                                                            <?php if ($c4): ?><span class="badge bg-light text-dark border" title="Issued PPEs"><i class="bi bi-check text-success"></i> PPEs</span><?php endif; ?>
+                                                            <?php if ($c5): ?><span class="badge bg-light text-dark border" title="Oriented"><i class="bi bi-check text-success"></i> Oriented</span><?php endif; ?>
+                                                            <?php if ($c6): ?><span class="badge bg-light text-dark border" title="GSIS Enrolled"><i class="bi bi-check text-success"></i> GSIS</span><?php endif; ?>
+                                                            <?php if ($c7): ?><span class="badge bg-light text-dark border" title="Implemented"><i class="bi bi-check text-success"></i> Implemented</span><?php endif; ?>
+                                                            <?php if ($c8): ?><span class="badge bg-light text-dark border" title="Completed"><i class="bi bi-check text-success"></i> Finished</span><?php endif; ?>
+                                                            <?php if ($c9): ?><span class="badge bg-light text-dark border" title="Funding Processed"><i class="bi bi-check text-success"></i> Funded</span><?php endif; ?>
+                                                            <?php if ($c10): ?><span class="badge bg-light text-dark border" title="For payout"><i class="bi bi-check text-success"></i> Payout</span><?php endif; ?>
+                                                        </div>
+                                                    </td>
+
+                                                    <!-- Column 4: Actions -->
                                                     <td class="text-center">
-                                                        <div class="d-flex justify-content-center gap-1">
-                                                            <?php if (isset($user_assigned_prov) && $user_assigned_prov === $row['implementation_province']): ?>
-                                                                <button type="button" class="btn btn-sm btn-primary edit-btn" data-id="<?= $row['adl_transact_id']; ?>">
-                                                                    <i class="bi bi-pencil-square me-1"></i> Update
-                                                                </button>
-                                                            <?php endif; ?>
-                                                            <a href="<?= site_url('adl/view_pdf/' . $row['adl_transact_id']); ?>" target="_blank" class="btn btn-sm btn-danger" title="View PDF">
-                                                                <i class="bi bi-file-earmark-pdf"></i>Details
-                                                            </a>
+                                                        <div class="dropdown">
+                                                            <button class="btn btn-light btn-sm border dropdown-toggle px-2 py-1" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                                Actions
+                                                            </button>
+                                                            <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0">
+                                                                <?php if (isset($user_assigned_prov) && $user_assigned_prov === $row['implementation_province']): ?>
+                                                                    <li>
+                                                                        <button type="button" class="dropdown-item edit-btn py-2" data-id="<?= html_escape($row['adl_transact_id']); ?>">
+                                                                            <i class="bi bi-pencil-square text-primary me-2"></i> Update Record
+                                                                        </button>
+                                                                    </li>
+                                                                <?php endif; ?>
+                                                                <li>
+                                                                    <a href="<?= site_url('adl/view_pdf/' . html_escape($row['adl_transact_id'])); ?>" target="_blank" class="dropdown-item py-2">
+                                                                        <i class="bi bi-file-earmark-pdf text-danger me-2"></i> View PDF Details
+                                                                    </a>
+                                                                </li>
+                                                            </ul>
                                                         </div>
                                                     </td>
                                                 </tr>
@@ -601,7 +621,7 @@
         },
         "pageLength": 10,
         "lengthMenu": [5, 10, 25, 50, 100],
-        "order": [[0, "desc"]] // <-- Change this from [1, "desc"] to [0, "desc"] to sort by Date Encoded (newest first)
+        "order": [[0, "desc"]]
     });
 
         $('#edit_imp_proponent').select2({
@@ -809,7 +829,6 @@
             });
         });
     });
-         // Sidebar toggle
         $(document).on('click', '#sidebarToggle', function (e) {
             e.preventDefault();
             if ($(window).width() < 992) {
