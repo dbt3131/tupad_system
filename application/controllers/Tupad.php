@@ -342,9 +342,11 @@ public function upload_tupad_excel()
                 if (empty($cityCodeVal)) {
                     if (!empty($provCodeVal)) {
                         $discrepancies[] = "Validation Error (Row {$row_num}): Unrecognized or misspelled Municipality entry -> '{$rawCity}' does not exist under Province '{$rawProv}'.";
-                    } else {
-                        $discrepancies[] = "Validation Error (Row {$row_num}): Unrecognized or misspelled Municipality entry -> '{$rawCity}'.";
-                    }
+                    } 
+                    
+                    //else {
+                      //  $discrepancies[] = "Validation Error (Row {$row_num}): Unrecognized or misspelled Municipality entryTTT -> '{$rawCity}'.";
+                    //}
                 }
 
                 // 3. Barangay validation check (Only evaluate if municipality code exists to prevent cascade errors)
