@@ -146,10 +146,52 @@
             <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
                 <div>
                     <h3 class="fw-bold mb-1">
-                        <i class="bi bi-folder-fill text-primary me-2"></i>Uploaded Batch Files
+                        <i class="bi bi-folder-fill text-primary me-2"></i>Uploaded Batch Files  <button type="button" class="btn btn-link text-secondary p-0 ms-2 fs-4" id="btnOpenGuide" title="Upload Guide & Instructions">
+                                <i class="bi bi-question-circle-fill"></i>
+                         </button>
                     </h3>
                     <p class="text-muted small mb-0">Select an uploaded Excel file to view its individual beneficiary records.</p>
                 </div>
+
+<!-- User Guide Modal -->
+            <div class="modal fade" id="guideModal" tabindex="-1" aria-labelledby="guideModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header bg-light">
+                            <h5 class="modal-title fw-bold" id="guideModalLabel">
+                                <i class="bi bi-info-circle-fill text-primary me-2"></i>TUPAD Excel Upload Guide
+                            </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <h6 class="fw-bold text-dark">Important Instructions for Uploading:</h6>
+                            <ul class="small text-muted mb-3 ps-3">
+                                <li class="mb-1">Kapag mali po spelling or wala po sa PROVINCE ng REGION 3 ang nakalagay sa TUPAD_PROVINCE column. Mag nonotify din ang TUPAD_MUNICIPALITY at TUPAD_BARANGAY na HINDI sila makita sa PROVINCE ng REGION 3. <br><font color="GREEN">Need lang po natin itama ang TUPAD_PROVINCE.</font> </li><br>
+                                <li class="mb-1">Kapag mali po spelling or wala po sa MUNICIPALITY ng PROVINCE ang nakalagay sa TUPAD_MUNICIPALITY column. Mag nonotify din ang TUPAD_BARANGAY na HINDI sila makita sa MUNICIPALITY ng PROVINCE. <br><font color="GREEN">Need lang po natin itama ang TUPAD_MUNICIPALITY.</font> </li><br>
+                                <li class="mb-1">Name fields must not contain numbers or invalid special characters.</li>
+                            </ul>
+                            <h6 class="fw-bold text-dark">Steps to Upload:</h6>
+                            <ol class="small text-muted mb-0 ps-3">
+                                <li class="mb-1">Click the <strong>Upload New Excel</strong> button.</li>
+                                <li class="mb-1">Fill out the required metadata fields (Area of Implementation, Period of Coverage, ADL No., Reference No., Nature of Work).<br><font color="GREEN">Makikita po mga ito sa 'Details' sheet nung <b>TUPAD_Benefs_Profile_Template_2026</b>. </font></li>
+                                <li class="mb-1">Select your formatted `.xlsx`.</li>
+                                <li class="mb-1">Click <strong>Save & Upload</strong> to process.</li>
+                            </ol>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Got it</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
+
+
+
+
+
 
                 <!-- Modal Trigger Button -->
                 <button type="button" class="btn btn-success px-3 py-2 fw-semibold mb-0 cursor-pointer shadow-sm" id="btnOpenModal">
@@ -543,6 +585,12 @@
             table.search(this.value).draw();
         });
     });
+    // Guide Modal Open Trigger
+        $('#btnOpenGuide').on('click', function() {
+            var guideModalEl = document.getElementById('guideModal');
+            var guideModal = bootstrap.Modal.getOrCreateInstance(guideModalEl);
+            guideModal.show();
+        });
     </script>
 
 </body>
