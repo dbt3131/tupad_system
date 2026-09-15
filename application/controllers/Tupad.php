@@ -247,7 +247,7 @@ public function upload_tupad_excel()
         // ==========================================
         // DATA ROW PARSING & DISCREPANCY COLLECTION
         // ==========================================
-       $discrepancies = [];
+        $discrepancies = [];
         $firstProvince = null;          // Tracks the province of the first valid row
         $originalProvinceLabel = '';    // Keeps the original casing for clean error messages
 
@@ -328,24 +328,42 @@ public function upload_tupad_excel()
                 $discrepancies[] = "Validation Error (Row {$row_num}): Barangay (tupad_barangay) cannot be blank.";
             }
 
-            // Only run relational checks if all location fields are present
+            // Run individual and relational validation checks if fields are filled
             if (!$prov_blank && !$mun_blank && !$brgy_blank) {
                 $provCodeVal = is_numeric($rawProv) ? $this->format_location_code($rawProv) : $this->Tupad_model->find_province_code_by_desc($rawProv);
                 $cityCodeVal = is_numeric($rawCity) ? $this->format_location_code($rawCity) : $this->Tupad_model->find_city_code_by_desc($rawCity, $provCodeVal);
                 $brgyCodeVal = is_numeric($rawBrgy) ? $this->format_location_code($rawBrgy) : $this->Tupad_model->find_barangay_code_by_desc($rawBrgy, $cityCodeVal);
 
+                // 1. Province validation check showing exact misspelled text
                 if (empty($provCodeVal)) {
-                    $discrepancies[] = "Validation Error (Row {$row_num}): Invalid or unrecognized Province '{$rawProv}'.";
-                } elseif (empty($cityCodeVal)) {
-                    $discrepancies[] = "Validation Error (Row {$row_num}): Municipality '{$rawCity}' does not exist under Province '{$rawProv}'.";
-                } elseif (empty($brgyCodeVal)) {
-                    $discrepancies[] = "Validation Error (Row {$row_num}): Barangay '{$rawBrgy}' does not exist or does not belong under Municipality '{$rawCity}'.";
-                } else {
-                    $prov_prefix = substr($provCodeVal, 0, 4);
-                    $city_prov_check = substr($cityCodeVal, 0, 4);
+                    $discrepancies[] = "Validation Error (Row {$row_num}): Unrecognized or misspelled Province entry -> '{$rawProv}' does not exist in the official database.";
+                }
 
-                    if ($prov_prefix !== $city_prov_check) {
-                        $discrepancies[] = "Validation Error (Row {$row_num}): Location hierarchy mismatch. Municipality '{$rawCity}' does not belong to Province '{$rawProv}'.";
+                // 2. Municipality validation check showing exact misspelled text
+                if (empty($cityCodeVal)) {
+                    if (!empty($provCodeVal)) {
+                        $discrepancies[] = "Validation Error (Row {$row_num}): Unrecognized or misspelled Municipality entry -> '{$rawCity}' does not exist under Province '{$rawProv}'.";
+                    } else {
+                        $discrepancies[] = "Validation Error (Row {$row_num}): Unrecognized or misspelled Municipality entry -> '{$rawCity}'.";
+                    }
+                }
+
+                // 3. Barangay validation check showing exact misspelled text
+                if (empty($brgyCodeVal)) {
+                    if (!empty($cityCodeVal)) {
+                        $discrepancies[] = "Validation Error (Row {$row_num}): Unrecognized or misspelled Barangay entry -> '{$rawBrgy}' does not exist under Municipality '{$rawCity}'.";
+                    } else {
+                        $discrepancies[] = "Validation Error (Row {$row_num}): Unrecognized or misspelled Barangay entry -> '{$rawBrgy}'.";
+                    }
+                } else {
+                    // Hierarchy prefix check
+                    if (!empty($provCodeVal) && !empty($cityCodeVal)) {
+                        $prov_prefix = substr($provCodeVal, 0, 4);
+                        $city_prov_check = substr($cityCodeVal, 0, 4);
+
+                        if ($prov_prefix !== $city_prov_check) {
+                            $discrepancies[] = "Validation Error (Row {$row_num}): Location hierarchy mismatch. Municipality '{$rawCity}' does not belong to Province '{$rawProv}'.";
+                        }
                     }
                 }
             }
@@ -460,6 +478,40 @@ public function upload_tupad_excel()
             echo json_encode(['status' => 'error', 'message' => 'The uploaded file was empty or contained no valid records.']);
         }
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

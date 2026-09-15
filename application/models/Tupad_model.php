@@ -464,30 +464,38 @@ class Tupad_model extends CI_Model {
             return $this->db->get()->row_array();
     }
 
-    public function find_province_code_by_desc($desc) {
+public function find_province_code_by_desc($desc) {
         if (empty($desc)) return '';
-        $desc = trim($desc);
-
-        $row = $this->db->where('LOWER(provDesc)', strtolower($desc))->get('refprovince')->row_array();
-        if ($row) return $row['provCode'];
-
-        $provinces = $this->db->select('provCode, provDesc')->get('refprovince')->result_array();
         
-        $closestCode = '';
-        $shortestDistance = -1;
+        // Deep clean: trim, remove non-breaking spaces, and lowercase
+        $cleanDesc = trim($desc);
+        $cleanDesc = preg_replace('/\p{C}/u', '', $cleanDesc); // Removes hidden invisible control characters
+        $cleanDesc = strtolower($cleanDesc);
 
+        // Debug: Uncomment the line below temporarily to see what value is actually being checked
+        // log_message('error', 'Checking Province: [' . $cleanDesc . ']');
+
+        // Query database strictly
+        $this->db->select('provCode, provDesc');
+        $this->db->from('refprovince');
+        $provinces = $this->db->get()->result_array();
+
+        if (empty($provinces)) {
+            return '';
+        }
+
+        // Iterate and enforce an absolute strict exact match (no fuzzy, no trailing letter tolerance)
         foreach ($provinces as $p) {
-            $distance = levenshtein(strtolower($desc), strtolower($p['provDesc']));
-            if ($distance === 0) return $p['provCode'];
-
-            if ($distance < $shortestDistance || $shortestDistance < 0) {
-                $closestCode = $p['provCode'];
-                $shortestDistance = $distance;
+            $dbProv = strtolower(trim(preg_replace('/\p{C}/u', '', $p['provDesc'])));
+            
+            if ($dbProv === $cleanDesc) {
+                return $p['provCode'];
             }
         }
 
-        return ($shortestDistance <= 5) ? $closestCode : '';
+        return ''; // Instantly returns empty if "ZAMBALESs" or any typo is used
     }
+
 
    public function find_city_code_by_desc($desc, $provCode) {
         if (empty($desc) || empty($provCode)) return '';
@@ -757,7 +765,37 @@ public function get_adl_transactions() {
         return $this->db->get('adl_transactions')->result_array();
     }
 
+/**
+     * Check if a city/municipality exists anywhere in refcitymun
+     */
+    public function check_city_exists($desc) {
+        if (empty(trim($desc))) return false;
+        $cleanDesc = str_ireplace('City of ', '', trim($desc));
 
+        $query = $this->db->select('citymunCode')
+                          ->from('refcitymun')
+                          ->where('LOWER(citymunDesc)', strtolower($cleanDesc))
+                          ->limit(1)
+                          ->get();
+
+        return ($query && $query->num_rows() > 0);
+    }
+
+    /**
+     * Check if a barangay exists anywhere in refbrgy
+     */
+    public function check_brgy_exists($desc) {
+        if (empty(trim($desc))) return false;
+        $cleanDesc = preg_replace('/^(brgy|barangay|poblacion)\.?\s+/i', '', trim($desc));
+
+        $query = $this->db->select('brgyCode')
+                          ->from('refbrgy')
+                          ->where('LOWER(brgyDesc)', strtolower($cleanDesc))
+                          ->limit(1)
+                          ->get();
+
+        return ($query && $query->num_rows() > 0);
+    }
 
 
 
