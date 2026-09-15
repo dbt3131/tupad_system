@@ -809,6 +809,16 @@
             });
         });
     });
+         // Sidebar toggle
+        $(document).on('click', '#sidebarToggle', function (e) {
+            e.preventDefault();
+            if ($(window).width() < 992) {
+                $('#sidebar').toggleClass('show-mobile');
+            } else {
+                $('#sidebar').toggleClass('collapsed');
+                $('#main-content').toggleClass('expanded');
+            }
+        });
     </script>
 </body>
 
