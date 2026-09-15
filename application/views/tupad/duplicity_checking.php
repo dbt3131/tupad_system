@@ -69,6 +69,17 @@
         <?php $this->load->view('templates/sidebar'); ?>
         <!-- Main Workspace -->
         <main class="p-3 p-md-4 flex-grow-1">
+  <!-- Page Header -->
+
+  
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3 no-print">
+                <div>
+                    <h3 class="fw-bold mb-1">
+                        <i class="bi bi-file-earmark-plus me-2"></i>Add Proponent Details
+                    </h3>
+                    <p class="text-muted small mb-0">Department of Labor and Employment &bull; Proponent Registry</p>
+                </div>
+            </div>
 
       <form action="<?php echo site_url('tupad/check_duplicity'); ?>" method="POST">
                     <div class="mb-3">

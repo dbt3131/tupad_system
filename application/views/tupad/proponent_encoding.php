@@ -98,7 +98,7 @@ function display_val($value, $type = 'text') {
             <!-- Page Header -->
             <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3 no-print">
                 <div>
-                    <h3 class="fw-bold mb-1 text-primary">
+                    <h3 class="fw-bold mb-1">
                         <i class="bi bi-file-earmark-plus me-2"></i>Add Proponent Details
                     </h3>
                     <p class="text-muted small mb-0">Department of Labor and Employment &bull; Proponent Registry</p>

@@ -23,6 +23,7 @@ class Tupad_Report extends CI_Controller {
         $this->load->view('tupad/tupad_report', $data);
     }
 
+
     public function export_excel() {
         $start_date = $this->input->get('start_date');
         $end_date = $this->input->get('end_date');
