@@ -18,6 +18,15 @@ class Tupad_model extends CI_Model {
     }
 
   public function get_uploaded_files() {
+    $CI =& get_instance();
+    $user_id = $CI->session->userdata('user_id');
+    
+    $assigne_prov = null;
+    if ($user_id) {
+        $user_row = $CI->db->select('assigned_prov')->get_where('users', ['id' => $user_id])->row_array();
+        $assigne_prov = $user_row['assigned_prov'] ?? null;
+    }
+
     $sql = "SELECT t.file_name, 
                    t.reference_no, 
                    COUNT(t.id) as total_records, 
@@ -33,9 +42,15 @@ class Tupad_model extends CI_Model {
                    ON g.reference_no = t.reference_no 
                   AND g.adl_no = t.adl_no 
                   AND g.implementor = t.area_of_implementation
-                  WHERE t.file_name IS NOT NULL
-                  GROUP BY t.file_name, t.reference_no, u.reg_fname, u.reg_lname, g.gsis_letter_id
-                  ORDER BY t.file_name ASC";
+                  WHERE t.file_name IS NOT NULL";
+
+    // Filter by the logged-in user's assigned province if set
+    if (!empty($assigne_prov)) {
+        $sql .= " AND t.tupad_province = " . $this->db->escape($assigne_prov);
+    }
+
+    $sql .= " GROUP BY t.file_name, t.reference_no, u.reg_fname, u.reg_lname, g.gsis_letter_id
+              ORDER BY t.file_name ASC";
 
     return $this->db->query($sql)->result_array();
 }
@@ -656,18 +671,11 @@ class Tupad_model extends CI_Model {
 
 public function get_gsis_summary_by_date($start_date, $end_date)
 {
-    $this->db->select('reference_no, area_of_implementation as implementor, 
-        SUM(CASE WHEN tupad_gender = "M" OR tupad_gender = "MALE" THEN 1 ELSE 0 END) as male,
-        SUM(CASE WHEN tupad_gender = "F" OR tupad_gender = "FEMALE" THEN 1 ELSE 0 END) as female
-    ');
-    $this->db->from('tbl_tupad_list'); // or your table name
-    $this->db->where('DATE(uploaded_at) >=', $start_date);
-    $this->db->where('DATE(uploaded_at) <=', $end_date);
-    
-    // Add this line to only include records where tupad_active is 0
-    $this->db->where('tupad_active', 0); 
-
-    $this->db->group_by('reference_no, area_of_implementation');
+    $this->db->select('reference_no, implementor, male, female');
+    $this->db->from('gsis_letters');
+    $this->db->where('DATE(date_generate) >=', $start_date);
+    $this->db->where('DATE(date_generate) <=', $end_date);
+    $this->db->order_by('gsis_letter_id', 'ASC');
     return $this->db->get()->result_array();
 }
 
@@ -699,6 +707,8 @@ public function get_adl_transactions() {
         $this->db->order_by('adl_transact_id', 'DESC');
         return $this->db->get('adl_transactions')->result_array();
     }
+
+
 
 
 
