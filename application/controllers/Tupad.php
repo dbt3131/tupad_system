@@ -87,441 +87,404 @@ class Tupad extends CI_Controller
 
 
 public function upload_tupad_excel()
-    {
-        if (!$this->session->userdata('logged_in')) {
-            echo json_encode(['status' => 'error', 'message' => 'Unauthorized access.']);
-            return;
-        }
+{
+    if (!$this->session->userdata('logged_in')) {
+        echo json_encode(['status' => 'error', 'message' => 'Unauthorized access.']);
+        return;
+    }
 
-        $uploadedBy = $this->session->userdata('user_id');
-        $uploadedDate = date('Y-m-d H:i:s'); 
+    $uploadedBy = $this->session->userdata('user_id');
+    $uploadedDate = date('Y-m-d H:i:s'); 
 
-        // Extract pre-encoded metadata form values
-        $area_of_implementation = $this->input->post('area_of_implementation');
-        $period_of_coverage     = $this->input->post('period_of_coverage');
-        $adl_no                 = $this->input->post('adl_no');
-        $reference_no           = $this->input->post('reference_no');
-        $nature_of_work         = $this->input->post('nature_of_work');
+    // Extract pre-encoded metadata form values
+    $area_of_implementation = $this->input->post('area_of_implementation');
+    $period_of_coverage     = $this->input->post('period_of_coverage');
+    $adl_no                 = $this->input->post('adl_no');
+    $reference_no           = $this->input->post('reference_no');
+    $nature_of_work         = $this->input->post('nature_of_work');
 
-        $config['upload_path']   = './uploads/';
-        $config['allowed_types'] = 'xlsx|xls|csv';
-        $config['max_size']      = 10240; 
-        $config['encrypt_name']  = TRUE;
+    $config['upload_path']   = './uploads/';
+    $config['allowed_types'] = 'xlsx|xls|csv';
+    $config['max_size']      = 10240; 
+    $config['encrypt_name']  = TRUE;
 
-        if (!is_dir($config['upload_path'])) {
-            mkdir($config['upload_path'], 0777, true);
-        }
+    if (!is_dir($config['upload_path'])) {
+        mkdir($config['upload_path'], 0777, true);
+    }
 
-        $this->load->library('upload', $config);
+    $this->load->library('upload', $config);
 
-        if (!$this->upload->do_upload('excel_file')) {
-            echo json_encode([
-                'status' => 'error',
-                'message' => $this->upload->display_errors('', '')
-            ]);
-            return;
-        }
+    if (!$this->upload->do_upload('excel_file')) {
+        echo json_encode([
+            'status' => 'error',
+            'message' => $this->upload->display_errors('', '')
+        ]);
+        return;
+    }
 
-        $fileData = $this->upload->data();
-        $filePath = $fileData['full_path'];
-        $originalFileName = $fileData['client_name'];
+    $fileData = $this->upload->data();
+    $filePath = $fileData['full_path'];
+    $originalFileName = $fileData['client_name'];
 
-        // Duplicate File Check
-        if ($this->Tupad_model->file_exists($originalFileName)) {
-            @unlink($filePath);  
-            echo json_encode([
-                'status' => 'error', 
-                'message' => 'Upload stopped: The file "' . $originalFileName . '" has already been imported into the database.'
-            ]);
-            return;
-        }
+    // Duplicate File Check
+    if ($this->Tupad_model->file_exists($originalFileName)) {
+        @unlink($filePath);  
+        echo json_encode([
+            'status' => 'error', 
+            'message' => 'Upload stopped: The file "' . $originalFileName . '" has already been imported into the database.'
+        ]);
+        return;
+    }
 
-        $extension = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
-        $rows = [];
+    $extension = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
+    $rows = [];
 
-        if ($extension === 'csv') {
-            if (($handle = fopen($filePath, "r")) !== FALSE) {
-                while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
-                    $rows[] = $data;
-                }
-                fclose($handle);
+    if ($extension === 'csv') {
+        if (($handle = fopen($filePath, "r")) !== FALSE) {
+            while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
+                $rows[] = $data;
             }
+            fclose($handle);
+        }
+    } else {
+        if ($xlsx = SimpleXLSX::parse($filePath)) {
+            $rows = $xlsx->rows();
         } else {
-            if ($xlsx = SimpleXLSX::parse($filePath)) {
-                $rows = $xlsx->rows();
-            } else {
-                @unlink($filePath);
-                echo json_encode([
-                    'status' => 'error', 
-                    'message' => 'Excel Parse Error: ' . SimpleXLSX::parseError()
-                ]);
-                return;
-            }
-        }
-
-        // ==========================================
-        // TEMPLATE HEADER VALIDATION CHECK
-        // ==========================================
-        $expected_headers = [
-            'No', 'tupad_fname', 'tupad_mname', 'tupad_lname', 'tupad_ext', 'gender', 
-            'tupad_dob_month', 'tupad_dob_day', 'tupad_dob_year', 'tupad_province', 
-            'tupad_municipality', 'tupad_barangay', 'street', 'district', 'IDType', 
-            'IDNumber', 'tupad_contact_no', 'bene_type', 'training_Interest', 'skills', 
-            'tupad_epayment', 'tupad_account_no', 'tupad_occupation', 'civil_Status', 
-            'age', 'average_monthly', 'dependent', 'interested_employment', 'tupad_convergence'
-        ];
-
-        if (empty($rows) || count($rows) < 1) {
-            @unlink($filePath);
-            echo json_encode(['status' => 'error', 'message' => 'The uploaded file is empty.']);
-            return;
-        }
-
-        $uploaded_headers = array_map('trim', $rows[0]);
-
-        if (count($uploaded_headers) !== count($expected_headers)) {
             @unlink($filePath);
             echo json_encode([
                 'status' => 'error', 
-                'message' => 'Template Mismatch: Expected ' . count($expected_headers) . ' columns, but found ' . count($uploaded_headers) . ' columns.'
+                'message' => 'Excel Parse Error: ' . SimpleXLSX::parseError()
             ]);
             return;
-        }
-
-        foreach ($expected_headers as $index => $expected_col) {
-            $actual_col = $uploaded_headers[$index] ?? '';
-            if (strcasecmp($expected_col, $actual_col) !== 0) {
-                @unlink($filePath);
-                echo json_encode([
-                    'status' => 'error', 
-                    'message' => "Template Mismatch at Column " . ($index + 1) . ": Expected '{$expected_col}', but found '{$actual_col}'."
-                ]);
-                return;
-            }
-        }
-        // ==========================================
-
-        // Automatically clean and strip commas, periods, and special characters except hyphens (-)
-        $clean = function($val) {
-            $val = trim($val ?? '');
-            $val = preg_replace('/[^\p{L}\p{N}\s\-]/u', '', $val);
-            $val = preg_replace('/\s+/', ' ', $val);
-            return $val;
-        };
-
-        // Helper function for advanced name validation
-        $validate_name_field = function($name, $field_label, $row_num, $is_required = true) {
-            $name = trim($name);
-
-            if ($is_required && ($name === '' || mb_strlen($name) < 2)) {
-                return "Validation Error (Row {$row_num}): {$field_label} cannot be blank and must be at least 2 characters.";
-            }
-
-            if (!$is_required && $name === '') {
-                return null; 
-            }
-
-            if (preg_match('/[0-9]/', $name)) {
-                return "Validation Error (Row {$row_num}): {$field_label} '{$name}' cannot contain numbers.";
-            }
-
-            if (strpos($name, '  ') !== false) {
-                return "Validation Error (Row {$row_num}): {$field_label} '{$name}' contains double spaces.";
-            }
-
-            if (!preg_match('/^[a-zA-ZÑñ\s\-]+$/u', $name)) {
-                return "Validation Error (Row {$row_num}): {$field_label} '{$name}' contains invalid special characters.";
-            }
-
-            if (str_starts_with($name, '-') || str_ends_with($name, '-')) {
-                return "Validation Error (Row {$row_num}): {$field_label} '{$name}' cannot start or end with a hyphen '-'.";
-            }
-
-            return null;
-        };
-
-        // ==========================================
-        // DATA ROW PARSING & DISCREPANCY COLLECTION
-        // ==========================================
-        $discrepancies = [];
-        $firstProvince = null;          // Tracks the normalized province of the first valid row
-        $originalProvinceLabel = '';    // Keeps the original casing for clean error messages
-
-        for ($i = 1; $i < count($rows); $i++) {
-            $row = $rows[$i];
-
-            if (empty(array_filter($row))) {
-                continue;
-            }
-
-            $row_num      = $i + 1;
-            $fname        = $clean($row[1] ?? '');
-            $mname        = $clean($row[2] ?? '');
-            $lname        = $clean($row[3] ?? '');
-            $gender       = $clean($row[5] ?? ''); 
-            $dob_month    = $row[6] ?? '';
-            $dob_day      = $row[7] ?? '';
-            $dob_year     = $row[8] ?? '';
-            $rawProv      = $clean($row[9] ?? '');
-            $rawCity      = $clean($row[10] ?? '');
-            $rawBrgy      = $clean($row[11] ?? '');
-
-            // Validate First Name (Required)
-            $err = $validate_name_field($fname, 'First Name', $row_num, true);
-            if ($err) { $discrepancies[] = $err; }
-
-            // Validate Middle Name (Optional)
-            $err = $validate_name_field($mname, 'Middle Name', $row_num, false);
-            if ($err) { $discrepancies[] = $err; }
-
-            // Validate Last Name (Required)
-            $err = $validate_name_field($lname, 'Last Name', $row_num, true);
-            if ($err) { $discrepancies[] = $err; }
-
-            // Validate Gender
-            if (trim($gender) === '') {
-                $discrepancies[] = "Validation Error (Row {$row_num}): Gender cannot be blank.";
-            } else {
-                $err = $validate_name_field($gender, 'Gender', $row_num, true);
-                if ($err) { $discrepancies[] = $err; }
-            }
-
-            // Validate Birth Date Fields (Cannot be blank)
-            if (trim($dob_month) === '') {
-                $discrepancies[] = "Validation Error (Row {$row_num}): Birth Month (tupad_dob_month) cannot be blank.";
-            }
-            if (trim($dob_day) === '') {
-                $discrepancies[] = "Validation Error (Row {$row_num}): Birth Day (tupad_dob_day) cannot be blank.";
-            }
-            if (trim($dob_year) === '') {
-                $discrepancies[] = "Validation Error (Row {$row_num}): Birth Year (tupad_dob_year) cannot be blank.";
-            }
-
-            // =========================================================================
-            // STRICT LOCATION VALIDATION: Check blanks, hierarchy, & single province rule
-            // =========================================================================
-            $prov_blank = ($rawProv === '');
-            $mun_blank  = ($rawCity === '');
-            $brgy_blank = ($rawBrgy === '');
-
-            if ($prov_blank) {
-                $discrepancies[] = "Validation Error (Row {$row_num}): Province (tupad_province) cannot be blank.";
-            }
-            if ($mun_blank) {
-                $discrepancies[] = "Validation Error (Row {$row_num}): Municipality (tupad_municipality) cannot be blank.";
-            }
-            if ($brgy_blank) {
-                $discrepancies[] = "Validation Error (Row {$row_num}): Barangay (tupad_barangay) cannot be blank.";
-            }
-
-            // Run province database lookup first
-            $provCodeVal = !empty($rawProv) ? (is_numeric($rawProv) ? $this->format_location_code($rawProv) : $this->Tupad_model->find_province_code_by_desc($rawProv)) : '';
-
-            // 1. Province validation & baseline tracking
-            if (!$prov_blank) {
-                if (empty($provCodeVal)) {
-                    $discrepancies[] = "Validation Error (Row {$row_num}): Unrecognized or misspelled Province entry -> '{$rawProv}' does not exist in the official database.";
-                } else {
-                    $normalizedProv = strtolower($rawProv);
-                    if ($firstProvince === null) {
-                        $firstProvince = $normalizedProv;
-                        $originalProvinceLabel = $rawProv;
-                    } elseif ($normalizedProv !== $firstProvince) {
-                        $discrepancies[] = "Validation Error (Row {$row_num}): Mixed provinces detected. File expects province '{$originalProvinceLabel}', but found '{$rawProv}'. All rows must belong to the same province.";
-                    }
-                }
-            }
-
-            // 2. Municipality validation check
-            $cityCodeVal = '';
-            if (!$mun_blank) {
-                $cityCodeVal = is_numeric($rawCity) ? $this->format_location_code($rawCity) : $this->Tupad_model->find_city_code_by_desc($rawCity, $provCodeVal);
-
-                if (empty($cityCodeVal)) {
-                    // Fallback: check if city exists globally to give a precise message
-                    $globalCityCode = is_numeric($rawCity) ? $this->format_location_code($rawCity) : $this->Tupad_model->find_city_code_by_desc($rawCity, null);
-                    
-                    if (empty($globalCityCode)) {
-                        $discrepancies[] = "Validation Error (Row {$row_num}): Unrecognized or misspelled Municipality entry -> '{$rawCity}' does not exist in the official database.";
-                    } elseif (!empty($provCodeVal)) {
-                        $discrepancies[] = "Validation Error (Row {$row_num}): Unrecognized or misspelled Municipality entry -> '{$rawCity}' does not exist under Province '{$rawProv}'.";
-                    }
-                }
-            }
-
-            // 3. Barangay validation check (Decoupled so it shows alongside city errors)
-            if (!$brgy_blank) {
-                $brgyCodeVal = '';
-                if (!empty($cityCodeVal)) {
-                    $brgyCodeVal = is_numeric($rawBrgy) ? $this->format_location_code($rawBrgy) : $this->Tupad_model->find_barangay_code_by_desc($rawBrgy, $cityCodeVal);
-                }
-
-                if (empty($brgyCodeVal)) {
-                    $targetCityForBrgy = !empty($cityCodeVal) ? $rawCity : (!empty($rawCity) ? $rawCity : 'the specified municipality');
-                    $discrepancies[] = "Validation Error (Row {$row_num}): Unrecognized or misspelled Barangay entry -> '{$rawBrgy}' does not exist under Municipality '{$targetCityForBrgy}'.";
-                } else {
-                    // Hierarchy prefix check
-                    if (!empty($provCodeVal)) {
-                        $prov_prefix = substr($provCodeVal, 0, 4);
-                        $city_prov_check = substr($cityCodeVal, 0, 4);
-
-                        if ($prov_prefix !== $city_prov_check) {
-                            $discrepancies[] = "Validation Error (Row {$row_num}): Location hierarchy mismatch. Municipality '{$rawCity}' does not belong to Province '{$rawProv}'.";
-                        }
-                    }
-                }
-            }
-        }
-
-        // If discrepancies exist, abort upload, delete temp file, and pass errors to flashdata
-        if (!empty($discrepancies)) {
-            @unlink($filePath);
-            $this->session->set_flashdata('upload_discrepancies', $discrepancies);
-            echo json_encode([
-                'status' => 'error', 
-                'message' => 'Upload failed due to ' . count($discrepancies) . ' data discrepancy/discrepancies found.',
-                'reload' => true
-            ]);
-            return;
-        }
-
-        @unlink($filePath); 
-        $insertData = [];
-
-        for ($i = 1; $i < count($rows); $i++) {
-            $row = $rows[$i];
-            if (empty(array_filter($row))) {
-                continue;
-            }
-
-            $fname = $clean($row[1] ?? '');
-            $mname = $clean($row[2] ?? '');
-            $lname = $clean($row[3] ?? '');
-
-            // Location & Reference ID Lookups
-            $rawProv = $clean($row[9] ?? '');
-            $rawCity = $clean($row[10] ?? '');
-            $rawBrgy = $clean($row[11] ?? '');
-
-            $provCode = is_numeric($rawProv) ? $this->format_location_code($rawProv) : $this->Tupad_model->find_province_code_by_desc($rawProv);
-            $cityCode = is_numeric($rawCity) ? $this->format_location_code($rawCity) : $this->Tupad_model->find_city_code_by_desc($rawCity, $provCode);
-            $brgyCode = is_numeric($rawBrgy) ? $this->format_location_code($rawBrgy) : $this->Tupad_model->find_barangay_code_by_desc($rawBrgy, $cityCode);
-
-            $rawIdType = $clean($row[14] ?? '');
-            $idType = is_numeric($rawIdType) ? (int)$rawIdType : $this->Tupad_model->find_type_id_by_desc($rawIdType);
-
-            $rawBeneType = $clean($row[17] ?? '');
-            $beneType = is_numeric($rawBeneType) ? (int)$rawBeneType : $this->Tupad_model->find_bene_type_id_by_desc($rawBeneType);
-
-            $rawConvergence = $clean($row[28] ?? '');
-            $convergenceId = is_numeric($rawConvergence) ? (int)$rawConvergence : $this->Tupad_model->find_convergence_id_by_desc($rawConvergence);
-
-            $rawEpayment = $clean($row[20] ?? '');
-            $epaymentId  = is_numeric($rawEpayment) ? (int)$rawEpayment : $this->Tupad_model->find_epayment_id_by_desc($rawEpayment);
-
-            $rawSkills = $clean($row[19] ?? '');
-            $skillsId  = is_numeric($rawSkills) ? (int)$rawSkills : $this->Tupad_model->find_skills_id_by_desc($rawSkills);
-
-            $insertData[] = [
-                'tupad_id_no'               => $clean($row[0] ?? ''),
-                'tupad_fname'               => strtoupper(trim($fname)),
-                'tupad_mname'               => strtoupper(trim($mname)),
-                'tupad_lname'               => strtoupper(trim($lname)),
-                'tupad_ext'                 => strtoupper($clean($row[4] ?? '')),
-                'tupad_gender'              => strtoupper($clean($row[5] ?? '')),
-                'tupad_dob_month'           => $clean($row[6] ?? ''),
-                'tupad_dob_day'             => $clean($row[7] ?? ''),
-                'tupad_dob_year'            => $clean($row[8] ?? ''),
-                'tupad_province'            => $provCode,
-                'tupad_municipality'        => $cityCode,
-                'tupad_barangay'            => $brgyCode,
-                'tupad_street'              => strtoupper($clean($row[12] ?? '')),
-                'tupad_district'            => strtoupper($clean($row[13] ?? '')),
-                'tupad_idtype'              => strtoupper($idType),
-                'tupad_idnumber'            => $clean($row[15] ?? ''),
-                'tupad_contact_no'          => $clean($row[16] ?? ''),
-                'tupad_type'                => strtoupper($beneType),
-                'tupad_training_Interest'   => strtoupper($clean($row[18] ?? '')),
-                'tupad_skills'              => $skillsId, 
-                'tupad_epayment'            => $epaymentId, 
-                'tupad_account_no'          => $clean($row[21] ?? ''),
-                'tupad_occupation'          => $clean($row[22] ?? ''),
-                'tupad_civil_status'        => strtoupper($clean($row[23] ?? '')),
-                'tupad_age'                 => $clean($row[24] ?? ''),
-                'tupad_average_monthly'     => $clean($row[25] ?? ''),
-                'tupad_dependent'           => strtoupper($clean($row[26] ?? '')),
-                'tupad_interested_employment' => $clean($row[27] ?? ''),      
-                'tupad_convergence'         => $convergenceId,
-                'file_name'                 => $originalFileName,
-                'user_id'                   => $uploadedBy,
-                'uploaded_at'               => $uploadedDate,
-                'area_of_implementation'    => strtoupper($area_of_implementation),
-                'period_of_coverage'        => strtoupper($period_of_coverage),
-                'adl_no'                    => $adl_no,
-                'reference_no'              => $reference_no,
-                'nature_of_work'            => strtoupper($nature_of_work)
-            ];
-        }
-
-        // DATABASE BATCH INSERTION
-        if (!empty($insertData)) {
-            $inserted = $this->Tupad_model->insert_batch($insertData);
-            
-            if ($inserted) {
-                $this->load->model('Activity_Model'); 
-                $user_id = $this->session->userdata('user_id');
-                $this->Activity_Model->log_activity($reference_no, $user_id, 1);    
-
-                $this->session->set_flashdata('success', 'Successfully uploaded ' . count($insertData) . ' record(s).');
-                echo json_encode(['status' => 'success', 'message' => 'Batch processing completed.']);
-                
-            } else {
-                echo json_encode(['status' => 'error', 'message' => 'Failed to save records into database.']);
-            }
-        } else {
-            echo json_encode(['status' => 'error', 'message' => 'The uploaded file was empty or contained no valid records.']);
         }
     }
 
+    // ==========================================
+    // TEMPLATE HEADER VALIDATION CHECK
+    // ==========================================
+    $expected_headers = [
+        'No', 'tupad_fname', 'tupad_mname', 'tupad_lname', 'tupad_ext', 'gender', 
+        'tupad_dob_month', 'tupad_dob_day', 'tupad_dob_year', 'tupad_province', 
+        'tupad_municipality', 'tupad_barangay', 'street', 'district', 'IDType', 
+        'IDNumber', 'tupad_contact_no', 'bene_type', 'training_Interest', 'skills', 
+        'tupad_epayment', 'tupad_account_no', 'tupad_occupation', 'civil_Status', 
+        'age', 'average_monthly', 'dependent', 'interested_employment', 'tupad_convergence'
+    ];
 
+    if (empty($rows) || count($rows) < 1) {
+        @unlink($filePath);
+        echo json_encode(['status' => 'error', 'message' => 'The uploaded file is empty.']);
+        return;
+    }
 
+    $uploaded_headers = array_map('trim', $rows[0]);
 
+    if (count($uploaded_headers) !== count($expected_headers)) {
+        @unlink($filePath);
+        echo json_encode([
+            'status' => 'error', 
+            'message' => 'Template Mismatch: Expected ' . count($expected_headers) . ' columns, but found ' . count($uploaded_headers) . ' columns.'
+        ]);
+        return;
+    }
 
+    foreach ($expected_headers as $index => $expected_col) {
+        $actual_col = $uploaded_headers[$index] ?? '';
+        if (strcasecmp($expected_col, $actual_col) !== 0) {
+            @unlink($filePath);
+            echo json_encode([
+                'status' => 'error', 
+                'message' => "Template Mismatch at Column " . ($index + 1) . ": Expected '{$expected_col}', but found '{$actual_col}'."
+            ]);
+            return;
+        }
+    }
+    // ==========================================
 
+    // 1. Strict cleaner exclusively for names (removes numbers, periods, commas, special characters except hyphens)
+    $clean_name = function($val) {
+        $val = trim($val ?? '');
+        $val = preg_replace('/[^\p{L}\s\-]/u', '', $val);
+        $val = preg_replace('/\s+/', ' ', $val);
+        return $val;
+    };
 
+    // 2. General cleaner for other fields (keeps periods/special characters like in barangays, streets, etc.)
+    $clean_general = function($val) {
+        $val = trim($val ?? '');
+        $val = preg_replace('/\s+/', ' ', $val);
+        return $val;
+    };
 
+    // Helper function for advanced name validation
+    $validate_name_field = function($name, $field_label, $row_num, $is_required = true) {
+        $name = trim($name);
 
+        if ($is_required && ($name === '' || mb_strlen($name) < 2)) {
+            return "Validation Error (Row {$row_num}): {$field_label} cannot be blank and must be at least 2 characters.";
+        }
 
+        if (!$is_required && $name === '') {
+            return null; 
+        }
 
+        if (preg_match('/[0-9]/', $name)) {
+            return "Validation Error (Row {$row_num}): {$field_label} '{$name}' cannot contain numbers.";
+        }
 
+        if (strpos($name, '  ') !== false) {
+            return "Validation Error (Row {$row_num}): {$field_label} '{$name}' contains double spaces.";
+        }
 
+        if (!preg_match('/^[a-zA-ZÑñ\s\-]+$/u', $name)) {
+            return "Validation Error (Row {$row_num}): {$field_label} '{$name}' contains invalid special characters.";
+        }
 
+        if (str_starts_with($name, '-') || str_ends_with($name, '-')) {
+            return "Validation Error (Row {$row_num}): {$field_label} '{$name}' cannot start or end with a hyphen '-'.";
+        }
 
+        return null;
+    };
 
+    // ==========================================
+    // DATA ROW PARSING & DISCREPANCY COLLECTION
+    // ==========================================
+    $discrepancies = [];
+    $firstProvince = null;          
+    $originalProvinceLabel = '';    
 
+    for ($i = 1; $i < count($rows); $i++) {
+        $row = $rows[$i];
 
+        if (empty(array_filter($row))) {
+            continue;
+        }
 
+        $row_num      = $i + 1;
+        // Strict cleaning applied ONLY to name fields
+        $fname        = $clean_name($row[1] ?? '');
+        $mname        = $clean_name($row[2] ?? '');
+        $lname        = $clean_name($row[3] ?? '');
+        $gender       = $clean_general($row[5] ?? ''); 
+        $dob_month    = $row[6] ?? '';
+        $dob_day      = $row[7] ?? '';
+        $dob_year     = $row[8] ?? '';
+        
+        // General cleaning applied to location fields (preserves periods in brgy, etc.)
+        $rawProv      = $clean_general($row[9] ?? '');
+        $rawCity      = $clean_general($row[10] ?? '');
+        $rawBrgy      = $clean_general($row[11] ?? '');
 
+        // Validate First Name (Required)
+        $err = $validate_name_field($fname, 'First Name', $row_num, true);
+        if ($err) { $discrepancies[] = $err; }
 
+        // Validate Middle Name (Optional)
+        $err = $validate_name_field($mname, 'Middle Name', $row_num, false);
+        if ($err) { $discrepancies[] = $err; }
 
+        // Validate Last Name (Required)
+        $err = $validate_name_field($lname, 'Last Name', $row_num, true);
+        if ($err) { $discrepancies[] = $err; }
 
+        // Validate Gender
+        if (trim($gender) === '') {
+            $discrepancies[] = "Validation Error (Row {$row_num}): Gender cannot be blank.";
+        } else {
+            $err = $validate_name_field($gender, 'Gender', $row_num, true);
+            if ($err) { $discrepancies[] = $err; }
+        }
 
+        // Validate Birth Date Fields (Cannot be blank)
+        if (trim($row[6] ?? '') === '') {
+            $discrepancies[] = "Validation Error (Row {$row_num}): Birth Month (tupad_dob_month) cannot be blank.";
+        }
+        if (trim($row[7] ?? '') === '') {
+            $discrepancies[] = "Validation Error (Row {$row_num}): Birth Day (tupad_dob_day) cannot be blank.";
+        }
+        if (trim($row[8] ?? '') === '') {
+            $discrepancies[] = "Validation Error (Row {$row_num}): Birth Year (tupad_dob_year) cannot be blank.";
+        }
 
+        // =========================================================================
+        // STRICT LOCATION VALIDATION
+        // =========================================================================
+        $prov_blank = ($rawProv === '');
+        $mun_blank  = ($rawCity === '');
+        $brgy_blank = ($rawBrgy === '');
 
+        if ($prov_blank) {
+            $discrepancies[] = "Validation Error (Row {$row_num}): Province (tupad_province) cannot be blank.";
+        }
+        if ($mun_blank) {
+            $discrepancies[] = "Validation Error (Row {$row_num}): Municipality (tupad_municipality) cannot be blank.";
+        }
+        if ($brgy_blank) {
+            $discrepancies[] = "Validation Error (Row {$row_num}): Barangay (tupad_barangay) cannot be blank.";
+        }
 
+        $provCodeVal = !empty($rawProv) ? (is_numeric($rawProv) ? $this->format_location_code($rawProv) : $this->Tupad_model->find_province_code_by_desc($rawProv)) : '';
 
+        if (!$prov_blank) {
+            if (empty($provCodeVal)) {
+                $discrepancies[] = "Validation Error (Row {$row_num}): Unrecognized or misspelled Province entry -> '{$rawProv}' does not exist in the official database.";
+            } else {
+                $normalizedProv = strtolower($rawProv);
+                if ($firstProvince === null) {
+                    $firstProvince = $normalizedProv;
+                    $originalProvinceLabel = $rawProv;
+                } elseif ($normalizedProv !== $firstProvince) {
+                    $discrepancies[] = "Validation Error (Row {$row_num}): Mixed provinces detected. File expects province '{$originalProvinceLabel}', but found '{$rawProv}'. All rows must belong to the same province.";
+                }
+            }
+        }
 
+        $cityCodeVal = '';
+        if (!$mun_blank) {
+            $cityCodeVal = is_numeric($rawCity) ? $this->format_location_code($rawCity) : $this->Tupad_model->find_city_code_by_desc($rawCity, $provCodeVal);
 
+            if (empty($cityCodeVal)) {
+                $globalCityCode = is_numeric($rawCity) ? $this->format_location_code($rawCity) : $this->Tupad_model->find_city_code_by_desc($rawCity, null);
+                
+                if (empty($globalCityCode)) {
+                    $discrepancies[] = "Validation Error (Row {$row_num}): Unrecognized or misspelled Municipality entry -> '{$rawCity}' does not exist in the official database.";
+                } elseif (!empty($provCodeVal)) {
+                    $discrepancies[] = "Validation Error (Row {$row_num}): Unrecognized or misspelled Municipality entry -> '{$rawCity}' does not exist under Province '{$rawProv}'.";
+                }
+            }
+        }
 
+        if (!$brgy_blank) {
+            $brgyCodeVal = '';
+            if (!empty($cityCodeVal)) {
+                $brgyCodeVal = is_numeric($rawBrgy) ? $this->format_location_code($rawBrgy) : $this->Tupad_model->find_barangay_code_by_desc($rawBrgy, $cityCodeVal);
+            }
 
+            if (empty($brgyCodeVal)) {
+                $targetCityForBrgy = !empty($cityCodeVal) ? $rawCity : (!empty($rawCity) ? $rawCity : 'the specified municipality');
+                $discrepancies[] = "Validation Error (Row {$row_num}): Unrecognized or misspelled Barangay entry -> '{$rawBrgy}' does not exist under Municipality '{$targetCityForBrgy}'.";
+            } else {
+                if (!empty($provCodeVal)) {
+                    $prov_prefix = substr($provCodeVal, 0, 4);
+                    $city_prov_check = substr($cityCodeVal, 0, 4);
 
+                    if ($prov_prefix !== $city_prov_check) {
+                        $discrepancies[] = "Validation Error (Row {$row_num}): Location hierarchy mismatch. Municipality '{$rawCity}' does not belong to Province '{$rawProv}'.";
+                    }
+                }
+            }
+        }
+    }
 
+    if (!empty($discrepancies)) {
+        @unlink($filePath);
+        $this->session->set_flashdata('upload_discrepancies', $discrepancies);
+        echo json_encode([
+            'status' => 'error', 
+            'message' => 'Upload failed due to ' . count($discrepancies) . ' data discrepancy/discrepancies found.',
+            'reload' => true
+        ]);
+        return;
+    }
 
+    @unlink($filePath); 
+    $insertData = [];
 
+    for ($i = 1; $i < count($rows); $i++) {
+        $row = $rows[$i];
+        if (empty(array_filter($row))) {
+            continue;
+        }
 
+        $fname = $clean_name($row[1] ?? '');
+        $mname = $clean_name($row[2] ?? '');
+        $lname = $clean_name($row[3] ?? '');
+        $ext   = $clean_name($row[4] ?? '');
 
+        $rawProv = $clean_general($row[9] ?? '');
+        $rawCity = $clean_general($row[10] ?? '');
+        $rawBrgy = $clean_general($row[11] ?? '');
 
+        $provCode = is_numeric($rawProv) ? $this->format_location_code($rawProv) : $this->Tupad_model->find_province_code_by_desc($rawProv);
+        $cityCode = is_numeric($rawCity) ? $this->format_location_code($rawCity) : $this->Tupad_model->find_city_code_by_desc($rawCity, $provCode);
+        $brgyCode = is_numeric($rawBrgy) ? $this->format_location_code($rawBrgy) : $this->Tupad_model->find_barangay_code_by_desc($rawBrgy, $cityCode);
 
+        $rawIdType = $clean_general($row[14] ?? '');
+        $idType = is_numeric($rawIdType) ? (int)$rawIdType : $this->Tupad_model->find_type_id_by_desc($rawIdType);
+
+        $rawBeneType = $clean_general($row[17] ?? '');
+        $beneType = is_numeric($rawBeneType) ? (int)$rawBeneType : $this->Tupad_model->find_bene_type_id_by_desc($rawBeneType);
+
+        $rawConvergence = $clean_general($row[28] ?? '');
+        $convergenceId = is_numeric($rawConvergence) ? (int)$rawConvergence : $this->Tupad_model->find_convergence_id_by_desc($rawConvergence);
+
+        $rawEpayment = $clean_general($row[20] ?? '');
+        $epaymentId  = is_numeric($rawEpayment) ? (int)$rawEpayment : $this->Tupad_model->find_epayment_id_by_desc($rawEpayment);
+
+        $rawSkills = $clean_general($row[19] ?? '');
+        $skillsId  = is_numeric($rawSkills) ? (int)$rawSkills : $this->Tupad_model->find_skills_id_by_desc($rawSkills);
+
+        $insertData[] = [
+            'tupad_id_no'                 => $clean_general($row[0] ?? ''),
+            'tupad_fname'                 => strtoupper(trim($fname)),
+            'tupad_mname'                 => strtoupper(trim($mname)),
+            'tupad_lname'                 => strtoupper(trim($lname)),
+            'tupad_ext'                   => strtoupper($ext),
+            'tupad_gender'                => strtoupper($clean_general($row[5] ?? '')),
+            'tupad_dob_month'             => $clean_general($row[6] ?? ''),
+            'tupad_dob_day'               => $clean_general($row[7] ?? ''),
+            'tupad_dob_year'              => $clean_general($row[8] ?? ''),
+            'tupad_province'              => $provCode,
+            'tupad_municipality'          => $cityCode,
+            'tupad_barangay'              => $brgyCode,
+            'tupad_street'                => strtoupper($clean_general($row[12] ?? '')),
+            'tupad_district'              => strtoupper($clean_general($row[13] ?? '')),
+            'tupad_idtype'                => strtoupper($idType),
+            'tupad_idnumber'              => $clean_general($row[15] ?? ''),
+            'tupad_contact_no'            => $clean_general($row[16] ?? ''),
+            'tupad_type'                  => strtoupper($beneType),
+            'tupad_training_Interest'     => strtoupper($clean_general($row[18] ?? '')),
+            'tupad_skills'                => $skillsId, 
+            'tupad_epayment'              => $epaymentId, 
+            'tupad_account_no'            => $clean_general($row[21] ?? ''),
+            'tupad_occupation'            => $clean_general($row[22] ?? ''),
+            'tupad_civil_status'          => strtoupper($clean_general($row[23] ?? '')),
+            'tupad_age'                   => $clean_general($row[24] ?? ''),
+            'tupad_average_monthly'       => $clean_general($row[25] ?? ''),
+            'tupad_dependent'             => strtoupper($clean_general($row[26] ?? '')),
+            'tupad_interested_employment' => $clean_general($row[27] ?? ''),      
+            'tupad_convergence'           => $convergenceId,
+            'file_name'                   => $originalFileName,
+            'user_id'                     => $uploadedBy,
+            'uploaded_at'                 => $uploadedDate,
+            'area_of_implementation'      => strtoupper($area_of_implementation),
+            'period_of_coverage'          => strtoupper($period_of_coverage),
+            'adl_no'                      => $adl_no,
+            'reference_no'                => $reference_no,
+            'nature_of_work'              => strtoupper($nature_of_work)
+        ];
+    }
+
+    // DATABASE BATCH INSERTION
+    if (!empty($insertData)) {
+        $inserted = $this->Tupad_model->insert_batch($insertData);
+        
+        if ($inserted) {
+            $this->load->model('Activity_Model'); 
+            $user_id = $this->session->userdata('user_id');
+            $this->Activity_Model->log_activity($reference_no, $user_id, 1);    
+
+            $this->session->set_flashdata('success', 'Successfully uploaded ' . count($insertData) . ' record(s).');
+            echo json_encode(['status' => 'success', 'message' => 'Batch processing completed.']);
+            
+        } else {
+            echo json_encode(['status' => 'error', 'message' => 'Failed to save records into database.']);
+        }
+    } else {
+        echo json_encode(['status' => 'error', 'message' => 'The uploaded file was empty or contained no valid records.']);
+    }
+}
 
 
 
