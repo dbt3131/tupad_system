@@ -332,8 +332,7 @@ public function upload_tupad_excel()
             if (!$prov_blank && !$mun_blank && !$brgy_blank) {
                 $provCodeVal = is_numeric($rawProv) ? $this->format_location_code($rawProv) : $this->Tupad_model->find_province_code_by_desc($rawProv);
                 $cityCodeVal = is_numeric($rawCity) ? $this->format_location_code($rawCity) : $this->Tupad_model->find_city_code_by_desc($rawCity, $provCodeVal);
-                $brgyCodeVal = is_numeric($rawBrgy) ? $this->format_location_code($rawBrgy) : $this->Tupad_model->find_barangay_code_by_desc($rawBrgy, $cityCodeVal);
-
+                
                 // 1. Province validation check showing exact misspelled text
                 if (empty($provCodeVal)) {
                     $discrepancies[] = "Validation Error (Row {$row_num}): Unrecognized or misspelled Province entry -> '{$rawProv}' does not exist in the official database.";
@@ -348,21 +347,21 @@ public function upload_tupad_excel()
                     }
                 }
 
-                // 3. Barangay validation check showing exact misspelled text
-                if (empty($brgyCodeVal)) {
-                    if (!empty($cityCodeVal)) {
+                // 3. Barangay validation check (Only evaluate if municipality code exists to prevent cascade errors)
+                if (!empty($cityCodeVal)) {
+                    $brgyCodeVal = is_numeric($rawBrgy) ? $this->format_location_code($rawBrgy) : $this->Tupad_model->find_barangay_code_by_desc($rawBrgy, $cityCodeVal);
+
+                    if (empty($brgyCodeVal)) {
                         $discrepancies[] = "Validation Error (Row {$row_num}): Unrecognized or misspelled Barangay entry -> '{$rawBrgy}' does not exist under Municipality '{$rawCity}'.";
                     } else {
-                        $discrepancies[] = "Validation Error (Row {$row_num}): Unrecognized or misspelled Barangay entry -> '{$rawBrgy}'.";
-                    }
-                } else {
-                    // Hierarchy prefix check
-                    if (!empty($provCodeVal) && !empty($cityCodeVal)) {
-                        $prov_prefix = substr($provCodeVal, 0, 4);
-                        $city_prov_check = substr($cityCodeVal, 0, 4);
+                        // Hierarchy prefix check
+                        if (!empty($provCodeVal)) {
+                            $prov_prefix = substr($provCodeVal, 0, 4);
+                            $city_prov_check = substr($cityCodeVal, 0, 4);
 
-                        if ($prov_prefix !== $city_prov_check) {
-                            $discrepancies[] = "Validation Error (Row {$row_num}): Location hierarchy mismatch. Municipality '{$rawCity}' does not belong to Province '{$rawProv}'.";
+                            if ($prov_prefix !== $city_prov_check) {
+                                $discrepancies[] = "Validation Error (Row {$row_num}): Location hierarchy mismatch. Municipality '{$rawCity}' does not belong to Province '{$rawProv}'.";
+                            }
                         }
                     }
                 }
@@ -419,43 +418,43 @@ public function upload_tupad_excel()
             $skillsId  = is_numeric($rawSkills) ? (int)$rawSkills : $this->Tupad_model->find_skills_id_by_desc($rawSkills);
 
             $insertData[] = [
-                'tupad_id_no'                 => $clean($row[0] ?? ''),
-                'tupad_fname'                 => strtoupper(trim($fname)),
-                'tupad_mname'                 => strtoupper(trim($mname)),
-                'tupad_lname'                 => strtoupper(trim($lname)),
-                'tupad_ext'                   => strtoupper($clean($row[4] ?? '')),
-                'tupad_gender'                => strtoupper($clean($row[5] ?? '')),
-                'tupad_dob_month'             => $clean($row[6] ?? ''),
-                'tupad_dob_day'               => $clean($row[7] ?? ''),
-                'tupad_dob_year'              => $clean($row[8] ?? ''),
-                'tupad_province'              => $provCode,
-                'tupad_municipality'          => $cityCode,
-                'tupad_barangay'              => $brgyCode,
-                'tupad_street'                => strtoupper($clean($row[12] ?? '')),
-                'tupad_district'              => strtoupper($clean($row[13] ?? '')),
-                'tupad_idtype'                => strtoupper($idType),
-                'tupad_idnumber'              => $clean($row[15] ?? ''),
-                'tupad_contact_no'            => $clean($row[16] ?? ''),
-                'tupad_type'                  => strtoupper($beneType),
-                'tupad_training_Interest'     => strtoupper($clean($row[18] ?? '')),
-                'tupad_skills'                => $skillsId, 
-                'tupad_epayment'              => $epaymentId, 
-                'tupad_account_no'            => $clean($row[21] ?? ''),
-                'tupad_occupation'            => $clean($row[22] ?? ''),
-                'tupad_civil_status'          => strtoupper($clean($row[23] ?? '')),
-                'tupad_age'                   => $clean($row[24] ?? ''),
-                'tupad_average_monthly'       => $clean($row[25] ?? ''),
-                'tupad_dependent'             => strtoupper($clean($row[26] ?? '')),
-                'tupad_interested_employment' => $clean($row[27] ?? ''),        
-                'tupad_convergence'           => $convergenceId,
-                'file_name'                   => $originalFileName,
-                'user_id'                     => $uploadedBy,
-                'uploaded_at'                 => $uploadedDate,
-                'area_of_implementation'      => strtoupper($area_of_implementation),
-                'period_of_coverage'          => strtoupper($period_of_coverage),
-                'adl_no'                      => $adl_no,
-                'reference_no'                => $reference_no,
-                'nature_of_work'              => strtoupper($nature_of_work)
+                'tupad_id_no'                => $clean($row[0] ?? ''),
+                'tupad_fname'                => strtoupper(trim($fname)),
+                'tupad_mname'                => strtoupper(trim($mname)),
+                'tupad_lname'                => strtoupper(trim($lname)),
+                'tupad_ext'                  => strtoupper($clean($row[4] ?? '')),
+                'tupad_gender'               => strtoupper($clean($row[5] ?? '')),
+                'tupad_dob_month'            => $clean($row[6] ?? ''),
+                'tupad_dob_day'              => $clean($row[7] ?? ''),
+                'tupad_dob_year'             => $clean($row[8] ?? ''),
+                'tupad_province'             => $provCode,
+                'tupad_municipality'         => $cityCode,
+                'tupad_barangay'             => $brgyCode,
+                'tupad_street'               => strtoupper($clean($row[12] ?? '')),
+                'tupad_district'             => strtoupper($clean($row[13] ?? '')),
+                'tupad_idtype'               => strtoupper($idType),
+                'tupad_idnumber'             => $clean($row[15] ?? ''),
+                'tupad_contact_no'           => $clean($row[16] ?? ''),
+                'tupad_type'                 => strtoupper($beneType),
+                'tupad_training_Interest'    => strtoupper($clean($row[18] ?? '')),
+                'tupad_skills'               => $skillsId, 
+                'tupad_epayment'             => $epaymentId, 
+                'tupad_account_no'           => $clean($row[21] ?? ''),
+                'tupad_occupation'           => $clean($row[22] ?? ''),
+                'tupad_civil_status'         => strtoupper($clean($row[23] ?? '')),
+                'tupad_age'                  => $clean($row[24] ?? ''),
+                'tupad_average_monthly'      => $clean($row[25] ?? ''),
+                'tupad_dependent'            => strtoupper($clean($row[26] ?? '')),
+                'tupad_interested_employment' => $clean($row[27] ?? ''),       
+                'tupad_convergence'          => $convergenceId,
+                'file_name'                  => $originalFileName,
+                'user_id'                    => $uploadedBy,
+                'uploaded_at'                => $uploadedDate,
+                'area_of_implementation'     => strtoupper($area_of_implementation),
+                'period_of_coverage'         => strtoupper($period_of_coverage),
+                'adl_no'                     => $adl_no,
+                'reference_no'               => $reference_no,
+                'nature_of_work'             => strtoupper($nature_of_work)
             ];
         }
 

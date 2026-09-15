@@ -497,15 +497,24 @@ public function find_province_code_by_desc($desc) {
     }
 
 
-   public function find_city_code_by_desc($desc, $provCode) {
+public function find_city_code_by_desc($desc, $provCode) {
         if (empty($desc) || empty($provCode)) return '';
+        
         $desc = trim($desc);
+        $cleanSearchDesc = str_ireplace('City of ', '', $desc);
 
         // Strictly restrict the database fetch to the specific province code passed
         $this->db->where('provCode', $provCode);
         $cities = $this->db->select('cityCode, citymunDesc')->get('refcitymun')->result_array();
 
-        // If no cities found under this province, return empty immediately
+        // Fallback: If 0 cities found, try formatting/padding the province code (e.g., '3' vs '03')
+        if (empty($cities) && strlen($provCode) < 4) {
+            $paddedProvCode = str_pad($provCode, 4, '0', STR_PAD_LEFT);
+            $this->db->where('provCode', $paddedProvCode);
+            $cities = $this->db->select('cityCode, citymunDesc')->get('refcitymun')->result_array();
+        }
+
+        // If still no cities found under this province, return empty immediately
         if (empty($cities)) {
             return '';
         }
@@ -514,8 +523,13 @@ public function find_province_code_by_desc($desc) {
         $shortestDistance = -1;
 
         foreach ($cities as $c) {
-            $cleanDbDesc = str_ireplace('City of ', '', $c['citymunDesc']);
-            $cleanSearchDesc = str_ireplace('City of ', '', $desc);
+            // Clean and trim database municipality description to avoid hidden spaces/issues
+            $cleanDbDesc = trim(str_ireplace('City of ', '', $c['citymunDesc']));
+
+            // Case-insensitive exact match check
+            if (strcasecmp($cleanSearchDesc, $cleanDbDesc) === 0) {
+                return $c['cityCode'];
+            }
 
             $distance = levenshtein(strtolower($cleanSearchDesc), strtolower($cleanDbDesc));
             if ($distance === 0) return $c['cityCode'];
@@ -531,11 +545,11 @@ public function find_province_code_by_desc($desc) {
             $matchedCityName = '';
             foreach ($cities as $c) {
                 if ($c['cityCode'] === $closestCode) {
-                    $matchedCityName = str_ireplace('City of ', '', $c['citymunDesc']);
+                    $matchedCityName = trim(str_ireplace('City of ', '', $c['citymunDesc']));
                     break;
                 }
             }
-            if (abs(strlen(str_ireplace('City of ', '', $desc)) - strlen($matchedCityName)) <= 2) {
+            if (abs(strlen($cleanSearchDesc) - strlen($matchedCityName)) <= 2) {
                 return $closestCode;
             }
         }
