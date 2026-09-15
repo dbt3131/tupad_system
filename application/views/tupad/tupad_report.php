@@ -211,12 +211,14 @@
 
 <!-- 2. TUPAD CONVERGENCE SUMMARY REPORT MATRIX TABLE -->
 <div class="mb-4">
-    <h5 class="fw-bold mb-3 text-secondary"><i class="bi bi-diagram-3-fill me-2"></i> TUPAD Convergence Summary Report</h5>
+    <h5 class="fw-bold mb-3 text-primary"><i class="bi bi-diagram-3-fill me-2"></i> TUPAD Convergence Summary Report</h5>
     <div class="table-responsive">
         <table class="table table-bordered table-striped align-middle text-center small">
             <thead class="table-dark text-uppercase">
                 <tr>
-                    <th class="text-start">PROVINCE</th>
+                    <th class="text-start">
+                        <?= (isset($view_type) && $view_type == 'province_only') ? 'PROVINCE' : 'PROVINCE / MUNICIPALITY'; ?>
+                    </th>
                     <?php if (!empty($report_data['convergence_types'])): ?>
                         <?php foreach ($report_data['convergence_types'] as $conv_type): ?>
                             <th><?= html_escape($conv_type['convergence_desc']); ?></th>
@@ -235,33 +237,81 @@
                     }
                 }
 
-                if (!empty($report_data['provinces'])): 
-                    foreach ($report_data['provinces'] as $prov): 
-                ?>
-                    <tr>
-                        <td class="fw-bold text-start"><?= html_escape($prov['provDesc']); ?></td>
-                        <?php 
-                        if (!empty($report_data['convergence_types'])):
-                            foreach ($report_data['convergence_types'] as $conv_type): 
-                                // Adjust array keys based on how your backend model structures the convergence matrix mapping
-                                $conv_count = isset($report_data['convergence_matrix'][$prov['provCode']][$conv_type['convergence_id']]) 
-                                              ? $report_data['convergence_matrix'][$prov['provCode']][$conv_type['convergence_id']] 
-                                              : 0;
-                                
-                                $conv_column_totals[$conv_type['convergence_id']] += $conv_count;
-                        ?>
-                            <td><?= $conv_count > 0 ? $conv_count : '-'; ?></td>
-                        <?php 
-                            endforeach; 
-                        endif;
-                        ?>
-                    </tr>
-                <?php 
-                    endforeach; 
-                endif;
+                if (isset($view_type) && $view_type == 'province_only') {
+                    // --- VIEW MODE: PROVINCES ONLY ---
+                    if (!empty($report_data['provinces'])): 
+                        foreach ($report_data['provinces'] as $prov): 
+                    ?>
+                        <tr>
+                            <td class="fw-bold text-start"><?= html_escape($prov['provDesc']); ?></td>
+                            <?php 
+                            if (!empty($report_data['convergence_types'])):
+                                foreach ($report_data['convergence_types'] as $conv_type): 
+                                    $conv_count = isset($report_data['convergence_matrix'][$prov['provCode']][$conv_type['convergence_id']]) 
+                                                  ? $report_data['convergence_matrix'][$prov['provCode']][$conv_type['convergence_id']] 
+                                                  : 0;
+                                    
+                                    $conv_column_totals[$conv_type['convergence_id']] += $conv_count;
+                            ?>
+                                <td><?= $conv_count > 0 ? $conv_count : '-'; ?></td>
+                            <?php 
+                                endforeach; 
+                            endif;
+                            ?>
+                        </tr>
+                    <?php 
+                        endforeach; 
+                    endif;
+
+                } else {
+                    // --- VIEW MODE: ALL or MUNICIPALITY ONLY ---
+                    if (!empty($report_data['provinces'])): 
+                        foreach ($report_data['provinces'] as $prov): 
+                            $prov_munis = array_filter($report_data['municipalities'], function($m) use ($prov) {
+                                return $m['provCode'] == $prov['provCode'];
+                            });
+
+                            if (!isset($view_type) || $view_type == 'all'):
+                    ?>
+                        <tr class="table-secondary">
+                            <td colspan="<?= count($report_data['convergence_types']) + 1 ?>" class="fw-bold text-start text-dark">
+                                <i class="bi bi-geo-alt-fill me-1"></i> <?= html_escape($prov['provDesc']); ?>
+                            </td>
+                        </tr>
+                    <?php 
+                            endif;
+
+                            if (!empty($prov_munis)):
+                                foreach ($prov_munis as $muni):
+                    ?>
+                        <tr>
+                            <td class="text-start <?= (isset($view_type) && $view_type == 'municipality_only') ? 'fw-semibold' : 'ps-4'; ?>">
+                                <?= (isset($view_type) && $view_type == 'municipality_only') ? html_escape($prov['provDesc'] . ' — ' . $muni['citymunDesc']) : html_escape($muni['citymunDesc']); ?>
+                            </td>
+                            <?php 
+                            if (!empty($report_data['convergence_types'])):
+                                foreach ($report_data['convergence_types'] as $conv_type): 
+                                    $conv_count = isset($report_data['convergence_matrix'][$prov['provCode']][$muni['cityCode']][$conv_type['convergence_id']]) 
+                                                  ? $report_data['convergence_matrix'][$prov['provCode']][$muni['cityCode']][$conv_type['convergence_id']] 
+                                                  : 0;
+                                    
+                                    $conv_column_totals[$conv_type['convergence_id']] += $conv_count;
+                            ?>
+                                <td><?= $conv_count > 0 ? $conv_count : '-'; ?></td>
+                            <?php 
+                                endforeach; 
+                            endif;
+                            ?>
+                        </tr>
+                    <?php 
+                                endforeach;
+                            endif; 
+                        endforeach; 
+                    endif; 
+                }
                 ?>
             </tbody>
-            <tfoot class="table-secondary fw-bold text-dark">
+           <tfoot class="table-dark fw-bold">
                 <tr>
                     <td class="text-start">TOTAL:</td>
                     <?php if (!empty($report_data['convergence_types'])): ?>
@@ -274,7 +324,6 @@
         </table>
     </div>
 </div>
-
                     </div>
                 </div>
 

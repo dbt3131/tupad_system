@@ -57,20 +57,32 @@ class Tupad_Report_Bene_Model extends CI_Model {
             }
         }
 
-        // Query for Table 2: Convergence Summary Matrix (Grouped by Province & Convergence Type)
-        $this->db->select('t.tupad_province, t.tupad_convergence, COUNT(t.tupad_idnumber) as conv_count');
+        // Query for Table 2: Convergence Summary Matrix (Grouped by Province, Municipality & Convergence Type)
+        $this->db->select('t.tupad_province, t.tupad_municipality, t.tupad_convergence, COUNT(t.tupad_idnumber) as conv_count');
         $this->db->from('tbl_tupad_list t');
         
         if (!empty($start_date) && !empty($end_date)) {
             $this->db->where('DATE(t.uploaded_at) >=', $start_date);
             $this->db->where('DATE(t.uploaded_at) <=', $end_date);
         }
-        $this->db->group_by(['t.tupad_province', 't.tupad_convergence']);
+        $this->db->group_by(['t.tupad_province', 't.tupad_municipality', 't.tupad_convergence']);
         $conv_query = $this->db->get()->result_array();
 
         $convergence_matrix = [];
         foreach ($conv_query as $row) {
-            $convergence_matrix[$row['tupad_province']][$row['tupad_convergence']] = $row['conv_count'];
+            $prov = $row['tupad_province'];
+            $muni = $row['tupad_municipality'];
+            $conv = $row['tupad_convergence'];
+            $count = $row['conv_count'];
+
+            // Municipality level storage
+            $convergence_matrix[$prov][$muni][$conv] = $count;
+
+            // Accumulated Province level storage (used when province_only view is active)
+            if (!isset($convergence_matrix[$prov][$conv])) {
+                $convergence_matrix[$prov][$conv] = 0;
+            }
+            $convergence_matrix[$prov][$conv] += $count;
         }
 
         return [
