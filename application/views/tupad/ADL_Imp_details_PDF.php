@@ -118,9 +118,11 @@ function display_val($value, $type = 'text') {
                 </div>
 
                 <div>
-                    <button onclick="window.print()" class="btn btn-primary shadow-sm px-4">
-                        <i class="bi bi-printer me-2"></i>Print / Save PDF
-                    </button>
+                    <div>
+    <a href="<?= site_url('adl/export_transaction_excel/' . $transaction['adl_transact_id']); ?>" class="btn btn-success shadow-sm px-4">
+        <i class="bi bi-file-earmark-excel me-2"></i>Download Excel
+    </a>
+    </div>
 
              
                 </div>
@@ -211,9 +213,9 @@ function display_val($value, $type = 'text') {
 
                 <!-- Action Footer inside card -->
                 <div class="mt-5 pt-4 text-center border-top no-print">
-                    <button onclick="window.print()" class="btn btn-outline-primary px-4 rounded-pill">
-                        <i class="bi bi-printer me-1"></i> Print / Save as PDF
-                    </button>
+                <a href="<?= site_url('adl/export_transaction_excel/' . $transaction['adl_transact_id']); ?>" class="btn btn-outline-success px-4 rounded-pill">
+                   <i class="bi bi-file-earmark-excel me-1"></i> Download as Excel
+                </a>
                 </div>
 
             </div>

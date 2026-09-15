@@ -365,7 +365,105 @@ public function check_duplicate_proponent() {
     }
 }
 
+public function export_transaction_excel($id) {
+        $this->load->model('ADL_Model');
+        $transaction = $this->ADL_Model->get_transaction_details($id);
 
+        if (empty($transaction)) {
+            show_404();
+        }
+
+        // Clean values for excel display (strip html tags if any helper functions add icons)
+        $clean = function($val) {
+            return is_null($val) ? '' : strip_tags($val);
+        };
+
+        // Define Headers / Columns corresponding to your view sections
+        $headers = [
+            'ADL Number', 'Reference No', 'Province', 'Area / Municipality', 'Barangay', 
+            'District', 'Classification', 'Proponent', 'Sponsor', 'Date Coordinated', 
+            'Remarks', 'Wage Percentage', 'GPAI Info', 'Wage Info', 
+            'Appraisal Date Submitted', 'Appraisal Date Approved', 'PPES Issuance RIS', 
+            'PPES Date Issued', 'PPES Count', 'PPES Amount', 
+            'Orientation Date', 'Orientation Beneficiaries', 'Orientation Period', 
+            'GSIS Enrollment Date', 'GSIS Beneficiaries', 'GSIS Amount', 
+            'Start Date (Ongoing)', 'End Date (Ongoing)', 'Ongoing Beneficiaries', 
+            'Completed Period', 'Completed Beneficiaries', 'Completed Amount', 'Completed Documentation', 
+            'Payment ALOB No', 'Payment DV No', 'Payment Check No', 'Payment Date', 'Payment Amount', 
+            'Payout Date', 'Payout Service Cost', 'Payout Method', 
+            'Encoded Date', 'Encoded By'
+        ];
+
+        // Define Row Data matching the headers in exact 1-row format
+        $row_data = [
+            $clean($transaction['adl_no'] ?? ''),
+            $clean($transaction['implementation_reference_no'] ?? ''),
+            $clean($transaction['implementation_province_name'] ?? ''),
+            $clean($transaction['implementation_area_name'] ?? ''),
+            $clean($transaction['implementation_brgy_name'] ?? ''),
+            $clean($transaction['implementation_district'] ?? ''),
+            $clean($transaction['implementation_classification'] ?? ''),
+            $clean($transaction['proponent_name'] ?? ''),
+            $clean($transaction['implementation_sponsor'] ?? ''),
+            $clean($transaction['date_coordinated'] ?? ''),
+            $clean($transaction['remarks'] ?? ''),
+            $clean($transaction['wage_percentage'] ?? ''),
+            $clean($transaction['gpai_info'] ?? ''),
+            $clean($transaction['wage_info'] ?? ''),
+            $clean($transaction['appraisal_date_submitted'] ?? ''),
+            $clean($transaction['appraisal_date_approved'] ?? ''),
+            $clean($transaction['ppes_issuance_ris'] ?? ''),
+            $clean($transaction['ppes_date_issued'] ?? ''),
+            $clean($transaction['ppes_count'] ?? ''),
+            $clean($transaction['ppes_amount'] ?? ''),
+            $clean($transaction['orientation_date'] ?? ''),
+            $clean($transaction['orientation_benefs'] ?? ''),
+            $clean($transaction['orientation_employment_period'] ?? ''),
+            $clean($transaction['gsis_enrollment_date'] ?? ''),
+            $clean($transaction['gsis_enrollment_benefs'] ?? ''),
+            $clean($transaction['gsis_enrollment_amount'] ?? ''),
+            $clean($transaction['ongoing_implementation_start_date'] ?? ''),
+            $clean($transaction['ongoing_implementation_end_date'] ?? ''),
+            $clean($transaction['ongoing_implementation_benefs'] ?? ''),
+            $clean($transaction['completed_employment_period'] ?? ''),
+            $clean($transaction['completed_employment_benefs'] ?? ''),
+            $clean($transaction['completed_employment_amount'] ?? ''),
+            $clean($transaction['completed_employment_documentation'] ?? ''),
+            $clean($transaction['payment_alob_no'] ?? ''),
+            $clean($transaction['payment_dv_no'] ?? ''),
+            $clean($transaction['payment_check_no'] ?? ''),
+            $clean($transaction['payment_date'] ?? ''),
+            $clean($transaction['payment_amount'] ?? ''),
+            $clean($transaction['payout_date'] ?? ''),
+            $clean($transaction['payout_service_cost'] ?? ''),
+            $clean($transaction['payout_method'] ?? ''),
+            $clean($transaction['encoded_date'] ?? ''),
+            $clean($transaction['encoder_name'] ?? '')
+        ];
+
+        // Set Headers for Excel Download (.xls / XML or CSV format that opens natively in Excel)
+        $filename = "ADL_Record_" . (!empty($transaction['implementation_reference_no']) ? $transaction['implementation_reference_no'] : $id) . ".xls";
+        
+        header("Content-Type: application/vnd.ms-excel");
+        header("Content-Disposition: attachment; filename=\"$filename\"");
+        header("Cache-Control: max-age=0");
+
+        // Output as a clean HTML table formatted for Excel columns
+        echo '<table border="1">';
+        echo '<tr style="background-color: #1e3a8a; color: #ffffff; font-weight: bold;">';
+        foreach ($headers as $header) {
+            echo '<th>' . html_escape($header) . '</th>';
+        }
+        echo '</tr>';
+
+        echo '<tr>';
+        foreach ($row_data as $val) {
+            echo '<td>' . html_escape($val) . '</td>';
+        }
+        echo '</tr>';
+        echo '</table>';
+        exit;
+    }
 
 
 

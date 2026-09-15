@@ -341,6 +341,20 @@
     <!-- DataTables JS & BS5 Setup -->
     <script src="https://cdn.jsdelivr.net/npm/datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/datatables.net-bs5/1.13.8/js/dataTables.bootstrap5.min.js"></script>
+    <script>
+    $(document).ready(function () {
+        // Sidebar Toggle Handler
+        $(document).on('click', '#sidebarToggle', function (e) {
+            e.preventDefault();
+            if ($(window).width() < 992) {
+                $('#sidebar').toggleClass('show-mobile');
+            } else {
+                $('#sidebar').toggleClass('collapsed');
+                $('#main-content').toggleClass('expanded');
+            }
+        });
+    });
+    </script>
 </body>
 
 </html>
