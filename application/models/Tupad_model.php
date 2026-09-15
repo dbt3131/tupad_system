@@ -497,25 +497,20 @@ class Tupad_model extends CI_Model {
         $this->db->where('provCode', $provCode);
         $cities = $this->db->select('cityCode, citymunDesc')->get('refcitymun')->result_array();
 
+        // If no cities found under this province, return empty immediately
         if (empty($cities)) {
             return '';
         }
 
         $closestCode = '';
         $shortestDistance = -1;
-        $exactMatchFound = false;
-
-        $cleanSearchDesc = str_ireplace('City of ', '', $desc);
 
         foreach ($cities as $c) {
             $cleanDbDesc = str_ireplace('City of ', '', $c['citymunDesc']);
+            $cleanSearchDesc = str_ireplace('City of ', '', $desc);
 
             $distance = levenshtein(strtolower($cleanSearchDesc), strtolower($cleanDbDesc));
-            
-            // If it's an exact match, accept it immediately
-            if ($distance === 0) {
-                return $c['cityCode'];
-            }
+            if ($distance === 0) return $c['cityCode'];
 
             if ($distance < $shortestDistance || $shortestDistance < 0) {
                 $closestCode = $c['cityCode'];
@@ -523,33 +518,24 @@ class Tupad_model extends CI_Model {
             }
         }
 
-        // SAFETY FIX: 
-        // 1. Lower the threshold from 5 to 1 or 2 so typos are allowed, but completely different names are rejected.
-        // 2. Ensure the length difference isn't too huge (e.g., searching "Angat" (5 chars) shouldn't map to "Dinalupihan" (11 chars)).
+        // Tightened threshold and length safety check for cities
         if ($shortestDistance >= 0 && $shortestDistance <= 2) {
-            // Optional extra safeguard: check length discrepancy to prevent short words matching long words loosely
             $matchedCityName = '';
-            foreach($cities as $c) {
-                if($c['cityCode'] === $closestCode) {
+            foreach ($cities as $c) {
+                if ($c['cityCode'] === $closestCode) {
                     $matchedCityName = str_ireplace('City of ', '', $c['citymunDesc']);
                     break;
                 }
             }
-            
-            // If length difference is too high, reject it as a false fuzzy match
-            if (abs(strlen($cleanSearchDesc) - strlen($matchedCityName)) <= 2) {
+            if (abs(strlen(str_ireplace('City of ', '', $desc)) - strlen($matchedCityName)) <= 2) {
                 return $closestCode;
             }
         }
 
-        return ''; // Return empty string if no valid close match exists in this province
+        return '';
     }
 
-
-
-
-    
-public function find_barangay_code_by_desc($desc, $citymunCode = null) {
+    public function find_barangay_code_by_desc($desc, $citymunCode = null) {
         if (empty($desc) || empty($citymunCode)) {
             // Strictly fail if no valid municipality code is passed
             return '';
@@ -567,9 +553,10 @@ public function find_barangay_code_by_desc($desc, $citymunCode = null) {
         $closestCode = '';
         $shortestDistance = -1;
 
+        $cleanSearchBrgy = preg_replace('/^(brgy|barangay|poblacion)\.?\s+/i', '', $desc);
+
         foreach ($barangays as $b) {
             $cleanDbBrgy = preg_replace('/^(brgy|barangay|poblacion)\.?\s+/i', '', $b['brgyDesc']);
-            $cleanSearchBrgy = preg_replace('/^(brgy|barangay|poblacion)\.?\s+/i', '', $desc);
 
             // Exact case-insensitive match check first
             if (strcasecmp(trim($cleanSearchBrgy), trim($cleanDbBrgy)) === 0) {
@@ -583,8 +570,23 @@ public function find_barangay_code_by_desc($desc, $citymunCode = null) {
             }
         }
 
-        // Return code only if it's a close enough match within this specific municipality
-        return ($shortestDistance <= 4) ? $closestCode : '';
+        // Return code only if it's a tight match (distance <= 2) AND text length is close
+        if ($shortestDistance >= 0 && $shortestDistance <= 2) {
+            $matchedBrgyName = '';
+            foreach ($barangays as $b) {
+                if ($b['brgyCode'] === $closestCode) {
+                    $matchedBrgyName = preg_replace('/^(brgy|barangay|poblacion)\.?\s+/i', '', $b['brgyDesc']);
+                    break;
+                }
+            }
+
+            // Prevent short names from loosely matching long unrelated barangay names
+            if (abs(strlen($cleanSearchBrgy) - strlen($matchedBrgyName)) <= 2) {
+                return $closestCode;
+            }
+        }
+
+        return '';
     }
 
 
