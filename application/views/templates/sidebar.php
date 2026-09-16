@@ -10,6 +10,7 @@ $is_alloc_active  = in_array($current_controller, ['tupad_allocations', 'tupad_m
 $is_payroll_active  = in_array($current_controller, ['tupad_payrolls']);
 $is_adl_active  = in_array($current_controller, ['ADL']);
 $is_config_active  = in_array($current_controller, ['ADL']);
+$is_report_active  = in_array($current_controller, ['ADL']);
 ?>
 
 <style>
@@ -291,18 +292,6 @@ $is_config_active  = in_array($current_controller, ['ADL']);
           </a>
         </li>
       </ul>
-
-       <ul class="collapse submenu list-unstyled <?= $is_tupad_active ? 'show' : ''; ?>" id="tupadSubmenu">
-        <li>
-          <a href="<?= site_url('tupad_report/tupad_summ_report'); ?>" 
-             class="nav-sub-link <?= ($current_controller === 'tupad_report' && $current_method === 'tupad_summ_report') ? 'active' : ''; ?>">
-            <i class="bi bi-circle"></i>
-            <span>Total Summary Report</span>
-          </a>
-        </li>
-      </ul>
-
-
 </li>
 
 <!--
@@ -419,26 +408,6 @@ $is_config_active  = in_array($current_controller, ['ADL']);
           </a>
         </li>
       </ul>
-
-       <ul class="collapse submenu list-unstyled <?= $is_adl_active ? 'show' : ''; ?>" id="ADLsubmenu">
-        <li>
-          <a href="<?= site_url('ADL/ADL_report'); ?>" 
-             class="nav-sub-link <?= ($current_controller === 'ADL' && $current_method === 'ADL_report') ? 'active' : ''; ?>">
-            <i class="bi bi-circle"></i>
-            <span>ADL Report</span>
-          </a>
-        </li>
-      </ul>
-
-        <ul class="collapse submenu list-unstyled <?= $is_adl_active ? 'show' : ''; ?>" id="ADLsubmenu">
-        <li>
-          <a href="<?= site_url('Tupad_Report/coa_tupad_report_page'); ?>" 
-             class="nav-sub-link <?= ($current_controller === 'Tupad_Report' && $current_method === 'coa_tupad_report_page') ? 'active' : ''; ?>">
-            <i class="bi bi-circle"></i>
-            <span>COA Report</span>
-          </a>
-        </li>
-      </ul>
     </li>
 
 <li class="nav-item dropdown">
@@ -461,6 +430,54 @@ $is_config_active  = in_array($current_controller, ['ADL']);
           </a>
         </li>
       </ul>
+    </li>
+
+    <li class="nav-item dropdown">
+      <a href="#reportMenu" 
+         class="nav-link <?= $is_report_active ? '' : 'collapsed'; ?>" 
+         data-bs-toggle="collapse" 
+         aria-expanded="<?= $is_report_active ? 'true' : 'false'; ?>">
+        <i class="bi bi-gear me-2"></i>
+        <span>Reports</span>
+        <i class="bi bi-chevron-down ms-auto dropdown-chevron"></i>
+      </a>
+      
+      <!-- Subcategory Menu -->
+      <ul class="collapse submenu list-unstyled <?= $is_report_active ? 'show' : ''; ?>" id="reportMenu">
+        <li>
+          <a href="<?= site_url('ADL/ADL_report'); ?>" 
+             class="nav-sub-link <?= ($current_controller === 'ADL' && $current_method === 'ADL_report') ? 'active' : ''; ?>">
+            <i class="bi bi-circle"></i>
+            <span>ADL Distribution Report</span>
+          </a>
+        </li>
+      </ul>
+
+   <ul class="collapse submenu list-unstyled <?= $is_report_active ? 'show' : ''; ?>" id="reportMenu">
+        <li>
+          <a href="<?= site_url('Tupad_Report/coa_tupad_report_page'); ?>" 
+             class="nav-sub-link <?= ($current_controller === 'Tupad_Report' && $current_method === 'coa_tupad_report_page') ? 'active' : ''; ?>">
+            <i class="bi bi-circle"></i>
+            <span>COA Quarterly Report</span>
+          </a>
+        </li>
+      </ul>
+
+    <ul class="collapse submenu list-unstyled <?= $is_report_active ? 'show' : ''; ?>" id="reportMenu">
+        <li>
+          <a href="<?= site_url('tupad_report/tupad_summ_report'); ?>" 
+             class="nav-sub-link <?= ($current_controller === 'tupad_report' && $current_method === 'tupad_summ_report') ? 'active' : ''; ?>">
+            <i class="bi bi-circle"></i>
+            <span>Benefs Summary Report</span>
+          </a>
+        </li>
+      </ul>
+
+
+
+
+
+      
     </li>
 
     

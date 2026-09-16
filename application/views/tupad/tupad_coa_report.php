@@ -166,8 +166,8 @@
                             <th rowspan="2">No. of Extensions</th>
                             <th rowspan="2">Target Completion Date<br><small>(DD/MM/YYYY)</small></th>
                             <th rowspan="2">Actual Date of Completion<br><small>(DD/MM/YYYY)</small></th>
-                            <th colspan="3">Project Status this Quarter</th>
-                            <th rowspan="2">Total Cost Incurred to Date</th>
+                            <th colspan="2">Project Status this Quarter</th>
+                            <th rowspan="2">Cost Incurred to Date</th>
                             <th rowspan="2">Remarks</th>
                             <th rowspan="2">Mode of Procurement</th>
                             <th rowspan="2">Contractor (If applicable)</th>
@@ -175,9 +175,8 @@
                         <tr>
                             <th>Province</th>
                             <th>LGU/Municipality</th>
-                            <th>Target Completion Date (DD/MM/YYYY)</th>
-                            <th>Actual Date of Completion (DD/MM/YYYY)</th>
                             <th>% of Completion</th>
+                            <th>Total Cost Incurred this Quarter</th>
                         </tr>
                     </thead>
                     <tbody>

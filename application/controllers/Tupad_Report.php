@@ -7,6 +7,7 @@ class Tupad_Report extends CI_Controller {
         parent::__construct();
         $this->load->database();
         $this->load->model('Tupad_Report_Model');
+         $this->load->model('Tupad_Report_Bene_Model');
         $this->load->helper(['url', 'form']);
     }
         
