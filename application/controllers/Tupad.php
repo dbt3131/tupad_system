@@ -87,6 +87,35 @@ class Tupad extends CI_Controller
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 public function upload_tupad_excel()
 {
     if (!$this->session->userdata('logged_in')) {
@@ -190,7 +219,7 @@ public function upload_tupad_excel()
     }
 
     foreach ($expected_headers as $index => $expected_col) {
-        $actual_col = $uploaded_headers[$index] ?? '';
+        $actual_col = isset($uploaded_headers[$index]) ? $uploaded_headers[$index] : '';
         if (strcasecmp($expected_col, $actual_col) !== 0) {
             @unlink($filePath);
             echo json_encode([
@@ -202,17 +231,17 @@ public function upload_tupad_excel()
     }
     // ==========================================
 
-    // 1. Strict cleaner exclusively for names (removes numbers, periods, commas, special characters except hyphens)
+    // 1. Strict cleaner exclusively for names
     $clean_name = function($val) {
-        $val = trim($val ?? '');
+        $val = trim(isset($val) ? $val : '');
         $val = preg_replace('/[^\p{L}\s\-]/u', '', $val);
         $val = preg_replace('/\s+/', ' ', $val);
         return $val;
     };
 
-    // 2. General cleaner for other fields (keeps periods/special characters like in barangays, streets, etc.)
+    // 2. General cleaner for other fields
     $clean_general = function($val) {
-        $val = trim($val ?? '');
+        $val = trim(isset($val) ? $val : '');
         $val = preg_replace('/\s+/', ' ', $val);
         return $val;
     };
@@ -241,7 +270,7 @@ public function upload_tupad_excel()
             return "Validation Error (Row {$row_num}): {$field_label} '{$name}' contains invalid special characters.";
         }
 
-        if (str_starts_with($name, '-') || str_ends_with($name, '-')) {
+        if (substr($name, 0, 1) === '-' || substr($name, -1) === '-') {
             return "Validation Error (Row {$row_num}): {$field_label} '{$name}' cannot start or end with a hyphen '-'.";
         }
 
@@ -262,20 +291,15 @@ public function upload_tupad_excel()
             continue;
         }
 
-        $row_num      = $i + 1;
-        // Strict cleaning applied ONLY to name fields
-        $fname        = $clean_name($row[1] ?? '');
-        $mname        = $clean_name($row[2] ?? '');
-        $lname        = $clean_name($row[3] ?? '');
-        $gender       = $clean_general($row[5] ?? ''); 
-        $dob_month    = $row[6] ?? '';
-        $dob_day      = $row[7] ?? '';
-        $dob_year     = $row[8] ?? '';
+        $row_num   = $i + 1;
+        $fname     = $clean_name(isset($row[1]) ? $row[1] : '');
+        $mname     = $clean_name(isset($row[2]) ? $row[2] : '');
+        $lname     = $clean_name(isset($row[3]) ? $row[3] : '');
+        $gender    = $clean_general(isset($row[5]) ? $row[5] : ''); 
         
-        // General cleaning applied to location fields (preserves periods in brgy, etc.)
-        $rawProv      = $clean_general($row[9] ?? '');
-        $rawCity      = $clean_general($row[10] ?? '');
-        $rawBrgy      = $clean_general($row[11] ?? '');
+        $rawProv   = $clean_general(isset($row[9]) ? $row[9] : '');
+        $rawCity   = $clean_general(isset($row[10]) ? $row[10] : '');
+        $rawBrgy   = $clean_general(isset($row[11]) ? $row[11] : '');
 
         // Validate First Name (Required)
         $err = $validate_name_field($fname, 'First Name', $row_num, true);
@@ -289,23 +313,61 @@ public function upload_tupad_excel()
         $err = $validate_name_field($lname, 'Last Name', $row_num, true);
         if ($err) { $discrepancies[] = $err; }
 
-        // Validate Gender
-        if (trim($gender) === '') {
+        // ==========================================
+        // VALIDATE GENDER (Column F: MALE or FEMALE)
+        // ==========================================
+        $gender_upper = strtoupper(trim($gender));
+        if ($gender_upper === '') {
             $discrepancies[] = "Validation Error (Row {$row_num}): Gender cannot be blank.";
-        } else {
-            $err = $validate_name_field($gender, 'Gender', $row_num, true);
-            if ($err) { $discrepancies[] = $err; }
+        } elseif ($gender_upper !== 'MALE' && $gender_upper !== 'FEMALE') {
+            $discrepancies[] = "Validation Error (Row {$row_num}): Gender '{$gender}' is invalid. It must be either MALE or FEMALE.";
         }
 
-        // Validate Birth Date Fields (Cannot be blank)
-        if (trim($row[6] ?? '') === '') {
+        // ==========================================
+        // BIRTH DATE VALIDATION (Columns G, H, I)
+        // ==========================================
+        $dob_month_raw = trim(isset($row[6]) ? $row[6] : '');
+        $dob_day_raw   = trim(isset($row[7]) ? $row[7] : '');
+        $dob_year_raw  = trim(isset($row[8]) ? $row[8] : '');
+
+        $dob_has_error = false;
+
+        // Column G: Month (1 to 12)
+        if ($dob_month_raw === '') {
             $discrepancies[] = "Validation Error (Row {$row_num}): Birth Month (tupad_dob_month) cannot be blank.";
+            $dob_has_error = true;
+        } elseif (!is_numeric($dob_month_raw) || (int)$dob_month_raw < 1 || (int)$dob_month_raw > 12) {
+            $discrepancies[] = "Validation Error (Row {$row_num}): Birth Month (tupad_dob_month) must be a numeric value between 1 and 12.";
+            $dob_has_error = true;
         }
-        if (trim($row[7] ?? '') === '') {
+
+        // Column H: Day (1 to 31)
+        if ($dob_day_raw === '') {
             $discrepancies[] = "Validation Error (Row {$row_num}): Birth Day (tupad_dob_day) cannot be blank.";
+            $dob_has_error = true;
+        } elseif (!is_numeric($dob_day_raw) || (int)$dob_day_raw < 1 || (int)$dob_day_raw > 31) {
+            $discrepancies[] = "Validation Error (Row {$row_num}): Birth Day (tupad_dob_day) must be a numeric value between 1 and 31.";
+            $dob_has_error = true;
         }
-        if (trim($row[8] ?? '') === '') {
+
+        // Column I: Year (1915 to 2020)
+        if ($dob_year_raw === '') {
             $discrepancies[] = "Validation Error (Row {$row_num}): Birth Year (tupad_dob_year) cannot be blank.";
+            $dob_has_error = true;
+        } elseif (!is_numeric($dob_year_raw) || (int)$dob_year_raw < 1915 || (int)$dob_year_raw > 2020) {
+            $discrepancies[] = "Validation Error (Row {$row_num}): Birth Year (tupad_dob_year) must be between 1915 and 2020.";
+            $dob_has_error = true;
+        }
+
+        // Calendar Date Validity Check
+        if (!$dob_has_error) {
+            $m = (int)$dob_month_raw;
+            $d = (int)$dob_day_raw;
+            $y = (int)$dob_year_raw;
+
+            if (!checkdate($m, $d, $y)) {
+                $discrepancies[] = "Validation Error (Row {$row_num}): The date combination ({$m}/{$d}/{$y}) is invalid according to standard calendar rules.";
+            }
         }
 
         // =========================================================================
@@ -398,63 +460,63 @@ public function upload_tupad_excel()
             continue;
         }
 
-        $fname = $clean_name($row[1] ?? '');
-        $mname = $clean_name($row[2] ?? '');
-        $lname = $clean_name($row[3] ?? '');
-        $ext   = $clean_name($row[4] ?? '');
+        $fname = $clean_name(isset($row[1]) ? $row[1] : '');
+        $mname = $clean_name(isset($row[2]) ? $row[2] : '');
+        $lname = $clean_name(isset($row[3]) ? $row[3] : '');
+        $ext   = $clean_name(isset($row[4]) ? $row[4] : '');
 
-        $rawProv = $clean_general($row[9] ?? '');
-        $rawCity = $clean_general($row[10] ?? '');
-        $rawBrgy = $clean_general($row[11] ?? '');
+        $rawProv = $clean_general(isset($row[9]) ? $row[9] : '');
+        $rawCity = $clean_general(isset($row[10]) ? $row[10] : '');
+        $rawBrgy = $clean_general(isset($row[11]) ? $row[11] : '');
 
         $provCode = is_numeric($rawProv) ? $this->format_location_code($rawProv) : $this->Tupad_model->find_province_code_by_desc($rawProv);
         $cityCode = is_numeric($rawCity) ? $this->format_location_code($rawCity) : $this->Tupad_model->find_city_code_by_desc($rawCity, $provCode);
         $brgyCode = is_numeric($rawBrgy) ? $this->format_location_code($rawBrgy) : $this->Tupad_model->find_barangay_code_by_desc($rawBrgy, $cityCode);
 
-        $rawIdType = $clean_general($row[14] ?? '');
+        $rawIdType = $clean_general(isset($row[14]) ? $row[14] : '');
         $idType = is_numeric($rawIdType) ? (int)$rawIdType : $this->Tupad_model->find_type_id_by_desc($rawIdType);
 
-        $rawBeneType = $clean_general($row[17] ?? '');
+        $rawBeneType = $clean_general(isset($row[17]) ? $row[17] : '');
         $beneType = is_numeric($rawBeneType) ? (int)$rawBeneType : $this->Tupad_model->find_bene_type_id_by_desc($rawBeneType);
 
-        $rawConvergence = $clean_general($row[28] ?? '');
+        $rawConvergence = $clean_general(isset($row[28]) ? $row[28] : '');
         $convergenceId = is_numeric($rawConvergence) ? (int)$rawConvergence : $this->Tupad_model->find_convergence_id_by_desc($rawConvergence);
 
-        $rawEpayment = $clean_general($row[20] ?? '');
+        $rawEpayment = $clean_general(isset($row[20]) ? $row[20] : '');
         $epaymentId  = is_numeric($rawEpayment) ? (int)$rawEpayment : $this->Tupad_model->find_epayment_id_by_desc($rawEpayment);
 
-        $rawSkills = $clean_general($row[19] ?? '');
+        $rawSkills = $clean_general(isset($row[19]) ? $row[19] : '');
         $skillsId  = is_numeric($rawSkills) ? (int)$rawSkills : $this->Tupad_model->find_skills_id_by_desc($rawSkills);
 
         $insertData[] = [
-            'tupad_id_no'                 => $clean_general($row[0] ?? ''),
+            'tupad_id_no'                 => $clean_general(isset($row[0]) ? $row[0] : ''),
             'tupad_fname'                 => strtoupper(trim($fname)),
             'tupad_mname'                 => strtoupper(trim($mname)),
             'tupad_lname'                 => strtoupper(trim($lname)),
             'tupad_ext'                   => strtoupper($ext),
-            'tupad_gender'                => strtoupper($clean_general($row[5] ?? '')),
-            'tupad_dob_month'             => $clean_general($row[6] ?? ''),
-            'tupad_dob_day'               => $clean_general($row[7] ?? ''),
-            'tupad_dob_year'              => $clean_general($row[8] ?? ''),
+            'tupad_gender'                => strtoupper($clean_general(isset($row[5]) ? $row[5] : '')),
+            'tupad_dob_month'             => $clean_general(isset($row[6]) ? $row[6] : ''),
+            'tupad_dob_day'               => $clean_general(isset($row[7]) ? $row[7] : ''),
+            'tupad_dob_year'              => $clean_general(isset($row[8]) ? $row[8] : ''),
             'tupad_province'              => $provCode,
             'tupad_municipality'          => $cityCode,
             'tupad_barangay'              => $brgyCode,
-            'tupad_street'                => strtoupper($clean_general($row[12] ?? '')),
-            'tupad_district'              => strtoupper($clean_general($row[13] ?? '')),
+            'tupad_street'                => strtoupper($clean_general(isset($row[12]) ? $row[12] : '')),
+            'tupad_district'              => strtoupper($clean_general(isset($row[13]) ? $row[13] : '')),
             'tupad_idtype'                => strtoupper($idType),
-            'tupad_idnumber'              => $clean_general($row[15] ?? ''),
-            'tupad_contact_no'            => $clean_general($row[16] ?? ''),
+            'tupad_idnumber'              => $clean_general(isset($row[15]) ? $row[15] : ''),
+            'tupad_contact_no'            => $clean_general(isset($row[16]) ? $row[16] : ''),
             'tupad_type'                  => strtoupper($beneType),
-            'tupad_training_Interest'     => strtoupper($clean_general($row[18] ?? '')),
+            'tupad_training_Interest'     => strtoupper($clean_general(isset($row[18]) ? $row[18] : '')),
             'tupad_skills'                => $skillsId, 
             'tupad_epayment'              => $epaymentId, 
-            'tupad_account_no'            => $clean_general($row[21] ?? ''),
-            'tupad_occupation'            => $clean_general($row[22] ?? ''),
-            'tupad_civil_status'          => strtoupper($clean_general($row[23] ?? '')),
-            'tupad_age'                   => $clean_general($row[24] ?? ''),
-            'tupad_average_monthly'       => $clean_general($row[25] ?? ''),
-            'tupad_dependent'             => strtoupper($clean_general($row[26] ?? '')),
-            'tupad_interested_employment' => $clean_general($row[27] ?? ''),      
+            'tupad_account_no'            => $clean_general(isset($row[21]) ? $row[21] : ''),
+            'tupad_occupation'            => $clean_general(isset($row[22]) ? $row[22] : ''),
+            'tupad_civil_status'          => strtoupper($clean_general(isset($row[23]) ? $row[23] : '')),
+            'tupad_age'                   => $clean_general(isset($row[24]) ? $row[24] : ''),
+            'tupad_average_monthly'       => $clean_general(isset($row[25]) ? $row[25] : ''),
+            'tupad_dependent'             => strtoupper($clean_general(isset($row[26]) ? $row[26] : '')),
+            'tupad_interested_employment' => $clean_general(isset($row[27]) ? $row[27] : ''),      
             'tupad_convergence'           => $convergenceId,
             'file_name'                   => $originalFileName,
             'user_id'                     => $uploadedBy,
@@ -486,6 +548,42 @@ public function upload_tupad_excel()
         echo json_encode(['status' => 'error', 'message' => 'The uploaded file was empty or contained no valid records.']);
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1226,36 +1324,6 @@ public function export_excel()
         }
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 public function export_gsis_letter_excel()
     {
     
@@ -1497,38 +1565,8 @@ public function export_gsis_letter_excel()
 
         $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
         $writer->save('php://output');
-
-        
-       
-
         exit;
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     public function delete_gsis_letter() {
         $file_name = $this->input->post('file_name');

@@ -166,8 +166,8 @@
                         <div class="modal-body">
                             <h6 class="fw-bold text-dark">Important Instructions for Uploading:</h6>
                             <ul class="small text-muted mb-3 ps-3">
-                                <li class="mb-1">Kapag mali po spelling or wala po sa PROVINCE ng REGION 3 ang nakalagay sa TUPAD_PROVINCE column. Mag nonotify din ang TUPAD_MUNICIPALITY at TUPAD_BARANGAY na HINDI sila makita sa PROVINCE ng REGION 3. <br><font color="GREEN">Need lang po natin itama ang TUPAD_PROVINCE.</font> </li><br>
-                                <li class="mb-1">Kapag mali po spelling or wala po sa MUNICIPALITY ng PROVINCE ang nakalagay sa TUPAD_MUNICIPALITY column. Mag nonotify din ang TUPAD_BARANGAY na HINDI sila makita sa MUNICIPALITY ng PROVINCE. <br><font color="GREEN">Need lang po natin itama ang TUPAD_MUNICIPALITY.</font> </li><br>
+                                <li class="mb-1">Kapag mali po spelling, blanko or wala po sa PROVINCE ng REGION 3 ang nakalagay sa TUPAD_PROVINCE column. Mag nonotify din ang TUPAD_MUNICIPALITY at TUPAD_BARANGAY na HINDI sila makita sa PROVINCE ng REGION 3. <br><font color="GREEN">Need lang po natin itama ang TUPAD_PROVINCE.</font> </li><br>
+                                <li class="mb-1">Kapag mali po spelling, blanko or wala po sa MUNICIPALITY ng PROVINCE ang nakalagay sa TUPAD_MUNICIPALITY column. Mag nonotify din ang TUPAD_BARANGAY na HINDI sila makita sa MUNICIPALITY ng PROVINCE. <br><font color="GREEN">Need lang po natin itama ang TUPAD_MUNICIPALITY.</font> </li><br>
                                 <li class="mb-1">Name fields must not contain numbers or invalid special characters.</li>
                             </ul>
                             <h6 class="fw-bold text-dark">Steps to Upload:</h6>
