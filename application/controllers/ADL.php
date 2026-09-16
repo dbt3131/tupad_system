@@ -68,6 +68,7 @@ class ADL extends CI_Controller {
         if ($this->input->method() === 'post') {
             $data = [
                 'adl_no'        => $this->input->post('adl_no', true),
+                'adl_sponsor'   => strtoupper($this->input->post('adl_sponsor', true)),
                 'adl_date'      => $this->input->post('adl_date', true),
                 'date_received' => $this->input->post('date_received', true),
                 'target_benefs' => $this->input->post('target_benefs', true),

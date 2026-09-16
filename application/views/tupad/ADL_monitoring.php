@@ -127,7 +127,7 @@ input[type="date"].form-control::-webkit-calendar-picker-indicator {
                     <form action="<?= site_url('adl/store'); ?>" method="POST" id="adlForm">
                         <div class="row g-3">
                             
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <label class="form-label fw-semibold small">ADL No.</label>
                                 <div class="input-group">
                                     <span class="input-group-text bg-light"><i class="bi bi-hash"></i></span>
@@ -135,7 +135,14 @@ input[type="date"].form-control::-webkit-calendar-picker-indicator {
                                 </div>
                             </div>
 
-                            <div class="col-md-6">
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold small">ADL Sponsor</label>
+                                <div class="input-group">
+                                    <input type="text" name="adl_sponsor" class="form-control" placeholder="Enter ADL Sponsor" required>
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
                                 <label class="form-label fw-semibold small">ADL Date</label>
                                 <input type="date" name="adl_date" class="form-control" required>
                             </div>
@@ -185,6 +192,7 @@ input[type="date"].form-control::-webkit-calendar-picker-indicator {
                                 <tr>
                                     <th>ADL No.</th>
                                     <th>ADL Date</th>
+                                    <th>ADL Sponsor</th>
                                     <th>Date Received</th>
                                     <th>Target Beneficiaries</th>                             
                                     <th>Amount</th>
@@ -196,6 +204,7 @@ input[type="date"].form-control::-webkit-calendar-picker-indicator {
                                     <?php foreach ($adl_records as $row): ?>
                                         <tr>
                                             <td class="fw-semibold"><?= html_escape($row['adl_no']); ?></td>
+                                            <td><?= html_escape($row['adl_sponsor']); ?></td>
                                             <td><?= html_escape($row['adl_date']); ?></td>
                                             <td><?= html_escape($row['date_received']); ?></td>
                                             <td><?= number_format($row['target_benefs']); ?></td>
