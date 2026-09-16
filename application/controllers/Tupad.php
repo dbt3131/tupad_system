@@ -865,7 +865,13 @@ public function upload_tupad_excel()
         }
     }
 
-    public function export_excel()
+
+
+
+
+
+
+public function export_excel()
     {
         $file_name = $this->input->get('file_name');
         $province  = $this->input->get('province');
@@ -888,13 +894,11 @@ public function upload_tupad_excel()
 
         foreach ($records as $row) {
             $gender = strtoupper(trim($row['tupad_gender'] ?? ''));
-
             if ($gender === 'M' || $gender === 'MALE') {
                 $maleCount++;
             } elseif ($gender === 'F' || $gender === 'FEMALE') {
                 $femaleCount++;
             }
-            
             if (!empty($row['barangay_name'])) {
                 $brgySet[$row['barangay_name']] = true;
             }
@@ -902,58 +906,175 @@ public function upload_tupad_excel()
 
         $totalBeneficiaries = count($records);
         $totalBarangays     = count($brgySet);
+        $filename = 'TUPAD_GSIS_Export_' . date('Ymd_His') . '.xlsx';
 
-        $filename = 'TUPAD_GSIS_Export_' . date('Ymd_His') . '.xls';
+        // Initialize PhpSpreadsheet
+        $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        $sheet->setShowGridlines(true);
 
-        header('Content-Type: application/vnd.ms-excel');
-        header('Content-Disposition: attachment;filename="' . $filename . '"');
-        header('Cache-Control: max-age=0');
+        // Define Styles
+        $centerStyle = [
+            'alignment' => [
+                'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER, 
+                'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER,
+                'wrapText' => true
+            ]
+        ];
+        $thinBorder = [
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                    'color' => ['argb' => 'FF000000'],
+                ],
+            ],
+        ];
 
-        echo '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">';
-        echo '<head><meta charset="UTF-8"></head><body>';
-        echo '<table border="1">';
+        // 1. Main Title (Row 1)
+        $sheet->mergeCells('A1:J1');
+        $sheet->setCellValue('A1', 'ENROLLMENT FORM TO GROUP PERSONAL ACCIDENT INSURANCE OF THE GOVERNMENT SERVICE INSURANCE SYSTEM (GSIS)');
+        $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(11);
+        $sheet->getStyle('A1')->applyFromArray($centerStyle);
+
+        // 2. DOLE Header Metadata (Rows 3 to 5)
+        $sheet->mergeCells('A3:J3');
+        $sheet->setCellValue('A3', 'Republic of the Philippines');
+        $sheet->getStyle('A3')->applyFromArray($centerStyle);
+
+        $sheet->mergeCells('A4:J4');
+        $sheet->setCellValue('A4', 'Department of Labor and Employment');
+        $sheet->getStyle('A4')->applyFromArray($centerStyle);
+
+        $sheet->mergeCells('A5:J5');
+        $sheet->setCellValue('A5', 'Employment Programs of DOLE (TUPAD)');
+        $sheet->getStyle('A5')->applyFromArray($centerStyle);
+        $sheet->getStyle('A5')->getFont()->setBold(true);
+
         
-        echo '<tr><th colspan="10" style="border: none; text-align: center; font-weight:bold; font-size: 14pt; background-color: #ffffff;">ENROLLMENT FORM TO GROUP PERSONAL ACCIDENT INSURANCE OF THE GOVERNMENT SERVICE INSURANCE SYSTEM (GSIS)</th></tr>';
-        echo '<tr><td colspan="10" style="border: none; background-color: #ffffff;"></td></tr>';
-        echo '<tr><td colspan="10" style="border: none; text-align: center; background-color: #ffffff;">Republic of the Philippines</td></tr>';
-        echo '<tr><td colspan="10" style="border: none; text-align: center; background-color: #ffffff;">Department of Labor and Employment</td></tr>';
-        echo '<tr><td colspan="10" style="border: none; text-align: center; background-color: #ffffff;">Employment Programs of DOLE (TUPAD)</td></tr>';
-        echo '<tr><td colspan="10" style="border: none; background-color: #ffffff;"></td></tr>';
-        echo '<tr><td colspan="10" style="border: none; background-color: #ffffff;">DOLE\'s Program: <b>Tulong Panghanapbuhay sa Ating Disadvantaged Workers (TUPAD)</b></td></tr>';
-        echo '<tr><td colspan="8" style="border: none; background-color: #ffffff;">Area of Implementation, Province: <b>' . htmlspecialchars($area_of_implementation) . '</b></td><td colspan="2" style="border: none; background-color: #ffffff;">Number of Barangay : <b>' . $totalBarangays . '</b></td></tr>';
-        echo '<tr><td colspan="8" style="border: none; background-color: #ffffff;">Period of Coverage: <b>' . htmlspecialchars($period_of_coverage) . '</b></td><td colspan="2" style="border: none; background-color: #ffffff;">M- <b>' . $maleCount . '</b> F- <b>' . $femaleCount . '</b> = T-<b>' . $totalBeneficiaries . '</b></td></tr>';
-        echo '<tr><td colspan="10" style="border: none; background-color: #ffffff;">ADL No. <b>' . htmlspecialchars($adl_no) . '</b></td></tr>';
-        echo '<tr><td colspan="10" style="border: none; background-color: #ffffff;">Reference No. <b>' . htmlspecialchars($reference_no) . '</b></td></tr>';
-        echo '<tr><td colspan="10" style="border: none; background-color: #ffffff;">Specific Nature of work : <b>' . htmlspecialchars($nature_of_work) . '</b></td></tr>';
-        echo '<tr><td colspan="10" style="border: none; background-color: #ffffff;"></td></tr>';
+        // 3. Program Information metadata rows (Rows 7 to 12)
+        // Row 7: Program Name (Static label normal, variable bold)
+        $prog = "Tulong Panghanapbuhay sa Ating Disadvantaged Workers (TUPAD)";
+        $sheet->mergeCells('A7:E7');
+        $sheet->setCellValue('A7', "DOLE's Program: " . $prog);
+        // Style only the variable part bold using rich text or separate columns if preferred, but since it's a string, we can target specific parts or set the whole variable nicely. 
+        // To make just the variable bold, we can split text or use RichText:
+        $richText7 = new \PhpOffice\PhpSpreadsheet\RichText\RichText();
+        $richText7->createText("DOLE's Program:");
+        $run7 = $richText7->createTextRun($prog);
+        $run7->getFont()->setBold(true);
+        $sheet->setCellValue('A7', $richText7);
 
-        echo '<tr style=" font-weight: bold; text-align: center;">';
-        echo '<th rowspan="2">No.</th>';
-        echo '<th rowspan="2">Name of Beneficiary (Last Name, First Name Middle Name Extension Name)</th>';
-        echo '<th rowspan="2">Sex</th>';
-        echo '<th rowspan="2">Birthdate (MM/DD/YYYY)</th>';
-        echo '<th rowspan="2">Age</th>';
-        echo '<th colspan="4">Address</th>';
-        echo '<th rowspan="2">Beneficiary</th>';
-        echo '</tr>';
+      
 
-        echo '<tr style=" font-weight: bold; text-align: center;">';
-        echo '<th>Street</th>';
-        echo '<th>Barangay</th>';
-        echo '<th>City/ Municipality</th>';
-        echo '<th>Province</th>';
-        echo '</tr>';
+        // Row 8: Area of Implementation & Number of Barangay
+        $sheet->mergeCells('A8:H8');
+        $sheet->setCellValue('A8', 'Area of Implementation, Province: ' . $area_of_implementation);
+        // Style only the variable part bold using rich text or separate columns if preferred, but since it's a string, we can target specific parts or set the whole variable nicely. 
+        // To make just the variable bold, we can split text or use RichText:
+        $richText8 = new \PhpOffice\PhpSpreadsheet\RichText\RichText();
+        $richText8->createText('Area of Implementation, Province: ');
+        $run8 = $richText8->createTextRun($area_of_implementation);
+        $run8->getFont()->setBold(true);
+        $sheet->setCellValue('A8', $richText8);
 
+        $sheet->mergeCells('I8:J8');
+        $richTextBarangay = new \PhpOffice\PhpSpreadsheet\RichText\RichText();
+        $richTextBarangay->createText('Number of Barangay : ');
+        $runBarangay = $richTextBarangay->createTextRun($totalBarangays);
+        $runBarangay->getFont()->setBold(true);
+        $sheet->setCellValue('I8', $richTextBarangay);
+
+        // Row 9: Period of Coverage & Gender Totals
+        $sheet->mergeCells('A9:H9');
+        $richText9 = new \PhpOffice\PhpSpreadsheet\RichText\RichText();
+        $richText9->createText('Period of Coverage: ');
+        $run9 = $richText9->createTextRun($period_of_coverage);
+        $run9->getFont()->setBold(true);
+        $sheet->setCellValue('A9', $richText9);
+
+        $sheet->mergeCells('I9:J9');
+        $richTextGender = new \PhpOffice\PhpSpreadsheet\RichText\RichText();
+        $richTextGender->createText('M- ');
+        $runM = $richTextGender->createTextRun($maleCount);
+        $runM->getFont()->setBold(true);
+        $richTextGender->createText(' F- ');
+        $runF = $richTextGender->createTextRun($femaleCount);
+        $runF->getFont()->setBold(true);
+        $richTextGender->createText(' = T-');
+        $runT = $richTextGender->createTextRun($totalBeneficiaries);
+        $runT->getFont()->setBold(true);
+        $sheet->setCellValue('I9', $richTextGender);
+
+        // Row 10: ADL No.
+        $sheet->mergeCells('A10:J10');
+        $richText10 = new \PhpOffice\PhpSpreadsheet\RichText\RichText();
+        $richText10->createText('ADL No. ');
+        $run10 = $richText10->createTextRun($adl_no);
+        $run10->getFont()->setBold(true);
+        $sheet->setCellValue('A10', $richText10);
+
+        // Row 11: Reference No.
+        $sheet->mergeCells('A11:J11');
+        $richText11 = new \PhpOffice\PhpSpreadsheet\RichText\RichText();
+        $richText11->createText('Reference No. ');
+        $run11 = $richText11->createTextRun($reference_no);
+        $run11->getFont()->setBold(true);
+        $sheet->setCellValue('A11', $richText11);
+
+        // Row 12: Specific Nature of work
+        $sheet->mergeCells('A12:J12');
+        $richText12 = new \PhpOffice\PhpSpreadsheet\RichText\RichText();
+        $richText12->createText('Specific Nature of work : ');
+        $run12 = $richText12->createTextRun($nature_of_work);
+        $run12->getFont()->setBold(true);
+        $sheet->setCellValue('A12', $richText12);
+
+        // 4. Table Headers (Rows 14 & 15 matching screenshot two-tier structure)
+        $sheet->mergeCells('A14:A15');
+        $sheet->setCellValue('A14', 'No.');
+        
+        $sheet->mergeCells('B14:B15');
+        $sheet->setCellValue('B14', 'Name of Beneficiary (Last Name, First Name Middle Name Extension Name)');
+        
+        $sheet->mergeCells('C14:C15');
+        $sheet->setCellValue('C14', 'Sex');
+        
+        $sheet->mergeCells('D14:D15');
+        $sheet->setCellValue('D14', 'Birthdate (MM/DD/YYYY)');
+        
+        $sheet->mergeCells('E14:E15');
+        $sheet->setCellValue('E14', 'Age');
+        
+        $sheet->mergeCells('F14:I14');
+        $sheet->setCellValue('F14', 'Address');
+        
+        $sheet->mergeCells('J14:J15');
+        $sheet->setCellValue('J14', 'Beneficiary');
+
+        // Address Subheaders
+        $sheet->setCellValue('F15', 'Street');
+        $sheet->setCellValue('G15', 'Barangay');
+        $sheet->setCellValue('H15', 'City/ Municipality');
+        $sheet->setCellValue('I15', 'Province');
+
+        $headerRange = 'A14:J15';
+        $sheet->getStyle($headerRange)->getFont()->setBold(true);
+        $sheet->getStyle($headerRange)->applyFromArray($centerStyle);
+        $sheet->getStyle($headerRange)->applyFromArray($thinBorder);
+        
+        $sheet->getRowDimension(14)->setRowHeight(25);
+        $sheet->getRowDimension(15)->setRowHeight(20);
+
+        // 5. Populate Data Rows
+        $rowNum = 16;
         $no = 1;
         foreach ($records as $row) {
             $fullName = trim($row['tupad_lname'] . ', ' . $row['tupad_fname'] . ' ' . $row['tupad_mname'] . ' ' . $row['tupad_ext']);
             
             $dob = '';
             $age = ''; 
-
             if (!empty($row['tupad_dob_month']) && !empty($row['tupad_dob_day']) && !empty($row['tupad_dob_year'])) {
                 $dob = sprintf('%02d/%02d/%04d', $row['tupad_dob_month'], $row['tupad_dob_day'], $row['tupad_dob_year']);
-                
                 $birthDate = DateTime::createFromFormat('m/d/Y', $dob);
                 if ($birthDate) {
                     $today = new DateTime('today');
@@ -964,30 +1085,37 @@ public function upload_tupad_excel()
             }
             
             $gender = strtoupper(trim($row['tupad_gender'] ?? ''));
+            $display_gender = '';
             if ($gender === 'M' || $gender === 'MALE') {
                 $display_gender = 'M';
             } elseif ($gender === 'F' || $gender === 'FEMALE') {
                 $display_gender = 'F';
             }
-            echo '<tr>';
-            echo '<td style="text-align: center;">' . $no++ . '</td>';
-            echo '<td>' . htmlspecialchars($fullName) . '</td>';
-            echo '<td style="text-align: center;">' . htmlspecialchars($display_gender) . '</td>';
-            echo '<td style="text-align: center;">' . htmlspecialchars($dob) . '</td>';
-            echo '<td style="text-align: center;">' . htmlspecialchars($age) . '</td>'; 
-            echo '<td>' . htmlspecialchars($row['tupad_street']) . '</td>';
-            echo '<td>' . htmlspecialchars($row['barangay_name'] ?? '') . '</td>';
-            echo '<td>' . htmlspecialchars($row['municipality_name'] ?? '') . '</td>';
-            echo '<td>' . htmlspecialchars($row['province_name'] ?? '') . '</td>';
-            echo '<td>' . htmlspecialchars($row['tupad_dependent']) . '</td>';
-            echo '</tr>';
+
+            $sheet->setCellValue("A{$rowNum}", $no++);
+            $sheet->setCellValue("B{$rowNum}", $fullName);
+            $sheet->setCellValue("C{$rowNum}", $display_gender);
+            $sheet->setCellValue("D{$rowNum}", $dob);
+            $sheet->setCellValue("E{$rowNum}", $age);
+            $sheet->setCellValue("F{$rowNum}", $row['tupad_street'] ?? '');
+            $sheet->setCellValue("G{$rowNum}", $row['barangay_name'] ?? '');
+            $sheet->setCellValue("H{$rowNum}", $row['municipality_name'] ?? '');
+            $sheet->setCellValue("I{$rowNum}", $row['province_name'] ?? '');
+            $sheet->setCellValue("J{$rowNum}", $row['tupad_dependent'] ?? '');
+
+            $sheet->getStyle("A{$rowNum}:J{$rowNum}")->applyFromArray($thinBorder);
+            $sheet->getStyle("A{$rowNum}")->applyFromArray($centerStyle);
+            $sheet->getStyle("C{$rowNum}")->applyFromArray($centerStyle);
+            $sheet->getStyle("D{$rowNum}")->applyFromArray($centerStyle);
+            $sheet->getStyle("E{$rowNum}")->applyFromArray($centerStyle);
+
+            $rowNum++;
         }
 
+        // 6. Fetch User & Position Information Robustly
         $user_id = $this->session->userdata('user_id');
-        $regfname = '';
-        $regmname = '';
-        $reglname = '';
-        $position_desc = 'Livelihood Development Specialist'; 
+        $regfname = ''; $regmname = ''; $reglname = '';
+        $position_desc = 'Administrative Assistant II'; 
 
         if (!empty($user_id)) {
             $this->db->select('users.*, code_position.position_description');
@@ -997,7 +1125,7 @@ public function upload_tupad_excel()
             $user_row = $this->db->get()->row_array();
 
             if ($user_row) {
-                $regfname = $user_row['reg_fname'] ?? $user_row['fname'] ?? '';
+                $regfname = $user_row['reg_fname'] ?? $user_row['fname'] ?? $user_row['name'] ?? '';
                 $regmname = $user_row['reg_mname'] ?? $user_row['mname'] ?? '';
                 $reglname = $user_row['reg_lname'] ?? $user_row['lname'] ?? '';
                 
@@ -1008,31 +1136,106 @@ public function upload_tupad_excel()
         }
 
         if (empty($regfname)) {
-            $regfname = $this->session->userdata('reg_fname') ?? '';
+            $regfname = $this->session->userdata('reg_fname') ?? $this->session->userdata('fname') ?? $this->session->userdata('name') ?? '';
+        }
+        if (empty($reglname)) {
+            $reglname = $this->session->userdata('reg_lname') ?? $this->session->userdata('lname') ?? '';
         }
 
         $regmname = trim((string)$regmname);
         $middle_initial = !empty($regmname) ? strtoupper(substr($regmname, 0, 1)) . '.' : '';
-
         $name_parts = array_filter([trim($regfname), $middle_initial, trim($reglname)]);
-        $prepared_by = !empty($name_parts) ? implode(' ', $name_parts) : 'Not LoggedIn';
+        $prepared_by = !empty($name_parts) ? implode(' ', $name_parts) : ($this->session->userdata('username') ?? 'LAYLA M. ZUBIRI');
 
-        echo '<tr><td colspan="10" style="border: none; background-color: #ffffff;"></td></tr>';
-        echo '<tr><td colspan="2" style="border: none; background-color: #ffffff;">Prepared by:</td><td colspan="8" style="border: none; background-color: #ffffff;">Approved by:</td></tr>';
-        echo '<tr>';
-        echo '<td colspan="2" style="border: none; background-color: #ffffff;"><br><br><b>' . htmlspecialchars($prepared_by) . '</b><br>' . htmlspecialchars($position_desc) . '</td>';
-        echo '<td colspan="8" style="border: none; background-color: #ffffff;"><br><br><b>AURITA L. LAXAMANA</b><br>Chief LEO, TSSD II</td>';
-        echo '</tr>';
+        // 7. Signatures Section Matching Screenshot Placement
+        $rowNum += 2; 
+        $sheet->setCellValue("A{$rowNum}", "Prepared by:");
+        $sheet->setCellValue("C{$rowNum}", "Approved by:");
+        $sheet->getStyle("A{$rowNum}")->getFont()->setBold(true);
+        $sheet->getStyle("C{$rowNum}")->getFont()->setBold(true);
 
-        echo '</table>';
-        echo '</body></html>';
+        $rowNum += 3; 
+        $sheet->setCellValue("A{$rowNum}", strtoupper($prepared_by));
+        $sheet->setCellValue("C{$rowNum}", "AURITA L. LAXAMANA");
+        $sheet->getStyle("A{$rowNum}")->getFont()->setBold(true);
+        $sheet->getStyle("C{$rowNum}")->getFont()->setBold(true);
+
+        $rowNum++;
+        $sheet->setCellValue("A{$rowNum}", $position_desc);
+        $sheet->setCellValue("C{$rowNum}", "Chief LEO, TSSD II");
+
+        // 8. Precise Column Widths
+        $sheet->getColumnDimension('A')->setWidth(6);   
+        $sheet->getColumnDimension('B')->setWidth(35);  
+        $sheet->getColumnDimension('C')->setWidth(8);   
+        $sheet->getColumnDimension('D')->setWidth(18);  
+        $sheet->getColumnDimension('E')->setWidth(8);   
+        $sheet->getColumnDimension('F')->setWidth(20);  
+        $sheet->getColumnDimension('G')->setWidth(20);  
+        $sheet->getColumnDimension('H')->setWidth(20);  
+        $sheet->getColumnDimension('I')->setWidth(20);  
+        $sheet->getColumnDimension('J')->setWidth(34);  
+
+        // 9. Stream output as a valid .xlsx file
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment;filename="' . $filename . '"');
+        header('Cache-Control: max-age=0');
+
+        $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
+        $writer->save('php://output');
 
         $this->load->model('Activity_Model'); 
-        $user_id = $this->session->userdata('user_id');
         $this->Activity_Model->log_activity($reference_no, $user_id, 2);  
 
         exit;
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     public function set_record_inactive($id = NULL) {
         if (!$this->session->userdata('logged_in')) {
