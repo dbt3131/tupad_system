@@ -86,18 +86,26 @@
             <?php endif; ?>
 
             <!-- Page Header -->
-            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3 no-print">
-                <div>
-                    <h3 class="fw-bold mb-1">
-                        <i class="bi bi-file-earmark-text text-primary me-2"></i>GENERATE GSIS LETTERS
-                    </h3>
-                    <p class="text-muted small mb-0">Filter summary records by generation dates</p>
-                </div>
-                
-                <a href="<?= site_url('tupad/export_gsis_letter_excel?start_date=' . urlencode($start_date) . '&end_date=' . urlencode($end_date) . '&date_effectivity=' . urlencode($date_effectivity) . '&no_of_days=' . urlencode($no_of_days)); ?>" class="btn btn-success">
-    <i class="bi bi-file-earmark-excel me-1"></i> Download Excel Report
-</a>
-            </div>
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3 no-print">
+    <div>
+        <h3 class="fw-bold mb-1">
+            <i class="bi bi-file-earmark-text text-primary me-2"></i>GENERATE GSIS LETTERS
+        </h3>
+        <p class="text-muted small mb-0">Filter summary records by generation dates</p>
+    </div>
+    
+    <div class="d-flex flex-wrap gap-2">
+        <!-- Download GSIS Letter Button -->
+        <a href="<?= site_url('tupad/export_gsis_letter_excel?start_date=' . urlencode($start_date) . '&end_date=' . urlencode($end_date) . '&date_effectivity=' . urlencode($date_effectivity) . '&no_of_days=' . urlencode($no_of_days)); ?>" class="btn btn-success">
+            <i class="bi bi-file-earmark-excel me-1"></i> Download GSIS Letter
+        </a>
+
+        <!-- Export Sequence Numbers Excel Button -->
+        <a href="<?= site_url('tupad/export_gsis_sequences_excel?start_date=' . urlencode($start_date) . '&end_date=' . urlencode($end_date) . '&date_effectivity=' . urlencode($date_effectivity) . '&no_of_days=' . urlencode($no_of_days)); ?>" class="btn btn-primary">
+            <i class="bi bi-file-earmark-spreadsheet-fill me-1"></i> Download GPAI List
+        </a>
+    </div>
+</div>
 
           <!-- Date Range & Letter Parameter Filter Form -->
             <div class="card shadow-sm mb-4 no-print">

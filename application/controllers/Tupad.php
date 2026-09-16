@@ -116,6 +116,8 @@ class Tupad extends CI_Controller
 
 
 
+
+
 public function upload_tupad_excel()
 {
     if (!$this->session->userdata('logged_in')) {
@@ -1583,4 +1585,214 @@ public function export_gsis_letter_excel()
             ->set_content_type('application/json')
             ->set_output(json_encode(['status' => 'success', 'message' => 'Successfully removed.']));
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+public function export_gsis_sequences_excel()
+{
+    $start_date       = $this->input->get('start_date');
+    $end_date         = $this->input->get('end_date');
+    $date_effectivity = $this->input->get('date_effectivity');
+    $no_of_days       = $this->input->get('no_of_days');
+
+    if (empty($start_date) || empty($end_date)) {
+        $start_date = date('Y-m-01');
+        $end_date   = date('Y-m-t');
+    }
+
+    // Fetch summary records within date range
+    $summary_records = $this->Tupad_model->get_gsis_summary_by_date($start_date, $end_date);
+    
+    $filename = 'GSIS_Beneficiaries_List_' . date('Ymd_His') . '.xlsx';
+
+    // Initialize PhpSpreadsheet
+    $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+    $sheet = $spreadsheet->getActiveSheet();
+    $sheet->setShowGridlines(true);
+
+    // Styling definitions
+    $centerStyle = [
+        'alignment' => [
+            'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER, 
+            'vertical'   => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER,
+        ]
+    ];
+    $headerStyle = [
+        'font' => ['bold' => true],
+        'alignment' => [
+            'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
+            'vertical'   => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER,
+            'wrapText'   => true
+        ],
+        'borders' => [
+            'allBorders' => [
+                'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                'color'       => ['argb' => 'FF000000'],
+            ],
+        ],
+    ];
+    $thinBorder = [
+        'borders' => [
+            'allBorders' => [
+                'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                'color'       => ['argb' => 'FF000000'],
+            ],
+        ],
+    ];
+
+    $rowNum = 1;
+
+    if (!empty($summary_records)) {
+        foreach ($summary_records as $summary) {
+            $reference_no = $summary['reference_no'] ?? '';
+            $implementor  = $summary['implementor'] ?? $summary['area_of_implementation'] ?? '';
+            $adl_no       = $summary['adl_no'] ?? $summary['adl_number'] ?? '';
+            $nature_work  = $summary['nature_of_work'] ?? $summary['type_of_work'] ?? '';
+
+            // Fetch records for this specific group from tbl_tupad_list
+            $records = $this->db->get_where('tbl_tupad_list', [
+                'reference_no'           => $reference_no,
+                'area_of_implementation' => $implementor
+            ])->result_array();
+
+            // Pull period coverage checking every possible column variant in summary or records
+            $period = '';
+            foreach ([$summary, (!empty($records) ? $records[0] : [])] as $source) {
+                if (!empty($source['period_coverage'])) { $period = $source['period_coverage']; break; }
+                if (!empty($source['period_of_coverage'])) { $period = $source['period_of_coverage']; break; }
+                if (!empty($source['date_effectivity'])) { $period = $source['date_effectivity']; break; }
+                if (!empty($source['coverage_period'])) { $period = $source['coverage_period']; break; }
+                if (!empty($source['period'])) { $period = $source['period']; break; }
+            }
+
+            // 1. Group Meta Headers (Above Table)
+            $sheet->setCellValue("A{$rowNum}", "Area of Implementation, Province: " . $implementor);
+            $sheet->getStyle("A{$rowNum}")->getFont()->setBold(true);
+            $rowNum++;
+
+            if (!empty($period)) {
+                $sheet->setCellValue("A{$rowNum}", "Period of Coverage: " . $period);
+                $sheet->getStyle("A{$rowNum}")->getFont()->setBold(true);
+                $rowNum++;
+            }
+
+            if (!empty($adl_no)) {
+                $sheet->setCellValue("A{$rowNum}", "ADL No. " . $adl_no);
+                $sheet->getStyle("A{$rowNum}")->getFont()->setBold(true);
+                $rowNum++;
+            }
+
+            $sheet->setCellValue("A{$rowNum}", "Reference No. " . $reference_no);
+            $sheet->getStyle("A{$rowNum}")->getFont()->setBold(true);
+            $rowNum++;
+
+            if (!empty($nature_work)) {
+                $sheet->setCellValue("A{$rowNum}", "Specific Nature of work : " . $nature_work);
+                $sheet->getStyle("A{$rowNum}")->getFont()->setBold(true);
+                $rowNum++;
+            }
+
+            // 2. Table Header
+            $sheet->setCellValue("A{$rowNum}", "No.");
+            $sheet->setCellValue("B{$rowNum}", "Name of Beneficiary (Last Name, First Name Middle Name Extension Name)");
+            
+            $sheet->getStyle("A{$rowNum}:B{$rowNum}")->applyFromArray($headerStyle);
+            $sheet->getRowDimension($rowNum)->setRowHeight(30);
+            $rowNum++;
+
+            // 3. Populate Beneficiaries per Group
+            $counter = 1; 
+            if (!empty($records)) {
+                foreach ($records as $record) {
+                    // Check alternative database column names for name fields just in case
+                    $lname = trim($record['tupad_lname'] ?? $record['last_name'] ?? $record['lname'] ?? '');
+                    $fname = trim($record['tupad_fname'] ?? $record['first_name'] ?? $record['fname'] ?? '');
+                    $mname = trim($record['tupad_mname'] ?? $record['middle_name'] ?? $record['mname'] ?? '');
+                    $ext   = trim($record['tupad_ext'] ?? $record['extension'] ?? $record['ext'] ?? '');
+
+                    // Construct Full Name strictly as: LASTNAME, FIRSTNAME MIDDLENAME EXTENSION
+                    $fullName = $lname;
+                    if (!empty($lname) && !empty($fname)) {
+                        $fullName .= ', ' . $fname;
+                    } elseif (!empty($fname)) {
+                        $fullName = $fname;
+                    }
+                    if (!empty($mname)) {
+                        $fullName .= ' ' . $mname;
+                    }
+                    if (!empty($ext)) {
+                        $fullName .= ' ' . $ext;
+                    }
+
+                    $sheet->setCellValue("A{$rowNum}", $counter++);
+                    $sheet->setCellValue("B{$rowNum}", mb_strtoupper($fullName, 'UTF-8'));
+
+                    $sheet->getStyle("A{$rowNum}:B{$rowNum}")->applyFromArray($thinBorder);
+                    $sheet->getStyle("A{$rowNum}")->applyFromArray($centerStyle);
+
+                    $rowNum++;
+                }
+            }
+
+            // Add 2 blank rows spacing between groups
+            $rowNum += 2;
+        }
+    } else {
+        $sheet->setCellValue("A1", "No records found for the selected date range.");
+    }
+
+    // Column Widths
+    $sheet->getColumnDimension('A')->setWidth(10);
+    $sheet->getColumnDimension('B')->setWidth(55);
+
+    // Stream output as an Excel file
+    header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    header('Content-Disposition: attachment;filename="' . $filename . '"');
+    header('Cache-Control: max-age=0');
+
+    $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
+    $writer->save('php://output');
+    exit;
+}
+
+
+
+
+
+
+
+
 }
