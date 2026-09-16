@@ -311,7 +311,7 @@
     <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.bootstrap5.min.js"></script>
     <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
 
-    <script>
+<script>
     $(document).ready(function () {
         // Initialize Select2 with Bootstrap 5 Theme
         $('#filter_adl_no').select2({ theme: 'bootstrap-5', placeholder: '-- Select or type ADL Number --', allowClear: true });
@@ -360,6 +360,37 @@
                     },
                     customize: function (xlsx) {
                         var sheet = xlsx.xl.worksheets['sheet1.xml'];
+                        var styles = xlsx.xl['styles.xml'];
+
+                        // 1. Inject custom number format into styles.xml for decimal values (#,##0.00)
+                        var numFmts = styles.getElementsByTagName('numFmts');
+                        var numFmtId = 175;
+                        if (numFmts.length === 0) {
+                            var stylesheet = styles.getElementsByTagName('styleSheet')[0];
+                            var newNumFmts = styles.createElement('numFmts');
+                            newNumFmts.setAttribute('count', '1');
+                            var newNumFmt = styles.createElement('numFmt');
+                            newNumFmt.setAttribute('numFmtId', numFmtId);
+                            newNumFmt.setAttribute('formatCode', '#,##0.00');
+                            newNumFmts.appendChild(newNumFmt);
+                            stylesheet.insertBefore(newNumFmts, stylesheet.firstChild);
+                        } else {
+                            var newNumFmt = styles.createElement('numFmt');
+                            newNumFmt.setAttribute('numFmtId', numFmtId);
+                            newNumFmt.setAttribute('formatCode', '#,##0.00');
+                            numFmts[0].appendChild(newNumFmt);
+                            numFmts[0].setAttribute('count', parseInt(numFmts[0].getAttribute('count') || 0) + 1);
+                        }
+
+                        // 2. Create custom cell style utilizing index 25 borders
+                        var cellXfs = styles.getElementsByTagName('cellXfs')[0];
+                        var customStyleIndex = cellXfs.childNodes.length;
+                        var borderStyleRef = cellXfs.childNodes[25];
+                        var newXf = borderStyleRef.cloneNode(true);
+                        newXf.setAttribute('numFmtId', numFmtId);
+                        newXf.setAttribute('applyNumberFormat', '1');
+                        cellXfs.appendChild(newXf);
+                        cellXfs.setAttribute('count', cellXfs.childNodes.length);
 
                         // Calculate column totals from applied data search
                         var totalPpesCount = 0;
@@ -379,7 +410,7 @@
                             totalSalaries += parseFloat(data[9].toString().replace(/,/g, '')) || 0;
                         });
 
-                        // Shift rows down by 2 to make room for the title block
+                        // Shift rows down by 2 to accommodate title block
                         $('row', sheet).each(function () {
                             var r = parseInt($(this).attr('r')) + 2;
                             $(this).attr('r', r);
@@ -390,26 +421,47 @@
                             });
                         });
 
-                        // Enforce clean thin borders (s="25") and remove any gray fills for all cells
+                        // Process rows: Row 3 gets borders (s="25"), Row 4+ gets full numeric typing & formatting
                         $('row', sheet).each(function () {
                             var r = parseInt($(this).attr('r'));
-                            if (r >= 3) {
+                            
+                            if (r === 3) {
+                                // Apply clean thin borders to header row cells without altering text
+                                $(this).find('c').each(function () {
+                                    $(this).attr('s', '25');
+                                });
+                            } else if (r > 3) {
                                 $(this).find('c').each(function (index) {
                                     var cell = $(this);
-                                    cell.attr('s', '25'); // thin border style, no gray fill
+                                    var rawText = cell.text().replace(/,/g, '').trim();
 
-                                    // Format numeric/count columns cleanly
-                                    if (index >= 4 && index <= 9) {
-                                        var rawVal = cell.text().replace(/,/g, '');
-                                        var num = parseFloat(rawVal);
-                                        if (!isNaN(num)) {
+                                    // Amount Columns (5, 7, 8, 9) -> Numbers with Decimals
+                                    if (index === 5 || index === 7 || index === 8 || index === 9) {
+                                        cell.attr('s', customStyleIndex);
+                                        var numVal = parseFloat(rawText);
+                                        if (!isNaN(numVal) && rawText !== '') {
                                             cell.attr('t', 'n');
-                                            if (cell.find('v').length > 0) {
-                                                cell.find('v').text(num);
-                                            } else {
-                                                cell.append('<v>' + num + '</v>');
-                                            }
+                                            cell.empty().append('<v>' + numVal + '</v>');
+                                        } else {
+                                            cell.attr('t', 'inlineStr');
+                                            cell.empty().append('<is><t>-</t></is>');
                                         }
+                                    } 
+                                    // Count Columns (4, 6) -> Integers
+                                    else if (index === 4 || index === 6) {
+                                        cell.attr('s', '25');
+                                        var intVal = parseInt(rawText);
+                                        if (!isNaN(intVal)) {
+                                            cell.attr('t', 'n');
+                                            cell.empty().append('<v>' + intVal + '</v>');
+                                        } else {
+                                            cell.attr('t', 'n');
+                                            cell.empty().append('<v>0</v>');
+                                        }
+                                    } 
+                                    // Text Columns -> Apply clean thin borders, preserve text strings
+                                    else {
+                                        cell.attr('s', '25');
                                     }
                                 });
                             }
@@ -447,7 +499,7 @@
                         mergeCells[0].appendChild(mergeCell);
                         mergeCells[0].setAttribute('count', parseInt(mergeCells[0].getAttribute('count') || 0) + 1);
 
-                        // Append Grand Total row with proper thin borders (s="25") and no gray backgrounds
+                        // Append Grand Total row with proper numeric formats and clean borders
                         var lastRowElem = $('row', sheet).last();
                         var lastRowIdx = lastRowElem.length > 0 ? parseInt(lastRowElem.attr('r')) + 1 : 4;
 
@@ -457,11 +509,11 @@
                                            '<c t="inlineStr" r="C' + lastRowIdx + '" s="25"><is><t></t></is></c>' +
                                            '<c t="inlineStr" r="D' + lastRowIdx + '" s="25"><is><t></t></is></c>' +
                                            '<c t="n" r="E' + lastRowIdx + '" s="25"><v>' + totalPpesCount + '</v></c>' +
-                                           '<c t="n" r="F' + lastRowIdx + '" s="25"><v>' + totalPpesAmt + '</v></c>' +
+                                           '<c t="n" r="F' + lastRowIdx + '" s="' + customStyleIndex + '"><v>' + totalPpesAmt + '</v></c>' +
                                            '<c t="n" r="G' + lastRowIdx + '" s="25"><v>' + totalGsisBenefs + '</v></c>' +
-                                           '<c t="n" r="H' + lastRowIdx + '" s="25"><v>' + totalGsisAmt + '</v></c>' +
-                                           '<c t="n" r="I' + lastRowIdx + '" s="25"><v>' + totalService + '</v></c>' +
-                                           '<c t="n" r="J' + lastRowIdx + '" s="25"><v>' + totalSalaries + '</v></c>' +
+                                           '<c t="n" r="H' + lastRowIdx + '" s="' + customStyleIndex + '"><v>' + totalGsisAmt + '</v></c>' +
+                                           '<c t="n" r="I' + lastRowIdx + '" s="' + customStyleIndex + '"><v>' + totalService + '</v></c>' +
+                                           '<c t="n" r="J' + lastRowIdx + '" s="' + customStyleIndex + '"><v>' + totalSalaries + '</v></c>' +
                                        '</row>';
 
                         $('sheetData', sheet).append(totalRow);
