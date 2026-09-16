@@ -1,8 +1,17 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
+/**
+ * ADL Controller
+ * Manages ADL monitoring, implementation encoding, transaction logs, reporting, 
+ * exports, and dynamic data filtering for the TUPAD system.
+ */
 class ADL extends CI_Controller { 
 
+    /**
+     * Controller Constructor
+     * Initializes core database connections, models, helpers, and session libraries.
+     */
     public function __construct() {
         parent::__construct();
         $this->load->database();
@@ -12,23 +21,35 @@ class ADL extends CI_Controller {
         $this->load->library(['session']);
     }
         
+    /**
+     * ADL Encode View
+     * Fetches province options and existing ADL records to load the monitoring view.
+     */
     public function ADL_encode() {
         $data['provinces'] = $this->ADL_Model->get_provinces();
         $data['adl_records'] = $this->ADL_Model->get_ADL();
         $this->load->view('tupad/ADL_monitoring', $data);
     }
 
+    /**
+     * Implementation Encode View
+     * Gathers configuration parameters (rates, locations, proponents, districts) and loads the encoding form.
+     */
     public function Implementation_encode() {
         $data['ADL'] = $this->ADL_Model->get_ADL();
         $data['ppe_rate'] = $this->ADL_Model->get_ppe_rate();
         $data['gsis_rate'] = $this->ADL_Model->get_gsis_rate();
         $data['provinces'] = $this->ADL_Model->get_provinces();
-        $data['proponents'] = $this->ADL_Model->get_proponents(); // Added proponent source[cite: 5]
-        $data['districts'] = $this->ADL_Model->get_districts();     // Added district source[cite: 4]
+        $data['proponents'] = $this->ADL_Model->get_proponents(); 
+        $data['districts'] = $this->ADL_Model->get_districts();     
         $data['payoutSite'] = $this->Tupad_Payroll_Model->get_payout_site();
         $this->load->view('tupad/ADL_Imp_encoding', $data);
     }
 
+    /**
+     * Get Municipalities by Province (AJAX)
+     * Retrieves municipalities dynamically based on the passed province code.
+     */
     public function get_municipalities_by_province() {
         $provCode = $this->input->get('provCode');
         if ($provCode) {
@@ -39,16 +60,20 @@ class ADL extends CI_Controller {
         }
     }
 
+    /**
+     * Store ADL Record
+     * Validates and inserts a new ADL master entry, records an activity trail log, and sets feedback flash data.
+     */
     public function store() {
         if ($this->input->method() === 'post') {
             $data = [
-                'adl_no'                 => $this->input->post('adl_no', true),
-                'adl_date'               => $this->input->post('adl_date', true),
-                'date_received'          => $this->input->post('date_received', true),
-                'target_benefs'          => $this->input->post('target_benefs', true),
-                'adl_amount'             => $this->input->post('adl_amount', true),
-                'encoded_by'             => $this->session->userdata('user_id') ?? 'System User',
-                'encoded_date'           => date('Y-m-d H:i:s')
+                'adl_no'        => $this->input->post('adl_no', true),
+                'adl_date'      => $this->input->post('adl_date', true),
+                'date_received' => $this->input->post('date_received', true),
+                'target_benefs' => $this->input->post('target_benefs', true),
+                'adl_amount'    => $this->input->post('adl_amount', true),
+                'encoded_by'    => $this->session->userdata('user_id') ?? 'System User',
+                'encoded_date'  => date('Y-m-d H:i:s')
             ];
 
             $insert = $this->ADL_Model->insert_adl($data);
@@ -67,6 +92,10 @@ class ADL extends CI_Controller {
         redirect('adl/ADL_encode');
     }
 
+    /**
+     * Store Implementation Transaction
+     * Captures form submission inputs, standardizes string casing, inserts the transaction record, and updates activity logs.
+     */
     public function store_transaction() {
         if ($this->input->method() === 'post') {
             $data = [
@@ -136,15 +165,23 @@ class ADL extends CI_Controller {
         redirect('adl/Implementation_encode');
     }
 
+    /**
+     * ADL Report View
+     * Compiles filters and source lists (provinces, proponents, districts) to render the tracking/reporting dashboard.
+     */
     public function ADL_report() {
         $data['adl_list'] = $this->ADL_Model->get_all_adl_numbers();
         $data['provinces'] = $this->ADL_Model->get_provinces(); 
-        $data['proponents'] = $this->ADL_Model->get_proponents(); // Added proponent source[cite: 5]
-        $data['districts'] = $this->ADL_Model->get_districts();     // Added district source[cite: 4]
+        $data['proponents'] = $this->ADL_Model->get_proponents(); 
+        $data['districts'] = $this->ADL_Model->get_districts();  
         $data['detailed_transactions'] = $this->ADL_Model->get_all_or_filtered_transactions(); 
         $this->load->view('tupad/ADL_reporting', $data);
     }
 
+    /**
+     * Get Detailed Transactions (AJAX)
+     * Fetches transaction entries dynamically based on province, proponent, or district inputs.
+     */
     public function get_detailed_transactions_ajax() {
         $province = $this->input->get('province');
         $proponent = $this->input->get('proponent');
@@ -153,6 +190,10 @@ class ADL extends CI_Controller {
         echo json_encode(['status' => true, 'data' => $transactions]);
     }
 
+    /**
+     * Get Report Breakdown Data (AJAX)
+     * Returns structured report metrics filtered by a specific ADL number and auxiliary criteria.
+     */
     public function get_report_data() {
         $adl_no = $this->input->get('adl_no');
         $province = $this->input->get('province'); 
@@ -167,6 +208,10 @@ class ADL extends CI_Controller {
         }
     }
 
+    /**
+     * Transaction Report List View
+     * Loads implementation transaction listings based on applied parameter filters and assigns regional user rights.
+     */
     public function transaction_report() {
         $province = $this->input->get('implementation_province');
         $area = $this->input->get('implementation_area');
@@ -174,8 +219,8 @@ class ADL extends CI_Controller {
         $district = $this->input->get('implementation_district');
 
         $data['provinces'] = $this->ADL_Model->get_provinces();
-        $data['proponents'] = $this->ADL_Model->get_proponents(); // Added proponent source[cite: 5]
-        $data['districts'] = $this->ADL_Model->get_districts();     // Added district source[cite: 4]
+        $data['proponents'] = $this->ADL_Model->get_proponents(); 
+        $data['districts'] = $this->ADL_Model->get_districts();    
         
         $data['transactions'] = $this->ADL_Model->get_filtered_transactions($province, $area, $proponent, $district);
         
@@ -196,6 +241,10 @@ class ADL extends CI_Controller {
         $this->load->view('tupad/ADL_Imp_List', $data);
     }
 
+    /**
+     * Check Duplicate ADL (AJAX)
+     * Verifies if an input ADL number already exists within database records.
+     */
     public function check_duplicate_adl() {
         $adl_no = $this->input->get('adl_no');
         if ($adl_no) {
@@ -206,6 +255,10 @@ class ADL extends CI_Controller {
         }
     }
 
+    /**
+     * Check Duplicate Transaction (AJAX)
+     * Verifies if a specific implementation reference number already exists.
+     */
     public function check_duplicate_transaction() {
         $ref_no = $this->input->get('implementation_reference_no');
         if ($ref_no) {
@@ -216,6 +269,10 @@ class ADL extends CI_Controller {
         }
     }
 
+    /**
+     * Get Transaction Details (AJAX)
+     * Fetches details of a specific transaction record using its unique ID identifier.
+     */
     public function get_transaction_details() {
         $id = $this->input->get('id');
         if ($id) {
@@ -226,6 +283,10 @@ class ADL extends CI_Controller {
         }
     }
 
+    /**
+     * Update Transaction Record
+     * Modifies an existing implementation record via POST data, applies updates, and redirects back to the filtered report.
+     */
     public function update_transaction_record() {
         if ($this->input->method() === 'post') {
             $id = $this->input->post('adl_transact_id', true);
@@ -298,6 +359,10 @@ class ADL extends CI_Controller {
         }
     }
 
+    /**
+     * Get Barangays by Municipality (AJAX)
+     * Queries and returns a list of barangays based on a provided city/municipality code.
+     */
     public function get_barangays_by_municipality() {
         $citymunCode = $this->input->get('citymunCode');
         $this->load->model('ADL_Model');
@@ -310,6 +375,10 @@ class ADL extends CI_Controller {
         }
     }
 
+    /**
+     * View PDF Details
+     * Loads the PDF report summary view for a given transaction ID, throwing a 404 if data is absent.
+     */
     public function view_pdf($id) {
         $this->load->model('ADL_model');
         $data['transaction'] = $this->ADL_model->get_transaction_details($id);
@@ -321,51 +390,64 @@ class ADL extends CI_Controller {
         $this->load->view('tupad/ADL_Imp_details_PDF', $data);
     }
 
-public function proponent_encode() {
+    /**
+     * Proponent Encode View
+     * Loads province references to display the proponent entry form dashboard.
+     */
+    public function proponent_encode() {
         $data['provinces'] = $this->ADL_Model->get_provinces();
         $this->load->view('tupad/proponent_encoding', $data);
     }
 
+    /**
+     * Store Proponent Record
+     * Validates uniqueness, formats names to uppercase, and saves a new proponent profile into the database.
+     */
+    public function store_proponent() {
+        if ($this->input->method() === 'post') {
+            $proponent_name = strtoupper(trim($this->input->post('proponent_name', true)));
 
-public function store_proponent() {
-    if ($this->input->method() === 'post') {
-        $proponent_name = strtoupper(trim($this->input->post('proponent_name', true)));
+            if ($this->ADL_Model->check_proponent_exists($proponent_name)) {
+                $this->session->set_flashdata('error', 'Proponent name already exists in the database.');
+                redirect('adl/proponent_encode');
+            }
 
-        // Server-side duplicate validation check
-        if ($this->ADL_Model->check_proponent_exists($proponent_name)) {
-            $this->session->set_flashdata('error', 'Proponent name already exists in the database.');
-            redirect('adl/proponent_encode');
+            $data = [
+                'proponent_name' => $proponent_name,
+                'encoded_date'   => date('Y-m-d'),
+                'encoded_by'     => $this->session->userdata('user_id') ?? 1
+            ];
+
+            $insert = $this->db->insert('code_proponent', $data);
+
+            if ($insert) {
+                $this->session->set_flashdata('success', 'Proponent record successfully saved!');
+            } else {
+                $this->session->set_flashdata('error', 'Failed to save proponent record.');
+            }
         }
+        redirect('adl/proponent_encode');
+    }
 
-        $data = [
-            'proponent_name' => $proponent_name,
-            'encoded_date'   => date('Y-m-d'),
-            'encoded_by'     => $this->session->userdata('user_id') ?? 1
-        ];
-
-        $insert = $this->db->insert('code_proponent', $data);
-
-        if ($insert) {
-            $this->session->set_flashdata('success', 'Proponent record successfully saved!');
+    /**
+     * Check Duplicate Proponent (AJAX)
+     * Asynchronously checks whether a proponent name already exists in code references.
+     */
+    public function check_duplicate_proponent() {
+        $proponent_name = $this->input->get('proponent_name');
+        if ($proponent_name) {
+            $exists = $this->ADL_Model->check_proponent_exists($proponent_name);
+            echo json_encode(['exists' => $exists]);
         } else {
-            $this->session->set_flashdata('error', 'Failed to save proponent record.');
+            echo json_encode(['exists' => false]);
         }
     }
-    redirect('adl/proponent_encode');
-}
 
-// AJAX check for duplicate proponent
-public function check_duplicate_proponent() {
-    $proponent_name = $this->input->get('proponent_name');
-    if ($proponent_name) {
-        $exists = $this->ADL_Model->check_proponent_exists($proponent_name);
-        echo json_encode(['exists' => $exists]);
-    } else {
-        echo json_encode(['exists' => false]);
-    }
-}
-
-public function export_transaction_excel($id) {
+    /**
+     * Export Transaction Excel
+     * Generates and outputs an Excel-compatible spreadsheet file containing full record data for a specific transaction.
+     */
+    public function export_transaction_excel($id) {
         $this->load->model('ADL_Model');
         $transaction = $this->ADL_Model->get_transaction_details($id);
 
@@ -373,12 +455,10 @@ public function export_transaction_excel($id) {
             show_404();
         }
 
-        // Clean values for excel display (strip html tags if any helper functions add icons)
         $clean = function($val) {
             return is_null($val) ? '' : strip_tags($val);
         };
 
-        // Define Headers / Columns corresponding to your view sections
         $headers = [
             'ADL Number', 'Reference No', 'Province', 'Area / Municipality', 'Barangay', 
             'District', 'Classification', 'Proponent', 'Sponsor', 'Date Coordinated', 
@@ -394,7 +474,6 @@ public function export_transaction_excel($id) {
             'Encoded Date', 'Encoded By'
         ];
 
-        // Define Row Data matching the headers in exact 1-row format
         $row_data = [
             $clean($transaction['adl_no'] ?? ''),
             $clean($transaction['implementation_reference_no'] ?? ''),
@@ -441,14 +520,12 @@ public function export_transaction_excel($id) {
             $clean($transaction['encoder_name'] ?? '')
         ];
 
-        // Set Headers for Excel Download (.xls / XML or CSV format that opens natively in Excel)
         $filename = "ADL_Record_" . (!empty($transaction['implementation_reference_no']) ? $transaction['implementation_reference_no'] : $id) . ".xls";
         
         header("Content-Type: application/vnd.ms-excel");
         header("Content-Disposition: attachment; filename=\"$filename\"");
         header("Cache-Control: max-age=0");
 
-        // Output as a clean HTML table formatted for Excel columns
         echo '<table border="1">';
         echo '<tr style="background-color: #1e3a8a; color: #ffffff; font-weight: bold;">';
         foreach ($headers as $header) {
@@ -464,12 +541,5 @@ public function export_transaction_excel($id) {
         echo '</table>';
         exit;
     }
-
-
-
-
-
-
-
 
 }

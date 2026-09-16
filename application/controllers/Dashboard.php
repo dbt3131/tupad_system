@@ -1,10 +1,14 @@
-
-
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 class Dashboard extends CI_Controller {
 
+    /**
+     * Controller Constructor
+     * Process: Initializes parent properties, loads session libraries and URL helpers, 
+     * loads the TUPAD model, and checks authentication state to protect dashboard routes 
+     * by redirecting unauthenticated users to the login page.
+     */
     public function __construct()
     {
         parent::__construct();
@@ -21,6 +25,12 @@ class Dashboard extends CI_Controller {
         }
     }
 
+    /**
+     * Dashboard Index Method
+     * Process: Loads the ADL model, retrieves active and inactive worker totals, fetches live ADL 
+     * records and provincial database statistics, maps regional coordinates for Central Luzon, 
+     * parses worker distributions into JSON-encoded map payloads, and renders the dashboard view.
+     */
     public function index()
     {
         // Load the ADL Model to access the registry tracking logic
@@ -73,12 +83,5 @@ class Dashboard extends CI_Controller {
         $data['map_json_data'] = json_encode($map_data);
         $this->load->view('tupad/dashboard', $data);
     }
-
-
-
-
-
-
-
 
 }

@@ -3,6 +3,11 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 class Auth extends CI_Controller
 {
+    /**
+     * Controller Constructor
+     * Process: Initializes parent properties, loads the User model for database operations,
+     * and loads the form validation library to handle input rules and errors.
+     */
     public function __construct()
     {
         parent::__construct();
@@ -10,6 +15,12 @@ class Auth extends CI_Controller
         $this->load->library('form_validation');
     }
 
+    /**
+     * User Registration Method
+     * Process: Validates if the user is already logged in, sets up extensive validation rules 
+     * for personal details, organizational data, and credentials, processes password hashing, 
+     * saves data to the database, and redirects with appropriate flash messages.
+     */
     public function register()
     {
         // Redirect if already logged in
@@ -17,11 +28,11 @@ class Auth extends CI_Controller
             redirect('users');
         }
         
-        // Personal Details
+        // Personal Details Validation Rules
         $this->form_validation->set_rules(
             'reg_empno', 
             'Employee No', 
-            'required|trim|regex_match[/^[0-9-]+$/]|is_unique[users.reg_empno]',
+            'required|trim|regex_match[/^[0-9-]+$]|is_unique[users.reg_empno]',
             array(
                 'regex_match' => 'The %s field can only contain numbers and dashes.',
                 'is_unique'   => 'This %s is already registered.'
@@ -32,12 +43,12 @@ class Auth extends CI_Controller
         $this->form_validation->set_rules('reg_lname', 'Last Name', 'required|trim');
         $this->form_validation->set_rules('reg_extname', 'Extension Name', 'trim');
 
-        // Organization Details
+        // Organization Details Validation Rules
         $this->form_validation->set_rules('position_id', 'Job Position', 'required|numeric');
         $this->form_validation->set_rules('office_id', 'Office', 'required|numeric');
         $this->form_validation->set_rules('division_id', 'Division', 'required|numeric');
 
-        // Account Credentials
+        // Account Credentials Validation Rules
         $this->form_validation->set_rules(
             'email', 
             'Email',
@@ -92,7 +103,11 @@ class Auth extends CI_Controller
         }
     }
 
-    // Custom Callback to Validate Password Strength
+    /**
+     * Password Strength Validation Callback
+     * Process: Evaluates the password string using regular expressions to ensure 
+     * it contains at least one uppercase letter, one number, and one special character.
+     */
     public function check_password_strength($password)
     {
         $has_uppercase = preg_match('/[A-Z]/', $password);
@@ -109,6 +124,12 @@ class Auth extends CI_Controller
         return TRUE;
     }
 
+    /**
+     * User Login Method
+     * Process: Checks active session states, configures validation rules for email, password, 
+     * and math CAPTCHA, generates math questions, validates CAPTCHA answers, verifies user 
+     * credentials and activation status, and initializes user session variables upon success.
+     */
     public function login()
     {
         // Redirect if already logged in
@@ -185,18 +206,14 @@ class Auth extends CI_Controller
         redirect('auth/login');
     }
 
+    /**
+     * User Logout Method
+     * Process: Destroys all active session variables and redirects the user to the login page.
+     */
     public function logout()
     {
         $this->session->sess_destroy();
         redirect('auth/login', 'refresh');
     }
 
-
-
-
-
-
-
-
-    
 }
