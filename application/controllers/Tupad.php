@@ -13,6 +13,7 @@ class Tupad extends CI_Controller
         parent::__construct();
         $this->load->model('Tupad_model');
         $this->load->model('User_model');
+        $this->load->model('Activity_model');
         $this->load->library('session');
         $this->load->library('form_validation');
         
@@ -1257,6 +1258,7 @@ public function export_excel()
 
 public function export_gsis_letter_excel()
     {
+    
         $start_date       = $this->input->get('start_date');
         $end_date         = $this->input->get('end_date');
         $date_effectivity = $this->input->get('date_effectivity');
@@ -1278,6 +1280,10 @@ public function export_gsis_letter_excel()
         $summary_records = $this->Tupad_model->get_gsis_summary_by_date($start_date, $end_date);
 
         $filename = 'GSIS_Letter_Report_' . date('Ymd_His') . '.xlsx';
+         $user_id = $this->session->userdata('user_id');
+
+         $this->load->model('Activity_Model'); 
+         $this->Activity_Model->log_activity($filename, $user_id, 7);  
 
         // Initialize PhpSpreadsheet
         $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
@@ -1491,6 +1497,10 @@ public function export_gsis_letter_excel()
 
         $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
         $writer->save('php://output');
+
+        
+       
+
         exit;
     }
 
