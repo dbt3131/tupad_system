@@ -954,7 +954,7 @@ public function export_excel()
         // 3. Program Information metadata rows (Rows 7 to 12)
         // Row 7: Program Name (Static label normal, variable bold)
         $prog = "Tulong Panghanapbuhay sa Ating Disadvantaged Workers (TUPAD)";
-        $sheet->mergeCells('A7:E7');
+        $sheet->mergeCells('A7:F7');
         $sheet->setCellValue('A7', "DOLE's Program: " . $prog);
         // Style only the variable part bold using rich text or separate columns if preferred, but since it's a string, we can target specific parts or set the whole variable nicely. 
         // To make just the variable bold, we can split text or use RichText:
@@ -1021,15 +1021,27 @@ public function export_excel()
         $run11->getFont()->setBold(true);
         $sheet->setCellValue('A11', $richText11);
 
-   $sheet->mergeCells('A12:J12');
+
+
+        
+
+       $sheet->mergeCells('A12:J12');
         $richText12 = new \PhpOffice\PhpSpreadsheet\RichText\RichText();
         $richText12->createText('Specific Nature of work : ');
-        $run12 = $richText12->createTextRun($nature_of_work);
+        $run12 = $richText12->createTextRun(strtoupper($nature_of_work));
         $run12->getFont()->setBold(true);
         $sheet->setCellValue('A12', $richText12);
         
         $sheet->getStyle('A12')->getAlignment()->setWrapText(true);
-        $sheet->getRowDimension(12)->setRowHeight(35);
+        $sheet->getStyle('A12')->getAlignment()->setVertical(\PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_TOP);
+
+        // Dynamically calculate row height based on text length and merged columns width (~155 characters per line)
+        $totalLength = strlen('Specific Nature of work : ' . $nature_of_work);
+        $estimatedLines = max(1, ceil($totalLength / 150)); 
+        $sheet->getRowDimension(12)->setRowHeight($estimatedLines * 20);
+
+
+
 
         // 4. Table Headers (Rows 14 & 15 matching screenshot two-tier structure)
         $sheet->mergeCells('A14:A15');
@@ -1099,13 +1111,14 @@ public function export_excel()
             $sheet->setCellValue("C{$rowNum}", $display_gender);
             $sheet->setCellValue("D{$rowNum}", $dob);
             $sheet->setCellValue("E{$rowNum}", $age);
-            $sheet->setCellValue("F{$rowNum}", $row['tupad_street'] ?? '');
-            $sheet->setCellValue("G{$rowNum}", $row['barangay_name'] ?? '');
+            $sheet->setCellValue("F{$rowNum}", strtoupper($row['tupad_street'] ?? ''));
+            $sheet->setCellValue("G{$rowNum}", strtoupper($row['barangay_name'] ?? ''));
             $sheet->setCellValue("H{$rowNum}", $row['municipality_name'] ?? '');
             $sheet->setCellValue("I{$rowNum}", $row['province_name'] ?? '');
             $sheet->setCellValue("J{$rowNum}", $row['tupad_dependent'] ?? '');
 
             $sheet->getStyle("A{$rowNum}:J{$rowNum}")->applyFromArray($thinBorder);
+            $sheet->getStyle("A{$rowNum}:J{$rowNum}")->getFont()->setSize(10);
             $sheet->getStyle("A{$rowNum}")->applyFromArray($centerStyle);
             $sheet->getStyle("C{$rowNum}")->applyFromArray($centerStyle);
             $sheet->getStyle("D{$rowNum}")->applyFromArray($centerStyle);
@@ -1169,14 +1182,14 @@ public function export_excel()
         // 8. Precise Column Widths
         $sheet->getColumnDimension('A')->setWidth(6);   
         $sheet->getColumnDimension('B')->setWidth(35);  
-        $sheet->getColumnDimension('C')->setWidth(8);   
-        $sheet->getColumnDimension('D')->setWidth(18);  
-        $sheet->getColumnDimension('E')->setWidth(8);   
-        $sheet->getColumnDimension('F')->setWidth(20);  
-        $sheet->getColumnDimension('G')->setWidth(20);  
-        $sheet->getColumnDimension('H')->setWidth(20);  
-        $sheet->getColumnDimension('I')->setWidth(20);  
-        $sheet->getColumnDimension('J')->setWidth(34);  
+        $sheet->getColumnDimension('C')->setWidth(6);   
+        $sheet->getColumnDimension('D')->setWidth(16);  
+        $sheet->getColumnDimension('E')->setWidth(6);   
+        $sheet->getColumnDimension('F')->setWidth(23);  
+        $sheet->getColumnDimension('G')->setWidth(23);  
+        $sheet->getColumnDimension('H')->setWidth(22);  
+        $sheet->getColumnDimension('I')->setWidth(18);  
+        $sheet->getColumnDimension('J')->setWidth(32);  
 
         // 9. Stream output as a valid .xlsx file
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
