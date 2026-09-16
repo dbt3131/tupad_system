@@ -6,7 +6,7 @@ class Tupad_Report extends CI_Controller {
     public function __construct() {
         parent::__construct();
         $this->load->database();
-        $this->load->model('Tupad_Report_Bene_Model');
+        $this->load->model('Tupad_Report_Model');
         $this->load->helper(['url', 'form']);
     }
         
@@ -235,6 +235,27 @@ class Tupad_Report extends CI_Controller {
         <?php
         exit;
     }
+
+
+    public function coa_tupad_report_page() {
+   
+
+        $this->load->view('tupad/tupad_coa_report');
+    }
+
+    public function coa_tupad_report() {
+    $start_date = $this->input->get('start_date');
+    $end_date = $this->input->get('end_date');
+
+    $data['report_data'] = $this->Tupad_Report_Model->get_coa_report_data($start_date, $end_date);
+    $data['start_date'] = $start_date;
+    $data['end_date'] = $end_date;
+
+    $this->load->view('tupad/tupad_coa_report', $data);
+}
+
+
+
 
 
 

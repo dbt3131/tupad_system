@@ -394,7 +394,7 @@
                                             </select>
                                         </div>
 
-                                        <div class="col-md-3">
+                                        <div class="col-md-2">
                                             <label class="form-label fw-semibold small">Wage Percentage</label>
                                             <select name="wage_percentage" id="edit_wage_percentage" class="form-select" required>
                                                 <option value="">--Select Percentage--</option>
@@ -403,14 +403,22 @@
                                             </select>
                                         </div>
                                         <div class="col-md-3">
+                                            <label class="form-label fw-semibold small">Subsidy Cost</label>
+                                            <input type="text" id="edit_subsidy_cost" name="subsidy_cost" class="form-control" placeholder="GPAI Funding" required>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label class="form-label fw-semibold small">Admin Cost</label>
+                                            <input type="text" id="edit_admin_cost" name="admin_cost" class="form-control" placeholder="GPAI Funding" required>
+                                        </div>
+                                        <div class="col-md-4">
                                             <label class="form-label fw-semibold small">GPAI INFO (Funds)</label>
                                             <input type="text" id="edit_gpai_info" name="gpai_info" class="form-control" placeholder="GPAI Funding" required>
                                         </div>
-                                        <div class="col-md-3">
+                                        <div class="col-md-4">
                                             <label class="form-label fw-semibold small">WAGE INFO (Funds)</label>
                                             <input type="text" id="edit_wage_info" name="wage_info" class="form-control" placeholder="Wage Funding" required>
                                         </div>
-                                        <div class="col-md-3">
+                                        <div class="col-md-4">
                                             <label class="form-label fw-semibold small">LGU Classification</label>
                                             <input type="text" id="edit_implementation_classification" name="implementation_classification" class="form-control" placeholder="LGU Class" required>
                                         </div>
@@ -430,11 +438,11 @@
                                             </select>
                                         </div>
 
-                                        <div class="col-md-4">
+                                        <div class="col-md-5">
                                             <label class="form-label fw-semibold small">Sponsor</label>
                                             <input type="text" id="edit_implementation_sponsor" name="imp_sponsor" class="form-control" placeholder="Sponsor" required>
                                         </div>
-                                        <div class="col-md-4">
+                                        <div class="col-md-7">
                                             <label class="form-label fw-semibold small">Overall Remarks</label>
                                             <input type="text" id="edit_remarks" name="remarks" class="form-control" placeholder="Remarks">
                                         </div>
@@ -786,6 +794,9 @@
                         $('#edit_wage_percentage').val(d.wage_percentage);
                         $('#edit_gpai_info').val(d.gpai_info);
                         $('#edit_wage_info').val(d.wage_info);
+                        $('#edit_subsidy_cost').val(d.subsidy_cost);
+                        $('#edit_admin_cost').val(d.admin_cost);
+
                         $('#edit_remarks').val(d.remarks);
 
                         $('#edit_implementation_classification').val(d.implementation_classification);

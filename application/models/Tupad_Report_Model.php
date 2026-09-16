@@ -147,7 +147,26 @@ public function get_filtered_report($start_date = null, $end_date = null, $assig
     }
 
 
+public function get_coa_report_data($start_date = null, $end_date = null) {
+    $this->db->select('
+        adl_transactions.*,
+        adl_registry.adl_amount,
+        refprovince.provDesc as province_name,
+        refcitymun.citymunDesc as municipality_name
+    ');
+    $this->db->from('adl_transactions');
+    $this->db->join('adl_registry', 'adl_registry.adl_no = adl_transactions.adl_no', 'left');
+    $this->db->join('refprovince', 'refprovince.provCode = adl_transactions.implementation_province', 'left');
+    $this->db->join('refcitymun', 'refcitymun.cityCode = adl_transactions.implementation_area', 'left');
 
+    if (!empty($start_date) && !empty($end_date)) {
+        $this->db->where('adl_transactions.ongoing_implementation_start_date >=', $start_date);
+        $this->db->where('adl_transactions.ongoing_implementation_start_date <=', $end_date);
+    }
+
+    $this->db->order_by('adl_transactions.adl_transact_id', 'DESC');
+    return $this->db->get()->result_array();
+}
 
 
 

@@ -429,6 +429,16 @@ $is_config_active  = in_array($current_controller, ['ADL']);
           </a>
         </li>
       </ul>
+
+        <ul class="collapse submenu list-unstyled <?= $is_adl_active ? 'show' : ''; ?>" id="ADLsubmenu">
+        <li>
+          <a href="<?= site_url('Tupad_Report/coa_tupad_report_page'); ?>" 
+             class="nav-sub-link <?= ($current_controller === 'Tupad_Report' && $current_method === 'coa_tupad_report_page') ? 'active' : ''; ?>">
+            <i class="bi bi-circle"></i>
+            <span>COA Report</span>
+          </a>
+        </li>
+      </ul>
     </li>
 
 <li class="nav-item dropdown">

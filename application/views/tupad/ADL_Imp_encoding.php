@@ -254,31 +254,41 @@
                                      </select>
                                     </div>
 
-                                    <div class="col-md-3">
+                                    <div class="col-md-2">
                                         <label class="form-label fw-semibold small">Wage Percentage</label>
                                         <select name="wage_percentage" id="wage_percentage" class="form-select" required>
-                                            <option value="">--Select Percentage--</option>
+                                            <option value="">Percentage</option>
                                             <option value="2.5">2.5%</option>
                                             <option value="3">3%</option>                          
                                         </select>
                                     </div>
 
+                                    <div class="col-md-2">
+                                        <label class="form-label fw-semibold small">Subsidy Cost</label>
+                                        <input type="text" name="subsidy_cost" class="form-control" placeholder="Subsidy Cost" required>
+                                    </div>
+
+                                    <div class="col-md-2">
+                                        <label class="form-label fw-semibold small">Admin Cost</label>
+                                        <input type="number" name="admin_cost" class="form-control" placeholder="Admin" required>
+                                    </div>
+
                                     <div class="col-md-3">
                                         <label class="form-label fw-semibold small">GPAI INFO (Funds)</label>
-                                        <input type="text" name="gpai_info" class="form-control" placeholder="GPAI Funding">
+                                        <input type="text" name="gpai_info" class="form-control" placeholder="GPAI Funding" required>
                                     </div>
 
                                     <div class="col-md-3">
                                         <label class="form-label fw-semibold small">WAGE INFO (Funds)</label>
-                                        <input type="text" name="wage_info" class="form-control" placeholder="Wage Funding" >
+                                        <input type="text" name="wage_info" class="form-control" placeholder="Wage Funding" required >
                                     </div>
                                     
-                                    <div class="col-md-3">
+                                    <div class="col-md-2">
                                         <label class="form-label fw-semibold small">LGU Classification</label>
                                         <input type="text" name="implementation_classification" class="form-control" placeholder="LGU Class" required>
                                     </div>
 
-                                    <div class="col-md-4">
+                                    <div class="col-md-3">
                                         <label class="form-label fw-semibold small">Proponent</label>
                                         <select name="imp_proponent" id="imp_proponent" class="form-select" style="width: 100%;" required>
                                             <option value="" selected disabled>-- Select or type Proponent --</option>
@@ -293,7 +303,7 @@
                                         <i><font color="red" size="2px">* Proponent not listed? <a href="<?= site_url('ADL/proponent_encode'); ?>">Add it here</a></i></font>
                                     </div>
 
-                                    <div class="col-md-4">
+                                    <div class="col-md-3">
                                         <label class="form-label fw-semibold small">Sponsor</label>
                                         <input type="text" name="imp_sponsor" class="form-control" placeholder="Sponsor" required>
                                     </div>
@@ -308,11 +318,11 @@
                             <!-- TAB 2: APPRAISAL & PPES -->
                             <div class="tab-pane fade" id="appraisal-pane" role="tabpanel" aria-labelledby="appraisal-tab">
                                 <div class="row g-3">
-                                    <div class="col-md-6">
+                                    <div class="col-md-3">
                                         <label class="form-label fw-semibold small">Appraisal Date Submitted</label>
                                         <input type="text" name="appraisal_date_submitted" class="form-control" placeholder="Date Submitted" onfocus="this.type='date'" onblur="if(!this.value)this.type='text'">
                                     </div>
-                                    <div class="col-md-6">
+                                    <div class="col-md-3">
                                         <label class="form-label fw-semibold small">Appraisal Date Approved</label>
                                         <input type="text" name="appraisal_date_approved" class="form-control" placeholder="Date Approved" onfocus="this.type='date'" onblur="if(!this.value)this.type='text'" >
                                     </div>
