@@ -41,6 +41,47 @@
             overflow-x: hidden;
         } 
 
+        /* Advanced DataTables Styling Overrides */
+        .dataTables_wrapper .dataTables_filter input {
+            border-radius: 0.375rem;
+            border: 1px solid var(--card-border);
+            padding: 0.375rem 0.75rem;
+            font-size: 0.875rem;
+        }
+        .dataTables_wrapper .dataTables_filter input:focus {
+            border-color: var(--primary-light);
+            box-shadow: 0 0 0 0.25rem rgba(37, 99, 235, 0.15);
+        }
+        .dataTables_wrapper .dataTables_length select {
+            border-radius: 0.375rem;
+            border: 1px solid var(--card-border);
+            padding: 0.375rem 2.25rem 0.375rem 0.75rem;
+            font-size: 0.875rem;
+        }
+        .table-advanced th {
+            background-color: #f1f5f9 !important;
+            color: #334155;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+            border-bottom: 2px solid var(--card-border) !important;
+        }
+        .table-advanced td {
+            font-size: 0.875rem;
+            color: #334155;
+        }
+        .pagination .page-item .page-link {
+            font-size: 0.875rem;
+            color: var(--primary-color);
+            border-color: var(--card-border);
+        }
+        .pagination .page-item.active .page-link {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            color: #ffffff;
+        }
+
         @media print {
             body { background-color: #ffffff; }
             #sidebar, .top-navbar, .no-print { display: none !important; }
@@ -66,7 +107,7 @@
                     </h3>
                     <p class="text-muted small mb-0">Filter by ADL number to review transaction distributions</p>
                 </div>
-                <button onclick="window.print()" class="btn btn-outline-secondary btn-sm">
+                <button onclick="window.print()" class="btn btn-outline-secondary btn-sm shadow-sm">
                     <i class="bi bi-printer me-1"></i> Print Report
                 </button>
             </div>
@@ -81,7 +122,7 @@
                                <option value="" selected disabled>-- Select or type ADL Number --</option>
                                <?php if (!empty($adl_list)): ?>
                                    <?php foreach ($adl_list as $item): ?>
-                                       <option value="<?= html_escape($item['adl_no']); ?>">
+                                       <option value="<?= html_escape($item['adl_no']); ?>" data-amount="<?= $item['adl_amount']; ?>">
                                            <?= html_escape($item['adl_no']); ?> (&#8369;<?= number_format($item['adl_amount'], 2); ?>)
                                        </option>
                                    <?php endforeach; ?>
@@ -92,7 +133,7 @@
                </div>
             </div>
 
-            <!-- Report Display Container (Hidden until ADL selected) -->
+            <!-- Report Display Container -->
             <div id="reportContainer" style="display: none;">
                 
                 <!-- Summary Metrics Row -->
@@ -170,13 +211,12 @@
                 </div>
             </div>
 
-            <!-- 2. Detailed Implementation Breakdown Table (Hidden initially, appears after ADL selection) -->
+            <!-- 2. Detailed Implementation Breakdown Table -->
             <div id="detailedTableCard" class="card border-0 shadow-sm mb-4" style="display: none;">
                 <div class="card-header bg-white py-3 d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
                     <h5 class="mb-0 fw-bold text-secondary">
                         <i class="bi bi-geo-alt me-2"></i>Detailed Implementation & Itemized Breakdown List
                     </h5>
-                    <!-- Filter Dropdowns Container (Province, Proponent, District) & Excel Button -->
                     <div class="d-flex flex-wrap align-items-center gap-2">
                         <div class="d-flex flex-wrap gap-2">
                             <!-- Province Filter Dropdown -->
@@ -219,25 +259,24 @@
                                 </select>
                             </div>
                         </div>
-                        <!-- Excel Export Button Container -->
                         <div id="exportButtonContainer"></div>
                     </div>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
-                        <table id="detailedTransactionsTable" class="table table-bordered table-striped align-middle w-100">
-                            <thead class="table-light text-center align-middle">
+                        <table id="detailedTransactionsTable" class="table table-striped table-hover align-middle w-100 table-advanced">
+                            <thead class="align-middle">
                                 <tr>
                                     <th>Implementation Province</th>
                                     <th>Implementation Area</th>
                                     <th>ADL No.</th>
                                     <th>Reference No.</th>
-                                    <th>PPES Count</th>
-                                    <th>PPEs Amount</th>
-                                    <th>GSIS Enrollment Benefs</th>
-                                    <th>GSIS Enrollment Amount</th>
-                                    <th>Payout Service Fee</th>
-                                    <th>Salaries Amount</th>
+                                    <th class="text-end">PPES Count</th>
+                                    <th class="text-end">PPEs Amount</th>
+                                    <th class="text-end">GSIS Enrollment Benefs</th>
+                                    <th class="text-end">GSIS Enrollment Amount</th>
+                                    <th class="text-end">Payout Service Fee</th>
+                                    <th class="text-end">Salaries Amount</th>
                                 </tr>
                             </thead>
                             <tbody id="detailedTransactionTableBody">
@@ -273,23 +312,34 @@
     <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
 
     <script>
-$(document).ready(function () {
+    $(document).ready(function () {
         // Initialize Select2 with Bootstrap 5 Theme
         $('#filter_adl_no').select2({ theme: 'bootstrap-5', placeholder: '-- Select or type ADL Number --', allowClear: true });
         $('#filter_province').select2({ theme: 'bootstrap-5', placeholder: '-- All Provinces --', allowClear: true });
         $('#filter_proponent').select2({ theme: 'bootstrap-5', placeholder: '-- All Proponents --', allowClear: true });
         $('#filter_district').select2({ theme: 'bootstrap-5', placeholder: '-- All Districts --', allowClear: true });
 
-// Initialize DataTable with Pagination, Sorting, Column Formatting, and Excel Export Button
+        // Initialize DataTable with Advanced Layout & Formatting
         const table = $('#detailedTransactionsTable').DataTable({
             pageLength: 10,
             lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
             ordering: true,
             responsive: true,
-            dom: '<"row mb-3"<"col-md-6"l><"col-md-6 text-end"f>>rt<"row mt-3"<"col-md-6"i><"col-md-6"p>>',
+            dom: '<"row mb-3 align-items-center"<"col-md-6"l><"col-md-6 text-end"f>>rt<"row mt-3 align-items-center"<"col-md-5"i><"col-md-7 text-end"p>>',
             columnDefs: [
                 {
-                    // Format screen view with commas and decimals
+                    targets: [4, 5, 6, 7, 8, 9],
+                    className: 'text-end'
+                },
+                {
+                    targets: [4, 6],
+                    render: function (data, type, row) {
+                        let num = parseInt(data);
+                        if (isNaN(num)) return '0';
+                        return num.toLocaleString('en-US');
+                    }
+                },
+                {
                     targets: [5, 7, 8, 9],
                     render: function (data, type, row) {
                         let num = parseFloat(data);
@@ -311,7 +361,25 @@ $(document).ready(function () {
                     customize: function (xlsx) {
                         var sheet = xlsx.xl.worksheets['sheet1.xml'];
 
-                        // 1. Shift all rows down by 2 to make room for the main title block
+                        // Calculate column totals from applied data search
+                        var totalPpesCount = 0;
+                        var totalPpesAmt = 0;
+                        var totalGsisBenefs = 0;
+                        var totalGsisAmt = 0;
+                        var totalService = 0;
+                        var totalSalaries = 0;
+
+                        table.rows({ search: 'applied' }).every(function () {
+                            var data = this.data();
+                            totalPpesCount += parseInt(data[4].toString().replace(/,/g, '')) || 0;
+                            totalPpesAmt += parseFloat(data[5].toString().replace(/,/g, '')) || 0;
+                            totalGsisBenefs += parseInt(data[6].toString().replace(/,/g, '')) || 0;
+                            totalGsisAmt += parseFloat(data[7].toString().replace(/,/g, '')) || 0;
+                            totalService += parseFloat(data[8].toString().replace(/,/g, '')) || 0;
+                            totalSalaries += parseFloat(data[9].toString().replace(/,/g, '')) || 0;
+                        });
+
+                        // Shift rows down by 2 to make room for the title block
                         $('row', sheet).each(function () {
                             var r = parseInt($(this).attr('r')) + 2;
                             $(this).attr('r', r);
@@ -322,43 +390,86 @@ $(document).ready(function () {
                             });
                         });
 
-                        // 2. Format amount cells explicitly as inline strings with commas/decimals 
-                        // and apply style '25' universally for clean borders across all cells
+                        // Enforce clean thin borders (s="25") and remove any gray fills for all cells
                         $('row', sheet).each(function () {
                             var r = parseInt($(this).attr('r'));
                             if (r >= 3) {
                                 $(this).find('c').each(function (index) {
                                     var cell = $(this);
-                                    cell.attr('s', '25'); // Apply border style to every cell
+                                    cell.attr('s', '25'); // thin border style, no gray fill
 
-                                    // If it's an amount column (indices 5, 7, 8, 9), format value with commas & decimals
-                                    if (r > 3 && (index === 5 || index === 7 || index === 8 || index === 9)) {
-                                        var rawVal = cell.text();
+                                    // Format numeric/count columns cleanly
+                                    if (index >= 4 && index <= 9) {
+                                        var rawVal = cell.text().replace(/,/g, '');
                                         var num = parseFloat(rawVal);
                                         if (!isNaN(num)) {
-                                            var formattedNum = num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-                                            cell.attr('t', 'inlineStr');
-                                            cell.html('<is><t>' + formattedNum + '</t></is>');
+                                            cell.attr('t', 'n');
+                                            if (cell.find('v').length > 0) {
+                                                cell.find('v').text(num);
+                                            } else {
+                                                cell.append('<v>' + num + '</v>');
+                                            }
                                         }
                                     }
                                 });
                             }
                         });
 
-                        // 3. Insert the Title Header Row (Row 1)
+                        // Fetch selected ADL Number and Amount dynamically
+                        var selectedOption = $('#filter_adl_no').find('option:selected');
+                        var adlNoText = selectedOption.val() ? selectedOption.val() : 'N/A';
+                        var adlAmountVal = selectedOption.data('amount') ? parseFloat(selectedOption.data('amount')) : 0;
+                        
+                        function formatNum(num) {
+                            return num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                        }
+
+                        var titleText = 'ADL BREAKDOWN REPORT - ADL No: ' + adlNoText + ' (Amount: ₱' + formatNum(adlAmountVal) + ')';
+
+                        // Insert title header at row 1
                         var row1 = '<row r="1">' +
                                        '<c t="inlineStr" r="A1" s="51">' +
-                                           '<is><t>ADL BREAKDOWN REPORT</t></is>' +
+                                           '<is><t>' + titleText + '</t></is>' +
                                        '</c>' +
                                    '</row>';
                         
                         $('sheetData', sheet).prepend(row1);
+
+                        // Add Merge Cells rule to span title across columns A to J
+                        var mergeCells = sheet.getElementsByTagName('mergeCells');
+                        if (mergeCells.length === 0) {
+                            var worksheet = sheet.getElementsByTagName('worksheet')[0];
+                            worksheet.appendChild(sheet.createElement('mergeCells'));
+                            mergeCells = sheet.getElementsByTagName('mergeCells');
+                        }
+                        var mergeCell = sheet.createElement('mergeCell');
+                        mergeCell.setAttribute('ref', 'A1:J1');
+                        mergeCells[0].appendChild(mergeCell);
+                        mergeCells[0].setAttribute('count', parseInt(mergeCells[0].getAttribute('count') || 0) + 1);
+
+                        // Append Grand Total row with proper thin borders (s="25") and no gray backgrounds
+                        var lastRowElem = $('row', sheet).last();
+                        var lastRowIdx = lastRowElem.length > 0 ? parseInt(lastRowElem.attr('r')) + 1 : 4;
+
+                        var totalRow = '<row r="' + lastRowIdx + '">' +
+                                           '<c t="inlineStr" r="A' + lastRowIdx + '" s="25"><is><t>GRAND TOTAL</t></is></c>' +
+                                           '<c t="inlineStr" r="B' + lastRowIdx + '" s="25"><is><t></t></is></c>' +
+                                           '<c t="inlineStr" r="C' + lastRowIdx + '" s="25"><is><t></t></is></c>' +
+                                           '<c t="inlineStr" r="D' + lastRowIdx + '" s="25"><is><t></t></is></c>' +
+                                           '<c t="n" r="E' + lastRowIdx + '" s="25"><v>' + totalPpesCount + '</v></c>' +
+                                           '<c t="n" r="F' + lastRowIdx + '" s="25"><v>' + totalPpesAmt + '</v></c>' +
+                                           '<c t="n" r="G' + lastRowIdx + '" s="25"><v>' + totalGsisBenefs + '</v></c>' +
+                                           '<c t="n" r="H' + lastRowIdx + '" s="25"><v>' + totalGsisAmt + '</v></c>' +
+                                           '<c t="n" r="I' + lastRowIdx + '" s="25"><v>' + totalService + '</v></c>' +
+                                           '<c t="n" r="J' + lastRowIdx + '" s="25"><v>' + totalSalaries + '</v></c>' +
+                                       '</row>';
+
+                        $('sheetData', sheet).append(totalRow);
                     }
                 }
             ]
         });
 
-        // Append generated DataTables export button into custom header location container
         table.buttons().container().appendTo('#exportButtonContainer');
 
         // Function to load report data via AJAX
@@ -464,17 +575,6 @@ $(document).ready(function () {
 
             if (adlNo) {
                 loadReportData(adlNo, provCode, proponentName, districtNo);
-            }
-        });
-
-        // Sidebar Toggle Handler
-        $(document).on('click', '#sidebarToggle', function (e) {
-            e.preventDefault();
-            if ($(window).width() < 992) {
-                $('#sidebar').toggleClass('show-mobile');
-            } else {
-                $('#sidebar').toggleClass('collapsed');
-                $('#main-content').toggleClass('expanded');
             }
         });
     });

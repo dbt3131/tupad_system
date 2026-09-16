@@ -116,7 +116,7 @@ input[type="date"].form-control::-webkit-calendar-picker-indicator {
                     <h3 class="fw-bold mb-1">
                         <i class="bi bi-journal-plus text-primary me-2"></i>ADL ENCODING
                     </h3>
-                    <p class="text-muted small mb-0">Register new Authority to Debit Line (ADL) details</p>
+                    <p class="text-muted small mb-0">Register new Advice of Disbursement Limits</p>
                 </div>
             </div>
 
