@@ -251,11 +251,39 @@ class Tupad_Report extends CI_Controller {
     $data['start_date'] = $start_date;
     $data['end_date'] = $end_date;
 
+    // Fetch user details from session (adjust session keys based on your login implementation)
+    $data['user_fullname'] = $this->session->userdata('fullname') ?? 'USER FULLNAME';
+    $data['user_position'] = $this->session->userdata('position') ?? 'Position/Designation';
+
     $this->load->view('tupad/tupad_coa_report', $data);
 }
 
+public function export_coa_excel() {
+    $start_date = $this->input->get('start_date');
+    $end_date = $this->input->get('end_date');
+    
+    // Get logged-in user ID from session (adjust session key if necessary, e.g., 'user_id' or 'id')
+    $user_id = $this->session->userdata('id') ?? $this->session->userdata('user_id');
 
+    $data['report_data'] = $this->Tupad_Report_Model->get_coa_report_data($start_date, $end_date);
+    
+    // Fetch joined user full name and description string
+    $user_info = $this->Tupad_Report_Model->get_user_signature_details($user_id);
+    
+    $data['user_fullname'] = $user_info['user_fullname'] ?? 'ADMIN USER';
+    $data['user_position'] = $user_info['position_description'] ?? 'Position Description';
 
+    $data['start_date'] = $start_date;
+    $data['end_date'] = $end_date;
+
+    $filename = "COA_Quarterly_Report_" . date('Y-m-d') . ".xls";
+    header("Content-Type: application/vnd.ms-excel");
+    header("Content-Disposition: attachment; filename=\"$filename\"");
+    header("Pragma: no-cache");
+    header("Expires: 0");
+
+    $this->load->view('tupad/tupad_excel_coa_export', $data);
+}
 
 
 

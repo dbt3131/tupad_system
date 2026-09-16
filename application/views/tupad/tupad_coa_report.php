@@ -86,6 +86,21 @@
             border-radius: 12px;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
         }
+
+        /* Strict Table Structure Alignment */
+        table.coatable th, table.coatable td {
+            font-size: 0.75rem;
+            vertical-align: middle;
+            text-align: center;
+            white-space: nowrap;
+        }
+        
+        table.coatable th {
+            background-color: #f1f5f9;
+            color: #1e293b;
+            border-color: #cbd5e1 !important;
+            font-weight: 600;
+        }
     </style>
 </head>
 
@@ -99,10 +114,9 @@
             
             <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3 no-print">
                 <div>
-                    <h3 class="fw-bold mb-1">
-                        <i class="bi bi-journal-plus text-primary me-2"></i>COA QUARTERLY REPORT
-                    </h3>
-                    <p class="text-muted small mb-0">Filter and view TUPAD activities report</p>
+                    <h5 class="fw-bold mb-1 text-uppercase text-secondary" style="font-size: 0.8rem;">Department of Labor and Employment</h5>
+                    <h3 class="fw-bold mb-1 text-dark" style="font-size: 1.15rem;">CONSOLIDATED QUARTERLY REPORT ON GOVERNMENT PROJECT/PROGRAM/ACTIVITIES (PPA)</h3>
+                    <p class="text-muted small mb-0">As of <?= date('F d, Y'); ?></p>
                 </div>
             </div>
 
@@ -129,50 +143,78 @@
                     </form>
                 </div>
             </div>
+            <!-- Inside your filter card form actions, alongside Filter button -->
+<div class="col-md-4 d-flex gap-2">
+    <a href="<?= site_url('tupad_report/export_coa_excel') . '?' . http_build_query($_GET); ?>" class="btn btn-success w-50">
+        <i class="bi bi-file-earmark-excel me-1"></i> Export XLSX
+    </a>
+</div>
 
-            <!-- Data Table Display -->
-            <div class="table-responsive p-3">
-                <table class="table table-bordered table-striped align-middle mb-0" style="font-size: 0.85rem;">
-                    <thead class="table-dark text-center">
+            <!-- Data Table Display matching COA Template -->
+            <div class="table-responsive p-2">
+                <table class="table table-bordered table-striped coatable mb-0">
+                    <thead>
                         <tr>
-                            <th>Agency/Address</th>
-                            <th>Project/Program/Activity Name</th>
+                            <th rowspan="2">Agency/Adress</th>
+                            <th rowspan="2">Project/Program/Activity Name</th>
+                            <th colspan="2">Location</th>
+                            <th rowspan="2">Physical Target</th>
+                            <th rowspan="2">No. of Days</th>
+                            <th rowspan="2">Total Project Cost</th>
+                            <th rowspan="2">Proposed Date to Start<br><small>(DD/MM/YYYY)</small></th>
+                            <th rowspan="2">Actual Date Started<br><small>(DD/MM/YYYY)</small></th>
+                            <th rowspan="2">No. of Extensions</th>
+                            <th rowspan="2">Target Completion Date<br><small>(DD/MM/YYYY)</small></th>
+                            <th rowspan="2">Actual Date of Completion<br><small>(DD/MM/YYYY)</small></th>
+                            <th colspan="3">Project Status this Quarter</th>
+                            <th rowspan="2">Total Cost Incurred to Date</th>
+                            <th rowspan="2">Remarks</th>
+                            <th rowspan="2">Mode of Procurement</th>
+                            <th rowspan="2">Contractor (If applicable)</th>
+                        </tr>
+                        <tr>
                             <th>Province</th>
                             <th>LGU/Municipality</th>
-                            <th>Physical Target</th>
-                            <th>No. of Days</th>
-                            <th>Total Project Cost</th>
-                            <th>Proposed Date to Start</th>
-                            <th>Actual Date Started</th>
-                            <th>Target Completion Date</th>
-                            <th>Remarks</th>
+                            <th>Target Completion Date (DD/MM/YYYY)</th>
+                            <th>Actual Date of Completion (DD/MM/YYYY)</th>
+                            <th>% of Completion</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <?php if (!empty($report_data)): ?>
+                        <?php if (!empty($report_data) && is_array($report_data)): ?>
                             <?php foreach ($report_data as $row): ?>
                                 <tr>
-                                    <td>DOLE RO 3</td>
+                                    <td>DOLE RO3</td>
                                     <td>TUPAD</td>
-                                    <td><?= html_escape($row['province_name']); ?></td>
-                                    <td><?= html_escape($row['municipality_name']); ?></td>
-                                    <td class="text-center"><?= html_escape($row['target']); ?></td>
-                                    <td class="text-center"><?= html_escape($row['no_of_days']); ?></td>
-                                    <td class="text-end"><?= !empty($row['adl_amount']) ? number_format((float)$row['adl_amount'], 2) : '0.00'; ?></td>
-                                    <td class="text-center"><?= html_escape($row['ongoing_implementation_start_date']); ?></td>
-                                    <td class="text-center"><?= html_escape($row['ongoing_implementation_start_date']); ?></td>
-                                    <td class="text-center"><?= html_escape($row['ongoing_implementation_end_date']); ?></td>
-                                    <td><?= html_escape($row['remarks']); ?></td>
+                                    <td><?= html_escape($row['province_name'] ?? ''); ?></td>
+                                    <td><?= html_escape($row['municipality_name'] ?? ''); ?></td>
+                                    <td><?= html_escape($row['target'] ?? ''); ?></td>
+                                    <td><?= html_escape($row['no_of_days'] ?? ''); ?></td>
+                                    <td class="text-end"><?= !empty($row['adl_amount']) ? number_format((float)$row['adl_amount'], 2) : ''; ?></td>
+                                    <td><?= !empty($row['ongoing_implementation_start_date']) ? date('d/m/Y', strtotime($row['ongoing_implementation_start_date'])) : ''; ?></td>
+                                    <td><?= !empty($row['ongoing_implementation_start_date']) ? date('d/m/Y', strtotime($row['ongoing_implementation_start_date'])) : ''; ?></td>
+                                    <td></td>
+                                    <td><?= !empty($row['ongoing_implementation_end_date']) ? date('d/m/Y', strtotime($row['ongoing_implementation_end_date'])) : ''; ?></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td><?= html_escape($row['remarks'] ?? ''); ?></td>
+                                    <td></td>
+                                    <td></td>
                                 </tr>
                             <?php endforeach; ?>
                         <?php else: ?>
                             <tr>
-                                <td colspan="11" class="text-center text-muted py-4">No records found for the selected period.</td>
+                                <td colspan="19" class="text-center text-muted py-4 fw-semibold bg-white">
+                                    <i class="bi bi-info-circle me-1"></i> No records found for the selected period. Headers are maintained above as required.
+                                </td>
                             </tr>
                         <?php endif; ?>
                     </tbody>
                 </table>
-            </div>
+                        </div>
 
         </main>
 

@@ -168,6 +168,16 @@ public function get_coa_report_data($start_date = null, $end_date = null) {
     return $this->db->get()->result_array();
 }
 
+public function get_user_signature_details($user_id) {
+    $this->db->select("
+        TRIM(CONCAT(users.reg_fname, ' ', IF(users.reg_mname != '', CONCAT(SUBSTRING(users.reg_mname, 1, 1), '. '), ''), users.reg_lname, ' ', users.reg_extname)) as user_fullname,
+        code_position.position_description
+    ");
+    $this->db->from('users');
+    $this->db->join('code_position', 'code_position.position_id = users.position_id', 'left');
+    $this->db->where('users.id', $user_id);
+    return $this->db->get()->row_array();
+}
 
 
 
