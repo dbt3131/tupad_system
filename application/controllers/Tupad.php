@@ -168,6 +168,16 @@ public function upload_tupad_excel()
         return;
     }
 
+    // Duplicate reference no check
+    if (!empty($reference_no) && $this->Tupad_model->reference_no_exists($reference_no)) {
+        @unlink($filePath);  
+        echo json_encode([
+            'status' => 'error', 
+            'message' => 'Upload stopped: The Reference No. "' . $reference_no . '" has already been registered in the database.'
+        ]);
+        return;
+    }
+
     $extension = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
     $rows = [];
 

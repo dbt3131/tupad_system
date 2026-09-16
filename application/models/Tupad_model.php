@@ -811,6 +811,15 @@ public function get_adl_transactions() {
         return ($query && $query->num_rows() > 0);
     }
 
+public function reference_no_exists($reference_no) {
+        $this->db->where('reference_no', $reference_no);
+        return $this->db->count_all_results($this->table) > 0;
+    }
+
+
+
+
+
 
 
 
