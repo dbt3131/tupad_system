@@ -1149,7 +1149,7 @@ public function export_excel()
         // Dynamically calculate row height based on text length and merged columns width (~155 characters per line)
         $totalLength = strlen('Specific Nature of work : ' . $nature_of_work);
         $estimatedLines = max(1, ceil($totalLength / 150)); 
-        $sheet->getRowDimension(12)->setRowHeight($estimatedLines * 20);
+        $sheet->getRowDimension(12)->setRowHeight($estimatedLines * 13);
 
 
 
@@ -1646,7 +1646,25 @@ public function export_gsis_sequences_excel()
     // Fetch summary records within date range
     $summary_records = $this->Tupad_model->get_gsis_summary_by_date($start_date, $end_date);
     
-    $filename = 'GSIS_Beneficiaries_List_' . date('Ymd_His') . '.xlsx';
+    // 1. Calculate the grand total count of actual beneficiary entries across all groups
+    $total_entries = 0;
+    if (!empty($summary_records)) {
+        foreach ($summary_records as $summary) {
+            $reference_no = $summary['reference_no'] ?? '';
+            $implementor  = $summary['implementor'] ?? $summary['area_of_implementation'] ?? '';
+
+            $group_count = $this->db->where([
+                'reference_no'           => $reference_no,
+                'area_of_implementation' => $implementor
+            ])->count_all_results('tbl_tupad_list');
+
+            $total_entries += $group_count;
+        }
+    }
+
+   // 2. Format filename: September 17, 2026_LIST OF [X] TUPAD Beneficiaries.xlsx
+    $today = date('F d, Y');
+    $filename = $today . '_LIST OF ' . $total_entries . ' TUPAD Beneficiaries.xlsx';
 
     // Initialize PhpSpreadsheet
     $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
@@ -1747,13 +1765,11 @@ public function export_gsis_sequences_excel()
             $counter = 1; 
             if (!empty($records)) {
                 foreach ($records as $record) {
-                    // Check alternative database column names for name fields just in case
                     $lname = trim($record['tupad_lname'] ?? $record['last_name'] ?? $record['lname'] ?? '');
                     $fname = trim($record['tupad_fname'] ?? $record['first_name'] ?? $record['fname'] ?? '');
                     $mname = trim($record['tupad_mname'] ?? $record['middle_name'] ?? $record['mname'] ?? '');
                     $ext   = trim($record['tupad_ext'] ?? $record['extension'] ?? $record['ext'] ?? '');
 
-                    // Construct Full Name strictly as: LASTNAME, FIRSTNAME MIDDLENAME EXTENSION
                     $fullName = $lname;
                     if (!empty($lname) && !empty($fname)) {
                         $fullName .= ', ' . $fname;
@@ -1788,7 +1804,7 @@ public function export_gsis_sequences_excel()
     $sheet->getColumnDimension('A')->setWidth(10);
     $sheet->getColumnDimension('B')->setWidth(55);
 
-    // Stream output as an Excel file
+    // Stream output as an Excel file with the dynamic count filename
     header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
     header('Content-Disposition: attachment;filename="' . $filename . '"');
     header('Cache-Control: max-age=0');
