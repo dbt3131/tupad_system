@@ -1023,7 +1023,7 @@ public function export_excel()
 
 
 
-        
+
 
        $sheet->mergeCells('A12:J12');
         $richText12 = new \PhpOffice\PhpSpreadsheet\RichText\RichText();
@@ -1205,53 +1205,6 @@ public function export_excel()
         exit;
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     public function set_record_inactive($id = NULL) {
         if (!$this->session->userdata('logged_in')) {
             echo json_encode(['status' => 'error', 'message' => 'Unauthorized access.']);
@@ -1272,7 +1225,37 @@ public function export_excel()
         }
     }
 
-    public function export_gsis_letter_excel()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+public function export_gsis_letter_excel()
     {
         $start_date       = $this->input->get('start_date');
         $end_date         = $this->input->get('end_date');
@@ -1294,67 +1277,86 @@ public function export_excel()
 
         $summary_records = $this->Tupad_model->get_gsis_summary_by_date($start_date, $end_date);
 
-        $filename = 'GSIS_Letter_Report_' . date('Ymd_His') . '.xls';
+        $filename = 'GSIS_Letter_Report_' . date('Ymd_His') . '.xlsx';
 
-        header('Content-Type: application/vnd.ms-excel');
-        header('Content-Disposition: attachment;filename="' . $filename . '"');
-        header('Cache-Control: max-age=0');
+        // Initialize PhpSpreadsheet
+        $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        $sheet->setShowGridlines(true);
 
-        echo '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">';
-        echo '<head><meta charset="UTF-8"><style>body { font-family: Arial, sans-serif; font-size: 10pt; }</style></head><body>';
-        
-        echo '<table width="750" border="0" style="margin: 0 auto; font-family: Arial, sans-serif; font-size: 10pt;">';
-        
+        // Define Styles
+        $centerStyle = [
+            'alignment' => [
+                'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER, 
+                'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER,
+                'wrapText' => true
+            ]
+        ];
+        $thinBorder = [
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                    'color' => ['argb' => 'FF000000'],
+                ],
+            ],
+        ];
+
+        // Current Date Header
         $current_formatted_date = strtoupper(date('F d, Y'));
-        echo '<tr><td align="left" style="text-align: left; font-weight: bold; mso-number-format:\'\@\'; padding-top: 10px; padding-bottom: 15px;">';
-        echo $current_formatted_date;
-        echo '</td></tr>';
+        $sheet->setCellValue('A1', $current_formatted_date);
+        $sheet->getStyle('A1')->getFont()->setBold(true);
 
-        echo '<tr><td>';
-        echo '<br>';
-        echo '<b>Ms. KRISTINE JOI G. MACAM</b><br>';
-        echo 'Branch Manager<br>';
-        echo '<b>Government Service Insurance System (GSIS)</b><br>';
-        echo 'Sindalan, City of San Fernando, Pampanga<br><br>';
+        // Recipient Address Block
+        $sheet->setCellValue('A3', "Ms. KRISTINE JOI G. MACAM");
+        $sheet->getStyle('A3')->getFont()->setBold(true);
+        $sheet->setCellValue('A4', "Branch Manager");
+        $sheet->setCellValue('A5', "Government Service Insurance System (GSIS)");
+        $sheet->getStyle('A5')->getFont()->setBold(true);
+        $sheet->setCellValue('A6', "Sindalan, City of San Fernando, Pampanga");
 
-        echo 'Dear Ms. Macam:<br><br>';
+        // Salutation
+        $sheet->setCellValue('A8', "Dear Ms. Macam:");
 
+        // Introductory Paragraph
         $formatted_effectivity = date('F d, Y', strtotime($date_effectivity));
-        echo 'May we request the attached list of our beneficiaries under Tulong Panghanapbuhay sa Ating Disadvantaged/Displaced Workers (TUPAD) Program be enrolled under GSIS group insurance effective <b>' . $formatted_effectivity . '</b> with a covered period of work of <b>' . htmlspecialchars($no_of_days) . '</b> days. Below is the summary of our remittance:<br><br>';
+        $intro_text = "May we request the attached list of our beneficiaries under Tulong Panghanapbuhay sa Ating Disadvantaged/Displaced Workers (TUPAD) Program be enrolled under GSIS group insurance effective " . $formatted_effectivity . " with a covered period of work of " . $no_of_days . " days. Below is the summary of our remittance:";
+        $sheet->mergeCells('A10:G10');
+        $sheet->setCellValue('A10', $intro_text);
+        $sheet->getStyle('A10')->getAlignment()->setWrapText(true);
+        $sheet->getRowDimension(10)->setRowHeight(43);
 
-        echo '<table border="1" cellspacing="0" cellpadding="4" style="border-collapse: collapse; width: 100%;">';
-        echo '<colgroup>';
-        echo '<col style="width: 35px;">';
-        echo '<col style="width: 320px;">';
-        echo '<col style="width: 45px;">';
-        echo '<col style="width: 45px;">';
-        echo '<col style="width: 45px;">';
-        echo '<col style="width: 70px;">';
-        echo '<col style="width: 90px;">';
-        echo '</colgroup>';
+        // Table Headers (Rows 12 & 13)
+        $sheet->mergeCells('A12:A13');
+        $sheet->setCellValue('A12', '#');
+        $sheet->mergeCells('B12:B13');
+        $sheet->setCellValue('B12', 'PARTICULAR');
+        $sheet->mergeCells('C12:E12');
+        $sheet->setCellValue('C12', 'NO. OF BENEFICIARIES');
+        $sheet->setCellValue('C13', 'MALE');
+        $sheet->setCellValue('D13', 'FEMALE');
+        $sheet->setCellValue('E13', 'TOTAL');
+        $sheet->mergeCells('F12:F13');
+        $sheet->setCellValue('F12', 'RATE');
+        $sheet->mergeCells('G12:G13');
+        $sheet->setCellValue('G12', 'AMOUNT');
 
-        echo '<tr style="background-color: #f8f9fa; font-weight: bold; text-align: center;">';
-        echo '<th rowspan="2" style="vertical-align: middle;">#</th>';
-        echo '<th rowspan="2" style="vertical-align: middle;">PARTICULAR</th>';
-        echo '<th colspan="3">NO. OF BENEFICIARIES</th>';
-        echo '<th rowspan="2" style="vertical-align: middle;">RATE</th>';
-        echo '<th rowspan="2" style="vertical-align: middle;">AMOUNT</th>';
-        echo '</tr>';
-        echo '<tr style="background-color: #f8f9fa; font-weight: bold; text-align: center;">';
-        echo '<th>MALE</th>';
-        echo '<th>FEMALE</th>';
-        echo '<th>TOTAL</th>';
-        echo '</tr>';
+        $headerRange = 'A12:G13';
+        $sheet->getStyle($headerRange)->getFont()->setBold(true);
+        $sheet->getStyle($headerRange)->applyFromArray($centerStyle);
+        $sheet->getStyle($headerRange)->applyFromArray($thinBorder);
+        $sheet->getStyle($headerRange)->getFill()->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)->getStartColor()->setARGB('FFF8F9FA');
 
+        // Populate Summary Records
+        $rowNum = 14;
+        $i = 1;
         $total_male = 0;
         $total_female = 0;
         $total_benefs = 0;
         $total_amount = 0;
-        $rate = 50.00; 
+        $rate = 50.00;
         $dst = 0;
-        
+
         if (!empty($summary_records)) {
-            $i = 1;
             foreach ($summary_records as $row) {
                 $m = $row['male'] ?? 0;
                 $f = $row['female'] ?? 0;
@@ -1365,70 +1367,158 @@ public function export_excel()
                 $total_female += $f;
                 $total_benefs += $sub_total;
                 $total_amount += $amount;
-                
-                if($total_benefs == '1'){
-                    $dst = 0;
-                } elseif ($total_benefs >= 2 && $total_benefs <= 4) {
-                    $dst = 20.00;
-                } elseif ($total_benefs >= 5 && $total_benefs <= 7) {
-                    $dst = 50.00;
-                } elseif ($total_benefs >= 8 && $total_benefs <= 11) {
-                    $dst = 100.00;
-                } elseif ($total_benefs >= 12 && $total_benefs <= 15) {
-                    $dst = 150.00;
-                } elseif ($total_benefs >= 16) {
-                    $dst = 200.00;
-                } else {
-                    $dst = 0;
-                }
 
-                echo '<tr>';
-                echo '<td style="text-align: center;">' . $i++ . '</td>';
-                echo '<td style="word-break: break-word;">' . htmlspecialchars(($row['implementor'] ?? '') . ' (' . ($row['reference_no'] ?? '') . ')') . '</td>';
-                echo '<td style="text-align: center;">' . number_format($m) . '</td>';
-                echo '<td style="text-align: center;">' . number_format($f) . '</td>';
-                echo '<td style="text-align: center; font-weight: bold;">' . number_format($sub_total) . '</td>';
-                echo '<td style="text-align: right;">' . number_format($rate, 2) . '</td>';
-                echo '<td style="text-align: right;">' . number_format($amount, 2) . '</td>';
-                echo '</tr>';
+                $particular = ($row['implementor'] ?? '') . ' (' . ($row['reference_no'] ?? '') . ')';
+
+                $sheet->setCellValue("A{$rowNum}", $i++);
+                $sheet->setCellValue("B{$rowNum}", $particular);
+                $sheet->setCellValue("C{$rowNum}", $m);
+                $sheet->setCellValue("D{$rowNum}", $f);
+                $sheet->setCellValue("E{$rowNum}", $sub_total);
+                $sheet->setCellValue("F{$rowNum}", $rate);
+                $sheet->setCellValue("G{$rowNum}", $amount);
+
+                $sheet->getStyle("A{$rowNum}:G{$rowNum}")->applyFromArray($thinBorder);
+                $sheet->getStyle("A{$rowNum}")->applyFromArray($centerStyle);
+                $sheet->getStyle("B{$rowNum}")->getAlignment()->setWrapText(true);
+                $sheet->getStyle("C{$rowNum}")->applyFromArray($centerStyle);
+                $sheet->getStyle("D{$rowNum}")->applyFromArray($centerStyle);
+                $sheet->getStyle("E{$rowNum}")->getFont()->setBold(true);
+                $sheet->getStyle("E{$rowNum}")->applyFromArray($centerStyle);
+                $sheet->getStyle("F{$rowNum}")->getNumberFormat()->setFormatCode('#,##0.00');
+                $sheet->getStyle("G{$rowNum}")->getNumberFormat()->setFormatCode('#,##0.00');
+
+                $rowNum++;
             }
         } else {
-            echo '<tr><td colspan="7" style="text-align: center; padding: 10px;">No records found for the selected date range.</td></tr>';
+            $sheet->mergeCells("A{$rowNum}:G{$rowNum}");
+            $sheet->setCellValue("A{$rowNum}", "No records found for the selected date range.");
+            $sheet->getStyle("A{$rowNum}:G{$rowNum}")->applyFromArray($thinBorder);
+            $sheet->getStyle("A{$rowNum}")->applyFromArray($centerStyle);
+            $rowNum++;
         }
 
-        echo '<tr style="font-weight: bold; background-color: #f8f9fa;">';
-        echo '<td colspan="2" style="text-align: right;">TOTAL:</td>';
-        echo '<td style="text-align: center;">' . number_format($total_male) . '</td>';
-        echo '<td style="text-align: center;">' . number_format($total_female) . '</td>';
-        echo '<td style="text-align: center;">' . number_format($total_benefs) . '</td>';
-        echo '<td></td>';
-        echo '<td style="text-align: right;">' . number_format($total_amount, 2) . '</td>';
-        echo '</tr>';
+        // Calculate DST
+        if ($total_benefs == 1) {
+            $dst = 0;
+        } elseif ($total_benefs >= 2 && $total_benefs <= 4) {
+            $dst = 20.00;
+        } elseif ($total_benefs >= 5 && $total_benefs <= 7) {
+            $dst = 50.00;
+        } elseif ($total_benefs >= 8 && $total_benefs <= 11) {
+            $dst = 100.00;
+        } elseif ($total_benefs >= 12 && $total_benefs <= 15) {
+            $dst = 150.00;
+        } elseif ($total_benefs >= 16) {
+            $dst = 200.00;
+        } else {
+            $dst = 0;
+        }
 
-        echo '<tr>';
-        echo '<td colspan="6" style="text-align: right; font-weight: bold;">DST</td>';
-        echo '<td style="text-align: right; font-weight: bold;">' . number_format($dst, 2) . '</td>';
-        echo '</tr>';
+        // Total Row
+        $sheet->mergeCells("A{$rowNum}:B{$rowNum}");
+        $sheet->setCellValue("A{$rowNum}", "TOTAL:");
+        $sheet->getStyle("A{$rowNum}")->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_RIGHT);
+        $sheet->getStyle("A{$rowNum}")->getFont()->setBold(true);
+        $sheet->setCellValue("C{$rowNum}", $total_male);
+        $sheet->setCellValue("D{$rowNum}", $total_female);
+        $sheet->setCellValue("E{$rowNum}", $total_benefs);
+        $sheet->setCellValue("F{$rowNum}", "");
+        $sheet->setCellValue("G{$rowNum}", $total_amount);
 
+        $sheet->getStyle("A{$rowNum}:G{$rowNum}")->applyFromArray($thinBorder);
+        $sheet->getStyle("A{$rowNum}:G{$rowNum}")->getFont()->setBold(true);
+        $sheet->getStyle("C{$rowNum}")->applyFromArray($centerStyle);
+        $sheet->getStyle("D{$rowNum}")->applyFromArray($centerStyle);
+        $sheet->getStyle("E{$rowNum}")->applyFromArray($centerStyle);
+        $sheet->getStyle("G{$rowNum}")->getNumberFormat()->setFormatCode('#,##0.00');
+        $sheet->getStyle("A{$rowNum}:G{$rowNum}")->getFill()->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)->getStartColor()->setARGB('FFF8F9FA');
+
+        $rowNum++;
+
+        // DST Row
+        $sheet->mergeCells("A{$rowNum}:F{$rowNum}");
+        $sheet->setCellValue("A{$rowNum}", "DST");
+        $sheet->getStyle("A{$rowNum}")->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_RIGHT);
+        $sheet->getStyle("A{$rowNum}")->getFont()->setBold(true);
+        $sheet->setCellValue("G{$rowNum}", $dst);
+
+        $sheet->getStyle("A{$rowNum}:G{$rowNum}")->applyFromArray($thinBorder);
+        $sheet->getStyle("G{$rowNum}")->getFont()->setBold(true);
+        $sheet->getStyle("G{$rowNum}")->getNumberFormat()->setFormatCode('#,##0.00');
+
+        $rowNum++;
+
+        // Grand Total Row
         $grand_total = $total_amount + ($total_amount > 0 ? $dst : 0);
-        echo '<tr style="font-weight: bold; background-color: #e2e8f0;">';
-        echo '<td colspan="6" style="text-align: right; text-transform: uppercase;">GRAND TOTAL</td>';
-        echo '<td style="text-align: right; color: #2563eb;">' . number_format($grand_total, 2) . '</td>';
-        echo '</tr>';
+        $sheet->mergeCells("A{$rowNum}:F{$rowNum}");
+        $sheet->setCellValue("A{$rowNum}", "GRAND TOTAL");
+        $sheet->getStyle("A{$rowNum}")->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_RIGHT);
+        $sheet->getStyle("A{$rowNum}")->getFont()->setBold(true);
+        $sheet->setCellValue("G{$rowNum}", $grand_total);
 
-        echo '</table><br>';
+        $sheet->getStyle("A{$rowNum}:G{$rowNum}")->applyFromArray($thinBorder);
+        $sheet->getStyle("A{$rowNum}:G{$rowNum}")->getFont()->setBold(true);
+        $sheet->getStyle("G{$rowNum}")->getFont()->getColor()->setARGB('FF2563EB');
+        $sheet->getStyle("G{$rowNum}")->getNumberFormat()->setFormatCode('#,##0.00');
+        $sheet->getStyle("A{$rowNum}:G{$rowNum}")->getFill()->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)->getStartColor()->setARGB('FFE2E8F0');
 
-        echo 'Thank you and warm regards.<br><br>';
-        echo 'Very truly yours,<br><br><br>';
-        echo '<b>AURITA L. LAXAMANA</b><br>';
-        echo 'CHIEF LEO, TSSD II<br>';
+        $rowNum += 2;
 
-        echo '</td></tr>';
-        echo '</table>';
+        // Closing & Signatures
+        $sheet->setCellValue("A{$rowNum}", "Thank you and warm regards.");
+        $rowNum += 2;
+        $sheet->setCellValue("A{$rowNum}", "Very truly yours,");
+        $rowNum += 3;
+        $sheet->setCellValue("A{$rowNum}", "AURITA L. LAXAMANA");
+        $sheet->getStyle("A{$rowNum}")->getFont()->setBold(true);
+        $rowNum++;
+        $sheet->setCellValue("A{$rowNum}", "CHIEF LEO, TSSD II");
 
-        echo '</body></html>';
+        // Column Widths
+        $sheet->getColumnDimension('A')->setWidth(6);
+        $sheet->getColumnDimension('B')->setWidth(50);
+        $sheet->getColumnDimension('C')->setWidth(12);
+        $sheet->getColumnDimension('D')->setWidth(12);
+        $sheet->getColumnDimension('E')->setWidth(12);
+        $sheet->getColumnDimension('F')->setWidth(14);
+        $sheet->getColumnDimension('G')->setWidth(18);
+
+        // Stream output as a valid .xlsx file
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment;filename="' . $filename . '"');
+        header('Cache-Control: max-age=0');
+
+        $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
+        $writer->save('php://output');
         exit;
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     public function delete_gsis_letter() {
         $file_name = $this->input->post('file_name');
