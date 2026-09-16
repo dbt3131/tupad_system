@@ -1021,13 +1021,15 @@ public function export_excel()
         $run11->getFont()->setBold(true);
         $sheet->setCellValue('A11', $richText11);
 
-        // Row 12: Specific Nature of work
-        $sheet->mergeCells('A12:J12');
+   $sheet->mergeCells('A12:J12');
         $richText12 = new \PhpOffice\PhpSpreadsheet\RichText\RichText();
         $richText12->createText('Specific Nature of work : ');
         $run12 = $richText12->createTextRun($nature_of_work);
         $run12->getFont()->setBold(true);
         $sheet->setCellValue('A12', $richText12);
+        
+        $sheet->getStyle('A12')->getAlignment()->setWrapText(true);
+        $sheet->getRowDimension(12)->setRowHeight(35);
 
         // 4. Table Headers (Rows 14 & 15 matching screenshot two-tier structure)
         $sheet->mergeCells('A14:A15');
