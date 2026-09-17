@@ -78,11 +78,32 @@ class ADL_Model extends CI_Model {
         return $query->result_array();
     }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     public function get_adl_report_breakdown($adl_no, $province = null, $proponent = null, $district = null) {
         $adl = $this->db->where('adl_no', $adl_no)->get('adl_registry')->row_array();
         
         if (!$adl) {
             return null;
+        }
+
+        // Fetch and sum MAF records for this ADL source[cite: 4]
+        $maf_records = $this->db->where('adl_source', $adl_no)->get('adl_maf')->result_array();
+        $total_maf_amount = 0;
+        foreach ($maf_records as $maf) {
+            $total_maf_amount += floatval($maf['maf_amount']);
         }
 
         $this->db->select('
@@ -132,7 +153,8 @@ class ADL_Model extends CI_Model {
             $total_gsis_benefs += intval($tx['gsis_enrollment_benefs']);
         }
 
-        $total_deductions = $total_service_cost + $total_payment + $total_ppes_amount + $total_gsis_amount;
+        // Include MAF total amount in total deductions[cite: 3, 4]
+        $total_deductions = $total_service_cost + $total_payment + $total_ppes_amount + $total_gsis_amount + $total_maf_amount;
         $remaining_balance = floatval($adl['adl_amount']) - $total_deductions;
 
         return [
@@ -146,12 +168,36 @@ class ADL_Model extends CI_Model {
             'total_payment'      => $total_payment,
             'total_ppes_amount'  => $total_ppes_amount,
             'total_gsis_amount'  => $total_gsis_amount,
+            'total_maf_amount'   => $total_maf_amount, // Return MAF total
             'total_ppes_count'   => $total_ppes_count,
             'total_gsis_benefs'  => $total_gsis_benefs,
             'total_deductions'   => $total_deductions,
             'remaining_balance'  => $remaining_balance
         ];
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     // DATATABLE FOR IMPLEMENTATION LIST (Updated with proponent join)
     public function get_filtered_transactions($province = null, $area = null, $proponent = null, $district = null) {

@@ -191,6 +191,10 @@
                                         <td class="fw-semibold">GSIS Enrollment Amount</td>
                                         <td class="text-end text-danger" id="valGsisAmount">&#8369;0.00</td>
                                     </tr>
+                                    <tr>
+                                        <td class="fw-semibold">MAF Deduction Amount</td>
+                                        <td class="text-end text-danger" id="valMafAmount">&#8369;0.00</td>
+                                    </tr>
                                     <tr class="table-secondary fw-bold">
                                         <td>Total Combined Deductions</td>
                                         <td class="text-end text-danger" id="valTableTotalDeductions">&#8369;0.00</td>
@@ -312,6 +316,21 @@
     <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
 
 <script>
+    // Sidebar Toggle
+    const sidebar = document.getElementById('sidebar');
+    const mainContent = document.getElementById('main-content');
+    const sidebarToggle = document.getElementById('sidebarToggle');
+
+    if(sidebarToggle) {
+      sidebarToggle.addEventListener('click', () => {
+        if (window.innerWidth < 992) {
+          sidebar.classList.toggle('show-mobile');
+        } else {
+          sidebar.classList.toggle('collapsed');
+          mainContent.classList.toggle('expanded');
+        }
+      });
+    }
     $(document).ready(function () {
         // Initialize Select2 with Bootstrap 5 Theme
         $('#filter_adl_no').select2({ theme: 'bootstrap-5', placeholder: '-- Select or type ADL Number --', allowClear: true });
@@ -550,6 +569,7 @@
                             $('#valPaymentAmount').text('₱' + d.total_payment.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}));
                             $('#valPpesAmount').text('₱' + d.total_ppes_amount.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}));
                             $('#valGsisAmount').text('₱' + d.total_gsis_amount.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}));
+                            $('#valMafAmount').text('₱' + d.total_maf_amount.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}));
                             $('#valTableTotalDeductions').text('₱' + d.total_deductions.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}));
                         }
 
