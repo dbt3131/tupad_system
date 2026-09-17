@@ -43,42 +43,33 @@ class Tupad extends CI_Controller
         $this->load->view('tupad/list', $data);
     }
 
-    public function gsis_letter()
-    {
-        $data['users'] = $this->User_model->get_all_users();
-        $data['user_name'] = $this->session->userdata('reg_fname') ? $this->session->userdata('reg_fname') : 'User';
 
-        // Capture filter dates and inputs from the GET request
-        $start_date       = $this->input->get('start_date');
-        $end_date         = $this->input->get('end_date');
-        $date_effectivity = $this->input->get('date_effectivity');
-        $no_of_days       = $this->input->get('no_of_days');
 
-        // Fallbacks if empty
-        if (empty($start_date) || empty($end_date)) {
-            $start_date = date('Y-m-01');
-            $end_date = date('Y-m-t');
-        }
 
-        if (empty($date_effectivity)) {
-            $date_effectivity = date('Y-m-d', strtotime('+1 day'));
-        }
 
-        if (empty($no_of_days)) {
-            $no_of_days = 10;
-        }
 
-        // Fetch filtered summary data from Tupad_model based on date range
-        $data['summary_records'] = $this->Tupad_model->get_gsis_summary_by_date($start_date, $end_date);
-        
-        // Pass variables back to view to keep form inputs populated
-        $data['start_date']       = $start_date;
-        $data['end_date']         = $end_date;
-        $data['date_effectivity'] = $date_effectivity;
-        $data['no_of_days']       = $no_of_days;
 
-        $this->load->view('tupad/gsis_letter_report', $data);
-    }
+   public function gsis_letter() {
+    // Retrieve GET parameters safely; leave them null or empty if not submitted
+    $start_date       = $this->input->get('start_date', TRUE);
+    $end_date         = $this->input->get('end_date', TRUE);
+    $date_effectivity = $this->input->get('date_effectivity', TRUE);
+    $no_of_days       = $this->input->get('no_of_days', TRUE);
+
+    // Fetch records only if parameters exist, otherwise pass an empty array
+    $data['summary_records'] = ($start_date && $end_date) 
+        ? $this->Tupad_model->get_gsis_summary_by_date($start_date, $end_date) 
+        : [];
+
+    $data['start_date']       = $start_date;
+    $data['end_date']         = $end_date;
+    $data['date_effectivity'] = $date_effectivity;
+    $data['no_of_days']       = $no_of_days;
+
+    // Load the view
+    $this->load->view('tupad/gsis_letter_report', $data);
+}
+
 
 
 

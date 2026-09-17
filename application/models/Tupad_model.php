@@ -762,6 +762,10 @@ public function find_city_code_by_desc($desc, $provCode) {
 
 public function get_gsis_summary_by_date($start_date, $end_date)
 {
+    // Return an empty array immediately if either date is missing
+    if (empty($start_date) || empty($end_date)) {
+        return [];
+    }
     $this->db->select('reference_no, implementor, male, female');
     $this->db->from('gsis_letters');
     $this->db->where('DATE(date_generate) >=', $start_date);
