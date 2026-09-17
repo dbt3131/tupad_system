@@ -111,7 +111,7 @@ public function forward_to_gsis_letter($file_name, $user_name) {
 
         $grand_total = $existing_grand_total + $new_file_total;
 
-        // If grand total reaches 2001 or above, stop process
+        // If grand total reaches 2000 or above, stop process
         if ($grand_total >= 2000) {
             return 'limit_exceeded';
         }

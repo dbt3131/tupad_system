@@ -971,7 +971,7 @@ public function forward_gsis_letter()
         } elseif ($result === 'limit_exceeded') {
             echo json_encode([
                 'status' => 'limit_exceeded', 
-                'message' => 'Process cannot continue: The grand total of beneficiaries generated for today has reached or exceeded the maximum limit of 2,001.'
+                'message' => 'We cannot process this file because it would exceed the maximum number of beneficiaries allowed for the current GSIS letter.'
             ]);
         } else {
             echo json_encode([
