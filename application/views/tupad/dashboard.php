@@ -152,14 +152,6 @@
           <h3 class="fw-bold mb-1 text-dark">Region III TUPAD Overview</h3>
           <p class="text-muted small mb-0">Summary of Tulong Panghanapbuhay sa Ating Disadvantaged/Displaced Workers by Province.</p>
         </div>
-        <div class="d-flex gap-2">
-          <button class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1 px-3 shadow-sm rounded-pill bg-white">
-            <i class="bi bi-download"></i> Export Data
-          </button>
-          <button class="btn btn-primary btn-sm d-flex align-items-center gap-1 px-3 shadow-sm rounded-pill" style="background: var(--primary-gradient); border: none;">
-            <i class="bi bi-plus-lg"></i> Add Worker Batch
-          </button>
-        </div>
       </div>
        
       <!-- Central Luzon Map Preview Section -->
@@ -171,7 +163,7 @@
                 <h6 class="fw-bold mb-0 text-dark"><i class="bi bi-map text-primary me-2"></i>Central Luzon Geographic Deployment Preview</h6>
                 <p class="text-muted small mb-0">Interactive markers indicating active cluster concentrations across Region III provinces.</p>
               </div>
-              <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-2 rounded-pill fw-semibold">GIS Live View</span>
+
             </div>
             <div class="p-3">
               <!-- Map Container -->

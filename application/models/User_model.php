@@ -80,4 +80,27 @@ class User_model extends CI_Model
         $this->db->where('id', $user_id);
         return $this->db->update('users', array('activated' => 1));
     }
+
+public function get_user_profile($user_id)
+{
+    $this->db->select('users.*, 
+                       code_position.position_description, 
+                       code_office.office_description, 
+                       code_division.division_description, 
+                       refprovince.provDesc');
+    $this->db->from('users');
+    $this->db->join('code_position', 'code_position.position_id = users.position_id', 'left');
+    $this->db->join('code_office', 'code_office.office_id = users.office_id', 'left');
+    $this->db->join('code_division', 'code_division.division_id = users.division_id', 'left');
+    $this->db->join('refprovince', 'refprovince.provCode = users.assigned_prov', 'left');
+    $this->db->where('users.id', $user_id);
+    return $this->db->get()->row_array();
+}
+
+
+
+
+
+
+
 }

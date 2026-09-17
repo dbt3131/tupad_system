@@ -109,4 +109,19 @@ class Users extends CI_Controller
         $this->session->set_flashdata('success', 'User deleted successfully.');
         redirect('users');
     }
+
+   public function user_prof() {
+    $user_id = $this->session->userdata('user_id');
+    $data['user'] = $this->User_model->get_user_profile($user_id);
+    
+    $this->load->view('users/user_profile', $data);
+}
+
+
+
+
+
+
+
+
 }
