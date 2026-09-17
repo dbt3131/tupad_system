@@ -96,9 +96,11 @@
     
     <div class="d-flex flex-wrap gap-2">
         <!-- Download GSIS Letter Button -->
-        <a href="<?= site_url('tupad/export_gsis_letter_excel?start_date=' . urlencode($start_date) . '&end_date=' . urlencode($end_date) . '&date_effectivity=' . urlencode($date_effectivity) . '&no_of_days=' . urlencode($no_of_days)); ?>" class="btn btn-success">
-            <i class="bi bi-file-earmark-excel me-1"></i> Download GSIS Letter
-        </a>
+       <!-- Download GSIS Letter Button -->
+<a href="<?= site_url('tupad/export_gsis_letter_excel?start_date=' . urlencode($start_date) . '&end_date=' . urlencode($end_date) . '&date_effectivity=' . urlencode($date_effectivity) . '&no_of_days=' . urlencode($no_of_days)); ?>" 
+   id="btnDownloadGSIS" class="btn btn-success">
+    <i class="bi bi-file-earmark-excel me-1"></i> Download GSIS Letter
+</a>
 
         <!-- Export Sequence Numbers Excel Button -->
         <!-- Export Sequence Numbers Excel Button -->
@@ -323,18 +325,19 @@
     });
     </script>
 
-    <script>
+   <script>
 $(document).ready(function () {
     let downloadUrl = '';
 
-    $('#btnDownloadGPAI').on('click', function (e) {
+    // Handle both GPAI and GSIS Letter download buttons
+    $(document).on('click', '#btnDownloadGPAI, #btnDownloadGSIS', function (e) {
         e.preventDefault();
         downloadUrl = $(this).attr('href');
         
         // Extract query parameters from the download link
         let urlParams = downloadUrl.split('?')[1];
 
-        // Check count via AJAX
+        // Check count via AJAX using the existing endpoint
         $.ajax({
             url: "<?= site_url('tupad/check_gpai_count'); ?>?" + urlParams,
             type: "GET",
@@ -342,10 +345,10 @@ $(document).ready(function () {
             success: function (response) {
                 if (response.status === 'success' && response.total_entries > 2000) {
                     $('#gpaiEntryCount').text(response.total_entries.toLocaleString());
-                    var gpaiModal = new bootstrap.Modal(document.getElementById('gpaiLimitModal'));
-                    gpaiModal.show();
+                    var limitModal = new bootstrap.Modal(document.getElementById('gpaiLimitModal'));
+                    limitModal.show();
                 } else {
-                    // If 2000 or fewer entries, proceed directly
+                    // If 2,000 or fewer entries, proceed directly
                     window.location.href = downloadUrl;
                 }
             },
