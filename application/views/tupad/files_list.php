@@ -19,9 +19,9 @@
     <!-- DataTables CSS -->
     <link rel="stylesheet" href="https://cdn.datatables.net/2.3.2/css/dataTables.bootstrap5.css">
 
-    <!-- Intro.js CSS (Fixed via cdnjs) -->
+    <!-- Intro.js CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intro.js/7.2.0/introjs.min.css">
-    <!-- Intro.js JS (Fixed via cdnjs) -->
+    <!-- Intro.js JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/intro.js/7.2.0/intro.min.js"></script>
 
     <!-- jQuery & DataTables JS -->
@@ -98,6 +98,109 @@
         .cursor-pointer {
             cursor: pointer;
         }     
+
+        /* --- ULTRA-MODERN GLASSMORPHISM INTRO.JS THEME --- */
+        .introjs-tooltip {
+            background: linear-gradient(135deg, rgba(30, 27, 75, 0.95), rgba(15, 23, 42, 0.98)) !important;
+            backdrop-filter: blur(12px) !important;
+            -webkit-backdrop-filter: blur(12px) !important;
+            color: #f1f5f9 !important;
+            border-radius: 16px !important;
+            box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(255, 255, 255, 0.1) !important;
+            border: none !important;
+            padding: 1.5rem !important;
+            max-width: 370px !important;
+            font-family: 'Inter', system-ui, sans-serif !important;
+        }
+
+        .introjs-tooltiptext {
+            padding: 0 !important;
+            color: #cbd5e1 !important;
+            font-size: 0.925rem !important;
+            line-height: 1.6 !important;
+        }
+
+        .introjs-arrow.top, .introjs-arrow.top-right, .introjs-arrow.top-left {
+            border-bottom-color: rgba(30, 27, 75, 0.95) !important;
+        }
+        .introjs-arrow.bottom, .introjs-arrow.bottom-right, .introjs-arrow.bottom-left {
+            border-top-color: rgba(15, 23, 42, 0.98) !important;
+        }
+        .introjs-arrow.right {
+            border-left-color: rgba(30, 27, 75, 0.95) !important;
+        }
+        .introjs-arrow.left {
+            border-right-color: rgba(30, 27, 75, 0.95) !important;
+        }
+
+        .introjs-header {
+            padding: 0 0 12px 0 !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+            margin-bottom: 12px !important;
+        }
+
+        .introjs-tooltip-title {
+            color: #a855f7 !important; /* Modern Neon Purple / Violet */
+            font-size: 1.1rem !important;
+            font-weight: 700 !important;
+            letter-spacing: -0.01em;
+        }
+
+        .introjs-bullets ul li a {
+            background: rgba(255, 255, 255, 0.2) !important;
+            border-radius: 50% !important;
+            width: 8px !important;
+            height: 8px !important;
+            transition: all 0.3s ease;
+        }
+
+        .introjs-bullets ul li a.active {
+            background: #a855f7 !important; /* Violet active bar */
+            width: 24px !important;
+            border-radius: 4px !important;
+        }
+
+        .introjs-button {
+            background: rgba(255, 255, 255, 0.08) !important;
+            color: #e2e8f0 !important;
+            border: 1px solid rgba(255, 255, 255, 0.12) !important;
+            border-radius: 8px !important;
+            font-weight: 600 !important;
+            font-size: 0.8rem !important;
+            padding: 7px 16px !important;
+            text-shadow: none !important;
+            box-shadow: none !important;
+            transition: all 0.2s ease;
+        }
+
+        .introjs-button:hover {
+            background: rgba(255, 255, 255, 0.15) !important;
+            color: #ffffff !important;
+            border-color: rgba(255, 255, 255, 0.25) !important;
+        }
+
+        .introjs-nextbutton {
+            background: linear-gradient(135deg, #7c3aed, #a855f7) !important;
+            color: #ffffff !important;
+            border: none !important;
+            box-shadow: 0 4px 12px rgba(168, 85, 247, 0.4) !important;
+        }
+
+        .introjs-nextbutton:hover {
+            background: linear-gradient(135deg, #6d28d9, #9333ea) !important;
+            color: #ffffff !important;
+        }
+
+        .introjs-disabled {
+            opacity: 0.3 !important;
+        }
+
+        /* Glassmorphism Spotlight Layer */
+        .introjs-helperLayer {
+            border-radius: 12px !important;
+            box-shadow: 0 0 0 9999px rgba(15, 23, 42, 0.65), 0 0 20px rgba(168, 85, 247, 0.5) !important;
+            border: 2px solid #a855f7 !important;
+        }
     </style>
 </head>
 
@@ -361,19 +464,6 @@
     <!-- Bootstrap JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-    <!-- Bootstrap JS Bundle -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
-
-<style>
-    /* Fix Intro.js tooltip width and long text/filename overflow */
-    .introjs-tooltip {
-        max-width: 270px !important;
-        word-wrap: break-word !important;
-        overflow-wrap: break-word !important;
-    }
-</style>
-
 <script>
     $(document).ready(function () {
         function showCustomAlert(message, title = 'Notification') {
@@ -467,22 +557,22 @@
                     },
                     {
                         element: document.querySelector('#adl_no'),
-                        intro: "<b>ADL No.:</b> Ilagay ang Assigned Document/Allocation Letter Number mula sa DOLE.",
+                        intro: "<b>ADL No.:</b> Put the ADL No. here, these details can be seen on the <B>DETAILS</B> sheet of the <B>TUPAD_Benefs_Profile_Template_2026</B>",
                         position: 'right'
                     },
                     {
                         element: document.querySelector('#reference_no'),
-                        intro: "<b>Reference No.:</b> Ilagay ang natatanging reference number na nakatalaga sa batch na ito.",
+                        intro: "<b>Reference No.:</b> Put the Reference No. here, these details can be seen on the <B>DETAILS</B> sheet of the <B>TUPAD_Benefs_Profile_Template_2026</B> ",
                         position: 'right'
                     },
                     {
                         element: document.querySelector('#nature_of_work'),
-                        intro: "<b>Nature of Work:</b> Tukuyin ang uri ng gawaing gagampanan ng mga benepisyaryo (hal. Clean-up drive, tree planting).",
+                        intro: "<b>Nature of Work:</b> Put the nature of work here, these details can be seen on the <B>DETAILS</B> sheet of the <B>TUPAD_Benefs_Profile_Template_2026</B>",
                         position: 'right'
                     },
                     {
                         element: document.querySelector('#btnSubmitBatch'),
-                        intro: "<b>Save & Upload:</b> Pindutin ito para i-save at i-proseso ang mga na-encode na detalye at excel file.",
+                        intro: "<b>Save & Upload:</b> Click this button to start the uploading process.",
                         position: 'top'
                     },
                     {
@@ -492,6 +582,7 @@
                     },
                 ],
                 showProgress: true,
+                showStepNumbers: false,
                 exitOnOverlayClick: false
             });
 
@@ -693,8 +784,6 @@
         });
     });
 </script>
-
-
 
 </body>
 
