@@ -464,8 +464,8 @@
     <!-- Bootstrap JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-<script>
-    $(document).ready(function () {
+    <script>
+$(document).ready(function () {
         function showCustomAlert(message, title = 'Notification') {
             $('#appModalLabel').text(title);
             $('#appModalBody').html(message);
@@ -591,14 +591,12 @@
                 var uploadModalEl = document.getElementById('uploadModal');
                 var uploadModal = bootstrap.Modal.getOrCreateInstance(uploadModalEl);
                 
-                // Automatically open modal when reaching modal fields, or close it when reaching the main table
                 if (modalFieldIds.includes(targetElement.id)) {
                     uploadModal.show();
                 } else if (targetElement.id === 'filesTable') {
                     uploadModal.hide();
                 }
 
-                // Refresh tooltip coordinates after DOM/modal animations finish rendering
                 setTimeout(function() {
                     tour.refresh();
                 }, 400);
@@ -664,51 +662,102 @@
             });
         });
 
-        // Forward to GSIS Letter Button Handler via AJAX
+        // MAIN REUSABLE FORWARD FUNCTION WITH OVERRIDE SUPPORT
+        window.forwardFile = function(fileName, overrideFlag = false, $btnElement = null) {
+            console.log("Forwarding file:", fileName, "| Override:", overrideFlag);
+            
+            if ($btnElement) {
+                $btnElement.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-1"></span> Forwarding...');
+            }
+
+            $.ajax({
+                url: '<?php echo site_url("tupad/forward_gsis_letter"); ?>',
+                type: 'POST',
+                dataType: 'json',
+                data: {
+                    file_name: fileName,
+                    override: overrideFlag 
+                },
+                success: function(response) {
+                    console.log("Response received:", response);
+                    
+                    var isSuccess = (response.status === 'success' || response.success === true || response.status === true);
+                    
+                    if (isSuccess) {
+                        if ($btnElement) {
+                            $btnElement.prop('disabled', false).html('<i class="bi bi-send-fill me-1"></i> GSIS Letter');
+                        }
+                        showCustomAlert(response.message || 'Successfully forwarded to GSIS Letter.', 'GSIS Forward');
+                        $('#filesTable').DataTable().ajax.reload(null, false);
+                    } 
+                    else if (response.status === 'exists') {
+                        if ($btnElement) {
+                            $btnElement.prop('disabled', true)
+                                .addClass('disabled btn-secondary')
+                                .removeClass('btn-warning')
+                                .html('<i class="bi bi-check-circle-fill me-1"></i> Forwarded');
+                        }
+                        showCustomAlert(response.message || 'Duplicate details encountered.', 'Duplicate / Notice');
+                        $('#filesTable').DataTable().ajax.reload(null, false);
+                    } 
+                    else if (response.status === 'limit_exceeded') {
+                        if ($btnElement) {
+                            $btnElement.prop('disabled', false).html('<i class="bi bi-send-fill me-1"></i> GSIS Letter');
+                        }
+                        
+                        // Populate your existing reusable modal with limit warning & remaining slots
+                        $('#appModalLabel').text('Limit Exceeded Warning');
+                        $('#appModalBody').html(`
+                            <p class="text-danger fw-semibold mb-2">${response.message}</p>
+                            <div class="alert alert-warning py-2 mb-0">
+                                <strong>Remaining slots available:</strong> ${response.remaining}
+                            </div>
+                        `);
+                        
+                        // Add an explicit "Proceed Anyway (Override)" button inside the modal footer next to Close
+                        $('#appModalFooter').html(`
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="button" id="btnOverrideForward" class="btn btn-danger">
+                                <i class="bi bi-exclamation-triangle-fill me-1"></i> Proceed Anyway (Override)
+                            </button>
+                        `);
+                        
+                        var appModalEl = document.getElementById('appModal');
+                        var appModal = bootstrap.Modal.getOrCreateInstance(appModalEl);
+                        appModal.show();
+                        
+                        // Bind click listener for the dynamically generated override button
+                        $('#btnOverrideForward').off('click').on('click', function() {
+                            console.log("Override button clicked. Resending request with override = true...");
+                            appModal.hide();
+                            // Run the function again with override set to true
+                            forwardFile(fileName, true, $btnElement); 
+                        });
+                    } 
+                    else {
+                        if ($btnElement) {
+                            $btnElement.prop('disabled', false).html('<i class="bi bi-send-fill me-1"></i> GSIS Letter');
+                        }
+                        showCustomAlert(response.message || response.error || 'Notice encountered.', 'Notice');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    if ($btnElement) {
+                        $btnElement.prop('disabled', false).html('<i class="bi bi-send-fill me-1"></i> GSIS Letter');
+                    }
+                    console.error("AJAX Error:", error);
+                    showCustomAlert("An error occurred while processing your request.", "System Error");
+                }
+            });
+        };
+
+        // Forward to GSIS Letter Button Click Handler
         $(document).on('click', '.btn-forward-gsis', function() {
             var $btn = $(this);
             var fileName = $btn.data('filename');
             
             showCustomConfirm('Are you sure you want to forward the details of "' + fileName + '" to the GSIS Letter table?', function() {
-                $btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-1"></span> Forwarding...');
-
-                $.ajax({
-                    url: "<?php echo site_url('tupad/forward_gsis_letter'); ?>",
-                    type: "POST",
-                    data: { file_name: fileName },
-                    dataType: "json",
-                    success: function(response) {
-                        var isSuccess = (response.status === 'success' || response.success === true || response.status === true);
-                        
-                        if (isSuccess) {
-                            $btn.prop('disabled', false).html('<i class="bi bi-send-fill me-1"></i> GSIS Letter');
-                            var msg = response.message || response.msg || 'Successfully forwarded to GSIS Letter.';
-                            showCustomAlert(msg, 'GSIS Forward');
-                            $('#filesTable').DataTable().ajax.reload(null, false);
-                        } else if (response.status === 'exists') {
-                            $btn.prop('disabled', true)
-                                .addClass('disabled btn-secondary')
-                                .removeClass('btn-warning')
-                                .html('<i class="bi bi-check-circle-fill me-1"></i> Forwarded');
-                            
-                            var warningMsg = response.message || 'Duplicate details encountered.';
-                            showCustomAlert(warningMsg, 'Duplicate / Notice');
-                            $('#filesTable').DataTable().ajax.reload(null, false);
-                        } else {
-                            $btn.prop('disabled', false).html('<i class="bi bi-send-fill me-1"></i> GSIS Letter');
-                            var warningMsg = response.message || response.error || response.msg || 'Notice encountered.';
-                            showCustomAlert(warningMsg, 'Notice');
-                        }
-                    },
-                    error: function(xhr) {
-                        $btn.prop('disabled', false).html('<i class="bi bi-send-fill me-1"></i> GSIS Letter');
-                        var errorMsg = 'An error occurred while forwarding details.';
-                        if (xhr.responseJSON && xhr.responseJSON.message) {
-                            errorMsg = xhr.responseJSON.message;
-                        }
-                        showCustomAlert(errorMsg, 'System Error');
-                    }
-                });
+                forwardFile(fileName, false, $btn);
             }, 'Confirm Forward');
         });
 
@@ -783,12 +832,6 @@
             table.search(this.value).draw();
         });
     });
-
-if (response.status === 'limit_exceeded') {
-    // response.remaining contains the exact number of slots left (e.g., 45 slots left)
-    $('#errorModalMessage').html(response.message + '<br><strong>Remaining slots available: ' + response.remaining + '</strong>');
-    $('#errorModal').modal('show');
-}
 </script>
 
 </body>

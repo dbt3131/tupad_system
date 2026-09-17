@@ -61,7 +61,7 @@ class Tupad_model extends CI_Model {
 
 
 
-public function forward_to_gsis_letter($file_name, $user_name) {
+public function forward_to_gsis_letter($file_name, $user_name, $override = false) {
         $file_name = urldecode($file_name);
         
         $this->db->where('file_name', $file_name);
@@ -96,29 +96,30 @@ public function forward_to_gsis_letter($file_name, $user_name) {
             }
         }
         
-        $new_file_total = $male + $female;
-
         $today = date('Y-m-d');
-        $this->db->select('SUM(male) as total_male, SUM(female) as total_female');
-        $this->db->where('DATE(date_generate)', $today);
-        $existing_sum = $this->db->get('gsis_letters')->row_array();
 
-        $existing_total_male = $existing_sum['total_male'] ?? 0;
-        $existing_total_female = $existing_sum['total_female'] ?? 0;
-        $existing_grand_total = $existing_total_male + $existing_total_female;
+        // Only perform the limit validation check if override is NOT enabled
+        if (!$override) {
+            $new_file_total = $male + $female;
 
-        $grand_total = $existing_grand_total + $new_file_total;
+            $this->db->select('SUM(male) as total_male, SUM(female) as total_female');
+            $this->db->where('DATE(date_generate)', $today);
+            $existing_sum = $this->db->get('gsis_letters')->row_array();
 
-        // Calculate remaining available slots before hitting 2000
-        $remaining_slots = max(0, 2000 - $existing_grand_total);
+            $existing_total_male = $existing_sum['total_male'] ?? 0;
+            $existing_total_female = $existing_sum['total_female'] ?? 0;
+            $existing_grand_total = $existing_total_male + $existing_total_female;
 
-        // If grand total reaches 2001 or above, stop process and return remaining count data
-        if ($grand_total >= 2001) {
-            return [
-                'status' => 'limit_exceeded',
-                'remaining' => $remaining_slots,
-                'current_total' => $existing_grand_total
-            ];
+            $grand_total = $existing_grand_total + $new_file_total;
+            $remaining_slots = max(0, 2000 - $existing_grand_total);
+
+            if ($grand_total >= 2001) {
+                return [
+                    'status' => 'limit_exceeded',
+                    'remaining' => $remaining_slots,
+                    'current_total' => $existing_grand_total
+                ];
+            }
         }
         
         $data = [

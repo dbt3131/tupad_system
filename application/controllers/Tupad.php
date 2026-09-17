@@ -951,6 +951,10 @@ public function forward_gsis_letter()
         }
 
         $file_name = $this->input->post('file_name');
+        // Handle both boolean true and string "true" safely
+        $override_input = $this->input->post('override');
+        $override = ($override_input === 'true' || $override_input === true || $override_input === '1');
+
         if (empty($file_name)) {
             echo json_encode(['status' => 'error', 'message' => 'No file specified.']);
             return;
@@ -958,7 +962,7 @@ public function forward_gsis_letter()
 
         $user_name = $this->session->userdata('reg_fname') ? $this->session->userdata('reg_fname') : 'User';
         
-        $result = $this->Tupad_model->forward_to_gsis_letter($file_name, $user_name);
+        $result = $this->Tupad_model->forward_to_gsis_letter($file_name, $user_name, $override);
 
         if ($result === 'success') {
             $this->load->model('Activity_Model'); 
@@ -977,7 +981,7 @@ public function forward_gsis_letter()
             echo json_encode([
                 'status' => 'limit_exceeded', 
                 'remaining' => $result['remaining'],
-                'message' => 'Process cannot continue. Only ' . $result['remaining'] . ' remaining slot(s) available for this batch before reaching the 2,000 limit.'
+                'message' => 'Process cannot continue. Only <b><font color="BLUE">' . $result['remaining'] . '</font></b> remaining slot(s) available for this <B>BATCH</B> before reaching the 2,000 limit.'
             ]);
         } else {
             echo json_encode([
@@ -986,7 +990,6 @@ public function forward_gsis_letter()
             ]);
         }
     }
-
 
 
 
