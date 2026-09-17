@@ -19,6 +19,11 @@
     <!-- DataTables CSS -->
     <link rel="stylesheet" href="https://cdn.datatables.net/2.3.2/css/dataTables.bootstrap5.css">
 
+    <!-- Intro.js CSS (Fixed via cdnjs) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intro.js/7.2.0/introjs.min.css">
+    <!-- Intro.js JS (Fixed via cdnjs) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/intro.js/7.2.0/intro.min.js"></script>
+
     <!-- jQuery & DataTables JS -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.datatables.net/2.3.2/js/dataTables.js"></script>
@@ -146,14 +151,29 @@
             <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
                 <div>
                     <h3 class="fw-bold mb-1">
-                        <i class="bi bi-folder-fill text-primary me-2"></i>Uploaded Batch Files  <button type="button" class="btn btn-link text-secondary p-0 ms-2 fs-4" id="btnOpenGuide" title="Upload Guide & Instructions">
-                                <i class="bi bi-question-circle-fill"></i>
+                        <i class="bi bi-folder-fill text-primary me-2"></i>Uploaded Batch Files  
+                        <button type="button" class="btn btn-link text-secondary p-0 ms-2 fs-4" id="btnOpenGuide" title="Upload Guide & Instructions">
+                            <i class="bi bi-question-circle-fill"></i>
                          </button>
                     </h3>
                     <p class="text-muted small mb-0">Select an uploaded Excel file to view its individual beneficiary records.</p>
                 </div>
 
-<!-- User Guide Modal -->
+                <!-- Tour & Action Group Buttons -->
+                <div class="d-flex align-items-center gap-2">
+                    <!-- Tour Button -->
+                    <button type="button" class="btn btn-outline-primary px-3 py-2 fw-semibold mb-0 cursor-pointer shadow-sm" id="btnStartTour">
+                        <i class="bi bi-compass me-1"></i> Start Tour
+                    </button>   
+
+                    <!-- Modal Trigger Button -->
+                    <button type="button" class="btn btn-success px-3 py-2 fw-semibold mb-0 cursor-pointer shadow-sm" id="btnOpenModal">
+                        <i class="bi bi-cloud-arrow-up-fill me-1"></i> Upload New Excel
+                    </button>
+                </div>
+            </div>
+
+            <!-- User Guide Modal -->
             <div class="modal fade" id="guideModal" tabindex="-1" aria-labelledby="guideModalLabel" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered modal-lg">
                     <div class="modal-content">
@@ -168,7 +188,9 @@
                             <ul class="small text-muted mb-3 ps-3">
                                 <li class="mb-1">Kapag mali po spelling, blanko or wala po sa PROVINCE ng REGION 3 ang nakalagay sa TUPAD_PROVINCE column. Mag nonotify din ang TUPAD_MUNICIPALITY at TUPAD_BARANGAY na HINDI sila makita sa PROVINCE ng REGION 3. <br><font color="GREEN">Need lang po natin itama ang TUPAD_PROVINCE.</font> </li><br>
                                 <li class="mb-1">Kapag mali po spelling, blanko or wala po sa MUNICIPALITY ng PROVINCE ang nakalagay sa TUPAD_MUNICIPALITY column. Mag nonotify din ang TUPAD_BARANGAY na HINDI sila makita sa MUNICIPALITY ng PROVINCE. <br><font color="GREEN">Need lang po natin itama ang TUPAD_MUNICIPALITY.</font> </li><br>
-                                <li class="mb-1">Name fields must not contain numbers or invalid special characters.</li>
+                                <li class="mb-1">Kapag meron po nakita ang system ng character kagaya ng *&!@#$%^()=+",.;: automatic po niya ito tatanggalin.</li>
+                                <li class="mb-1">Kapag meron pong invalid DATE OF BIRTH na nakita hindi po tutuloy ang uploading process.</li>
+                                <li class="mb-1">Kapag meron po nakita ng blanko kagaya ng FIRST NAME, LAST NAME, BIRTH MONTH, BIRTH DAY, BIRTH YEAR and GENDER hindi rin po tutuloy ang uploading process.</li>          
                             </ul>
                             <h6 class="fw-bold text-dark">Steps to Upload:</h6>
                             <ol class="small text-muted mb-0 ps-3">
@@ -183,20 +205,6 @@
                         </div>
                     </div>
                 </div>
-            </div>
-
-
-
-
-
-
-
-
-
-                <!-- Modal Trigger Button -->
-                <button type="button" class="btn btn-success px-3 py-2 fw-semibold mb-0 cursor-pointer shadow-sm" id="btnOpenModal">
-                    <i class="bi bi-cloud-arrow-up-fill me-1"></i> Upload New Excel
-                </button>
             </div>
 
             <!-- Upload & Metadata Modal -->
@@ -353,7 +361,20 @@
     <!-- Bootstrap JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-    <script>
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+
+<style>
+    /* Fix Intro.js tooltip width and long text/filename overflow */
+    .introjs-tooltip {
+        max-width: 270px !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+    }
+</style>
+
+<script>
     $(document).ready(function () {
         function showCustomAlert(message, title = 'Notification') {
             $('#appModalLabel').text(title);
@@ -408,6 +429,93 @@
             uploadModal.show();
         });
 
+        // Guide Modal Open Trigger
+        $('#btnOpenGuide').on('click', function() {
+            var guideModalEl = document.getElementById('guideModal');
+            var guideModal = bootstrap.Modal.getOrCreateInstance(guideModalEl);
+            guideModal.show();
+        });
+
+        // Start Tour Button Trigger with Auto-Modal Opening & Field Sequence
+        $('#btnStartTour').on('click', function() {
+            var tour = introJs().setOptions({
+                steps: [
+                    {
+                        element: document.querySelector('#btnOpenGuide'),
+                        intro: "Please read this first so you are guided through the <B>UPLOADING VALIDATION PROCESS.</B>",
+                        position: 'bottom'
+                    },
+                    {
+                        element: document.querySelector('#btnOpenModal'),
+                        intro: "To upload your FOR <b>GSIS ENROLLMENT LIST</b>, click this button.",
+                        position: 'bottom'
+                    },    
+                    {
+                        element: document.querySelector('#excel_file'),
+                        intro: "<b>Select Excel File:</b> Click here to select your <B>FOR GSIS ENROLLMENT FILE</B>.",
+                        position: 'right'
+                    },
+                    {
+                        element: document.querySelector('#area_of_implementation'),
+                        intro: "<b>Area of Implementation:</b> Put the area of implementation of your <B>FOR GSIS ENROLLMENT</B> file here, these details can be seen on the <B>DETAILS</B> sheet of the <B>TUPAD_Benefs_Profile_Template_2026</B>",
+                        position: 'right'
+                    },
+                    {
+                        element: document.querySelector('#period_of_coverage'),
+                        intro: "<b>Period of Coverage:</b> Put the period coverage of the <b>GSIS INSURANCE</b> <font size='1px'><i>(eg. January 1, 2026 to January 1, 2027).</ofnt><i>",
+                        position: 'right'
+                    },
+                    {
+                        element: document.querySelector('#adl_no'),
+                        intro: "<b>ADL No.:</b> Ilagay ang Assigned Document/Allocation Letter Number mula sa DOLE.",
+                        position: 'right'
+                    },
+                    {
+                        element: document.querySelector('#reference_no'),
+                        intro: "<b>Reference No.:</b> Ilagay ang natatanging reference number na nakatalaga sa batch na ito.",
+                        position: 'right'
+                    },
+                    {
+                        element: document.querySelector('#nature_of_work'),
+                        intro: "<b>Nature of Work:</b> Tukuyin ang uri ng gawaing gagampanan ng mga benepisyaryo (hal. Clean-up drive, tree planting).",
+                        position: 'right'
+                    },
+                    {
+                        element: document.querySelector('#btnSubmitBatch'),
+                        intro: "<b>Save & Upload:</b> Pindutin ito para i-save at i-proseso ang mga na-encode na detalye at excel file.",
+                        position: 'top'
+                    },
+                    {
+                        element: document.querySelector('#filesTable'),
+                        intro: "The uploaded <B>GSIS ENROLLMENT</B> lists can be viewed here, you will only be able to see your <B>ASSIGNED PROVINCE</B> in this portion",
+                        position: 'top'
+                    },
+                ],
+                showProgress: true,
+                exitOnOverlayClick: false
+            });
+
+            tour.onbeforechange(function (targetElement) {
+                var modalFieldIds = ['excel_file', 'area_of_implementation', 'period_of_coverage', 'adl_no', 'reference_no', 'nature_of_work', 'btnSubmitBatch'];
+                var uploadModalEl = document.getElementById('uploadModal');
+                var uploadModal = bootstrap.Modal.getOrCreateInstance(uploadModalEl);
+                
+                // Automatically open modal when reaching modal fields, or close it when reaching the main table
+                if (modalFieldIds.includes(targetElement.id)) {
+                    uploadModal.show();
+                } else if (targetElement.id === 'filesTable') {
+                    uploadModal.hide();
+                }
+
+                // Refresh tooltip coordinates after DOM/modal animations finish rendering
+                setTimeout(function() {
+                    tour.refresh();
+                }, 400);
+            });
+
+            tour.start();
+        });
+
         // Submit Form via AJAX (Upload Modal with fallback cleanups)
         $('#btnSubmitBatch').on('click', function() {
             var form = $('#uploadBatchForm')[0];
@@ -440,7 +548,6 @@
                         $('.modal-backdrop').remove();
                         $('body').removeClass('modal-open').css('overflow', '');
 
-                        // If reload flag is present (discrepancy list), reload page to display them on files_list
                         if (response.reload === true) {
                             location.reload();
                         } else {
@@ -585,13 +692,9 @@
             table.search(this.value).draw();
         });
     });
-    // Guide Modal Open Trigger
-        $('#btnOpenGuide').on('click', function() {
-            var guideModalEl = document.getElementById('guideModal');
-            var guideModal = bootstrap.Modal.getOrCreateInstance(guideModalEl);
-            guideModal.show();
-        });
-    </script>
+</script>
+
+
 
 </body>
 
