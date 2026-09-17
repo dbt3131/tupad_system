@@ -339,7 +339,7 @@ $is_report_active  = in_array($current_controller, ['ADL', 'tupad_report', 'tupa
           <a href="<?= site_url('Tupad_Report/coa_tupad_report_page'); ?>" 
              class="nav-sub-link <?= (strtolower($current_controller) === 'tupad_report' && $current_method === 'coa_tupad_report_page') ? 'active' : ''; ?>">
             <i class="bi bi-circle-fill"></i>
-            <span>COA Quarterly Report</span>
+            <span>ADL - COA Quarterly Report</span>
           </a>
         </li>
         <li>

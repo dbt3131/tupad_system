@@ -938,7 +938,7 @@ public function upload_tupad_excel()
         echo json_encode($output);
     }
 
-    public function forward_gsis_letter()
+public function forward_gsis_letter()
     {
         if (!$this->session->userdata('logged_in')) {
             echo json_encode(['status' => 'error', 'message' => 'Unauthorized access.']);
@@ -967,6 +967,11 @@ public function upload_tupad_excel()
             echo json_encode([
                 'status' => 'exists', 
                 'message' => 'Forwarding aborted: Matching details (Reference No., ADL No., and Implementor) already exist in the GSIS Letter table.'
+            ]);
+        } elseif ($result === 'limit_exceeded') {
+            echo json_encode([
+                'status' => 'limit_exceeded', 
+                'message' => 'Process cannot continue: The grand total of beneficiaries generated for today has reached or exceeded the maximum limit of 2,001.'
             ]);
         } else {
             echo json_encode([

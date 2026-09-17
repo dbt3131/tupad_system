@@ -783,6 +783,12 @@
             table.search(this.value).draw();
         });
     });
+
+    if (response.status === 'limit_exceeded') {
+    // Trigger your modal here
+    $('#errorModalMessage').text(response.message);
+    $('#errorModal').modal('show');
+}
 </script>
 
 </body>

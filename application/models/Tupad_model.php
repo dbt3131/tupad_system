@@ -55,7 +55,13 @@ class Tupad_model extends CI_Model {
     return $this->db->query($sql)->result_array();
 }
 
-    public function forward_to_gsis_letter($file_name, $user_name) {
+    
+
+
+
+
+
+public function forward_to_gsis_letter($file_name, $user_name) {
         $file_name = urldecode($file_name);
         
         $this->db->where('file_name', $file_name);
@@ -91,11 +97,30 @@ class Tupad_model extends CI_Model {
             }
         }
         
+        $new_file_total = $male + $female;
+
+        // Check total female and male with similar date_generate value (today)
+        $today = date('Y-m-d');
+        $this->db->select('SUM(male) as total_male, SUM(female) as total_female');
+        $this->db->where('DATE(date_generate)', $today);
+        $existing_sum = $this->db->get('gsis_letters')->row_array();
+
+        $existing_total_male = $existing_sum['total_male'] ?? 0;
+        $existing_total_female = $existing_sum['total_female'] ?? 0;
+        $existing_grand_total = $existing_total_male + $existing_total_female;
+
+        $grand_total = $existing_grand_total + $new_file_total;
+
+        // If grand total reaches 2001 or above, stop process
+        if ($grand_total >= 2000) {
+            return 'limit_exceeded';
+        }
+        
         $data = [
             'reference_no'  => $reference_no,
             'female'        => $female,
             'male'          => $male,
-            'date_generate' => date('Y-m-d'),
+            'date_generate' => $today,
             'generate_by'   => $user_name,
             'adl_no'        => $adl_no,
             'implementor'   => $area_of_implementation
@@ -103,6 +128,29 @@ class Tupad_model extends CI_Model {
         
         return $this->db->insert('gsis_letters', $data) ? 'success' : 'failed';
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     public function get_records_by_filename($file_name) {
         $this->db->select('tbl_tupad_list.*, users.reg_fname as uploader_fname, users.reg_lname as uploader_lname');
