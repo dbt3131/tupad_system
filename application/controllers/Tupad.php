@@ -1837,6 +1837,51 @@ public function export_gsis_sequences_excel()
 
 
 
+public function check_gpai_count()
+    {
+        $start_date = $this->input->get('start_date');
+        $end_date   = $this->input->get('end_date');
+
+        if (empty($start_date) || empty($end_date)) {
+            $start_date = date('Y-m-01');
+            $end_date   = date('Y-m-t');
+        }
+
+        $summary_records = $this->Tupad_model->get_gsis_summary_by_date($start_date, $end_date);
+        
+        $total_entries = 0;
+        if (!empty($summary_records)) {
+            foreach ($summary_records as $summary) {
+                $reference_no = $summary['reference_no'] ?? '';
+                $implementor  = $summary['implementor'] ?? $summary['area_of_implementation'] ?? '';
+
+                $group_count = $this->db->where([
+                    'reference_no'           => $reference_no,
+                    'area_of_implementation' => $implementor
+                ])->count_all_results('tbl_tupad_list');
+
+                $total_entries += $group_count;
+            }
+        }
+
+        echo json_encode(['status' => 'success', 'total_entries' => $total_entries]);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

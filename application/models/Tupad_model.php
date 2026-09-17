@@ -55,12 +55,6 @@ class Tupad_model extends CI_Model {
     return $this->db->query($sql)->result_array();
 }
 
-    
-
-
-
-
-
 public function forward_to_gsis_letter($file_name, $user_name, $override = false) {
         $file_name = urldecode($file_name);
         
@@ -134,29 +128,6 @@ public function forward_to_gsis_letter($file_name, $user_name, $override = false
         
         return $this->db->insert('gsis_letters', $data) ? 'success' : 'failed';
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     public function get_records_by_filename($file_name) {
         $this->db->select('tbl_tupad_list.*, users.reg_fname as uploader_fname, users.reg_lname as uploader_lname');
@@ -664,11 +635,6 @@ public function find_city_code_by_desc($desc, $provCode) {
 
         return '';
     }
-
-
-
-
-
 
     public function find_bene_type_id_by_desc($desc) {
         if (empty($desc)) return 0;

@@ -101,9 +101,12 @@
         </a>
 
         <!-- Export Sequence Numbers Excel Button -->
-        <a href="<?= site_url('tupad/export_gsis_sequences_excel?start_date=' . urlencode($start_date) . '&end_date=' . urlencode($end_date) . '&date_effectivity=' . urlencode($date_effectivity) . '&no_of_days=' . urlencode($no_of_days)); ?>" class="btn btn-primary">
-            <i class="bi bi-file-earmark-spreadsheet-fill me-1"></i> Download GPAI List
-        </a>
+        <!-- Export Sequence Numbers Excel Button -->
+<a href="<?= site_url('tupad/export_gsis_sequences_excel?start_date=' . urlencode($start_date) . '&end_date=' . urlencode($end_date) . '&date_effectivity=' . urlencode($date_effectivity) . '&no_of_days=' . urlencode($no_of_days)); ?>" 
+   id="btnDownloadGPAI" class="btn btn-primary">
+    <i class="bi bi-file-earmark-spreadsheet-fill me-1"></i> Download GPAI List
+</a>
+
     </div>
 </div>
 
@@ -276,6 +279,27 @@
                 </div>
             </div>
 
+            <!-- GPAI Limit Warning Modal -->
+<div class="modal fade" id="gpaiLimitModal" tabindex="-1" aria-labelledby="gpaiLimitModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-warning text-dark">
+                <h5 class="modal-title fw-bold" id="gpaiLimitModalLabel">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i> Large List Reminder
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p class="mb-0">This GPAI list contains <strong id="gpaiEntryCount" class="text-primary">0</strong> entries, which exceeds 2,000 records. Make sure to edit it manually if necessary after Download.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary btn-sm" id="confirmDownloadBtn">Proceed to Download</button>
+            </div>
+        </div>
+    </div>
+</div>
+
         </main>
 
         <footer class="bg-white border-top p-3 text-center text-muted small no-print">
@@ -298,6 +322,48 @@
         });
     });
     </script>
+
+    <script>
+$(document).ready(function () {
+    let downloadUrl = '';
+
+    $('#btnDownloadGPAI').on('click', function (e) {
+        e.preventDefault();
+        downloadUrl = $(this).attr('href');
+        
+        // Extract query parameters from the download link
+        let urlParams = downloadUrl.split('?')[1];
+
+        // Check count via AJAX
+        $.ajax({
+            url: "<?= site_url('tupad/check_gpai_count'); ?>?" + urlParams,
+            type: "GET",
+            dataType: "json",
+            success: function (response) {
+                if (response.status === 'success' && response.total_entries > 2000) {
+                    $('#gpaiEntryCount').text(response.total_entries.toLocaleString());
+                    var gpaiModal = new bootstrap.Modal(document.getElementById('gpaiLimitModal'));
+                    gpaiModal.show();
+                } else {
+                    // If 2000 or fewer entries, proceed directly
+                    window.location.href = downloadUrl;
+                }
+            },
+            error: function () {
+                // Fallback: proceed to download if check fails
+                window.location.href = downloadUrl;
+            }
+        });
+    });
+
+    $('#confirmDownloadBtn').on('click', function () {
+        var modalEl = document.getElementById('gpaiLimitModal');
+        var modalInstance = bootstrap.Modal.getInstance(modalEl);
+        modalInstance.hide();
+        window.location.href = downloadUrl;
+    });
+});
+</script>
 </body>
 
 </html>
