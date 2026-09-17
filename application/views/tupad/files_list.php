@@ -784,9 +784,9 @@
         });
     });
 
-    if (response.status === 'limit_exceeded') {
-    // Trigger your modal here
-    $('#errorModalMessage').text(response.message);
+if (response.status === 'limit_exceeded') {
+    // response.remaining contains the exact number of slots left (e.g., 45 slots left)
+    $('#errorModalMessage').html(response.message + '<br><strong>Remaining slots available: ' + response.remaining + '</strong>');
     $('#errorModal').modal('show');
 }
 </script>

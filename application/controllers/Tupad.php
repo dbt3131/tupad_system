@@ -938,6 +938,11 @@ public function upload_tupad_excel()
         echo json_encode($output);
     }
 
+
+
+
+
+
 public function forward_gsis_letter()
     {
         if (!$this->session->userdata('logged_in')) {
@@ -966,12 +971,13 @@ public function forward_gsis_letter()
         } elseif ($result === 'exists') {
             echo json_encode([
                 'status' => 'exists', 
-                'message' => 'Forwarding aborted: Matching details (Reference No., ADL No., and Implementor) already exist in the GSIS Letter table.'
+                'message' => 'Forwarding aborted: Matching details already exist in the GSIS Letter table.'
             ]);
-        } elseif ($result === 'limit_exceeded') {
+        } elseif (is_array($result) && $result['status'] === 'limit_exceeded') {
             echo json_encode([
                 'status' => 'limit_exceeded', 
-                'message' => 'We cannot process this file because it would exceed the maximum number of beneficiaries allowed for the current GSIS letter.'
+                'remaining' => $result['remaining'],
+                'message' => 'Process cannot continue. Only ' . $result['remaining'] . ' remaining slot(s) available for this batch before reaching the 2,000 limit.'
             ]);
         } else {
             echo json_encode([
@@ -980,6 +986,13 @@ public function forward_gsis_letter()
             ]);
         }
     }
+
+
+
+
+
+
+
 
 
 

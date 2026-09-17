@@ -76,14 +76,13 @@ public function forward_to_gsis_letter($file_name, $user_name) {
         $adl_no                 = $first['adl_no'] ?? '';
         $reference_no           = $first['reference_no'] ?? '';
         
-        // Check if details in all primary tracking columns already match in the gsis_letters table
         $this->db->where('reference_no', $reference_no);
         $this->db->where('adl_no', $adl_no);
         $this->db->where('implementor', $area_of_implementation);
         $existing_match = $this->db->get('gsis_letters')->row_array();
         
         if ($existing_match) {
-            return 'exists'; // Stop execution if details match completely
+            return 'exists';
         }
         
         $male = 0;
@@ -99,7 +98,6 @@ public function forward_to_gsis_letter($file_name, $user_name) {
         
         $new_file_total = $male + $female;
 
-        // Check total female and male with similar date_generate value (today)
         $today = date('Y-m-d');
         $this->db->select('SUM(male) as total_male, SUM(female) as total_female');
         $this->db->where('DATE(date_generate)', $today);
@@ -111,9 +109,16 @@ public function forward_to_gsis_letter($file_name, $user_name) {
 
         $grand_total = $existing_grand_total + $new_file_total;
 
-        // If grand total reaches 2000 or above, stop process
-        if ($grand_total >= 2000) {
-            return 'limit_exceeded';
+        // Calculate remaining available slots before hitting 2000
+        $remaining_slots = max(0, 2000 - $existing_grand_total);
+
+        // If grand total reaches 2001 or above, stop process and return remaining count data
+        if ($grand_total >= 2001) {
+            return [
+                'status' => 'limit_exceeded',
+                'remaining' => $remaining_slots,
+                'current_total' => $existing_grand_total
+            ];
         }
         
         $data = [
