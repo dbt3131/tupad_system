@@ -269,7 +269,18 @@ public function check_proponent_exists($proponent_name) {
                     ->num_rows() > 0;
 }
 
+// Add these methods inside ADL_Model class[cite: 1]
 
+// Fetch office options for the MAF program dropdown from code_office table
+public function get_offices() {
+    $query = $this->db->order_by('office_description', 'ASC')->get('code_office');
+    return $query->result_array();
+}
+
+// Insert new MAF record into adl_maf table
+public function insert_adl_maf($data) {
+    return $this->db->insert('adl_maf', $data);
+}
 
 
 

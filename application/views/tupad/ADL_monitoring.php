@@ -53,35 +53,30 @@
             margin: 0 auto;
         }
 
+        .form-control::placeholder {
+            color: #797a7846;
+            font-style: italic;
+            opacity: 1;
+        }
 
-/* 1. Style for your Text Input Placeholder */
-.form-control::placeholder {
-    color: #797a7846;
-    font-style: italic;
-    opacity: 1;
-}
+        input[type="date"].form-control:invalid::-webkit-datetime-edit {
+            color: #797a7846;
+            font-style: italic;
+        }
 
-/* 1. Unselected Date Input (Placeholder look - e.g., red/italic) */
-input[type="date"].form-control:invalid::-webkit-datetime-edit {
-    color: #797a7846;
-    font-style: italic;
-}
+        input[type="date"].form-control:valid {
+            color: #000000;
+            font-style: normal;
+        }
+        input[type="date"].form-control:valid::-webkit-datetime-edit {
+            color: #000000;
+            font-style: normal;
+        }
 
-/* 2. Selected Date Input (Turns black and normal style once a date is picked) */
-input[type="date"].form-control:valid {
-    color: #000000;
-    font-style: normal;
-}
-input[type="date"].form-control:valid::-webkit-datetime-edit {
-    color: #000000;
-    font-style: normal;
-}
-
-/* Calendar icon styling */
-input[type="date"].form-control::-webkit-calendar-picker-indicator {
-    cursor: pointer;
-    filter: invert(0.5);
-}
+        input[type="date"].form-control::-webkit-calendar-picker-indicator {
+            cursor: pointer;
+            filter: invert(0.5);
+        }
     </style>
 </head>
 
@@ -123,7 +118,6 @@ input[type="date"].form-control::-webkit-calendar-picker-indicator {
             <div class="container-fluid px-0">
                 <div class="form-card p-4 p-md-5">
                     
-                    <!-- Form with submission prevention binding -->
                     <form action="<?= site_url('adl/store'); ?>" method="POST" id="adlForm">
                         <div class="row g-3">
                             
@@ -197,6 +191,7 @@ input[type="date"].form-control::-webkit-calendar-picker-indicator {
                                     <th>Target Beneficiaries</th>                             
                                     <th>Amount</th>
                                     <th>Balance</th>
+                                    <th class="text-center">Action</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -210,6 +205,13 @@ input[type="date"].form-control::-webkit-calendar-picker-indicator {
                                             <td><?= number_format($row['target_benefs']); ?></td>
                                             <td class="fw-semibold text-success">&#8369;<?= number_format($row['adl_amount'], 2); ?></td>
                                             <td class="fw-semibold text-primary">&#8369;<?= number_format($row['balance'], 2); ?></td>
+                                            <td class="text-center">
+                                                <button type="button" class="btn btn-sm btn-outline-primary open-maf-modal" 
+                                                    data-adl-no="<?= html_escape($row['adl_no']); ?>"
+                                                    title="Add MAF Record">
+                                                    <i class="bi bi-folder-plus"></i> Add MAF
+                                                </button>
+                                            </td>
                                         </tr>
                                     <?php endforeach; ?>
                                 <?php endif; ?>
@@ -239,6 +241,62 @@ input[type="date"].form-control::-webkit-calendar-picker-indicator {
                 </div>
             </div>
 
+            <!-- MAF Entry Modal -->
+            <div class="modal fade" id="adlMafModal" tabindex="-1" aria-labelledby="adlMafModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content border-0 shadow">
+                        <!-- Added id="mafForm" here -->
+                        <form action="<?= site_url('adl/store_adl_maf'); ?>" method="POST" id="mafForm">
+                            <div class="modal-header bg-primary text-white">
+                                <h5 class="modal-title" id="adlMafModalLabel">
+                                    <i class="bi bi-file-earmark-plus me-2"></i>Add MAF Record
+                                </h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <input type="hidden" name="adl_no" id="modal_adl_no">
+
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold small">MAF No.</label>
+                                    <input type="text" name="maf_no" class="form-control" placeholder="Enter MAF No." required>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold small">MAF Program</label>
+                                    <select name="maf_program" class="form-select" required>
+                                        <option value="" selected disabled>Select Program / Office</option>
+                                        <?php if (!empty($offices)): ?>
+                                            <?php foreach ($offices as $office): ?>
+                                                <option value="<?= html_escape($office['office_id']); ?>">
+                                                    <?= html_escape($office['office_description']); ?>
+                                                </option>
+                                            <?php endforeach; ?>
+                                        <?php endif; ?>
+                                    </select>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold small">MAF Amount</label>
+                                    <input type="number" step="0.01" name="maf_amount" class="form-control" placeholder="Enter Amount" required>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold small">MAF Remarks</label>
+                                    <input type="text" name="maf_remarks" class="form-control" placeholder="Remarks">
+                                </div>
+
+                            </div>
+                            <div class="modal-footer bg-light">
+                                <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">Cancel</button>
+                                <button type="submit" id="saveMafBtn" class="btn btn-primary px-4">
+                                    <i class="bi bi-save me-1"></i> Save MAF
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
         </main>
 
         <footer class="bg-white border-top p-3 text-center text-muted small no-print">
@@ -262,7 +320,7 @@ input[type="date"].form-control::-webkit-calendar-picker-indicator {
             },
             "pageLength": 10,
             "lengthMenu": [5, 10, 25, 50, 100],
-            "order": [[1, "desc"]] // Orders by ADL Date column descending by default
+            "order": [[1, "desc"]]
         });
 
         // Sidebar Toggle Handler
@@ -274,6 +332,14 @@ input[type="date"].form-control::-webkit-calendar-picker-indicator {
                 $('#sidebar').toggleClass('collapsed');
                 $('#main-content').toggleClass('expanded');
             }
+        });
+
+        // Open MAF Modal handler and pass ADL No.
+        $(document).on('click', '.open-maf-modal', function () {
+            const adlNo = $(this).data('adl-no');
+            $('#modal_adl_no').val(adlNo);
+            const mafModal = new bootstrap.Modal(document.getElementById('adlMafModal'));
+            mafModal.show();
         });
 
         // Prevent Multiple Form Submissions and Check for Duplicate ADL via AJAX
@@ -345,6 +411,24 @@ input[type="date"].form-control::-webkit-calendar-picker-indicator {
             } else {
                 $cityMunSelect.prop('disabled', true).html('<option value="" selected disabled>Select Province First</option>');
             }
+        });
+
+        // Prevent Multiple Form Submissions for MAF Modal
+        $('#mafForm').on('submit', function (e) {
+            const $form = $(this);
+            const $submitBtn = $('#saveMafBtn');
+
+            if ($form[0].checkValidity() === false) {
+                $form[0].reportValidity();
+                return; 
+            }
+
+            // Disable button and show loading spinner to prevent duplicate clicks
+            $submitBtn.prop('disabled', true);
+            $submitBtn.html(`
+                <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                Saving MAF...
+            `);
         });
     });
     </script>

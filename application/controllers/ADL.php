@@ -28,6 +28,7 @@ class ADL extends CI_Controller {
     public function ADL_encode() {
         $data['provinces'] = $this->ADL_Model->get_provinces();
         $data['adl_records'] = $this->ADL_Model->get_ADL();
+         $data['offices'] = $this->ADL_Model->get_offices(); // Fetch code_office records
         $this->load->view('tupad/ADL_monitoring', $data);
     }
 
@@ -546,5 +547,37 @@ class ADL extends CI_Controller {
         echo '</table>';
         exit;
     }
+
+
+
+// Add method to store the MAF record
+public function store_adl_maf() {
+    if ($this->input->method() === 'post') {
+        $data = [
+            'adl_source'  => $this->input->post('adl_no', true), // Linked to ADL record
+            'maf_amount'  => $this->input->post('maf_amount', true),
+            'maf_program' => $this->input->post('maf_program', true),
+            'maf_no'      => $this->input->post('maf_no', true),
+            'maf_remarks' => strtoupper($this->input->post('maf_remarks', true)),
+            'maf_date'    => date('Y-m-d H:i:s'),
+            'maf_by'      => $this->session->userdata('user_id') ?? 1
+        ];
+
+        $insert = $this->ADL_Model->insert_adl_maf($data);
+
+        if ($insert) {
+            $this->session->set_flashdata('success', 'MAF record successfully saved!');
+        } else {
+            $this->session->set_flashdata('error', 'Failed to save MAF record. Please try again.');
+        }
+    }
+    redirect('adl/ADL_encode');
+}
+
+
+
+
+
+
 
 }
