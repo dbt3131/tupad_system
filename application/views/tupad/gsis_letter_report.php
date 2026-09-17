@@ -21,7 +21,7 @@
     <style>
         :root {
             --sidebar-width: 260px;
-            --primary-color: #1e3a8a;
+            --primary-color: #0f172a;
             --primary-light: #2563eb;
             --bg-body: #f8fafc;
             --text-main: #0f172a;
@@ -35,6 +35,27 @@
             color: var(--text-main);
             overflow-x: hidden;
         } 
+
+        /* Custom Button & Modal Header Overrides */
+        .btn-primary, .btn-success {
+            background-color: #0f172a !important;
+            border-color: #0f172a !important;
+            color: #ffffff !important;
+        }
+
+        .btn-primary:hover, .btn-primary:focus, .btn-success:hover, .btn-success:focus {
+            background-color: #1e293b !important;
+            border-color: #1e293b !important;
+        }
+
+        .modal-header {
+            background-color: #0f172a !important;
+            color: #ffffff !important;
+        }
+
+        .modal-header .btn-close {
+            filter: invert(1) grayscale(100%) brightness(200%);
+        }
 
         @media print {
             body { background-color: #ffffff; }
@@ -96,13 +117,11 @@
     
     <div class="d-flex flex-wrap gap-2">
         <!-- Download GSIS Letter Button -->
-       <!-- Download GSIS Letter Button -->
 <a href="<?= site_url('tupad/export_gsis_letter_excel?start_date=' . urlencode($start_date) . '&end_date=' . urlencode($end_date) . '&date_effectivity=' . urlencode($date_effectivity) . '&no_of_days=' . urlencode($no_of_days)); ?>" 
    id="btnDownloadGSIS" class="btn btn-success">
     <i class="bi bi-file-earmark-excel me-1"></i> Download GSIS Letter
 </a>
 
-        <!-- Export Sequence Numbers Excel Button -->
         <!-- Export Sequence Numbers Excel Button -->
 <a href="<?= site_url('tupad/export_gsis_sequences_excel?start_date=' . urlencode($start_date) . '&end_date=' . urlencode($end_date) . '&date_effectivity=' . urlencode($date_effectivity) . '&no_of_days=' . urlencode($no_of_days)); ?>" 
    id="btnDownloadGPAI" class="btn btn-primary">
@@ -189,8 +208,6 @@
                                 $total_amount = 0;
                                 $rate = 50.00; 
                                 $dst = 0;
-                                
-                                
 
                                 if (!empty($summary_records)): 
                                     $i = 1;
@@ -205,29 +222,21 @@
                                         $total_benefs += $sub_total;
                                         $total_amount += $amount;
 
-     if($total_benefs=='1'){
-                $dst = 0;
-                }
-            elseif ($total_benefs >= 2 && $total_benefs <= 4) {
-                $dst = 20.00;
-            }
-            elseif ($total_benefs >= 5 && $total_benefs <= 7) {
-                $dst = 50.00;
-            }
-            elseif ($total_benefs >= 8 && $total_benefs <= 11) {
-                $dst = 100.00;
-            }
-            elseif ($total_benefs >= 12 && $total_benefs <= 15) {
-                $dst = 150.00;
-            }
-             elseif ($total_benefs >= 16) {
-                $dst = 200.00;
-            }else{
-                $dst = 0;
-            }
-
-
-
+                                        if ($total_benefs == '1') {
+                                            $dst = 0;
+                                        } elseif ($total_benefs >= 2 && $total_benefs <= 4) {
+                                            $dst = 20.00;
+                                        } elseif ($total_benefs >= 5 && $total_benefs <= 7) {
+                                            $dst = 50.00;
+                                        } elseif ($total_benefs >= 8 && $total_benefs <= 11) {
+                                            $dst = 100.00;
+                                        } elseif ($total_benefs >= 12 && $total_benefs <= 15) {
+                                            $dst = 150.00;
+                                        } elseif ($total_benefs >= 16) {
+                                            $dst = 200.00;
+                                        } else {
+                                            $dst = 0;
+                                        }
                                 ?>
                                     <tr>
                                         <td><?= $i++; ?></td>
@@ -285,7 +294,7 @@
 <div class="modal fade" id="gpaiLimitModal" tabindex="-1" aria-labelledby="gpaiLimitModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
-            <div class="modal-header bg-warning text-dark">
+            <div class="modal-header">
                 <h5 class="modal-title fw-bold" id="gpaiLimitModalLabel">
                     <i class="bi bi-exclamation-triangle-fill me-2"></i> Large List Reminder
                 </h5>

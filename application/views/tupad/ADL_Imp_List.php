@@ -152,7 +152,7 @@
                                 </div>
 
                                 <div class="col-md-2 d-flex align-items-end gap-2">
-                                    <button type="submit" class="btn btn-primary w-100">Filter</button>
+                                    <button type="submit" class="btn w-100 text-white" style="background-color: #0f172a;">Filter</button>
                                     <a href="<?= site_url('adl/transaction_report'); ?>" class="btn btn-secondary">Reset</a>
                                 </div>
                             </form>
@@ -280,7 +280,7 @@
         <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
                 <div class="modal-content border-0 shadow">
-                    <div class="modal-header bg-primary text-white">
+                    <div class="modal-header text-white" style="background-color: #0f172a;">
                         <h5 class="modal-title" id="editModalLabel">
                             <i class="bi bi-pencil-square me-2"></i>Update ADL Transaction Record
                         </h5>
@@ -602,7 +602,7 @@
 
                         <div class="modal-footer bg-light">
                             <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">Cancel</button>
-                            <button type="submit" class="btn btn-primary px-4">
+                            <button type="submit" class="btn px-4 text-white" style="background-color: #0f172a;">
                                 <i class="bi bi-save me-1"></i> Save Changes
                             </button>
                         </div>

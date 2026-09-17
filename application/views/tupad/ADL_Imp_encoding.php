@@ -21,7 +21,7 @@
     <style>
         :root {
             --sidebar-width: 260px;
-            --primary-color: #1e3a8a;
+            --primary-color: #0f172a;
             --primary-light: #2563eb;
             --bg-body: #f8fafc;
             --text-main: #0f172a;
@@ -35,6 +35,38 @@
             color: var(--text-main);
             overflow-x: hidden;
         } 
+
+        /* Custom Button & Modal Header Overrides for #0f172a */
+        .btn-primary, .btn-outline-primary {
+            background-color: #0f172a !important;
+            border-color: #0f172a !important;
+            color: #ffffff !important;
+        }
+
+        .btn-outline-primary {
+            background-color: transparent !important;
+            color: #0f172a !important;
+        }
+
+        .btn-outline-primary:hover, .btn-outline-primary:focus {
+            background-color: #0f172a !important;
+            border-color: #0f172a !important;
+            color: #ffffff !important;
+        }
+
+        .btn-primary:hover, .btn-primary:focus {
+            background-color: #1e293b !important;
+            border-color: #1e293b !important;
+        }
+
+        .modal-header {
+            background-color: #0f172a !important;
+            color: #ffffff !important;
+        }
+
+        .modal-header .btn-close {
+            filter: invert(1) grayscale(100%) brightness(200%);
+        }
 
         @media print {
             body { background-color: #ffffff; }
@@ -484,7 +516,7 @@
             <div class="modal fade" id="duplicateTransactionModal" tabindex="-1" aria-labelledby="duplicateTransactionModalLabel" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered">
                     <div class="modal-content border-0 shadow">
-                        <div class="modal-header bg-danger text-white">
+                        <div class="modal-header">
                             <h5 class="modal-title" id="duplicateTransactionModalLabel">
                                 <i class="bi bi-exclamation-triangle-fill me-2"></i>Duplicate Reference Number Found
                             </h5>

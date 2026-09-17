@@ -26,7 +26,7 @@
     <style>
         :root {
             --sidebar-width: 260px;
-            --primary-gradient: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%);
+            --primary-color: #0f172a;
             --bg-body: #f4f6f9;
             --text-main: #1e293b;
             --text-muted: #64748b;
@@ -148,8 +148,8 @@
 
         .form-control:focus, .form-select:focus {
             background-color: #ffffff;
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+            border-color: #0f172a;
+            box-shadow: 0 0 0 4px rgba(15, 23, 42, 0.1);
         }
 
         /* DataTables Controls Layout Overhaul */
@@ -162,8 +162,8 @@
 
         .dataTables_wrapper .dataTables_filter input:focus {
             background-color: #ffffff;
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+            border-color: #0f172a;
+            box-shadow: 0 0 0 4px rgba(15, 23, 42, 0.1);
         }
 
         .dataTables_wrapper .dataTables_length select {
@@ -185,14 +185,24 @@
         }
 
         .pagination .page-item.active .page-link {
-            background: var(--primary-gradient);
+            background: #0f172a;
             color: #ffffff;
-            box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);
+            box-shadow: 0 4px 10px rgba(15, 23, 42, 0.3);
         }
 
         .pagination .page-item .page-link:hover {
             background-color: #e2e8f0;
             color: #1e293b;
+        }
+
+        /* Modal Header Styling */
+        .modal-header {
+            background-color: #0f172a !important;
+            color: #ffffff !important;
+        }
+
+        .modal-header .btn-close {
+            filter: invert(1) grayscale(100%) brightness(200%);
         }
 
         @media (max-width: 991.98px) {
@@ -222,16 +232,13 @@
                     </p>
                 </div>
                 <div>
-                    <span class="badge bg-white text-primary border px-3 py-2 shadow-sm rounded-pill fw-semibold">
-                        <i class="bi bi-database me-1"></i> Data Management
-                    </span>
                 </div>
             </div>
 
             <!-- DYNAMIC LOCATION FILTER CARD -->
             <div class="filter-card">
                 <div class="d-flex align-items-center justify-content-between mb-3 pb-2 border-bottom">
-                    <h6 class="fw-bold mb-0 text-primary d-flex align-items-center">
+                    <h6 class="fw-bold mb-0 text-dark d-flex align-items-center">
                         <i class="bi bi-funnel me-2"></i> Filter by Location (PSGC Code)
                     </h6>
                     <button type="button" id="resetFilters" class="btn btn-sm btn-link text-decoration-none p-0 text-muted fw-medium">
@@ -273,7 +280,7 @@
 
                     <!-- Manual Filter Submit Button -->
                     <div class="col-md-3 d-flex gap-2">
-                        <button type="button" id="applyFilter" class="btn btn-primary w-100 fw-semibold shadow-sm" style="background: var(--primary-gradient); border: none;">
+                        <button type="button" id="applyFilter" class="btn w-100 fw-semibold shadow-sm text-white" style="background: #0f172a; border: none;">
                             <i class="bi bi-search me-1"></i> Filter Records
                         </button>
                     </div>
@@ -284,7 +291,7 @@
             <div class="table-card">
                 <div class="d-flex align-items-center justify-content-between mb-3">
                     <h5 class="fw-bold m-0 text-dark d-flex align-items-center">
-                        <i class="bi bi-table text-primary me-2"></i> Records List
+                        <i class="bi bi-table text-dark me-2"></i> Records List
                     </h5>
                 </div>
                 <div class="table-responsive">
@@ -379,7 +386,7 @@
                     searchable: false,
                     render: function (data, type, row) {
                         var profileUrl = "<?php echo site_url('tupad/view_profile/'); ?>" + row.id;
-                        return '<a href="' + profileUrl + '" class="btn btn-sm btn-primary px-3 shadow-sm rounded-pill fw-medium" title="View Profile" target="_blank" style="background: var(--primary-gradient); border: none;">' +
+                        return '<a href="' + profileUrl + '" class="btn btn-sm text-white px-3 shadow-sm rounded-pill fw-medium" title="View Profile" target="_blank" style="background: #0f172a; border: none;">' +
                                 '<i class="bi bi-eye me-1"></i> View</a>';
                     }
                 },

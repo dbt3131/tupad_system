@@ -150,9 +150,9 @@ function display_val($value, $type = 'text') {
                             <a href="<?= site_url('adl/proponent_encode'); ?>" class="btn btn-light border px-4">
                                 <i class="bi bi-arrow-counterclockwise me-1"></i> Reset
                             </a>
-                            <button type="submit" id="submitBtn" class="btn btn-primary px-4 shadow-sm">
-                                <i class="bi bi-save me-1"></i> Save Proponent
-                            </button>
+                            <button type="submit" id="submitBtn" class="btn px-4 shadow-sm text-white" style="background-color: #0f172a;">
+    <i class="bi bi-save me-1"></i> Save Proponent
+</button>
                         </div>
                     </div>
 

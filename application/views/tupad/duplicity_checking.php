@@ -18,7 +18,7 @@
     <style>
         :root {
             --sidebar-width: 260px;
-            --primary-color: #1e3a8a;
+            --primary-color: #0f172a;
             --primary-light: #2563eb;
             --bg-body: #f8fafc;
             --text-main: #0f172a;
@@ -33,6 +33,27 @@
             overflow-x: hidden;
             margin: 0;
             padding: 0;
+        }
+
+        /* --- CUSTOM BUTTON STYLING --- */
+        .btn-primary {
+            background-color: #0f172a !important;
+            border-color: #0f172a !important;
+        }
+
+        .btn-primary:hover, .btn-primary:focus {
+            background-color: #1e293b !important;
+            border-color: #1e293b !important;
+        }
+
+        /* --- MODAL HEADER STYLING --- */
+        .modal-header {
+            background-color: #0f172a !important;
+            color: #ffffff !important;
+        }
+
+        .modal-header .btn-close {
+            filter: invert(1) grayscale(100%) brightness(200%);
         }
 
         /* --- MAIN CONTENT & NAVBAR --- */

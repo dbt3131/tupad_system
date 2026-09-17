@@ -137,6 +137,7 @@
         table.coatable tbody tr:hover {
             background-color: #f1f5f9 !important;
         }
+        
     </style>
 </head>
 
@@ -173,9 +174,9 @@
                             <input type="date" class="form-control shadow-none" id="end_date" name="end_date" value="<?= html_escape($end_date ?? ''); ?>">
                         </div>
                         <div class="col-md-6 d-flex gap-2">
-                            <button type="submit" class="btn btn-primary px-4 fw-semibold flex-grow-1 shadow-sm">
-                                <i class="bi bi-filter me-1"></i> Filter Records
-                            </button>
+                            <button type="submit" class="btn px-4 fw-semibold flex-grow-1 shadow-sm text-white" style="background-color: #0f172a; border-color: #0f172a;">
+    <i class="bi bi-filter me-1"></i> Filter Records
+</button>
                             <a href="<?= site_url('tupad_report/coa_tupad_report'); ?>" class="btn btn-outline-secondary px-3" title="Reset Filters">
                                 <i class="bi bi-arrow-counterclockwise"></i>
                             </a>

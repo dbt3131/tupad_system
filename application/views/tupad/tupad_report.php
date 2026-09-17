@@ -96,7 +96,7 @@
         </select>
     </div>
     <div class="col-md-5 d-flex">
-        <button type="submit" class="btn btn-primary btn-sm me-2"><i class="bi bi-filter"></i> Generate Report</button>
+        <button type="submit" class="btn btn-dark btn-sm me-2"><i class="bi bi-filter"></i> Generate Report</button>
         
         <!-- Export Excel Button -->
         <a href="<?= site_url('tupad_report/export_excel') ?>?start_date=<?= isset($start_date) ? urlencode($start_date) : '' ?>&end_date=<?= isset($end_date) ? urlencode($end_date) : '' ?>&view_type=<?= isset($view_type) ? $view_type : 'all' ?>" class="btn btn-success btn-sm">
