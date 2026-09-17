@@ -164,9 +164,46 @@ public function get_coa_report_data($start_date = null, $end_date = null) {
         $this->db->where('adl_transactions.ongoing_implementation_start_date <=', $end_date);
     }
 
+    // --- REQUIRE VALUES ON SPECIFIED COLUMNS ---
+    // 1. GSIS Enrollment Date
+    $this->db->where('adl_transactions.gsis_enrollment_date IS NOT NULL');
+    $this->db->where('adl_transactions.gsis_enrollment_date !=', '0000-00-00');
+    $this->db->where('adl_transactions.gsis_enrollment_date !=', '');
+
+    // 2. GSIS Enrollment Beneficiaries
+    $this->db->where('adl_transactions.gsis_enrollment_benefs IS NOT NULL');
+    $this->db->where('adl_transactions.gsis_enrollment_benefs >', 0);
+
+    // 3. GSIS Enrollment Female Count
+    $this->db->where('adl_transactions.gsis_enrollment_female IS NOT NULL');
+    $this->db->where('adl_transactions.gsis_enrollment_female >', 0);
+
+    // 4. GSIS Enrollment Amount
+    $this->db->where('adl_transactions.gsis_enrollment_amount IS NOT NULL');
+    $this->db->where('adl_transactions.gsis_enrollment_amount !=', '');
+    $this->db->where('adl_transactions.gsis_enrollment_amount !=', '0');
+
+    // 5. Ongoing Implementation Start Date
+    $this->db->where('adl_transactions.ongoing_implementation_start_date IS NOT NULL');
+    $this->db->where('adl_transactions.ongoing_implementation_start_date !=', '0000-00-00');
+    $this->db->where('adl_transactions.ongoing_implementation_start_date !=', '');
+
+    // 6. Ongoing Implementation End Date
+    $this->db->where('adl_transactions.ongoing_implementation_end_date IS NOT NULL');
+    $this->db->where('adl_transactions.ongoing_implementation_end_date !=', '0000-00-00');
+    $this->db->where('adl_transactions.ongoing_implementation_end_date !=', '');
+    // -------------------------------------------
+
     $this->db->order_by('adl_transactions.adl_transact_id', 'DESC');
     return $this->db->get()->result_array();
 }
+
+
+
+
+
+
+
 
 public function get_user_signature_details($user_id) {
     $this->db->select("
