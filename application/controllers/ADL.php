@@ -19,7 +19,13 @@ class ADL extends CI_Controller {
         $this->load->model('Tupad_Payroll_Model');
         $this->load->helper(['url', 'form']);
         $this->load->library(['session']);
+        
+           if (!$this->session->userdata('logged_in')) {
+            redirect('auth/login');
+        }
     }
+
+ 
         
     /**
      * ADL Encode View
@@ -174,6 +180,7 @@ class ADL extends CI_Controller {
      * Compiles filters and source lists (provinces, proponents, districts) to render the tracking/reporting dashboard.
      */
     public function ADL_report() {
+      
         $data['adl_list'] = $this->ADL_Model->get_all_adl_numbers();
         $data['provinces'] = $this->ADL_Model->get_provinces(); 
         $data['proponents'] = $this->ADL_Model->get_proponents(); 
@@ -217,6 +224,7 @@ class ADL extends CI_Controller {
      * Loads implementation transaction listings based on applied parameter filters and assigns regional user rights.
      */
     public function transaction_report() {
+        
         $province = $this->input->get('implementation_province');
         $area = $this->input->get('implementation_area');
         $proponent = $this->input->get('implementation_proponent');

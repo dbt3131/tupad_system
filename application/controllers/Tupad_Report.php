@@ -9,6 +9,10 @@ class Tupad_Report extends CI_Controller {
         $this->load->model('Tupad_Report_Model');
          $this->load->model('Tupad_Report_Bene_Model');
         $this->load->helper(['url', 'form']);
+
+         if (!$this->session->userdata('logged_in')) {
+            redirect('auth/login');
+        }
     }
         
     public function tupad_summ_report() {

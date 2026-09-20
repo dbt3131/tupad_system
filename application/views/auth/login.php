@@ -52,7 +52,7 @@
 
         .login-logo-rect {
             max-width: 520px;
-            max-height:110px;
+            max-height: 110px;
             width: auto;
             height: auto;
             object-fit: contain;
@@ -134,6 +134,10 @@
                     <?= validation_errors('<div class="alert alert-danger"><i class="bi bi-exclamation-circle me-2"></i>', '</div>'); ?>
 
                     <form method="post" action="<?= site_url('auth/login'); ?>">
+                        <!-- Hidden CAPTCHA Numbers -->
+                        <input type="hidden" name="num1" value="<?= isset($num1) ? $num1 : 0; ?>">
+                        <input type="hidden" name="num2" value="<?= isset($num2) ? $num2 : 0; ?>">
+
                         <!-- Email -->
                         <div class="mb-3">
                             <label for="email" class="form-label fw-semibold">Email Address</label>

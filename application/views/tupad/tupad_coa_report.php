@@ -102,12 +102,12 @@
         }
 
         /* Modern Table Wrapper & Design */
-        .table-responsive {
+       .table-responsive {
             background: #ffffff;
             border: 1px solid var(--card-border);
             border-radius: 1rem;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
-            overflow: hidden;
+            overflow-x: auto; 
         }
 
         table.coatable {
