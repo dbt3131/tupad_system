@@ -71,15 +71,29 @@ class ADL extends CI_Controller {
      * Store ADL Record
      * Validates and inserts a new ADL master entry, records an activity trail log, and sets feedback flash data.
      */
+/**
+     * Store ADL Record
+     * Validates uniqueness on the server-side, typecasts critical numeric inputs, 
+     * inserts a new ADL master entry, records an activity trail log, and sets feedback flash data.
+     */
     public function store() {
         if ($this->input->method() === 'post') {
+            $adl_no = trim($this->input->post('adl_no', true));
+
+            // SERVER-SIDE DUPLICATE CHECK (Prevents pen-test client-side bypasses)
+            if ($this->ADL_Model->check_adl_exists($adl_no)) {
+                $this->session->set_flashdata('error', 'Security Block: The ADL Number already exists in the database.');
+                redirect('adl/ADL_encode');
+                return;
+            }
+
             $data = [
-                'adl_no'        => $this->input->post('adl_no', true),
+                'adl_no'        => $adl_no,
                 'adl_sponsor'   => strtoupper($this->input->post('adl_sponsor', true)),
                 'adl_date'      => $this->input->post('adl_date', true),
                 'date_received' => $this->input->post('date_received', true),
-                'target_benefs' => $this->input->post('target_benefs', true),
-                'adl_amount'    => $this->input->post('adl_amount', true),
+                'target_benefs' => (int) $this->input->post('target_benefs', true), // Explicit typecasting
+                'adl_amount'    => (float) $this->input->post('adl_amount', true), // Explicit typecasting
                 'encoded_by'    => $this->session->userdata('user_id') ?? 'System User',
                 'encoded_date'  => date('Y-m-d H:i:s')
             ];
@@ -87,10 +101,9 @@ class ADL extends CI_Controller {
             $insert = $this->ADL_Model->insert_adl($data);
 
             if ($insert) {
-                 $this->load->model('Activity_Model');
-                 $reference_no = $this->input->post('adl_no', true);
-                 $user_id = $this->session->userdata('user_id');
-                 $this->Activity_Model->log_activity($reference_no, $user_id, 6); 
+                $this->load->model('Activity_Model');
+                $user_id = $this->session->userdata('user_id');
+                $this->Activity_Model->log_activity($adl_no, $user_id, 6); 
 
                 $this->session->set_flashdata('success', 'ADL record successfully saved!');
             } else {
@@ -104,11 +117,32 @@ class ADL extends CI_Controller {
      * Store Implementation Transaction
      * Captures form submission inputs, standardizes string casing, inserts the transaction record, and updates activity logs.
      */
+/**
+/**
+     * Store Implementation Transaction
+     * Safely cleans currency/amount fields (stripping commas for proper decimal parsing), 
+     * validates uniqueness server-side, and inserts the record.
+     */
     public function store_transaction() {
         if ($this->input->method() === 'post') {
+            $ref_no = strtoupper(trim($this->input->post('implementation_reference_no', true)));
+
+            // SERVER-SIDE DUPLICATE CHECK (Prevents pen-test bypasses)
+            if ($this->ADL_Model->check_transaction_exists($ref_no)) {
+                $this->session->set_flashdata('error', 'Security Block: The Implementation Reference Number already exists.');
+                redirect('adl/Implementation_encode');
+                return;
+            }
+
+            // Helper closure to safely clean and parse decimal/currency inputs with commas
+            $clean_amount = function($field) {
+                $val = $this->input->post($field, true);
+                return $val !== null && $val !== '' ? (float) str_replace(',', '', $val) : 0.00;
+            };
+
             $data = [
                 'adl_no'                            => $this->input->post('adl_no', true),
-                'implementation_reference_no'       => strtoupper($this->input->post('implementation_reference_no', true)),
+                'implementation_reference_no'       => $ref_no,
                 'implementation_province'           => $this->input->post('implementation_province', true),
                 'implementation_area'               => $this->input->post('implementation_area', true),
                 'implementation_brgy'               => $this->input->post('implementation_brgy', true),
@@ -116,13 +150,13 @@ class ADL extends CI_Controller {
                 'implementation_classification'     => strtoupper($this->input->post('implementation_classification', true)),
                 'implementation_proponent'          => strtoupper($this->input->post('imp_proponent', true)),
                 'implementation_sponsor'            => strtoupper($this->input->post('imp_sponsor', true)),
-                'no_of_days'                        => strtoupper($this->input->post('no_of_days', true)),
-                'target'                            => strtoupper($this->input->post('target', true)),
-                'reformulated_target'               => strtoupper($this->input->post('reformulated_target', true)),
+                'no_of_days'                        => (int) $this->input->post('no_of_days', true),
+                'target'                            => (int) $this->input->post('target', true),
+                'reformulated_target'               => (int) $this->input->post('reformulated_target', true),
                 'remarks'                           => strtoupper($this->input->post('remarks', true)),
-                'wage_percentage'                   => strtoupper($this->input->post('wage_percentage', true)),
-                'subsidy_cost'                      => strtoupper($this->input->post('subsidy_cost', true)),
-                'admin_cost'                        => strtoupper($this->input->post('admin_cost', true)),
+                'wage_percentage'                   => $clean_amount('wage_percentage'),
+                'subsidy_cost'                      => $clean_amount('subsidy_cost'),
+                'admin_cost'                        => $clean_amount('admin_cost'),
                 'gpai_info'                         => strtoupper($this->input->post('gpai_info', true)),
                 'wage_info'                         => strtoupper($this->input->post('wage_info', true)),
                 'date_coordinated'                  => $this->input->post('status_date', true),
@@ -130,30 +164,30 @@ class ADL extends CI_Controller {
                 'appraisal_date_approved'           => $this->input->post('appraisal_date_approved', true),
                 'ppes_issuance_ris'                 => strtoupper($this->input->post('ppes_issuance_ris', true)),
                 'ppes_date_issued'                  => $this->input->post('ppes_date_issued', true),
-                'ppes_count'                        => $this->input->post('ppes_count', true),
-                'ppes_female'                       => $this->input->post('ppes_female', true),
-                'ppes_amount'                       => $this->input->post('ppes_amount', true),
+                'ppes_count'                        => (int) $this->input->post('ppes_count', true),
+                'ppes_female'                       => (int) $this->input->post('ppes_female', true),
+                'ppes_amount'                       => $clean_amount('ppes_amount'),
                 'orientation_date'                  => $this->input->post('orientation_date', true),
-                'orientation_benefs'                => $this->input->post('orientation_benefs', true),
+                'orientation_benefs'                => (int) $this->input->post('orientation_benefs', true),
                 'orientation_employment_period'     => strtoupper($this->input->post('orientation_employment_period', true)),
                 'gsis_enrollment_date'              => $this->input->post('gsis_enrollment_date', true),
-                'gsis_enrollment_benefs'            => $this->input->post('gsis_enrollment_benefs', true),
-                'gsis_enrollment_female'            => $this->input->post('gsis_enrollment_female', true),
-                'gsis_enrollment_amount'            => $this->input->post('gsis_enrollment_amount', true),
+                'gsis_enrollment_benefs'            => (int) $this->input->post('gsis_enrollment_benefs', true),
+                'gsis_enrollment_female'            => (int) $this->input->post('gsis_enrollment_female', true),
+                'gsis_enrollment_amount'            => $clean_amount('gsis_enrollment_amount'),
                 'ongoing_implementation_start_date' => $this->input->post('ongoing_implementation_start_date', true),
                 'ongoing_implementation_end_date'   => $this->input->post('ongoing_implementation_end_date', true),
-                'ongoing_implementation_benefs'     => $this->input->post('ongoing_implementation_benefs', true),
+                'ongoing_implementation_benefs'     => (int) $this->input->post('ongoing_implementation_benefs', true),
                 'completed_employment_period'       => strtoupper($this->input->post('completed_employment_period', true)),
-                'completed_employment_benefs'       => $this->input->post('completed_employment_benefs', true),
-                'completed_employment_amount'       => $this->input->post('completed_employment_amount', true),
+                'completed_employment_benefs'       => (int) $this->input->post('completed_employment_benefs', true),
+                'completed_employment_amount'       => $clean_amount('completed_employment_amount'),
                 'completed_employment_documentation'=> strtoupper($this->input->post('completed_employment_documentation', true)),
-                'payment_alob_no'                   => $this->input->post('payment_alob_no', true),
-                'payment_dv_no'                     => $this->input->post('payment_dv_no', true),
-                'payment_check_no'                  => $this->input->post('payment_check_no', true),
+                'payment_alob_no'                   => strtoupper($this->input->post('payment_alob_no', true)),
+                'payment_dv_no'                     => strtoupper($this->input->post('payment_dv_no', true)),
+                'payment_check_no'                  => strtoupper($this->input->post('payment_check_no', true)),
                 'payment_date'                      => $this->input->post('payment_date', true),
-                'payment_amount'                    => $this->input->post('payment_amount', true),
+                'payment_amount'                    => $clean_amount('payment_amount'),
                 'payout_date'                       => $this->input->post('payout_date', true),
-                'payout_service_cost'               => $this->input->post('payout_service_cost', true),
+                'payout_service_cost'               => $clean_amount('payout_service_cost'),
                 'payout_method'                     => $this->input->post('payout_method', true),
                 'encoded_date'                      => date('Y-m-d H:i:s'),
                 'encoded_by'                        => $this->session->userdata('user_id') ?? 1
@@ -163,9 +197,8 @@ class ADL extends CI_Controller {
 
             if ($insert) {
                 $this->load->model('Activity_Model');
-                $reference_no = $this->input->post('implementation_reference_no', true);
                 $user_id = $this->session->userdata('user_id');
-                $this->Activity_Model->log_activity($reference_no, $user_id, 5);    
+                $this->Activity_Model->log_activity($ref_no, $user_id, 5);    
 
                 $this->session->set_flashdata('success', 'ADL Transaction record successfully saved!');
             } else {

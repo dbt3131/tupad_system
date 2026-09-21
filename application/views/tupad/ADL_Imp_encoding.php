@@ -297,12 +297,12 @@
 
                                     <div class="col-md-2">
                                         <label class="form-label fw-semibold small">Subsidy Cost</label>
-                                        <input type="text" name="subsidy_cost" class="form-control" placeholder="Subsidy Cost" required>
+                                        <input type="text" name="subsidy_cost" class="form-control" step="0.01" placeholder="Subsidy Cost" required>
                                     </div>
 
                                     <div class="col-md-2">
                                         <label class="form-label fw-semibold small">Admin Cost</label>
-                                        <input type="number" name="admin_cost" class="form-control" placeholder="Admin" required>
+                                        <input type="number" name="admin_cost" class="form-control" step="0.01" placeholder="Admin" required>
                                     </div>
 
                                     <div class="col-md-3">
@@ -436,7 +436,7 @@
                                     </div>
                                     <div class="col-md-3">
                                         <label class="form-label fw-semibold small">Completed Beneficiaries</label>
-                                        <input type="number" name="completed_employment_benefs" class="form-control" placeholder="0">
+                                        <input type="number" name="completed_employment_benefs" id="completed_benefs" class="form-control" placeholder="0">
                                     </div>
                                     <div class="col-md-3">
                                         <label class="form-label fw-semibold small">Completed Amount</label>
@@ -483,16 +483,16 @@
                                             <option value="" disabled selected>-- Select Payout Site --</option>
                                             <?php if (!empty($payoutSite)): ?>
                                                 <?php foreach ($payoutSite as $pos): ?>
-                                                    <option value="<?= html_escape($pos['payout_site_id']); ?>">
+                                                    <option value="<?= html_escape($pos['payout_site_id']); ?>" data-rate="<?= html_escape($pos['service_cost'] ?? 0); ?>">
                                                         <?= html_escape($pos['payout_site_name']); ?>
                                                     </option>
                                                 <?php endforeach; ?>
-                                            <?php endif; ?>
-                                        </select>
+                                         <?php endif; ?>
+                                         </select>
                                     </div>
                                     <div class="col-md-4">
                                         <label class="form-label fw-semibold small">Service Cost</label>
-                                        <input type="text" name="payout_service_cost" class="form-control" placeholder="0.00">
+                                        <input type="text" name="payout_service_cost" class="form-control" id="payout_service_cost" placeholder="0.00">
                                     </div>
                                 </div>
                             </div>
@@ -691,6 +691,18 @@
             allowClear: true
         });
     });
+
+    // Calculate Payout Service Cost dynamically
+    function calculatePayoutServiceCost() {
+        const benefs = parseFloat($('#completed_benefs').val()) || 0;
+        const selectedOption = $('#payout_method').find(':selected');
+        const rate = parseFloat(selectedOption.data('rate')) || 0;
+        const totalServiceCost = benefs * rate;
+        $('#payout_service_cost').val(totalServiceCost.toFixed(2));
+    }
+
+    $('#completed_benefs').on('input', calculatePayoutServiceCost);
+    $('#payout_method').on('change', calculatePayoutServiceCost);
     </script>
 </body>
 

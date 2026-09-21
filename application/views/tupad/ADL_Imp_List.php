@@ -585,7 +585,9 @@
                                                 <option value="" disabled selected>-- Select Payout Site --</option>
                                                 <?php if (!empty($payoutSite)): ?>
                                                     <?php foreach ($payoutSite as $pos): ?>
-                                                        <option value="<?= html_escape($pos['payout_site_id']); ?>"><?= html_escape($pos['payout_site_name']); ?></option>
+                                                        <option value="<?= html_escape($pos['payout_site_id']); ?>" data-rate="<?= html_escape($pos['service_cost'] ?? 0); ?>">
+                                                            <?= html_escape($pos['payout_site_name']); ?>
+                                                        </option>
                                                     <?php endforeach; ?>
                                                 <?php endif; ?>
                                             </select>
@@ -849,6 +851,18 @@
                 $('#main-content').toggleClass('expanded');
             }
         });
+
+        // Calculate Edit Payout Service Cost dynamically
+    function calculateEditPayoutServiceCost() {
+        const benefs = parseFloat($('#edit_completed_employment_benefs').val()) || 0;
+        const selectedOption = $('#edit_payout_method').find(':selected');
+        const rate = parseFloat(selectedOption.data('rate')) || 0;
+        const totalServiceCost = benefs * rate;
+        $('#edit_payout_service_cost').val(totalServiceCost.toFixed(2));
+    }
+
+    $('#edit_completed_employment_benefs').on('input', calculateEditPayoutServiceCost);
+    $('#edit_payout_method').on('change', calculateEditPayoutServiceCost);
     </script>
 </body>
 
