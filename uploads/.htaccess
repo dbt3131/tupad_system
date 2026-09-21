@@ -1,0 +1,4 @@
+Deny from all
+<FilesMatch '\.(xlsx|XLSX|xls|XLS|csv|CSV)$'>
+    Allow from all
+</FilesMatch>

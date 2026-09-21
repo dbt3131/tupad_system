@@ -127,7 +127,7 @@ public function upload_tupad_excel()
     $nature_of_work         = $this->input->post('nature_of_work');
 
     $config['upload_path']   = './uploads/';
-    $config['allowed_types'] = 'xlsx|xls|csv';
+    $config['allowed_types'] = 'xlsx|XLSX|xls|XLS|csv|CSV';
     $config['max_size']      = 10240; 
     $config['encrypt_name']  = TRUE;
 
@@ -135,12 +135,23 @@ public function upload_tupad_excel()
         mkdir($config['upload_path'], 0777, true);
     }
 
+    // PENETRATION TEST HARDENING: Ensure script execution is blocked in the upload folder
+    $htaccess_path = $config['upload_path'] . '.htaccess';
+    if (!file_exists($htaccess_path)) {
+        file_put_contents($htaccess_path, "Deny from all\n<FilesMatch '\.(xlsx|XLSX|xls|XLS|csv|CSV)$'>\n    Allow from all\n</FilesMatch>");
+    }
+
     $this->load->library('upload', $config);
 
     if (!$this->upload->do_upload('excel_file')) {
+        $error_message = $this->upload->display_errors('', '');
+        if (strpos(strtolower($error_message), 'filetype') !== false) {
+            $error_message = 'Invalid File Type: Please upload a valid Excel spreadsheet (.xlsx) file.';
+        }
+
         echo json_encode([
             'status' => 'error',
-            'message' => $this->upload->display_errors('', '')
+            'message' => $error_message
         ]);
         return;
     }
@@ -148,6 +159,28 @@ public function upload_tupad_excel()
     $fileData = $this->upload->data();
     $filePath = $fileData['full_path'];
     $originalFileName = $fileData['client_name'];
+
+    // STRICT PENETRATION TEST: Explicit PHP Fileinfo MIME-type verification
+    $finfo = finfo_open(FILEINFO_MIME_TYPE);
+    $mimeType = finfo_file($finfo, $filePath);
+    finfo_close($finfo);
+
+    $allowed_mimes = [
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // .xlsx
+        'application/vnd.ms-excel', // .xls
+        'text/csv', 
+        'text/plain',
+        'application/csv'
+    ];
+
+    if (!in_array($mimeType, $allowed_mimes)) {
+        @unlink($filePath);
+        echo json_encode([
+            'status' => 'error',
+            'message' => 'Security Error: The uploaded file has an invalid MIME type (' . $mimeType . ').'
+        ]);
+        return;
+    }
 
     // Duplicate File Check
     if ($this->Tupad_model->file_exists($originalFileName)) {
@@ -492,43 +525,43 @@ public function upload_tupad_excel()
         $skillsId  = is_numeric($rawSkills) ? (int)$rawSkills : $this->Tupad_model->find_skills_id_by_desc($rawSkills);
 
         $insertData[] = [
-            'tupad_id_no'                 => $clean_general(isset($row[0]) ? $row[0] : ''),
-            'tupad_fname'                 => strtoupper(trim($fname)),
-            'tupad_mname'                 => strtoupper(trim($mname)),
-            'tupad_lname'                 => strtoupper(trim($lname)),
-            'tupad_ext'                   => strtoupper($ext),
-            'tupad_gender'                => strtoupper($clean_general(isset($row[5]) ? $row[5] : '')),
-            'tupad_dob_month'             => $clean_general(isset($row[6]) ? $row[6] : ''),
-            'tupad_dob_day'               => $clean_general(isset($row[7]) ? $row[7] : ''),
-            'tupad_dob_year'              => $clean_general(isset($row[8]) ? $row[8] : ''),
-            'tupad_province'              => $provCode,
-            'tupad_municipality'          => $cityCode,
-            'tupad_barangay'              => $brgyCode,
-            'tupad_street'                => strtoupper($clean_general(isset($row[12]) ? $row[12] : '')),
-            'tupad_district'              => strtoupper($clean_general(isset($row[13]) ? $row[13] : '')),
-            'tupad_idtype'                => strtoupper($idType),
-            'tupad_idnumber'              => $clean_general(isset($row[15]) ? $row[15] : ''),
-            'tupad_contact_no'            => $clean_general(isset($row[16]) ? $row[16] : ''),
-            'tupad_type'                  => strtoupper($beneType),
-            'tupad_training_Interest'     => strtoupper($clean_general(isset($row[18]) ? $row[18] : '')),
-            'tupad_skills'                => $skillsId, 
-            'tupad_epayment'              => $epaymentId, 
-            'tupad_account_no'            => $clean_general(isset($row[21]) ? $row[21] : ''),
-            'tupad_occupation'            => $clean_general(isset($row[22]) ? $row[22] : ''),
-            'tupad_civil_status'          => strtoupper($clean_general(isset($row[23]) ? $row[23] : '')),
-            'tupad_age'                   => $clean_general(isset($row[24]) ? $row[24] : ''),
-            'tupad_average_monthly'       => $clean_general(isset($row[25]) ? $row[25] : ''),
-            'tupad_dependent'             => strtoupper($clean_general(isset($row[26]) ? $row[26] : '')),
+            'tupad_id_no'             => $clean_general(isset($row[0]) ? $row[0] : ''),
+            'tupad_fname'             => strtoupper(trim($fname)),
+            'tupad_mname'             => strtoupper(trim($mname)),
+            'tupad_lname'             => strtoupper(trim($lname)),
+            'tupad_ext'               => strtoupper($ext),
+            'tupad_gender'            => strtoupper($clean_general(isset($row[5]) ? $row[5] : '')),
+            'tupad_dob_month'         => $clean_general(isset($row[6]) ? $row[6] : ''),
+            'tupad_dob_day'           => $clean_general(isset($row[7]) ? $row[7] : ''),
+            'tupad_dob_year'          => $clean_general(isset($row[8]) ? $row[8] : ''),
+            'tupad_province'          => $provCode,
+            'tupad_municipality'      => $cityCode,
+            'tupad_barangay'          => $brgyCode,
+            'tupad_street'            => strtoupper($clean_general(isset($row[12]) ? $row[12] : '')),
+            'tupad_district'          => strtoupper($clean_general(isset($row[13]) ? $row[13] : '')),
+            'tupad_idtype'            => strtoupper($idType),
+            'tupad_idnumber'          => $clean_general(isset($row[15]) ? $row[15] : ''),
+            'tupad_contact_no'        => $clean_general(isset($row[16]) ? $row[16] : ''),
+            'tupad_type'              => strtoupper($beneType),
+            'tupad_training_Interest' => strtoupper($clean_general(isset($row[18]) ? $row[18] : '')),
+            'tupad_skills'            => $skillsId, 
+            'tupad_epayment'          => $epaymentId, 
+            'tupad_account_no'        => $clean_general(isset($row[21]) ? $row[21] : ''),
+            'tupad_occupation'        => $clean_general(isset($row[22]) ? $row[22] : ''),
+            'tupad_civil_status'      => strtoupper($clean_general(isset($row[23]) ? $row[23] : '')),
+            'tupad_age'               => $clean_general(isset($row[24]) ? $row[24] : ''),
+            'tupad_average_monthly'   => $clean_general(isset($row[25]) ? $row[25] : ''),
+            'tupad_dependent'         => strtoupper($clean_general(isset($row[26]) ? $row[26] : '')),
             'tupad_interested_employment' => $clean_general(isset($row[27]) ? $row[27] : ''),      
-            'tupad_convergence'           => $convergenceId,
-            'file_name'                   => $originalFileName,
-            'user_id'                     => $uploadedBy,
-            'uploaded_at'                 => $uploadedDate,
-            'area_of_implementation'      => strtoupper($area_of_implementation),
-            'period_of_coverage'          => strtoupper($period_of_coverage),
-            'adl_no'                      => $adl_no,
-            'reference_no'                => $reference_no,
-            'nature_of_work'              => strtoupper($nature_of_work)
+            'tupad_convergence'       => $convergenceId,
+            'file_name'               => $originalFileName,
+            'user_id'                 => $uploadedBy,
+            'uploaded_at'             => $uploadedDate,
+            'area_of_implementation'  => strtoupper($area_of_implementation),
+            'period_of_coverage'      => strtoupper($period_of_coverage),
+            'adl_no'                  => $adl_no,
+            'reference_no'            => $reference_no,
+            'nature_of_work'          => strtoupper($nature_of_work)
         ];
     }
 
