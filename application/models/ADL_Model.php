@@ -176,6 +176,10 @@ class ADL_Model extends CI_Model {
         ];
     }
 
+    public function count_transactions_by_adl($adl_no) {
+    return $this->db->where('adl_no', $adl_no)->from('adl_transactions')->count_all_results();
+}
+
 
 
 

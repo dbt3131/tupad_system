@@ -208,6 +208,62 @@ class ADL extends CI_Controller {
         redirect('adl/Implementation_encode');
     }
 
+
+
+
+public function get_generated_reference_no() {
+    $adl_no = $this->input->get('adl_no');
+    $province = trim($this->input->get('province'));
+    $municipality = trim($this->input->get('municipality'));
+    $district = trim($this->input->get('district'));
+
+    if (!$adl_no) {
+        echo json_encode(['status' => false, 'ref_no' => '']);
+        return;
+    }
+
+    // Get count of existing transactions for this ADL No to form the 3-digit sequence (e.g., 001, 002)
+    $count = $this->ADL_Model->count_transactions_by_adl($adl_no);
+    $sequence = str_pad($count + 1, 3, '0', STR_PAD_LEFT);
+
+    // Construct format: ADL_NO-SEQUENCE-PROVINCE-MUNICIPALITY-DISTRICT
+    $ref_parts = [$adl_no, $sequence];
+    
+    if (!empty($province) && $province !== 'Select Province') { 
+        $ref_parts[] = strtoupper($province); 
+    }
+    if (!empty($municipality) && $municipality !== 'Select City/Municipality' && $municipality !== 'Select Province First') { 
+        $ref_parts[] = strtoupper($municipality); 
+    }
+    if (!empty($district) && $district !== '-- Select District --') { 
+        $ref_parts[] = strtoupper($district); 
+    }
+
+    $ref_no = implode('-', $ref_parts);
+
+    echo json_encode(['status' => true, 'ref_no' => $ref_no]);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     /**
      * ADL Report View
      * Compiles filters and source lists (provinces, proponents, districts) to render the tracking/reporting dashboard.

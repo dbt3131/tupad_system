@@ -225,9 +225,9 @@
                                             <?php endif; ?>
                                         </select>
                                     </div>
-                                    <div class="col-md-2">
+                                   <div class="col-md-3">
                                         <label class="form-label fw-semibold small">Reference No.</label>
-                                        <input type="text" name="implementation_reference_no" class="form-control" placeholder="Reference No" required>
+                                        <input type="text" name="implementation_reference_no" id="implementation_reference_no" class="form-control" placeholder="Auto-generated" read-only required>
                                     </div>
                                     <div class="col-md-2">
                                         <label class="form-label fw-semibold small">Date Coordinated</label>
@@ -237,8 +237,8 @@
                                         <label class="form-label fw-semibold small"># of Days</label>
                                         <input type="text" name="no_of_days" class="form-control" placeholder="0" required>
                                     </div>
-                                    <div class="col-md-2">
-                                        <label class="form-label fw-semibold small">Target Benefs</label>
+                                    <div class="col-md-1">
+                                        <label class="form-label fw-semibold small">Benefs</label>
                                         <input type="text" name="target" class="form-control" placeholder="0" required>
                                     </div>
                                     <div class="col-md-2">
@@ -703,6 +703,49 @@
 
     $('#completed_benefs').on('input', calculatePayoutServiceCost);
     $('#payout_method').on('change', calculatePayoutServiceCost);
+
+/**
+ * Generate Reference Number (AJAX)
+ * Automatically builds the reference number using ADL No, auto-incrementing sequence, 
+ * province, municipality, and district values.
+ */
+
+
+// Automatically generate reference number using dropdown text descriptions
+    function generateReferenceNo() {
+        const adlNo = $('#adl_no').val();
+        
+        // Grab the text (descriptions) instead of the values (codes)
+        const province = $('#implementation_province').val() ? $('#implementation_province option:selected').text().trim() : '';
+        const municipality = $('#implementation_area').val() ? $('#implementation_area option:selected').text().trim() : '';
+        const district = $('#implementation_district').val() ? $('#implementation_district option:selected').text().trim() : '';
+
+        if (adlNo) {
+            $.ajax({
+                url: "<?= site_url('adl/get_generated_reference_no'); ?>",
+                type: "GET",
+                data: {
+                    adl_no: adlNo,
+                    province: province,
+                    municipality: municipality,
+                    district: district
+                },
+                dataType: "json",
+                success: function(response) {
+                    if (response.status) {
+                        $('#implementation_reference_no').val(response.ref_no);
+                    }
+                }
+            });
+        } else {
+            $('#implementation_reference_no').val('');
+        }
+    }
+
+    // Trigger generation when any of the key fields change
+    $(document).on('change', '#adl_no, #implementation_province, #implementation_area, #implementation_district', function() {
+        generateReferenceNo();
+    });
     </script>
 </body>
 
