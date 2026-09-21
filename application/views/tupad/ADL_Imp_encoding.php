@@ -227,7 +227,7 @@
                                     </div>
                                    <div class="col-md-3">
                                         <label class="form-label fw-semibold small">Reference No.</label>
-                                        <input type="text" name="implementation_reference_no" id="implementation_reference_no" class="form-control" placeholder="Auto-generated" read-only required>
+                                        <input type="text" name="implementation_reference_no" id="implementation_reference_no" class="form-control" placeholder="Auto-generated" readonly required>
                                     </div>
                                     <div class="col-md-2">
                                         <label class="form-label fw-semibold small">Date Coordinated</label>
@@ -350,11 +350,11 @@
                             <!-- TAB 2: APPRAISAL & PPES -->
                             <div class="tab-pane fade" id="appraisal-pane" role="tabpanel" aria-labelledby="appraisal-tab">
                                 <div class="row g-3">
-                                    <div class="col-md-3">
+                                    <div class="col-md-6">
                                         <label class="form-label fw-semibold small">Appraisal Date Submitted</label>
                                         <input type="text" name="appraisal_date_submitted" class="form-control" placeholder="Date Submitted" onfocus="this.type='date'" onblur="if(!this.value)this.type='text'">
                                     </div>
-                                    <div class="col-md-3">
+                                    <div class="col-md-6">
                                         <label class="form-label fw-semibold small">Appraisal Date Approved</label>
                                         <input type="text" name="appraisal_date_approved" class="form-control" placeholder="Date Approved" onfocus="this.type='date'" onblur="if(!this.value)this.type='text'" >
                                     </div>
