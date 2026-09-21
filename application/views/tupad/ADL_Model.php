@@ -38,19 +38,20 @@ class ADL_Model extends CI_Model {
     public function insert_adl($data) {
         return $this->db->insert('adl_registry', $data);
     }
-public function get_ADL() {
+
+ public function get_ADL() {
     $this->db->select('
         adl_registry.*, 
         (COALESCE(t.total_deductions, 0) + COALESCE(m.total_maf, 0)) as total_deductions,
-        (CAST(adl_registry.adl_subsidy AS DECIMAL(15,2)) - (COALESCE(t.total_deductions, 0) + COALESCE(m.total_maf, 0))) as balance
+        (CAST(adl_registry.adl_subsidy AS DECIMAL(15,2)) - (COALESCE(t.total_deductions, 0) + COALESCE(m.total_maf, 0))) as adl_subsidy
     ');
     $this->db->from('adl_registry');
     
     // Subquery for transaction deductions
     $this->db->join('(SELECT adl_no, SUM(COALESCE(payout_service_cost,0) + COALESCE(payment_amount,0) + COALESCE(ppes_amount,0) + COALESCE(gsis_enrollment_amount,0)) as total_deductions FROM adl_transactions GROUP BY adl_no) t', 'adl_registry.adl_no = t.adl_no', 'left');
     
-    // Subquery for MAF amount deductions
-    $this->db->join('(SELECT adl_source, SUM(COALESCE(maf_amount, 0)) as total_maf FROM adl_maf GROUP BY adl_source) m', 'adl_registry.adl_no = m.adl_source', 'left');
+    // Subquery for MAF deductions
+    $this->db->join('(SELECT adl_no, SUM(COALESCE(maf_amount, 0)) as total_maf FROM adl_maf GROUP BY adl_no) m', 'adl_registry.adl_no = m.adl_no', 'left');
     
     $this->db->order_by('adl_registry.adl_date', 'DESC');
     
@@ -159,7 +160,7 @@ public function get_ADL() {
 
         // Include MAF total amount in total deductions[cite: 3, 4]
         $total_deductions = $total_service_cost + $total_payment + $total_ppes_amount + $total_gsis_amount + $total_maf_amount;
-        $remaining_balance = floatval($adl['adl_subsidy']) - $total_deductions;
+        $remaining_adl_subsidy = floatval($adl['adl_subsidy']) - $total_deductions;
 
         return [
             'adl_no'             => $adl['adl_no'],
@@ -176,7 +177,7 @@ public function get_ADL() {
             'total_ppes_count'   => $total_ppes_count,
             'total_gsis_benefs'  => $total_gsis_benefs,
             'total_deductions'   => $total_deductions,
-            'remaining_balance'  => $remaining_balance
+            'remaining_adl_subsidy'  => $remaining_adl_subsidy
         ];
     }
 
