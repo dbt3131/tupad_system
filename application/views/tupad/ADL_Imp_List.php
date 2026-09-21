@@ -470,11 +470,11 @@
                                         </div>
                                         <div class="col-md-2">
                                             <label class="form-label fw-semibold small">PPES Count</label>
-                                            <input type="number" id="edit_ppes_count" name="ppes_count" class="form-control" placeholder="0">
+                                            <input type="number" id="edit_ppes_count" name="ppes_count" class="form-control" placeholder="0" readonly>
                                         </div>
                                         <div class="col-md-2">
                                             <label class="form-label fw-semibold small">PPES Female</label>
-                                            <input type="number" id="edit_ppes_female" name="ppes_female" class="form-control" placeholder="0">
+                                            <input type="number" id="edit_ppes_female" name="ppes_female" class="form-control" placeholder="0" readonly>
                                         </div>
                                         <div class="col-md-2">
                                             <label class="form-label fw-semibold small">PPES Amount</label>
@@ -486,6 +486,22 @@
                                 <!-- TAB 3: ORIENTATION & GSIS -->
                                 <div class="tab-pane fade" id="edit-orientation-pane" role="tabpanel">
                                     <div class="row g-3">
+                                         <div class="col-md-4">
+                                            <label class="form-label fw-semibold small">GSIS Enrollment Date</label>
+                                            <input type="text" id="edit_gsis_enrollment_date" name="gsis_enrollment_date" class="form-control" placeholder="GSIS Enrollment Date" onfocus="this.type='date'" onblur="if(!this.value)this.type='text'">
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label class="form-label fw-semibold small">GSIS Beneficiaries</label>
+                                            <input type="number" id="edit_gsis_enrollment_benefs" name="gsis_enrollment_benefs" class="form-control" placeholder="0" value="0" readonly>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <label class="form-label fw-semibold small">GSIS Female</label>
+                                            <input type="number" id="edit_gsis_enrollment_female" name="gsis_enrollment_female" class="form-control" placeholder="0" value="0" readonly>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label class="form-label fw-semibold small">GSIS Amount</label>
+                                            <input type="text" id="edit_gsis_enrollment_amount" name="gsis_enrollment_amount" class="form-control" placeholder="0.00" readonly>
+                                        </div>
                                         <div class="col-md-4">
                                             <label class="form-label fw-semibold small">Orientation Date</label>
                                             <input type="text" id="edit_orientation_date" name="orientation_date" class="form-control" placeholder="Date Orientation" onfocus="this.type='date'" onblur="if(!this.value)this.type='text'">
@@ -497,23 +513,7 @@
                                         <div class="col-md-4">
                                             <label class="form-label fw-semibold small">Employment Period</label>
                                             <input type="text" id="edit_orientation_employment_period" name="orientation_employment_period" class="form-control" placeholder="Employment Period">
-                                        </div>
-                                        <div class="col-md-4">
-                                            <label class="form-label fw-semibold small">GSIS Enrollment Date</label>
-                                            <input type="text" id="edit_gsis_enrollment_date" name="gsis_enrollment_date" class="form-control" placeholder="GSIS Enrollment Date" onfocus="this.type='date'" onblur="if(!this.value)this.type='text'">
-                                        </div>
-                                        <div class="col-md-3">
-                                            <label class="form-label fw-semibold small">GSIS Beneficiaries</label>
-                                            <input type="number" id="edit_gsis_enrollment_benefs" name="gsis_enrollment_benefs" class="form-control" placeholder="0" value="0">
-                                        </div>
-                                        <div class="col-md-2">
-                                            <label class="form-label fw-semibold small">GSIS Female</label>
-                                            <input type="number" id="edit_gsis_enrollment_female" name="gsis_enrollment_female" class="form-control" placeholder="0" value="0">
-                                        </div>
-                                        <div class="col-md-3">
-                                            <label class="form-label fw-semibold small">GSIS Amount</label>
-                                            <input type="text" id="edit_gsis_enrollment_amount" name="gsis_enrollment_amount" class="form-control" placeholder="0.00" readonly>
-                                        </div>
+                                        </div>                                      
                                     </div>
                                 </div>
 
@@ -808,15 +808,21 @@
                         $('#edit_reformulated_target').val(d.reformulated_target);
 
                         $('#edit_ppes_issuance_ris').val(d.ppes_issuance_ris);
-                        $('#edit_ppes_count').val(d.ppes_count);
-                        $('#edit_ppes_female').val(d.ppes_female);
+                       $('#edit_ppes_count').val(d.tupad_total_count).trigger('input');
+$('#edit_ppes_female').val(d.tupad_female_count);
                         $('#edit_ppes_amount').val(d.ppes_amount);
+
+                        const calculatedPpeAmount = (parseFloat(d.tupad_total_count) || 0) * ppeRate;
+$('#edit_ppes_amount').val(calculatedPpeAmount.toFixed(2));
 
                         $('#edit_orientation_benefs').val(d.orientation_benefs);
                         $('#edit_orientation_employment_period').val(d.orientation_employment_period);
-                        $('#edit_gsis_enrollment_benefs').val(d.gsis_enrollment_benefs);
-                        $('#edit_gsis_enrollment_female').val(d.gsis_enrollment_female);
+                       $('#edit_gsis_enrollment_benefs').val(d.tupad_total_count).trigger('input');
+$('#edit_gsis_enrollment_female').val(d.tupad_female_count);
                         $('#edit_gsis_enrollment_amount').val(d.gsis_enrollment_amount);
+
+                        const calculatedGsisAmount = (parseFloat(d.tupad_total_count) || 0) * gsisRate;
+$('#edit_gsis_enrollment_amount').val(calculatedGsisAmount.toFixed(2));
 
                         $('#edit_ongoing_implementation_benefs').val(d.ongoing_implementation_benefs);
                         $('#edit_completed_employment_period').val(d.completed_employment_period);

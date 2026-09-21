@@ -189,61 +189,68 @@ function display_val($value, $type = 'text') {
                     </table>
                 </div>
 
-                <!-- SECTION 2: Appraisal & PPES Details -->
-                <div class="section-header"><i class="bi bi-box-seam me-2"></i>Appraisal & PPES Issuance</div>
-                <div class="table-responsive">
-                    <table class="table table-bordered table-sm table-details align-middle">
-                        <tbody>
-                            <tr>
-                                <th>Appraisal Date Submitted</th>
-                                <td><?= display_val($transaction['appraisal_date_submitted']); ?></td>
-                                <th>Appraisal Date Approved</th>
-                                <td><?= display_val($transaction['appraisal_date_approved']); ?></td>
-                            </tr>
-                            <tr>
-                                <th>PPES Issuance RIS</th>
-                                <td><?= display_val($transaction['ppes_issuance_ris']); ?></td>
-                                <th>PPES Date Issued</th>
-                                <td><?= display_val($transaction['ppes_date_issued']); ?></td>
-                            </tr>
-                            <tr>
-                                <th>PPES Count</th>
-                                <td><?= display_val($transaction['ppes_count']); ?></td>
-                                <th>PPES Amount</th>
-                                <td class="fw-bold text-success"><?= display_val($transaction['ppes_amount'], 'currency'); ?></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+               <!-- SECTION 2: Appraisal & PPES Details -->
+<div class="section-header"><i class="bi bi-box-seam me-2"></i>Appraisal & PPES Issuance</div>
+<div class="table-responsive">
+    <table class="table table-bordered table-sm table-details align-middle">
+        <tbody>
+            <tr>
+                <th>Appraisal Date Submitted</th>
+                <td><?= display_val($transaction['appraisal_date_submitted']); ?></td>
+                <th>Appraisal Date Approved</th>
+                <td><?= display_val($transaction['appraisal_date_approved']); ?></td>
+            </tr>
+            <tr>
+                <th>PPES Issuance RIS</th>
+                <td><?= display_val($transaction['ppes_issuance_ris']); ?></td>
+                <th>PPES Date Issued</th>
+                <td><?= display_val($transaction['ppes_date_issued']); ?></td>
+            </tr>
+            <tr>
+                <th>PPES Count</th>
+                <td><?= display_val($transaction['ppes_count']); ?></td>
+                <th>PPES Female Count</th>
+                <td><?= display_val($transaction['ppes_female']); ?></td>
+            </tr>
+            <tr>
+                <th>PPES Amount</th>
+                <td colspan="3" class="fw-bold text-success"><?= display_val($transaction['ppes_amount'], 'currency'); ?></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
 
-                <!-- SECTION 3: Orientation & GSIS Enrollment -->
-                <div class="section-header"><i class="bi bi-people me-2"></i>Orientation & GSIS Details</div>
-                <div class="table-responsive">
-                    <table class="table table-bordered table-sm table-details align-middle">
-                        <tbody>
-                            <tr>
-                                <th>Orientation Date</th>
-                                <td><?= display_val($transaction['orientation_date']); ?></td>
-                                <th>Orientation Period</th>
-                                <td><?= display_val($transaction['orientation_employment_period']); ?></td>
-                            </tr>
-                            <tr>
-                                <th>Orientation Beneficiaries</th>
-                                <td colspan="3"><?= display_val($transaction['orientation_benefs']); ?></td>
-                            </tr>
-                            <tr>
-                                <th>GSIS Enrollment Date</th>
-                                <td><?= display_val($transaction['gsis_enrollment_date']); ?></td>
-                                <th>GSIS Beneficiaries</th>
-                                <td><?= display_val($transaction['gsis_enrollment_benefs']); ?></td>
-                            </tr>
-                            <tr>
-                                <th>GSIS Amount</th>
-                                <td colspan="3" class="fw-bold text-success"><?= display_val($transaction['gsis_enrollment_amount'], 'currency'); ?></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+               <!-- SECTION 3: Orientation & GSIS Details -->
+<div class="section-header"><i class="bi bi-people me-2"></i>Orientation & GSIS Details</div>
+<div class="table-responsive">
+    <table class="table table-bordered table-sm table-details align-middle">
+        <tbody>
+            <tr>
+                <th>GSIS Enrollment Date</th>
+                <td><?= display_val($transaction['gsis_enrollment_date']); ?></td>
+                <th>GSIS Beneficiaries</th>
+                <td><?= display_val($transaction['gsis_enrollment_benefs']); ?></td>
+            </tr>
+            <tr>
+                <th>GSIS Female Count</th>
+                <td><?= display_val($transaction['gsis_enrollment_female']); ?></td>
+                <th>GSIS Amount</th>
+                <td class="fw-bold text-success"><?= display_val($transaction['gsis_enrollment_amount'], 'currency'); ?></td>
+            </tr>
+            <tr>
+                <th>Orientation Date</th>
+                <td><?= display_val($transaction['orientation_date']); ?></td>
+                <th>Orientation Period</th>
+                <td><?= display_val($transaction['orientation_employment_period']); ?></td>
+            </tr>
+            <tr>
+                <th>Orientation Beneficiaries</th>
+                <td colspan="3"><?= display_val($transaction['orientation_benefs']); ?></td>
+            </tr>
+            
+        </tbody>
+    </table>
+</div>
 
                 <!-- SECTION 4: Implementation Status & Completion -->
                 <div class="section-header"><i class="bi bi-calendar-check me-2"></i>Implementation & Completion Status</div>

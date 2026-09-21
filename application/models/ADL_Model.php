@@ -254,9 +254,55 @@ public function update_adl($original_adl_no, $data) {
                     ->count_all_results('adl_transactions') > 0;
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
     public function get_transaction_by_id($id) {
-        return $this->db->where('adl_transact_id', $id)->get('adl_transactions')->row_array();
+    $transaction = $this->db->where('adl_transact_id', $id)->get('adl_transactions')->row_array();
+    
+    if ($transaction && !empty($transaction['implementation_reference_no'])) {
+        $ref_no = $transaction['implementation_reference_no'];
+        
+        // Count total beneficiaries for PPE & GSIS count fields
+        $transaction['tupad_total_count'] = $this->db->where('reference_no', $ref_no)
+                                                     ->count_all_results('tbl_tupad_list');
+                                                     
+        // Count female beneficiaries for PPE & GSIS female fields
+        $transaction['tupad_female_count'] = $this->db->where('reference_no', $ref_no)
+                                                      ->where('UPPER(tupad_gender)', 'FEMALE')
+                                                      ->count_all_results('tbl_tupad_list');
+    } else {
+        $transaction['tupad_total_count'] = 0;
+        $transaction['tupad_female_count'] = 0;
     }
+    
+    return $transaction;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     public function update_transaction($id, $data) {
         return $this->db->where('adl_transact_id', $id)->update('adl_transactions', $data);
