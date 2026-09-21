@@ -164,7 +164,7 @@
                             <div class="col-md-4">
                                 <label class="form-label fw-semibold small">ADL Subsidy Cost</label>
                                 <div class="input-group">
-                                    <input type="text" name="adl_subsidy" class="form-control" step="0.01" oninput="this.value = this.value.toUpperCase();" placeholder="Enter ADL Subsidy" autocomplete="OFF" required>
+                                    <input type="number" name="adl_subsidy" class="form-control" step="0.01" oninput="this.value = this.value.toUpperCase();" placeholder="Enter ADL Subsidy" autocomplete="OFF" required>
                                 </div>
                             </div>
 
@@ -182,15 +182,6 @@
                                 <label class="form-label fw-semibold small">Date Received</label>
                                 <input type="date" name="date_received" class="form-control" required>
                             </div>
-
-                            <!--
-                            <div class="col-md-4">
-                                <label class="form-label fw-semibold small">Target Beneficiaries</label>
-                                <input type="number" name="target_benefs" class="form-control" min="1" placeholder="Total target beneficiaries" autocomplete="OFF" required>
-                            </div>
-            -->
-
-                          
 
                             <input type="hidden" name="encoded_date" value="<?= date('Y-m-d'); ?>">
 
@@ -232,7 +223,7 @@
                             </thead>
                             <tbody>
                                 <?php if (!empty($adl_records)): ?>
-                                    <?php foreach ($adl_records as $row): ?>
+                                    <?php foreach ($adl_records as$row): ?>
                                         <tr>
                                             <td class="fw-semibold"><?= html_escape($row['adl_no']); ?></td>
                                             <td><?= html_escape($row['adl_date']); ?></td>
@@ -273,7 +264,8 @@
                             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body py-4">
-                            <p class="mb-0">The ADL Number <strong id="modalDuplicateAdlNo"></strong> is already recorded in the database. Please use a unique ADL Number or check existing records.</p>
+                            <!-- Target element to display the conflicting ADL number -->
+                            <p class="mb-0">The ADL Number <strong id="modalDuplicateAdlNo" class="text-danger"></strong> is already recorded in the database. Please use a unique ADL Number or check existing records.</p>
                         </div>
                         <div class="modal-footer bg-light">
                             <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">Close</button>
@@ -282,72 +274,65 @@
                 </div>
             </div>
 
-<!-- Edit ADL Modal -->
-<div class="modal fade" id="editAdlModal" tabindex="-1" aria-labelledby="editAdlModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow">
-            <form action="<?= site_url('adl/update_adl'); ?>" method="POST" id="editAdlForm">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="editAdlModalLabel">
-                        <i class="bi bi-pencil-square me-2"></i>Edit ADL Record
-                    </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            <!-- Edit ADL Modal -->
+            <div class="modal fade" id="editAdlModal" tabindex="-1" aria-labelledby="editAdlModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content border-0 shadow">
+                        <form action="<?= site_url('adl/update_adl'); ?>" method="POST" id="editAdlForm">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="editAdlModalLabel">
+                                    <i class="bi bi-pencil-square me-2"></i>Edit ADL Record
+                                </h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <input type="hidden" name="original_adl_no" id="edit_original_adl_no">
+
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold small">ADL No.</label>
+                                    <input type="text" name="adl_no" id="edit_adl_no" class="form-control" oninput="this.value = this.value.toUpperCase();" disabled title="You cannot edit this portion">
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold small">ADL Subsidy Cost</label>
+                                    <input type="text" name="adl_subsidy" step="0.01" id="edit_adl_subsidy" class="form-control" oninput="this.value = this.value.toUpperCase();" required>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold small">ADL Admin Cost</label>
+                                    <input type="number" step="0.01" name="adl_admin_cost" id="edit_adl_admin_cost" class="form-control" required>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold small">ADL Date</label>
+                                    <input type="date" name="adl_date" id="edit_adl_date" class="form-control" required>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold small">Date Received</label>
+                                    <input type="date" name="date_received" id="edit_date_received" class="form-control" required>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold small">ADL Benefs</label>
+                                    <input type="number" name="adl_benefs" id="edit_adl_benefs" class="form-control" required placeholder="0">
+                                </div>
+                            </div>
+                            <div class="modal-footer bg-light">
+                                <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">Cancel</button>
+                                <button type="submit" id="updateAdlBtn" class="btn btn-primary px-4">
+                                    <i class="bi bi-save me-1"></i> Update Record
+                                </button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
-                <div class="modal-body">
-                    <!-- Hidden field to keep track of the original ADL No for WHERE clause -->
-                    <input type="hidden" name="original_adl_no" id="edit_original_adl_no">
-
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold small">ADL No.</label>
-                        <input type="text" name="adl_no" id="edit_adl_no" class="form-control" oninput="this.value = this.value.toUpperCase();" disabled title="You cannot edit this portion">
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold small">ADL Subsidy Cost</label>
-                        <input type="text" name="adl_subsidy" step="0.01" id="edit_adl_subsidy" class="form-control" oninput="this.value = this.value.toUpperCase();" required>
-                    </div>
-
-                     <div class="mb-3">
-                        <label class="form-label fw-semibold small">ADL Admin Cost</label>
-                        <input type="number" step="0.01" name="adl_admin_cost" id="edit_adl_admin_cost" class="form-control" required>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold small">ADL Date</label>
-                        <input type="date" name="adl_date" id="edit_adl_date" class="form-control" required>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold small">Date Received</label>
-                        <input type="date" name="date_received" id="edit_date_received" class="form-control" required>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold small">ADL Benefs</label>
-                        <input type="number" name="adl_benefs" id="edit_adl_benefs" class="form-control" required placeholder="0">
-                    </div>
-
-                   
-                </div>
-                <div class="modal-footer bg-light">
-                    <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" id="updateAdlBtn" class="btn btn-primary px-4">
-                        <i class="bi bi-save me-1"></i> Update Record
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-
-
+            </div>
 
             <!-- MAF Entry Modal -->
             <div class="modal fade" id="adlMafModal" tabindex="-1" aria-labelledby="adlMafModalLabel" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered">
                     <div class="modal-content border-0 shadow">
-                        <!-- Added id="mafForm" here -->
                         <form action="<?= site_url('adl/store_adl_maf'); ?>" method="POST" id="mafForm">
                             <div class="modal-header">
                                 <h5 class="modal-title" id="adlMafModalLabel">
@@ -368,7 +353,7 @@
                                     <select name="maf_program" class="form-select" required>
                                         <option value="" selected disabled>Select Program / Office</option>
                                         <?php if (!empty($offices)): ?>
-                                            <?php foreach ($offices as $office): ?>
+                                            <?php foreach ($offices as$office): ?>
                                                 <option value="<?= html_escape($office['office_id']); ?>">
                                                     <?= html_escape($office['office_description']); ?>
                                                 </option>
@@ -386,7 +371,6 @@
                                     <label class="form-label fw-semibold small">MAF Remarks</label>
                                     <input type="text" name="maf_remarks" class="form-control" placeholder="Remarks">
                                 </div>
-
                             </div>
                             <div class="modal-footer bg-light">
                                 <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">Cancel</button>
@@ -428,8 +412,7 @@
         // Sidebar Toggle Handler
         $(document).on('click', '#sidebarToggle', function (e) {
             e.preventDefault();
-            if ($(window).width() < 992) {
-                $('#sidebar').toggleClass('show-mobile');
+            if ($(window).width() < 992) {$('#sidebar').toggleClass('show-mobile');
             } else {
                 $('#sidebar').toggleClass('collapsed');
                 $('#main-content').toggleClass('expanded');
@@ -438,8 +421,7 @@
 
         // Open MAF Modal handler and pass ADL No.
         $(document).on('click', '.open-maf-modal', function () {
-            const adlNo = $(this).data('adl-no');
-            $('#modal_adl_no').val(adlNo);
+            const adlNo = $(this).data('adl-no');$('#modal_adl_no').val(adlNo);
             const mafModal = new bootstrap.Modal(document.getElementById('adlMafModal'));
             mafModal.show();
         });
@@ -448,15 +430,15 @@
         $('#adlForm').on('submit', function (e) {
             e.preventDefault(); 
 
-            const $form = $(this);
-            const $submitBtn = $('#submitBtn');
+            const $form =$(this);
+            const $submitBtn =$('#submitBtn');
             const adlNoInput = $('input[name="adl_no"]').val().trim();
 
-            if ($form[0].checkValidity() === false) {
-                $form[0].reportValidity();
+            if ($form[0].checkValidity() === false) {$form[0].reportValidity();
                 return; 
             }
 
+            // AJAX call to check duplicate ADL number server-side
             $.ajax({
                 url: "<?= site_url('adl/check_duplicate_adl'); ?>",
                 type: "GET",
@@ -464,12 +446,14 @@
                 dataType: "json",
                 success: function (response) {
                     if (response.exists) {
+                        // Inject the specific ADL number into the duplicate warning modal text
                         $('#modalDuplicateAdlNo').text(adlNoInput);
+                        
+                        // Trigger the modal view
                         const duplicateModal = new bootstrap.Modal(document.getElementById('duplicateAdlModal'));
                         duplicateModal.show();
                     } else {
-                        $submitBtn.prop('disabled', true);
-                        $submitBtn.html(`
+                        $submitBtn.prop('disabled', true);$submitBtn.html(`
                             <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
                             Saving Record...
                         `);
@@ -482,91 +466,52 @@
             });
         });
 
-        // Dynamic Dependent Dropdown for Municipalities/Cities based on Province Code
-        $('#adl_province').on('change', function () {
-            const provCode = $(this).val();
-            const $cityMunSelect = $('#area_of_implementation');
-
-            if (provCode) {
-                $cityMunSelect.prop('disabled', true).html('<option value="">Loading municipalities...</option>');
-
-                $.ajax({
-                    url: "<?= site_url('adl/get_municipalities_by_province'); ?>",
-                    type: "GET",
-                    data: { provCode: provCode },
-                    dataType: "json",
-                    success: function (data) {
-                        $cityMunSelect.empty().append('<option value="" selected disabled>Select City/Municipality</option>');
-                        if (data && data.length > 0) {
-                            $.each(data, function (index, item) {
-                                $cityMunSelect.append('<option value="' + item.cityCode + '">' + item.citymunDesc + '</option>');
-                            });
-                            $cityMunSelect.prop('disabled', false);
-                        } else {
-                            $cityMunSelect.append('<option value="" disabled>No municipalities found</option>');
-                        }
-                    },
-                    error: function () {
-                        $cityMunSelect.prop('disabled', false).html('<option value="" disabled>Error loading data</option>');
-                    }
-                });
-            } else {
-                $cityMunSelect.prop('disabled', true).html('<option value="" selected disabled>Select Province First</option>');
-            }
-        });
-
         // Prevent Multiple Form Submissions for MAF Modal
         $('#mafForm').on('submit', function (e) {
-            const $form = $(this);
-            const $submitBtn = $('#saveMafBtn');
+            const $form =$(this);
+            const $submitBtn =$('#saveMafBtn');
 
-            if ($form[0].checkValidity() === false) {
-                $form[0].reportValidity();
+            if ($form[0].checkValidity() === false) {$form[0].reportValidity();
                 return; 
             }
 
-            // Disable button and show loading spinner to prevent duplicate clicks
-            $submitBtn.prop('disabled', true);
-            $submitBtn.html(`
+            $submitBtn.prop('disabled', true);$submitBtn.html(`
                 <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
                 Saving MAF...
             `);
         });
     });
 
-$(document).on('click', '.open-edit-adl-modal', function () {
-    const adlNo = $(this).data('adl-no');
-    
-    $.ajax({
-        url: "<?= site_url('adl/get_adl_details'); ?>", // Proper CI URL generation
-        type: "GET",
-        data: { adl_no: adlNo },
-        dataType: "json",
-        success: function (response) {
-            if (response.status && response.data) {
-                const data = response.data;
-                $('#edit_original_adl_no').val(data.adl_no);
-                $('#edit_adl_no').val(data.adl_no);
-                $('#edit_adl_subsidy').val(data.adl_subsidy);
-                $('#edit_adl_benefs').val(data.target_benefs);
-                $('#edit_adl_date').val(data.adl_date);
-                $('#edit_date_received').val(data.date_received);
-                $('#edit_adl_admin_cost').val(data.adl_admin_cost);
+    // Edit ADL Modal Population via AJAX
+    $(document).on('click', '.open-edit-adl-modal', function () {
+        const adlNo = $(this).data('adl-no');$.ajax({
+            url: "<?= site_url('adl/get_adl_details'); ?>",
+            type: "GET",
+            data: { adl_no: adlNo },
+            dataType: "json",
+            success: function (response) {
+                if (response.status && response.data) {
+                    const data = response.data;
+                    $('#edit_original_adl_no').val(data.adl_no);
+                    $('#edit_adl_no').val(data.adl_no);
+                    $('#edit_adl_subsidy').val(data.adl_subsidy);
+                    $('#edit_adl_benefs').val(data.target_benefs);
+                    $('#edit_adl_date').val(data.adl_date);
+                    $('#edit_date_received').val(data.date_received);
+                    $('#edit_adl_admin_cost').val(data.adl_admin_cost);
 
-
-                const editModal = new bootstrap.Modal(document.getElementById('editAdlModal'));
-                editModal.show();
-            } else {
-                alert('Record not found in the database.');
+                    const editModal = new bootstrap.Modal(document.getElementById('editAdlModal'));
+                    editModal.show();
+                } else {
+                    alert('Record not found in the database.');
+                }
+            },
+            error: function (xhr, status, error) {
+                console.log(error);
+                alert('AJAX Error: Failed to communicate with the server.');
             }
-        },
-        error: function (xhr, status, error) {
-            console.relog ? console.log(xhr.responseText) : console.log(error);
-            alert('AJAX Error: Failed to communicate with the server.');
-        }
+        });
     });
-});
-
     </script>
 </body>
 
