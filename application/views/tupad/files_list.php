@@ -328,23 +328,23 @@
                                 </div>
                                 <div class="mb-3">
                                     <label for="area_of_implementation" class="form-label fw-semibold">Area of Implementation</label>
-                                    <input type="text" class="form-control" id="area_of_implementation" name="area_of_implementation" required>
+                                    <input type="text" class="form-control" id="area_of_implementation" name="area_of_implementation" oninput="this.value = this.value.toUpperCase();" autocomplete="OFF" required>
                                 </div>
                                 <div class="mb-3">
                                     <label for="period_of_coverage" class="form-label fw-semibold">Period of Coverage</label>
-                                    <input type="text" class="form-control" id="period_of_coverage" name="period_of_coverage" required>
+                                    <input type="text" class="form-control" id="period_of_coverage" name="period_of_coverage" oninput="this.value = this.value.toUpperCase();" autocomplete="OFF" required>
                                 </div>
                                 <div class="mb-3">
                                     <label for="adl_no" class="form-label fw-semibold">ADL No.</label>
-                                    <input type="text" class="form-control" id="adl_no" name="adl_no" required>
+                                    <input type="text" class="form-control" id="adl_no" name="adl_no" autocomplete="OFF" oninput="this.value = this.value.toUpperCase();" required>
                                 </div>
                                 <div class="mb-3">
                                     <label for="reference_no" class="form-label fw-semibold">Reference No.</label>
-                                    <input type="text" class="form-control" id="reference_no" name="reference_no" required>
+                                    <input type="text" class="form-control" id="reference_no" name="reference_no" oninput="this.value = this.value.toUpperCase();" autocomplete="OFF" required>
                                 </div>
                                 <div class="mb-3">
                                     <label for="nature_of_work" class="form-label fw-semibold">Nature of Work</label>
-                                    <input type="text" class="form-control" id="nature_of_work" name="nature_of_work" required>
+                                    <input type="text" class="form-control" id="nature_of_work" name="nature_of_work" oninput="this.value = this.value.toUpperCase();" autocomplete="OFF" required>
                                 </div>
                             </form>
                         </div>

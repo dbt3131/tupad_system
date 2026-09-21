@@ -216,7 +216,7 @@ public function upload_tupad_excel()
         @unlink($filePath);
         echo json_encode([
             'status' => 'error', 
-            'message' => 'Template Mismatch: Expected ' . count($expected_headers) . ' columns, but found ' . count($uploaded_headers) . ' columns.'
+            'message' => 'The template you are trying to upload is incorrect.'
         ]);
         return;
     }
