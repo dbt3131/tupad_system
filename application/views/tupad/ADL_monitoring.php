@@ -157,36 +157,40 @@
                                 <label class="form-label fw-semibold small">ADL No.</label>
                                 <div class="input-group">
                                     <span class="input-group-text bg-light"><i class="bi bi-hash"></i></span>
-                                    <input type="text" name="adl_no" class="form-control" placeholder="Enter ADL Number" required>
+                                    <input type="text" name="adl_no" class="form-control" placeholder="Enter ADL Number" oninput="this.value = this.value.toUpperCase();" autocomplete="OFF" required>
                                 </div>
                             </div>
 
                             <div class="col-md-4">
-                                <label class="form-label fw-semibold small">ADL Sponsor</label>
+                                <label class="form-label fw-semibold small">ADL Subsidy Cost</label>
                                 <div class="input-group">
-                                    <input type="text" name="adl_sponsor" class="form-control" placeholder="Enter ADL Sponsor" required>
+                                    <input type="text" name="adl_subsidy" class="form-control" step="0.01" oninput="this.value = this.value.toUpperCase();" placeholder="Enter ADL Subsidy" autocomplete="OFF" required>
                                 </div>
                             </div>
 
                             <div class="col-md-4">
+                                <label class="form-label fw-semibold small">ADL Admin Cost</label>
+                                <input type="number" name="adl_admin_cost" class="form-control" step="0.01" placeholder="Enter ADL Admin Cost" autocomplete="OFF" required>
+                            </div>
+
+                            <div class="col-md-6">
                                 <label class="form-label fw-semibold small">ADL Date</label>
                                 <input type="date" name="adl_date" class="form-control" required>
                             </div>
 
-                            <div class="col-md-4">
+                            <div class="col-md-6">
                                 <label class="form-label fw-semibold small">Date Received</label>
                                 <input type="date" name="date_received" class="form-control" required>
                             </div>
 
+                            <!--
                             <div class="col-md-4">
                                 <label class="form-label fw-semibold small">Target Beneficiaries</label>
-                                <input type="number" name="target_benefs" class="form-control" min="1" placeholder="Total target beneficiaries" required>
+                                <input type="number" name="target_benefs" class="form-control" min="1" placeholder="Total target beneficiaries" autocomplete="OFF" required>
                             </div>
+            -->
 
-                            <div class="col-md-4">
-                                <label class="form-label fw-semibold small">Amount</label>
-                                <input type="number" name="adl_amount" class="form-control" placeholder="Amount" required>
-                            </div>
+                          
 
                             <input type="hidden" name="encoded_date" value="<?= date('Y-m-d'); ?>">
 
@@ -218,10 +222,10 @@
                                 <tr>
                                     <th>ADL No.</th>
                                     <th>ADL Date</th>
-                                    <th>ADL Sponsor</th>
+                                    <th>ADL Subsidy Cost</th>
+                                    <th>ADL Admin Cost</th>
                                     <th>Date Received</th>
-                                    <th>Target Beneficiaries</th>                             
-                                    <th>Amount</th>
+                                    <th>Target Beneficiaries</th>                                          
                                     <th>Balance</th>
                                     <th class="text-center">Action</th>
                                 </tr>
@@ -231,17 +235,22 @@
                                     <?php foreach ($adl_records as $row): ?>
                                         <tr>
                                             <td class="fw-semibold"><?= html_escape($row['adl_no']); ?></td>
-                                            <td><?= html_escape($row['adl_sponsor']); ?></td>
                                             <td><?= html_escape($row['adl_date']); ?></td>
+                                            <td class="fw-semibold text-success">&#8369;<?= number_format($row['adl_subsidy'], 2); ?></td>  
+                                            <td class="fw-semibold text-success">&#8369;<?= number_format($row['adl_admin_cost'], 2); ?></td>                    
                                             <td><?= html_escape($row['date_received']); ?></td>
-                                            <td><?= number_format($row['target_benefs']); ?></td>
-                                            <td class="fw-semibold text-success">&#8369;<?= number_format($row['adl_amount'], 2); ?></td>
+                                            <td><?= number_format($row['target_benefs']); ?></td>                                       
                                             <td class="fw-semibold text-primary">&#8369;<?= number_format($row['balance'], 2); ?></td>
                                             <td class="text-center">
                                                 <button type="button" class="btn btn-sm btn-outline-primary open-maf-modal" 
                                                     data-adl-no="<?= html_escape($row['adl_no']); ?>"
                                                     title="Add MAF Record">
                                                     <i class="bi bi-folder-plus"></i> Add MAF
+                                                </button>
+                                                <button type="button" class="btn btn-sm btn-outline-secondary open-edit-adl-modal" 
+                                                     data-adl-no="<?= html_escape($row['adl_no']); ?>"
+                                                     title="Edit ADL Record">
+                                                     <i class="bi bi-pencil-square"></i> Edit
                                                 </button>
                                             </td>
                                         </tr>
@@ -272,6 +281,67 @@
                     </div>
                 </div>
             </div>
+
+<!-- Edit ADL Modal -->
+<div class="modal fade" id="editAdlModal" tabindex="-1" aria-labelledby="editAdlModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <form action="<?= site_url('adl/update_adl'); ?>" method="POST" id="editAdlForm">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editAdlModalLabel">
+                        <i class="bi bi-pencil-square me-2"></i>Edit ADL Record
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Hidden field to keep track of the original ADL No for WHERE clause -->
+                    <input type="hidden" name="original_adl_no" id="edit_original_adl_no">
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold small">ADL No.</label>
+                        <input type="text" name="adl_no" id="edit_adl_no" class="form-control" oninput="this.value = this.value.toUpperCase();" disabled title="You cannot edit this portion">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold small">ADL Subsidy Cost</label>
+                        <input type="text" name="adl_subsidy" step="0.01" id="edit_adl_subsidy" class="form-control" oninput="this.value = this.value.toUpperCase();" required>
+                    </div>
+
+                     <div class="mb-3">
+                        <label class="form-label fw-semibold small">ADL Admin Cost</label>
+                        <input type="number" step="0.01" name="adl_admin_cost" id="edit_adl_admin_cost" class="form-control" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold small">ADL Date</label>
+                        <input type="date" name="adl_date" id="edit_adl_date" class="form-control" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold small">Date Received</label>
+                        <input type="date" name="date_received" id="edit_date_received" class="form-control" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold small">ADL Benefs</label>
+                        <input type="number" name="adl_benefs" id="edit_adl_benefs" class="form-control" required placeholder="0">
+                    </div>
+
+                   
+                </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" id="updateAdlBtn" class="btn btn-primary px-4">
+                        <i class="bi bi-save me-1"></i> Update Record
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+
 
             <!-- MAF Entry Modal -->
             <div class="modal fade" id="adlMafModal" tabindex="-1" aria-labelledby="adlMafModalLabel" aria-hidden="true">
@@ -463,6 +533,40 @@
             `);
         });
     });
+
+$(document).on('click', '.open-edit-adl-modal', function () {
+    const adlNo = $(this).data('adl-no');
+    
+    $.ajax({
+        url: "<?= site_url('adl/get_adl_details'); ?>", // Proper CI URL generation
+        type: "GET",
+        data: { adl_no: adlNo },
+        dataType: "json",
+        success: function (response) {
+            if (response.status && response.data) {
+                const data = response.data;
+                $('#edit_original_adl_no').val(data.adl_no);
+                $('#edit_adl_no').val(data.adl_no);
+                $('#edit_adl_subsidy').val(data.adl_subsidy);
+                $('#edit_adl_benefs').val(data.target_benefs);
+                $('#edit_adl_date').val(data.adl_date);
+                $('#edit_date_received').val(data.date_received);
+                $('#edit_adl_admin_cost').val(data.adl_admin_cost);
+
+
+                const editModal = new bootstrap.Modal(document.getElementById('editAdlModal'));
+                editModal.show();
+            } else {
+                alert('Record not found in the database.');
+            }
+        },
+        error: function (xhr, status, error) {
+            console.relog ? console.log(xhr.responseText) : console.log(error);
+            alert('AJAX Error: Failed to communicate with the server.');
+        }
+    });
+});
+
     </script>
 </body>
 

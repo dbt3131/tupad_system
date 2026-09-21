@@ -122,8 +122,8 @@
                                <option value="" selected disabled>-- Select or type ADL Number --</option>
                                <?php if (!empty($adl_list)): ?>
                                    <?php foreach ($adl_list as $item): ?>
-                                       <option value="<?= html_escape($item['adl_no']); ?>" data-amount="<?= $item['adl_amount']; ?>">
-                                           <?= html_escape($item['adl_no']); ?> (&#8369;<?= number_format($item['adl_amount'], 2); ?>)
+                                       <option value="<?= html_escape($item['adl_no']); ?>" data-amount="<?= $item['adl_subsidy']; ?>">
+                                           <?= html_escape($item['adl_no']); ?> (&#8369;<?= number_format($item['adl_subsidy'], 2); ?>)
                                        </option>
                                    <?php endforeach; ?>
                                <?php endif; ?>
@@ -140,7 +140,7 @@
                 <div class="row g-3 mb-4">
                     <div class="col-md-4">
                         <div class="card border-0 shadow-sm bg-primary text-white p-3">
-                            <span class="small text-white-50 uppercase fw-semibold">Original ADL Amount</span>
+                            <span class="small text-white-50 uppercase fw-semibold">Total ADL Subsidy Amount</span>
                             <h3 class="fw-bold mb-0 mt-1" id="lblAdlAmount">&#8369;0.00</h3>
                         </div>
                     </div>
@@ -561,7 +561,7 @@
                         
                         if (!provinceCode && !proponentName && !districtNo) {
                             $('#displayAdlNo').text(d.adl_no);
-                            $('#lblAdlAmount').text('₱' + d.adl_amount.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}));
+                            $('#lblAdlAmount').text('₱' + d.adl_subsidy.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}));
                             $('#lblTotalDeductions').text('₱' + d.total_deductions.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}));
                             $('#lblRemainingBalance').text('₱' + d.remaining_balance.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}));
 

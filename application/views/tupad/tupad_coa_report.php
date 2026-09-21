@@ -227,7 +227,7 @@
                                     <td><?= html_escape($row['municipality_name'] ?? ''); ?></td>
                                     <td><?= html_escape($row['target'] ?? ''); ?></td>
                                     <td><?= html_escape($row['no_of_days'] ?? ''); ?></td>
-                                    <td class="text-end fw-medium"><?= !empty($row['adl_amount']) ? number_format((float)$row['adl_amount'], 2) : ''; ?></td>
+                                    <td class="text-end fw-medium"><?= !empty($row['adl_subsidy']) ? number_format((float)$row['adl_subsidy'], 2) : ''; ?></td>
                                     <td><?= !empty($row['ongoing_implementation_start_date']) ? date('d/m/Y', strtotime($row['ongoing_implementation_start_date'])) : ''; ?></td>
                                     <td><?= !empty($row['ongoing_implementation_start_date']) ? date('d/m/Y', strtotime($row['ongoing_implementation_start_date'])) : ''; ?></td>
                                     <td></td>

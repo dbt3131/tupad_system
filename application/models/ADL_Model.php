@@ -43,7 +43,7 @@ class ADL_Model extends CI_Model {
         $this->db->select('
             adl_registry.*, 
             COALESCE(t.total_deductions, 0) as total_deductions,
-            (CAST(adl_registry.adl_amount AS DECIMAL(15,2)) - COALESCE(t.total_deductions, 0)) as balance
+            (CAST(adl_registry.adl_subsidy AS DECIMAL(15,2)) - COALESCE(t.total_deductions, 0)) as balance
         ');
         $this->db->from('adl_registry');
         $this->db->join('(SELECT adl_no, SUM(COALESCE(payout_service_cost,0) + COALESCE(payment_amount,0) + COALESCE(ppes_amount,0) + COALESCE(gsis_enrollment_amount,0)) as total_deductions FROM adl_transactions GROUP BY adl_no) t', 'adl_registry.adl_no = t.adl_no', 'left');
@@ -74,7 +74,7 @@ class ADL_Model extends CI_Model {
 
     // Fetch all ADL numbers for the filter dropdown[cite: 1]
     public function get_all_adl_numbers() {
-        $query = $this->db->select('adl_no, adl_amount')->order_by('adl_no', 'DESC')->get('adl_registry');
+        $query = $this->db->select('adl_no, adl_subsidy')->order_by('adl_no', 'DESC')->get('adl_registry');
         return $query->result_array();
     }
 
@@ -155,14 +155,14 @@ class ADL_Model extends CI_Model {
 
         // Include MAF total amount in total deductions[cite: 3, 4]
         $total_deductions = $total_service_cost + $total_payment + $total_ppes_amount + $total_gsis_amount + $total_maf_amount;
-        $remaining_balance = floatval($adl['adl_amount']) - $total_deductions;
+        $remaining_balance = floatval($adl['adl_subsidy']) - $total_deductions;
 
         return [
             'adl_no'             => $adl['adl_no'],
             'adl_date'           => $adl['adl_date'],
             'date_received'      => $adl['date_received'],
             'target_benefs'      => $adl['target_benefs'],
-            'adl_amount'         => floatval($adl['adl_amount']),
+            'adl_subsidy'         => floatval($adl['adl_subsidy']),
             'transactions'       => $transactions,
             'total_service_cost' => $total_service_cost,
             'total_payment'      => $total_payment,
@@ -181,7 +181,15 @@ class ADL_Model extends CI_Model {
 }
 
 
+// Fetch a single ADL record by its ID/Number
+public function get_adl_by_no($adl_no) {
+    return $this->db->where('adl_no', $adl_no)->get('adl_registry')->row_array();
+}
 
+// Update ADL record data
+public function update_adl($original_adl_no, $data) {
+    return $this->db->where('adl_no', $original_adl_no)->update('adl_registry', $data);
+}
 
 
 
@@ -242,8 +250,9 @@ class ADL_Model extends CI_Model {
     }
 
     public function check_transaction_exists($ref_no) {
-        return $this->db->where('implementation_reference_no', $ref_no)->get('adl_transactions')->num_rows() > 0;
-    }
+    return $this->db->where('implementation_reference_no', $ref_no)
+                    ->count_all_results('adl_transactions') > 0;
+}
 
     public function get_transaction_by_id($id) {
         return $this->db->where('adl_transact_id', $id)->get('adl_transactions')->row_array();

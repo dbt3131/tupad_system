@@ -61,7 +61,7 @@ header("Content-Disposition: attachment; filename=COA_Quarterly_Report_" . date(
                         <td><?= html_escape($row['municipality_name'] ?? ''); ?></td>
                         <td style="text-align: center;"><?= html_escape($row['target'] ?? ''); ?></td>
                         <td style="text-align: center;"><?= html_escape($row['no_of_days'] ?? ''); ?></td>
-                        <td style="text-align: right;"><?= !empty($row['adl_amount']) ? number_format((float)$row['adl_amount'], 2) : ''; ?></td>
+                        <td style="text-align: right;"><?= !empty($row['adl_subsidy']) ? number_format((float)$row['adl_subsidy'], 2) : ''; ?></td>
                         <td style="text-align: center;"><?= !empty($row['ongoing_implementation_start_date']) ? date('d/m/Y', strtotime($row['ongoing_implementation_start_date'])) : ''; ?></td>
                         <td style="text-align: center;"><?= !empty($row['ongoing_implementation_start_date']) ? date('d/m/Y', strtotime($row['ongoing_implementation_start_date'])) : ''; ?></td>
                         <td></td>

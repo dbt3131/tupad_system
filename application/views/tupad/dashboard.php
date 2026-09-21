@@ -230,7 +230,7 @@
                           </span>
                         </td>
                         <td class="fw-medium text-success">
-                          &#8369;<?= number_format($row['adl_amount'], 2); ?>
+                          &#8369;<?= number_format($row['adl_subsidy'], 2); ?>
                         </td>
                         <td class="pe-4 text-end fw-bold text-primary">
                           &#8369;<?= number_format($row['balance'], 2); ?>

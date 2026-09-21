@@ -89,11 +89,11 @@ class ADL extends CI_Controller {
 
             $data = [
                 'adl_no'        => $adl_no,
-                'adl_sponsor'   => strtoupper($this->input->post('adl_sponsor', true)),
+                'adl_subsidy'   => strtoupper($this->input->post('adl_subsidy', true)),
                 'adl_date'      => $this->input->post('adl_date', true),
                 'date_received' => $this->input->post('date_received', true),
-                'target_benefs' => (int) $this->input->post('target_benefs', true), // Explicit typecasting
-                'adl_amount'    => (float) $this->input->post('adl_amount', true), // Explicit typecasting
+                //'target_benefs' => (int) $this->input->post('target_benefs', true), // Explicit typecasting
+                'adl_admin_cost'    => (float) $this->input->post('adl_admin_cost', true), // Explicit typecasting
                 'encoded_by'    => $this->session->userdata('user_id') ?? 'System User',
                 'encoded_date'  => date('Y-m-d H:i:s')
             ];
@@ -670,6 +670,70 @@ public function store_adl_maf() {
     }
     redirect('adl/ADL_encode');
 }
+
+/**
+ * Get ADL Details (AJAX)
+ * Fetches record details for the edit modal.
+ */
+public function get_adl_details() {
+    $adl_no = $this->input->get('adl_no');
+    if ($adl_no) {
+        $adl = $this->ADL_Model->get_adl_by_no($adl_no);
+        echo json_encode(['status' => true, 'data' => $adl]);
+    } else {
+        echo json_encode(['status' => false, 'data' => null]);
+    }
+}
+
+/**
+ * Update ADL Record
+ * Processes the modification of an existing ADL master entry.
+ */
+public function update_adl() {
+    if ($this->input->method() === 'post') {
+        $original_adl_no = $this->input->post('original_adl_no', true);
+        $new_adl_no = trim($this->input->post('adl_no', true));
+
+        // Check if ADL No changed and if the new one already exists
+        if ($original_adl_no !== $new_adl_no && $this->ADL_Model->check_adl_exists($new_adl_no)) {
+            $this->session->set_flashdata('error', 'Update blocked: The new ADL Number already exists.');
+            redirect('adl/ADL_encode');
+            return;
+        }
+
+        $data = [
+            'adl_admin_cost'   => strtoupper($this->input->post('adl_admin_cost', true)),
+            'adl_date'      => $this->input->post('adl_date', true),
+            'target_benefs' => $this->input->post('adl_benefs', true),
+            'date_received' => $this->input->post('date_received', true),
+            'adl_subsidy'    => (float) $this->input->post('adl_subsidy', true)
+        ];
+
+        $update = $this->ADL_Model->update_adl($original_adl_no, $data);
+
+        if ($update) {
+            $this->session->set_flashdata('success', 'ADL record successfully updated!');
+        } else {
+            $this->session->set_flashdata('error', 'Failed to update ADL record.');
+        }
+    }
+    redirect('adl/ADL_encode');
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

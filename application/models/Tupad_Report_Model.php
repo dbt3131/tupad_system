@@ -155,7 +155,7 @@ public function get_coa_report_data($start_date = null, $end_date = null) {
 
     $this->db->select('
         adl_transactions.*,
-        adl_registry.adl_amount,
+        adl_registry.adl_subsidy,
         refprovince.provDesc as province_name,
         refcitymun.citymunDesc as municipality_name
     ');
