@@ -226,8 +226,9 @@
                                         </select>
                                     </div>
                                    <div class="col-md-3">
-                                        <label class="form-label fw-semibold small">Reference No.</label>
-                                        <input type="text" name="implementation_reference_no" id="implementation_reference_no" class="form-control" placeholder="Auto-generated" readonly required>
+                                        <label class="form-label fw-semibold small">Audrey Reference No.</label>
+                                        <input type="text" name="audrey_reference_no" id="audrey_reference_no" oninput="this.value = this.value.toUpperCase();" class="form-control" required>
+                                        <input type="hidden" name="implementation_reference_no" id="implementation_reference_no" class="form-control" placeholder="Auto-generated" readonly required>
                                     </div>
                                     <div class="col-md-2">
                                         <label class="form-label fw-semibold small">Date Coordinated</label>

@@ -177,6 +177,10 @@ function display_val($value, $type = 'text') {
                                 <th>Remarks</th>
                                 <td><?= display_val($transaction['remarks']); ?></td>
                             </tr>
+                                                        <tr>
+                                 <th>Audrey Reference No</th>
+                                <td><?= display_val($transaction['audrey_reference_no']); ?></td>
+                            </tr>
                             <tr>
                                 <th>GPAI Info</th>
                                 <td colspan="3"><?= display_val($transaction['gpai_info']); ?></td>
