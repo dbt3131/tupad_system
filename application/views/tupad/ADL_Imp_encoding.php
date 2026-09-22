@@ -235,15 +235,15 @@
                                     </div>
                                     <div class="col-md-1">
                                         <label class="form-label fw-semibold small"># of Days</label>
-                                        <input type="text" name="no_of_days" class="form-control" placeholder="0" required>
+                                        <input type="text" name="no_of_days" class="form-control" placeholder="0" required autocomplete="OFF">
                                     </div>
                                     <div class="col-md-1">
                                         <label class="form-label fw-semibold small">Benefs</label>
-                                        <input type="text" name="target" class="form-control" placeholder="0" required>
+                                        <input type="text" name="target" class="form-control" placeholder="0" required autocomplete="OFF">
                                     </div>
                                     <div class="col-md-2">
                                         <label class="form-label fw-semibold small">Reformulated Target</label>
-                                        <input type="text" name="reformulated_target" class="form-control" placeholder="0">
+                                        <input type="text" name="reformulated_target" class="form-control" placeholder="0" autocomplete="OFF">
                                     </div>
                                     <div class="col-md-3">
                                         <label class="form-label fw-semibold small">Implementation Province</label>
@@ -287,7 +287,7 @@
                                     </div>
 
                                     <div class="col-md-2">
-                                        <label class="form-label fw-semibold small">Wage Percentage</label>
+                                        <label class="form-label fw-semibold small">Admin Cost %</label>
                                         <select name="wage_percentage" id="wage_percentage" class="form-select" required>
                                             <option value="">Percentage</option>
                                             <option value="2.5">2.5%</option>
@@ -297,27 +297,27 @@
 
                                     <div class="col-md-2">
                                         <label class="form-label fw-semibold small">Subsidy Cost</label>
-                                        <input type="text" name="subsidy_cost" class="form-control" step="0.01" placeholder="Subsidy Cost" required>
+                                        <input type="text" name="subsidy_cost" class="form-control" step="0.01" placeholder="Subsidy Cost" required autocomplete="OFF">
                                     </div>
 
                                     <div class="col-md-2">
                                         <label class="form-label fw-semibold small">Admin Cost</label>
-                                        <input type="number" name="admin_cost" class="form-control" step="0.01" placeholder="Admin" required>
+                                        <input type="number" name="admin_cost" class="form-control" step="0.01" placeholder="Admin" required autocomplete="OFF">
                                     </div>
 
                                     <div class="col-md-3">
-                                        <label class="form-label fw-semibold small">GPAI INFO (Funds)</label>
-                                        <input type="text" name="gpai_info" class="form-control" placeholder="GPAI Funding" required>
+                                        <label class="form-label fw-semibold small">GPAI (Source of Funds)</label>
+                                        <input type="text" name="gpai_info" class="form-control" placeholder="GPAI Funding" required autocomplete="OFF">
                                     </div>
 
                                     <div class="col-md-3">
-                                        <label class="form-label fw-semibold small">WAGE INFO (Funds)</label>
-                                        <input type="text" name="wage_info" class="form-control" placeholder="Wage Funding" required >
+                                        <label class="form-label fw-semibold small">WAGE (Source of Funds)</label>
+                                        <input type="text" name="wage_info" class="form-control" placeholder="Wage Funding" required autocomplete="OFF">
                                     </div>
                                     
                                     <div class="col-md-2">
                                         <label class="form-label fw-semibold small">LGU Classification</label>
-                                        <input type="text" name="implementation_classification" class="form-control" placeholder="LGU Class" required>
+                                        <input type="text" name="implementation_classification" class="form-control" placeholder="LGU Class" autocomplete="OFF" required>
                                     </div>
 
                                     <div class="col-md-3">
@@ -337,12 +337,12 @@
 
                                     <div class="col-md-3">
                                         <label class="form-label fw-semibold small">Sponsor</label>
-                                        <input type="text" name="imp_sponsor" class="form-control" placeholder="Sponsor" required>
+                                        <input type="text" name="imp_sponsor" class="form-control" placeholder="Sponsor" autocomplete="OFF" required>
                                     </div>
 
                                     <div class="col-md-4">
                                         <label class="form-label fw-semibold small">Overall Remarks</label>
-                                        <input type="text" name="remarks" class="form-control" placeholder="Remarks">
+                                        <input type="text" name="remarks" class="form-control" placeholder="Remarks" autocomplete="OFF">
                                     </div>
                                 </div>
                             </div>
@@ -360,7 +360,7 @@
                                     </div>
                                     <div class="col-md-3">
                                         <label class="form-label fw-semibold small">PPES RIS No.</label>
-                                        <input type="text" name="ppes_issuance_ris" class="form-control" placeholder="RIS Number">
+                                        <input type="text" name="ppes_issuance_ris" class="form-control" placeholder="RIS Number" autocomplete="OFF">
                                     </div>
                                     <div class="col-md-3">
                                         <label class="form-label fw-semibold small">PPES Date Issued</label>

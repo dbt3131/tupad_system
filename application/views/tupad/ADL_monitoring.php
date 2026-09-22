@@ -345,7 +345,7 @@
 
                                 <div class="mb-3">
                                     <label class="form-label fw-semibold small">MAF No.</label>
-                                    <input type="text" name="maf_no" class="form-control" placeholder="Enter MAF No." required>
+                                    <input type="text" name="maf_no" class="form-control" placeholder="Enter MAF No."> 
                                 </div>
 
                                 <div class="mb-3">

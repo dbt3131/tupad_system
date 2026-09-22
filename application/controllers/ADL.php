@@ -661,8 +661,12 @@ public function store_adl_maf() {
         ];
 
         $insert = $this->ADL_Model->insert_adl_maf($data);
+        $adl_no = $this->input->post('adl_no', true);
 
         if ($insert) {
+            $this->load->model('Activity_Model');
+                $user_id = $this->session->userdata('user_id');
+                $this->Activity_Model->log_activity($adl_no, $user_id, 8); 
             $this->session->set_flashdata('success', 'MAF record successfully saved!');
         } else {
             $this->session->set_flashdata('error', 'Failed to save MAF record. Please try again.');
