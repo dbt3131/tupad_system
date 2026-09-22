@@ -206,7 +206,20 @@
                                             $gsis_amount = '';
                                         }
 
-                                        // 4. Implemented Column Logic (Evaluated first to check if already implemented)
+                                        // Check Completed Period Condition
+                                        $completed_period = $row['completed_employment_amount'] ?? '';
+                                        $is_completed_valid = (!empty($completed_period) && $completed_period !== '0000-00-00');
+
+                                        // 3. For Payroll Submission Logic (Updated per instructions)
+                                        if ($is_completed_valid) {
+                                            $ppes_beneficiaries = $row['ongoing_implementation_benefs'] ?? 0;
+                                            $ppes_amount = ($ppes_beneficiaries > 0) ? ($ppes_beneficiaries * $no_of_days) * $wage_amount : '';
+                                        } else {
+                                            $ppes_beneficiaries = '';
+                                            $ppes_amount = '';
+                                        }
+
+                                        // 4. Implemented Column Logic (Removed data if For Payroll Submission is active based on completed period)
                                         $raw_payout_date_impl = $row['payout_date'] ?? '';
                                         $is_valid_past_payout = false;
 
@@ -218,7 +231,7 @@
                                             }
                                         }
 
-                                        if ($is_valid_past_payout) {
+                                        if ($is_valid_past_payout && !$is_completed_valid) {
                                             $implemented_beneficiaries = $row['gsis_enrollment_benefs'] ?? '';
                                             $implemented_amount = (!empty($implemented_beneficiaries) && $implemented_beneficiaries > 0) ? ($implemented_beneficiaries * $no_of_days) * $wage_amount : '';
                                             $implemented_payout_date = $raw_payout_date_impl;
@@ -229,11 +242,10 @@
                                         }
 
                                         // 2. FOR IMPLEMENTATION / ON-GOING IMPLEMENTATION 
-                                        // Added '&& !$is_valid_past_payout' so that if it's already implemented, for implementation is removed.
                                         $gsis_date     = $row['gsis_enrollment_date'] ?? '0000-00-00';
                                         $is_gsis_valid = (!empty($gsis_date) && $gsis_date !== '0000-00-00');
 
-                                        if ($is_gsis_valid && !$is_valid_past_payout) {
+                                        if ($is_gsis_valid && !$is_valid_past_payout && !$is_completed_valid) {
                                             $ongoing_start = $row['ongoing_implementation_start_date'] ?? '0000-00-00';
                                             $ongoing_end   = $row['ongoing_implementation_end_date'] ?? '0000-00-00';
 
@@ -256,10 +268,6 @@
                                             $employment_period     = '';
                                             $target_payout         = '';
                                         }
-
-                                        // 3. For Payroll Submission: Force blank
-                                        $ppes_beneficiaries = '';
-                                        $ppes_amount = '';
                                         
                                         // 5. NOT YET IMPLEMENTED Logic
                                         $is_empty_val = function($val) {
@@ -305,9 +313,9 @@
                                             <td class="text-end"><?= ($implemented_amount !== '' && $implemented_amount > 0) ? '&#8369; ' . number_format($implemented_amount, 2) : ''; ?></td>
                                             <td class="text-center"><?= html_escape($implemented_payout_date); ?></td>
                                             
-                                            <!-- FOR PAYROLL SUBMISSION (Blank) -->
-                                            <td class="text-center"><?= $ppes_beneficiaries; ?></td>
-                                            <td class="text-end"><?= $ppes_amount; ?></td>
+                                            <!-- FOR PAYROLL SUBMISSION -->
+                                            <td class="text-center"><?= ($ppes_beneficiaries !== '' && $ppes_beneficiaries > 0) ? number_format($ppes_beneficiaries) : ''; ?></td>
+                                            <td class="text-end"><?= ($ppes_amount !== '' && $ppes_amount > 0) ? '&#8369; ' . number_format($ppes_amount, 2) : ''; ?></td>
                                             
                                             <!-- FOR GSIS ENROLLMENT -->
                                             <td class="text-center"><?= ($gsis_beneficiaries !== '' && $gsis_beneficiaries > 0) ? number_format($gsis_beneficiaries) : ''; ?></td>

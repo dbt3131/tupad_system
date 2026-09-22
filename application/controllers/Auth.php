@@ -29,13 +29,13 @@ class Auth extends CI_Controller
             redirect('users');
         }
         
-        // Personal Details Validation Rules
+
+    // Personal Details Validation Rules
         $this->form_validation->set_rules(
             'reg_empno', 
             'Employee No', 
-            'required|trim|regex_match[/^[0-9-]+$]|is_unique[users.reg_empno]',
+            'required|trim|is_unique[users.reg_empno]',
             array(
-                'regex_match' => 'The %s field can only contain numbers and dashes.',
                 'is_unique'   => 'This %s is already registered.'
             )
         );
@@ -231,7 +231,17 @@ public function login()
     $this->load->view('auth/login', $data);
 }
 
-
+/**
+     * Employee Number Validation Callback
+     * Process: Ensures the Employee No only contains numbers and dashes.
+     */
+    public function check_empno($empno)
+    {
+        if (!preg_match('/^[0-9-]+$/', $empno)) {
+            return FALSE;
+        }
+        return TRUE;
+    }
 
 
 

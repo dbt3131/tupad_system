@@ -214,7 +214,7 @@
                   <label for="reg_empno" class="form-label fw-semibold">Employee No.</label>
                   <div class="input-group">
                     <span class="input-group-text"><i class="bi bi-card-heading"></i></span>
-                    <input type="text" id="reg_empno" name="reg_empno" class="form-control" oninput="this.value = this.value.replace(/[^0-9-]/g, '')" placeholder="e.g. 2026-01234" value="<?= set_value('reg_empno'); ?>" required autofocus>
+                    <input type="text" id="reg_empno" name="reg_empno" class="form-control"  placeholder="e.g. 2026-01234" value="<?= set_value('reg_empno'); ?>" required autofocus>
                   </div>
                 </div>
 
