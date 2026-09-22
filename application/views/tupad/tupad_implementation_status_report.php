@@ -173,27 +173,34 @@
                <tbody>
     <?php if (!empty($report_data)): ?>
         <?php foreach ($report_data as $row): ?>
+            
+            
+            
+            
             <?php 
-            // Check if GSIS enrollment fields have values (not empty and not 0)
-            $has_gsis_data = (!empty($row['gsis_enrollment_date']) && $row['gsis_enrollment_date'] != '0000-00-00') || 
-                             (!empty($row['gsis_enrollment_benefs']) && $row['gsis_enrollment_benefs'] > 0) || 
-                             (!empty($row['gsis_enrollment_female']) && $row['gsis_enrollment_female'] > 0) || 
-                             (!empty($row['gsis_enrollment_amount']) && $row['gsis_enrollment_amount'] > 0);
+// Check if GSIS enrollment fields are truly empty, zero, or default 0000-00-00
+$is_gsis_empty = (empty($row['gsis_enrollment_date']) || $row['gsis_enrollment_date'] == '0000-00-00');
+                 //(empty($row['gsis_enrollment_benefs']) || $row['gsis_enrollment_benefs'] == 0) && 
+                 //(empty($row['gsis_enrollment_amount']) || $row['gsis_enrollment_amount'] == 0 || $row['gsis_enrollment_amount'] == '0');
 
-            if (!$has_gsis_data) {
-                // If GSIS fields are blank or 0, calculate and display the values
-                $gsis_beneficiaries = $row['ppes_count'] ?? 0;
-                $ppes_count  = $row['ppes_count'] ?? 0;
-                $no_of_days  = $row['no_of_days'] ?? 0;
-                $wage_amount = $row['wage_amount'] ?? 600; 
-                
-                $gsis_amount = ($ppes_count * $no_of_days) * $wage_amount;
-            } else {
-                // If GSIS fields contain data (not 0), do not display anything in these columns
-                $gsis_beneficiaries = '';
-                $gsis_amount = '';
-            }
-            ?>
+if ($is_gsis_empty) {
+    // If GSIS fields are empty/zero, calculate and display the values
+    $gsis_beneficiaries = $row['ppes_count'] ?? 0;
+    $ppes_count  = $row['ppes_count'] ?? 0;
+    $no_of_days  = $row['no_of_days'] ?? 0;
+    $wage_amount = $row['wage_amount'] ?? 600; 
+    
+    $gsis_amount = ($ppes_count * $no_of_days) * $wage_amount;
+} else {
+    // If GSIS fields already contain actual data, leave the columns blank
+    $gsis_beneficiaries = '';
+    $gsis_amount = '';
+}
+?>
+
+
+
+
             <tr>
                 <td class="fw-semibold text-center"><?= html_escape($row['adl_no']); ?></td>
                 <td><?= html_escape($row['implementation_reference_no']); ?></td>
@@ -212,8 +219,8 @@
                 <td class="text-center"><?= html_escape($row['ppes_beneficiaries'] ?? ''); ?></td>
                 <td class="text-end"><?= isset($row['ppes_amount']) ? '&#8369; ' . number_format($row['ppes_amount'], 2) : ''; ?></td>
                 <!-- FOR GSIS ENROLLMENT -->
-                <td class="text-center"><?= ($gsis_beneficiaries !== '' && $gsis_beneficiaries > 0) ? number_format($gsis_beneficiaries) : ''; ?></td>
-                <td class="text-end"><?= ($gsis_amount !== '' && $gsis_amount > 0) ? '&#8369; ' . number_format($gsis_amount, 2) : ''; ?></td>
+               <td class="text-center"><?= ($gsis_beneficiaries !== '' && $gsis_beneficiaries > 0) ? number_format($gsis_beneficiaries) : ''; ?></td>
+<td class="text-end"><?= ($gsis_amount !== '' && $gsis_amount > 0) ? '&#8369; ' . number_format($gsis_amount, 2) : ''; ?></td>
                 <!-- ON-GOING IMPLEMENTATION -->
                 <td class="text-center"><?= html_escape($row['ongoing_beneficiaries'] ?? ''); ?></td>
                 <td class="text-end"><?= isset($row['ongoing_amount']) ? '&#8369; ' . number_format($row['ongoing_amount'], 2) : ''; ?></td>
