@@ -588,7 +588,7 @@ public function get_generated_reference_no() {
         };
 
         $headers = [
-            'ADL Number', 'Reference No', 'Province', 'Area / Municipality', 'Barangay', 
+            'ADL Number', 'Reference No', 'Audrey Reference No', 'Province', 'Area / Municipality', 'Barangay', 
             'District', 'Classification', 'Proponent', 'Sponsor', 'Date Coordinated', 
             'Remarks', 'Wage Percentage', 'GPAI Info', 'Wage Info', 
             'Appraisal Date Submitted', 'Appraisal Date Approved', 'PPES Issuance RIS', 
@@ -605,6 +605,7 @@ public function get_generated_reference_no() {
         $row_data = [
             $clean($transaction['adl_no'] ?? ''),
             $clean($transaction['implementation_reference_no'] ?? ''),
+              $clean($transaction['audrey_reference_no'] ?? ''),
             $clean($transaction['implementation_province_name'] ?? ''),
             $clean($transaction['implementation_area_name'] ?? ''),
             $clean($transaction['implementation_brgy_name'] ?? ''),
