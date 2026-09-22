@@ -206,11 +206,34 @@
                                             $gsis_amount = '';
                                         }
 
-                                        // 2. FOR IMPLEMENTATION / ON-GOING IMPLEMENTATION Conditional Logic
+                                        // 4. Implemented Column Logic (Evaluated first to check if already implemented)
+                                        $raw_payout_date_impl = $row['payout_date'] ?? '';
+                                        $is_valid_past_payout = false;
+
+                                        if (!empty($raw_payout_date_impl) && $raw_payout_date_impl !== '0000-00-00') {
+                                            $current_date_obj = new DateTime('now');
+                                            $payout_date_obj = new DateTime($raw_payout_date_impl);
+                                            if ($payout_date_obj <= $current_date_obj) {
+                                                $is_valid_past_payout = true;
+                                            }
+                                        }
+
+                                        if ($is_valid_past_payout) {
+                                            $implemented_beneficiaries = $row['gsis_enrollment_benefs'] ?? '';
+                                            $implemented_amount = (!empty($implemented_beneficiaries) && $implemented_beneficiaries > 0) ? ($implemented_beneficiaries * $no_of_days) * $wage_amount : '';
+                                            $implemented_payout_date = $raw_payout_date_impl;
+                                        } else {
+                                            $implemented_beneficiaries = '';
+                                            $implemented_amount = '';
+                                            $implemented_payout_date = '';
+                                        }
+
+                                        // 2. FOR IMPLEMENTATION / ON-GOING IMPLEMENTATION 
+                                        // Added '&& !$is_valid_past_payout' so that if it's already implemented, for implementation is removed.
                                         $gsis_date     = $row['gsis_enrollment_date'] ?? '0000-00-00';
                                         $is_gsis_valid = (!empty($gsis_date) && $gsis_date !== '0000-00-00');
 
-                                        if ($is_gsis_valid) {
+                                        if ($is_gsis_valid && !$is_valid_past_payout) {
                                             $ongoing_start = $row['ongoing_implementation_start_date'] ?? '0000-00-00';
                                             $ongoing_end   = $row['ongoing_implementation_end_date'] ?? '0000-00-00';
 
@@ -223,8 +246,6 @@
                                             }
 
                                             $ongoing_amount    = ($ongoing_beneficiaries > 0) ? ($ongoing_beneficiaries * $no_of_days) * $wage_amount : '';
-                                            
-                                            // Display orientation employment period and payout date only if GSIS condition is met
                                             $employment_period = $row['orientation_employment_period'] ?? '';
                                             
                                             $raw_payout_date   = $row['payout_date'] ?? '';
@@ -239,9 +260,6 @@
                                         // 3. For Payroll Submission: Force blank
                                         $ppes_beneficiaries = '';
                                         $ppes_amount = '';
-
-                                        // 4. Implemented Payout Date: Force blank
-                                        $payout_date = '';
                                         
                                         // 5. NOT YET IMPLEMENTED Logic
                                         $is_empty_val = function($val) {
@@ -283,9 +301,9 @@
                                             <td class="text-center"><?= html_escape($no_of_days); ?></td>
                                             
                                             <!-- IMPLEMENTED -->
-                                            <td class="text-center"><?= html_escape($row['implemented_beneficiaries'] ?? ''); ?></td>
-                                            <td class="text-end"><?= isset($row['implemented_amount']) ? '&#8369; ' . number_format($row['implemented_amount'], 2) : ''; ?></td>
-                                            <td class="text-center"><?= $payout_date; ?></td>
+                                            <td class="text-center"><?= ($implemented_beneficiaries !== '' && $implemented_beneficiaries > 0) ? number_format($implemented_beneficiaries) : ''; ?></td>
+                                            <td class="text-end"><?= ($implemented_amount !== '' && $implemented_amount > 0) ? '&#8369; ' . number_format($implemented_amount, 2) : ''; ?></td>
+                                            <td class="text-center"><?= html_escape($implemented_payout_date); ?></td>
                                             
                                             <!-- FOR PAYROLL SUBMISSION (Blank) -->
                                             <td class="text-center"><?= $ppes_beneficiaries; ?></td>
@@ -295,7 +313,7 @@
                                             <td class="text-center"><?= ($gsis_beneficiaries !== '' && $gsis_beneficiaries > 0) ? number_format($gsis_beneficiaries) : ''; ?></td>
                                             <td class="text-end"><?= ($gsis_amount !== '' && $gsis_amount > 0) ? '&#8369; ' . number_format($gsis_amount, 2) : ''; ?></td>
                                             
-                                            <!-- FOR IMPLEMENTATION (Displayed only if gsis_enrollment_date is valid) -->
+                                            <!-- FOR IMPLEMENTATION -->
                                             <td class="text-center"><?= ($ongoing_beneficiaries !== '' && $ongoing_beneficiaries > 0) ? number_format($ongoing_beneficiaries) : ''; ?></td>
                                             <td class="text-end"><?= ($ongoing_amount !== '' && $ongoing_amount > 0) ? '&#8369; ' . number_format($ongoing_amount, 2) : ''; ?></td>
                                             <td class="text-center"><?= html_escape($employment_period); ?></td>
