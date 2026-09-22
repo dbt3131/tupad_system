@@ -31,12 +31,33 @@ class ADL extends CI_Controller {
      * ADL Encode View
      * Fetches province options and existing ADL records to load the monitoring view.
      */
-    public function ADL_encode() {
-        $data['provinces'] = $this->ADL_Model->get_provinces();
-        $data['adl_records'] = $this->ADL_Model->get_ADL();
-         $data['offices'] = $this->ADL_Model->get_offices(); // Fetch code_office records
-        $this->load->view('tupad/ADL_monitoring', $data);
+  public function ADL_encode() {
+    $data['provinces'] = $this->ADL_Model->get_provinces();
+    $data['adl_records'] = $this->ADL_Model->get_ADL();
+    $data['offices'] = $this->ADL_Model->get_offices(); 
+
+    // Calculate Grand Totals
+    $grand_subsidy = 0;
+    $grand_admin = 0;
+    $grand_benefs = 0;
+    $grand_balance = 0;
+
+    foreach ($data['adl_records'] as $row) {
+        $grand_subsidy += floatval($row['adl_subsidy']);
+        $grand_admin   += floatval($row['adl_admin_cost']);
+        $grand_benefs  += intval($row['target_benefs'] ?? 0);
+        $grand_balance += floatval($row['balance']);
     }
+
+    $data['totals'] = [
+        'subsidy' => $grand_subsidy,
+        'admin'   => $grand_admin,
+        'benefs'  => $grand_benefs,
+        'balance' => $grand_balance
+    ];
+
+    $this->load->view('tupad/ADL_monitoring', $data);
+}
 
     /**
      * Implementation Encode View

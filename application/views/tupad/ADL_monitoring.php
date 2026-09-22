@@ -208,47 +208,57 @@
                 
                 <div class="card-body">
                     <div class="table-responsive">
-                        <table id="adlTable" class="table table-striped table-hover align-middle w-100">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>ADL No.</th>
-                                    <th>ADL Date</th>
-                                    <th>ADL Subsidy Cost</th>
-                                    <th>ADL Admin Cost</th>
-                                    <th>Date Received</th>
-                                    <th>Target Beneficiaries</th>                                          
-                                    <th>Balance</th>
-                                    <th class="text-center">Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php if (!empty($adl_records)): ?>
-                                    <?php foreach ($adl_records as$row): ?>
-                                        <tr>
-                                            <td class="fw-semibold"><?= html_escape($row['adl_no']); ?></td>
-                                            <td><?= html_escape($row['adl_date']); ?></td>
-                                            <td class="fw-semibold text-success">&#8369;<?= number_format($row['adl_subsidy'], 2); ?></td>  
-                                            <td class="fw-semibold text-success">&#8369;<?= number_format($row['adl_admin_cost'], 2); ?></td>                    
-                                            <td><?= html_escape($row['date_received']); ?></td>
-                                            <td><?= number_format($row['target_benefs']); ?></td>                                       
-                                            <td class="fw-semibold text-primary">&#8369;<?= number_format($row['balance'], 2); ?></td>
-                                            <td class="text-center">
-                                                <button type="button" class="btn btn-sm btn-outline-primary open-maf-modal" 
-                                                    data-adl-no="<?= html_escape($row['adl_no']); ?>"
-                                                    title="Add MAF Record">
-                                                    <i class="bi bi-folder-plus"></i> Add MAF
-                                                </button>
-                                                <button type="button" class="btn btn-sm btn-outline-secondary open-edit-adl-modal" 
-                                                     data-adl-no="<?= html_escape($row['adl_no']); ?>"
-                                                     title="Edit ADL Record">
-                                                     <i class="bi bi-pencil-square"></i> Edit
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    <?php endforeach; ?>
-                                <?php endif; ?>
-                            </tbody>
-                        </table>
+                 <table id="adlTable" class="table table-striped table-hover align-middle w-100">
+    <thead class="table-light">
+        <tr>
+            <th>ADL No.</th>
+            <th>ADL Date</th>
+            <th>ADL Subsidy Cost</th>
+            <th>ADL Admin Cost</th>
+            <th>Date Received</th>
+            <th>Target Beneficiaries</th>                                          
+            <th>Balance</th>
+            <th class="text-center">Action</th>
+        </tr>
+        <!-- Grand Total Row placed at the top inside the table header -->
+        <tr class="table-info fw-bold">
+            <td colspan="2" class="text-end">GRAND TOTAL:</td>
+            <td class="text-success">&#8369;<?= number_format($totals['subsidy'], 2); ?></td>
+            <td class="text-success">&#8369;<?= number_format($totals['admin'], 2); ?></td>
+            <td></td>
+            <td><?= number_format($totals['benefs']); ?></td>
+            <td class="text-primary">&#8369;<?= number_format($totals['balance'], 2); ?></td>
+            <td></td>
+        </tr>
+    </thead>
+    <tbody>
+        <?php if (!empty($adl_records)): ?>
+            <?php foreach ($adl_records as $row): ?>
+                <tr>
+                    <td class="fw-semibold"><?= html_escape($row['adl_no']); ?></td>
+                    <td><?= html_escape($row['adl_date']); ?></td>
+                    <td class="fw-semibold text-success">&#8369;<?= number_format($row['adl_subsidy'], 2); ?></td>  
+                    <td class="fw-semibold text-success">&#8369;<?= number_format($row['adl_admin_cost'], 2); ?></td>                    
+                    <td><?= html_escape($row['date_received']); ?></td>
+                    <td><?= number_format($row['target_benefs']); ?></td>                                       
+                    <td class="fw-semibold text-primary">&#8369;<?= number_format($row['balance'], 2); ?></td>
+                    <td class="text-center">
+                        <button type="button" class="btn btn-sm btn-outline-primary open-maf-modal" 
+                            data-adl-no="<?= html_escape($row['adl_no']); ?>"
+                            title="Add MAF Record">
+                            <i class="bi bi-folder-plus"></i> Add MAF
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary open-edit-adl-modal" 
+                             data-adl-no="<?= html_escape($row['adl_no']); ?>"
+                             title="Edit ADL Record">
+                             <i class="bi bi-pencil-square"></i> Edit
+                        </button>
+                    </td>
+                </tr>
+            <?php endforeach; ?>
+        <?php endif; ?>
+    </tbody>
+</table>
                     </div>
                 </div>
             </div>
