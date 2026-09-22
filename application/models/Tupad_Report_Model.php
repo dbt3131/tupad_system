@@ -220,7 +220,7 @@ public function get_implementation_status_report($start_date = null, $end_date =
         return [];
     }
 
-    // Fetch the wage amount dynamically from the wage_rate table
+    // Fetch the wage amount dynamically from the wage_rate table[cite: 8]
     $wage_query = $this->db->select('wage_amount')
                            ->from('wage_rate')
                            ->order_by('wage_id', 'DESC')
@@ -230,19 +230,7 @@ public function get_implementation_status_report($start_date = null, $end_date =
     $dynamic_wage = $wage_query['wage_amount'] ?? 600;
 
     $this->db->select('
-        adl_transactions.adl_no,
-        adl_transactions.implementation_reference_no,
-        adl_transactions.implementation_sponsor,
-        adl_transactions.implementation_proponent,
-        adl_transactions.implementation_area,
-        adl_transactions.target,
-        adl_transactions.subsidy_cost,
-        adl_transactions.no_of_days,
-        adl_transactions.ppes_count,
-        adl_transactions.gsis_enrollment_date,
-        adl_transactions.gsis_enrollment_benefs,
-        adl_transactions.gsis_enrollment_female,
-        adl_transactions.gsis_enrollment_amount,
+        adl_transactions.*,
         cp.proponent_name as p_name,
         refcitymun.citymunDesc as area_description
     ');
@@ -250,11 +238,6 @@ public function get_implementation_status_report($start_date = null, $end_date =
     $this->db->join('refcitymun', 'refcitymun.cityCode = adl_transactions.implementation_area', 'left');
     $this->db->join('code_proponent cp', 'cp.proponent_id = adl_transactions.implementation_proponent', 'left');
 
-    // Option A: If you want to filter by date_coordinated instead (which has real dates for all 3 rows):
-    // $this->db->where('adl_transactions.date_coordinated >=', $start_date);
-    // $this->db->where('adl_transactions.date_coordinated <=', $end_date);
-
-    // Option B: Keep ongoing_implementation_start_date but include '0000-00-00' or null records
     $this->db->group_start();
         $this->db->where('adl_transactions.encoded_date >=', $start_date);
         $this->db->where('adl_transactions.encoded_date <=', $end_date);
@@ -271,7 +254,6 @@ public function get_implementation_status_report($start_date = null, $end_date =
 
     return $result;
 }
-
 
 
 
