@@ -182,7 +182,32 @@ public function upload_tupad_excel()
         return;
     }
 
-    // Duplicate File Check
+   
+
+// Duplicate reference no check in tbl_tupad_list
+    if (!empty($reference_no) && $this->Tupad_model->reference_no_exists($reference_no)) {
+        @unlink($filePath);  
+        echo json_encode([
+            'status' => 'error', 
+            'message' => 'Upload stopped: The Reference No. "' . $reference_no . '" has already been registered in the database.'
+        ]);
+        return;
+    }
+
+    // ADL Transactions Existence Validation
+    if (!empty($reference_no) && !$this->Tupad_model->check_adl_reference_exists($reference_no)) {
+        @unlink($filePath);  
+        echo json_encode([
+            'status' => 'error', 
+            'message' => 'Upload stopped: The reference no. "' . $reference_no . '" is not yet recorded in the adl implementation record.'
+        ]);
+        return;
+    }
+
+
+
+
+ // Duplicate File Check
     if ($this->Tupad_model->file_exists($originalFileName)) {
         @unlink($filePath);  
         echo json_encode([

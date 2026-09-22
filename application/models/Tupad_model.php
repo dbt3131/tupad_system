@@ -840,7 +840,10 @@ public function reference_no_exists($reference_no) {
         return $this->db->count_all_results($this->table) > 0;
     }
 
-
+public function check_adl_reference_exists($reference_no) {
+    $this->db->where('implementation_reference_no', $reference_no);
+    return $this->db->get('adl_transactions')->num_rows() > 0;
+}
 
 
 
