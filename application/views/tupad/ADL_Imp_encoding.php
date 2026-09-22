@@ -176,7 +176,13 @@
 
             <div class="container-fluid px-0">
                 <div class="form-card p-4 p-md-5">
-                    
+                                                        <!-- Notice container on top of target input fields -->
+<div class="col-12" id="targetNoticeContainer" style="display: none;">
+    <div class="alert alert-danger py-2 px-3 small mb-2 d-flex align-items-center" role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-2 fs-6"></i>
+        <div id="targetNoticeText"></div>
+    </div>
+</div>
                     <form action="<?= site_url('adl/store_transaction'); ?>" method="POST" id="transactionForm">
                         
                         <ul class="nav nav-tabs mb-4" id="encodingTabs" role="tablist">
@@ -227,8 +233,8 @@
                                     </div>
                                    <div class="col-md-3">
                                         <label class="form-label fw-semibold small">Audrey Reference No.</label>
-                                        <input type="text" name="audrey_reference_no" id="audrey_reference_no" oninput="this.value = this.value.toUpperCase();" class="form-control" required>
-                                        <input type="hidden" name="implementation_reference_no" id="implementation_reference_no" class="form-control" placeholder="Auto-generated" readonly required>
+                                        <input type="text" name="audrey_reference_no" id="audrey_reference_no" oninput="this.value = this.value.toUpperCase();" class="form-control" autocomplete='OFF' required>
+                                        <input type="hidden" name="implementation_reference_no" id="implementation_reference_no" class="form-control" placeholder="Auto-generated"  readonly required>
                                     </div>
                                     <div class="col-md-2">
                                         <label class="form-label fw-semibold small">Date Coordinated</label>
@@ -238,6 +244,7 @@
                                         <label class="form-label fw-semibold small"># of Days</label>
                                         <input type="text" name="no_of_days" class="form-control" placeholder="0" required autocomplete="OFF">
                                     </div>
+
                                     <div class="col-md-1">
                                         <label class="form-label fw-semibold small">Benefs</label>
                                         <input type="text" name="target" class="form-control" placeholder="0" required autocomplete="OFF">
@@ -308,12 +315,12 @@
 
                                     <div class="col-md-3">
                                         <label class="form-label fw-semibold small">GPAI (Source of Funds)</label>
-                                        <input type="text" name="gpai_info" class="form-control" placeholder="GPAI Funding" required autocomplete="OFF">
+                                        <input type="text" name="gpai_info" class="form-control" placeholder="GPAI Funding"  autocomplete="OFF">
                                     </div>
 
                                     <div class="col-md-3">
                                         <label class="form-label fw-semibold small">WAGE (Source of Funds)</label>
-                                        <input type="text" name="wage_info" class="form-control" placeholder="Wage Funding" required autocomplete="OFF">
+                                        <input type="text" name="wage_info" class="form-control" placeholder="Wage Funding"  autocomplete="OFF">
                                     </div>
                                     
                                     <div class="col-md-2">
@@ -747,6 +754,56 @@
     $(document).on('change', '#adl_no, #implementation_province, #implementation_area, #implementation_district', function() {
         generateReferenceNo();
     });
+
+
+
+
+    let targetLimitData = { max: 0, encoded: 0, remaining: 0 };
+
+function validateTargetLimit() {
+    const adlNo = $('#adl_no').val();
+    const currentInputTarget = parseFloat($('input[name="target"]').val()) || 0;
+    const $noticeContainer = $('#targetNoticeContainer');
+    const $noticeText = $('#targetNoticeText');
+    const $submitBtn =$('#submitBtn');
+
+    if (!adlNo) {
+        $noticeContainer.hide();
+        return;
+    }
+
+    $.ajax({
+        url: "<?= site_url('adl/check_adl_target_limit'); ?>",
+        type: "GET",
+        data: { adl_no: adlNo },
+        dataType: "json",
+        success: function (response) {
+            if (response.status && response.data) {
+                targetLimitData.max = response.data.max_target;
+                targetLimitData.encoded = response.data.encoded_target;
+                targetLimitData.remaining = response.data.remaining_target;
+
+                if ((targetLimitData.encoded + currentInputTarget) > targetLimitData.max) {
+                    $noticeText.html(`<strong>Exceeded Target Limit!</strong> Max Allowed: <b>${targetLimitData.max}</b> | Already Encoded: <b>${targetLimitData.encoded}</b> | Remaining: <b>${targetLimitData.remaining}</b>. Current input exceeds the allowed limit.`);
+                    $noticeContainer.show();
+                    $submitBtn.prop('disabled', true);
+                } else {
+                    $noticeContainer.hide();
+                    $submitBtn.prop('disabled', false);
+                }
+            }
+        }
+    });
+}
+
+// Trigger validation when ADL selection changes or target input is typed
+$(document).on('change', '#adl_no', function () {
+    validateTargetLimit();
+});
+
+$(document).on('input', 'input[name="target"]', function () {
+    validateTargetLimit();
+});
     </script>
 </body>
 

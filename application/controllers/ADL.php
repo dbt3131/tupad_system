@@ -158,6 +158,17 @@ public function ADL_encode() {
                 return;
             }
 
+            $adl_no = $this->input->post('adl_no', true);
+$target_input = (int) $this->input->post('target', true);
+
+// SERVER-SIDE TARGET LIMIT CHECK
+$target_info = $this->ADL_Model->get_remaining_target_by_adl($adl_no);
+if (($target_info['encoded_target'] + $target_input) > $target_info['max_target']) {
+    $this->session->set_flashdata('error', 'Security Block: Total encoded targets exceed the maximum allowed target beneficiaries (' . $target_info['max_target'] . ') for ADL No: ' . $adl_no);
+    redirect('adl/Implementation_encode');
+    return;
+}
+
             // Helper closure to safely clean and parse decimal/currency inputs with commas
             $clean_amount = function($field) {
                 $val = $this->input->post($field, true);
@@ -768,7 +779,19 @@ public function update_maf() {
     redirect('adl/ADL_encode');
 }
 
-
+/**
+ * Check ADL Target Limit (AJAX)
+ * Returns the maximum target and currently used target for validation.
+ */
+public function check_adl_target_limit() {
+    $adl_no = $this->input->get('adl_no');
+    if ($adl_no) {
+        $result = $this->ADL_Model->get_remaining_target_by_adl($adl_no);
+        echo json_encode(['status' => true, 'data' => $result]);
+    } else {
+        echo json_encode(['status' => false, 'data' => null]);
+    }
+}
 
 
 
