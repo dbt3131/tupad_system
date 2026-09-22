@@ -170,49 +170,70 @@
                         <th>AMOUNT WAGES</th>
                     </tr>
                 </thead>
-                <tbody>
-                    <?php if (!empty($report_data)): ?>
-                        <?php foreach ($report_data as $row): ?>
-                            <tr>
-                                <td class="fw-semibold text-center"><?= html_escape($row['adl_no']); ?></td>
-                                <td><?= html_escape($row['implementation_reference_no']); ?></td>
-                                <td><?= html_escape($row['implementation_sponsor']); ?></td>
-                                <td><?= html_escape($row['p_name']); ?></td>
-                                <td><?= html_escape($row['area_description']); ?></td>
-                                <!-- TARGET -->
-                                <td class="text-center"><?= number_format($row['target'] ?? 0); ?></td>
-                                <td class="text-end">&#8369; <?= number_format($row['subsidy_cost'] ?? 0, 2); ?></td>
-                                <td class="text-center"><?= html_escape($row['no_of_days'] ?? ''); ?></td>
-                                <!-- IMPLEMENTED -->
-                                <td class="text-center"><?= html_escape($row['implemented_beneficiaries'] ?? ''); ?></td>
-                                <td class="text-end"><?= isset($row['implemented_amount']) ? '&#8369; ' . number_format($row['implemented_amount'], 2) : ''; ?></td>
-                                <td class="text-center"><?= html_escape($row['payout_date'] ?? ''); ?></td>
-                                <!-- FOR ISSUANCE PPES -->
-                                <td class="text-center"><?= html_escape($row['ppes_beneficiaries'] ?? ''); ?></td>
-                                <td class="text-end"><?= isset($row['ppes_amount']) ? '&#8369; ' . number_format($row['ppes_amount'], 2) : ''; ?></td>
-                                <!-- FOR GSIS ENROLLMENT -->
-                                <td class="text-center"><?= html_escape($row['gsis_beneficiaries'] ?? ''); ?></td>
-                                <td class="text-end"><?= isset($row['gsis_amount']) ? '&#8369; ' . number_format($row['gsis_amount'], 2) : ''; ?></td>
-                                <!-- ON-GOING IMPLEMENTATION -->
-                                <td class="text-center"><?= html_escape($row['ongoing_beneficiaries'] ?? ''); ?></td>
-                                <td class="text-end"><?= isset($row['ongoing_amount']) ? '&#8369; ' . number_format($row['ongoing_amount'], 2) : ''; ?></td>
-                                <td class="text-center"><?= html_escape($row['employment_period'] ?? ''); ?></td>
-                                <td class="text-center"><?= html_escape($row['target_payout'] ?? ''); ?></td>
-                                <!-- NOT YET IMPLEMENTED -->
-                                <td class="text-center"><?= html_escape($row['not_yet_beneficiaries'] ?? ''); ?></td>
-                                <td class="text-end"><?= isset($row['not_yet_amount']) ? '&#8369; ' . number_format($row['not_yet_amount'], 2) : ''; ?></td>
-                                <!-- REMARKS -->
-                                <td><?= html_escape($row['remarks'] ?? ''); ?></td>
-                            </tr>
-                        <?php endforeach; ?>
-                    <?php else: ?>
-                        <tr>
-                            <td colspan="22" class="text-center text-muted py-4">
-                                <?= (!empty($start_date)) ? 'No records found for the selected date period.' : 'Please select a start and end date to display report records.'; ?>
-                            </td>
-                        </tr>
-                    <?php endif; ?>
-                </tbody>
+               <tbody>
+    <?php if (!empty($report_data)): ?>
+        <?php foreach ($report_data as $row): ?>
+            <?php 
+            // Check if GSIS enrollment fields have values (not empty and not 0)
+            $has_gsis_data = (!empty($row['gsis_enrollment_date']) && $row['gsis_enrollment_date'] != '0000-00-00') || 
+                             (!empty($row['gsis_enrollment_benefs']) && $row['gsis_enrollment_benefs'] > 0) || 
+                             (!empty($row['gsis_enrollment_female']) && $row['gsis_enrollment_female'] > 0) || 
+                             (!empty($row['gsis_enrollment_amount']) && $row['gsis_enrollment_amount'] > 0);
+
+            if (!$has_gsis_data) {
+                // If GSIS fields are blank or 0, calculate and display the values
+                $gsis_beneficiaries = $row['ppes_count'] ?? 0;
+                $ppes_count  = $row['ppes_count'] ?? 0;
+                $no_of_days  = $row['no_of_days'] ?? 0;
+                $wage_amount = $row['wage_amount'] ?? 600; 
+                
+                $gsis_amount = ($ppes_count * $no_of_days) * $wage_amount;
+            } else {
+                // If GSIS fields contain data (not 0), do not display anything in these columns
+                $gsis_beneficiaries = '';
+                $gsis_amount = '';
+            }
+            ?>
+            <tr>
+                <td class="fw-semibold text-center"><?= html_escape($row['adl_no']); ?></td>
+                <td><?= html_escape($row['implementation_reference_no']); ?></td>
+                <td><?= html_escape($row['implementation_sponsor']); ?></td>
+                <td><?= html_escape($row['p_name']); ?></td>
+                <td><?= html_escape($row['area_description']); ?></td>
+                <!-- TARGET -->
+                <td class="text-center"><?= number_format($row['target'] ?? 0); ?></td>
+                <td class="text-end">&#8369; <?= number_format($row['subsidy_cost'] ?? 0, 2); ?></td>
+                <td class="text-center"><?= html_escape($row['no_of_days'] ?? ''); ?></td>
+                <!-- IMPLEMENTED -->
+                <td class="text-center"><?= html_escape($row['implemented_beneficiaries'] ?? ''); ?></td>
+                <td class="text-end"><?= isset($row['implemented_amount']) ? '&#8369; ' . number_format($row['implemented_amount'], 2) : ''; ?></td>
+                <td class="text-center"><?= html_escape($row['payout_date'] ?? ''); ?></td>
+                <!-- FOR PAYROLL SUBMISSION -->
+                <td class="text-center"><?= html_escape($row['ppes_beneficiaries'] ?? ''); ?></td>
+                <td class="text-end"><?= isset($row['ppes_amount']) ? '&#8369; ' . number_format($row['ppes_amount'], 2) : ''; ?></td>
+                <!-- FOR GSIS ENROLLMENT -->
+                <td class="text-center"><?= ($gsis_beneficiaries !== '' && $gsis_beneficiaries > 0) ? number_format($gsis_beneficiaries) : ''; ?></td>
+                <td class="text-end"><?= ($gsis_amount !== '' && $gsis_amount > 0) ? '&#8369; ' . number_format($gsis_amount, 2) : ''; ?></td>
+                <!-- ON-GOING IMPLEMENTATION -->
+                <td class="text-center"><?= html_escape($row['ongoing_beneficiaries'] ?? ''); ?></td>
+                <td class="text-end"><?= isset($row['ongoing_amount']) ? '&#8369; ' . number_format($row['ongoing_amount'], 2) : ''; ?></td>
+                <td class="text-center"><?= html_escape($row['employment_period'] ?? ''); ?></td>
+                <td class="text-center"><?= html_escape($row['target_payout'] ?? ''); ?></td>
+                <!-- NOT YET IMPLEMENTED -->
+                <td class="text-center"><?= html_escape($row['not_yet_beneficiaries'] ?? ''); ?></td>
+                <td class="text-end"><?= isset($row['not_yet_amount']) ? '&#8369; ' . number_format($row['not_yet_amount'], 2) : ''; ?></td>
+                <!-- REMARKS -->
+                <td><?= html_escape($row['remarks'] ?? ''); ?></td>
+            </tr>
+        <?php endforeach; ?>
+    <?php else: ?>
+        <tr>
+            <td colspan="22" class="text-center text-muted py-4">
+                <?= (!empty($start_date)) ? 'No records found for the selected date period.' : 'Please select a start and end date to display report records.'; ?>
+            </td>
+        </tr>
+    <?php endif; ?>
+</tbody>
             </table>
         </div>
     </div>
