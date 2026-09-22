@@ -215,7 +215,35 @@ public function get_user_signature_details($user_id) {
 
 
 
+public function get_implementation_status_report($start_date = null, $end_date = null) {
+    if (empty($start_date) || empty($end_date)) {
+        return [];
+    }
 
+    $this->db->select('
+        adl_transactions.adl_no,
+        adl_transactions.implementation_reference_no,
+        adl_transactions.implementation_sponsor,
+        adl_transactions.implementation_proponent,
+        adl_transactions.implementation_area,
+        adl_transactions.target,
+        adl_transactions.subsidy_cost,
+        adl_transactions.no_of_days,
+        cp.proponent_name as p_name,
+        refcitymun.citymunDesc as area_description
+    ');
+    $this->db->from('adl_transactions');
+    $this->db->join('refcitymun', 'refcitymun.cityCode = adl_transactions.implementation_area', 'left');
+    $this->db->join('code_proponent cp', 'cp.proponent_id = adl_transactions.implementation_proponent', 'left');
+
+
+    // Adjust the date column name if your date filter relies on a different field (e.g., date_coordinated)
+    $this->db->where('adl_transactions.ongoing_implementation_start_date >=', $start_date);
+    $this->db->where('adl_transactions.ongoing_implementation_start_date <=', $end_date);
+
+    $this->db->order_by('adl_transactions.adl_transact_id', 'DESC');
+    return $this->db->get()->result_array();
+}
 
 
 
