@@ -119,20 +119,33 @@
                 </div>
             </div>
 
-            <!-- Filter Form -->
+           <!-- Filter Form -->
             <div class="card shadow-sm mb-4 no-print border-0">
                 <div class="card-body">
                     <form method="get" action="<?= site_url('tupad_report/tupad_implementation_status_report'); ?>" class="row g-3 align-items-end">
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <label for="start_date" class="form-label fw-semibold small">Start Date</label>
                             <input type="date" class="form-control" id="start_date" name="start_date" value="<?= html_escape($start_date ?? ''); ?>" required>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <label for="end_date" class="form-label fw-semibold small">End Date</label>
                             <input type="date" class="form-control" id="end_date" name="end_date" value="<?= html_escape($end_date ?? ''); ?>" required>
                         </div>
-                        <div class="col-md-4 d-flex gap-2">
-                            <button type="submit" class="btn btn-primary w-100"><i class="bi bi-filter me-1"></i> Generate Report</button>
+                        <div class="col-md-3">
+                            <label for="province" class="form-label fw-semibold small">Province</label>
+                            <select class="form-select" id="province" name="province">
+                                <option value="">-- All Provinces --</option>
+                                <?php if (!empty($provinces)): ?>
+                                    <?php foreach ($provinces as $prov): ?>
+                                        <option value="<?= $prov['provCode']; ?>" <?= (isset($selected_province) && $selected_province == $prov['provCode']) ? 'selected' : ''; ?>>
+                                            <?= html_escape($prov['provDesc']); ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
+                            </select>
+                        </div>
+                        <div class="col-md-3 d-flex gap-2">
+                            <button type="submit" class="btn btn-primary w-100"><i class="bi bi-filter me-1"></i> Generate</button>
                             <button type="button" onclick="window.print();" class="btn btn-outline-secondary"><i class="bi bi-printer"></i></button>
                         </div>
                     </form>

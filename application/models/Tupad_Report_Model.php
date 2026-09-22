@@ -215,7 +215,7 @@ public function get_user_signature_details($user_id) {
 
 
 
-public function get_implementation_status_report($start_date = null, $end_date = null) {
+public function get_implementation_status_report($start_date = null, $end_date = null, $province_id = null) {
     if (empty($start_date) || empty($end_date)) {
         return [];
     }
@@ -232,11 +232,18 @@ public function get_implementation_status_report($start_date = null, $end_date =
     $this->db->select('
         adl_transactions.*,
         cp.proponent_name as p_name,
-        refcitymun.citymunDesc as area_description
+        refcitymun.citymunDesc as area_description,
+        refprovince.provDesc as province_name
     ');
     $this->db->from('adl_transactions');
     $this->db->join('refcitymun', 'refcitymun.cityCode = adl_transactions.implementation_area', 'left');
     $this->db->join('code_proponent cp', 'cp.proponent_id = adl_transactions.implementation_proponent', 'left');
+    $this->db->join('refprovince', 'refprovince.provCode = adl_transactions.implementation_province', 'left');
+
+    // Apply province filter if selected
+    if (!empty($province_id)) {
+        $this->db->where('adl_transactions.implementation_province', $province_id);
+    }
 
     $this->db->group_start();
         $this->db->where('adl_transactions.encoded_date >=', $start_date);
@@ -255,6 +262,12 @@ public function get_implementation_status_report($start_date = null, $end_date =
     return $result;
 }
 
+public function get_provinces() {
+    $this->db->select('provCode, provDesc');
+    $this->db->from('refprovince');
+    $this->db->order_by('provDesc', 'ASC');
+    return $this->db->get()->result_array();
+}
 
 
 
