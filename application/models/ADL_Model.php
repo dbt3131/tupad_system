@@ -391,6 +391,19 @@ public function insert_adl_maf($data) {
     return $this->db->insert('adl_maf', $data);
 }
 
-
+// Fetch all MAF records or filter by ADL source
+public function get_adl_maf_records($adl_source = null) {
+    $this->db->select('adl_maf.*, code_office.office_description, users.reg_fname as encoder_name');
+    $this->db->from('adl_maf');
+    $this->db->join('code_office', 'adl_maf.maf_program = code_office.office_id', 'left');
+    $this->db->join('users', 'adl_maf.maf_by = users.id', 'left');
+    
+    if (!empty($adl_source)) {
+        $this->db->where('adl_maf.adl_source', $adl_source);
+    }
+    
+    $this->db->order_by('adl_maf.maf_date', 'DESC');
+    return $this->db->get()->result_array();
+}
 
 }

@@ -31,10 +31,13 @@ class ADL extends CI_Controller {
      * ADL Encode View
      * Fetches province options and existing ADL records to load the monitoring view.
      */
-  public function ADL_encode() {
+public function ADL_encode() {
     $data['provinces'] = $this->ADL_Model->get_provinces();
     $data['adl_records'] = $this->ADL_Model->get_ADL();
     $data['offices'] = $this->ADL_Model->get_offices(); 
+    
+    // Fetch MAF records to pass into the view
+    $data['maf_records'] = $this->ADL_Model->get_adl_maf_records();
 
     // Calculate Grand Totals
     $grand_subsidy = 0;
@@ -746,7 +749,22 @@ public function update_adl() {
 }
 
 
+public function update_maf() {
+    $maf_id = $this->input->post('maf_id');
+    
+    $update_data = [
+        'maf_no' => $this->input->post('maf_no'),
+        'maf_amount' => $this->input->post('maf_amount'),
+        'maf_remarks' => $this->input->post('maf_remarks')
+    ];
 
+    // Call your model to update the database
+    $this->db->where('maf_id', $maf_id);
+    $this->db->update('adl_maf', $update_data);
+
+    // Redirect back to the monitoring page
+    redirect('adl/ADL_encode');
+}
 
 
 

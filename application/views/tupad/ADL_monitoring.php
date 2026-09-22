@@ -263,6 +263,150 @@
                 </div>
             </div>
 
+
+
+
+
+
+
+
+
+
+
+
+<!-- MAF Records Table Card -->
+<div class="card border-0 shadow-sm mt-4">
+    <div class="card-header bg-white py-3">
+        <h5 class="mb-0 fw-bold text-primary">
+            <i class="bi bi-file-earmark-text me-2"></i>Registered MAF Records List
+        </h5>
+    </div>
+    
+    <div class="card-body">
+        <div class="table-responsive">
+ <table id="mafTable" class="table table-striped table-hover align-middle w-100">
+    <thead class="table-light">
+        <tr>
+            <th>MAF No.</th>
+            <th>ADL Source</th>
+            <th>Program / Office</th>
+            <th>Amount</th>
+            <th>Remarks</th>
+            <th>Date Added</th>
+            <th class="text-center">Actions</th> <!-- Added header -->
+        </tr>
+    </thead>
+    <tbody>
+        <?php if (!empty($maf_records)): ?>
+            <?php foreach ($maf_records as $maf): ?>
+                <tr>
+                    <td class="fw-semibold"><?= html_escape($maf['maf_no']); ?></td>
+                    <td><span class="badge bg-secondary"><?= html_escape($maf['adl_source']); ?></span></td>
+                    <td><?= html_escape($maf['office_description'] ?? $maf['maf_program']); ?></td>
+                    <td class="fw-semibold text-success">&#8369;<?= number_format($maf['maf_amount'], 2); ?></td>
+                    <td><?= html_escape($maf['maf_remarks']); ?></td>
+                    <td><?= html_escape($maf['maf_date']); ?></td>
+                    <td class="text-center">
+                        <!-- Edit Button triggering the modal -->
+                        <button type="button" class="btn btn-sm btn-outline-primary edit-maf-btn"
+                            data-id="<?= $maf['maf_id']; ?>"
+                            data-no="<?= html_escape($maf['maf_no']); ?>"
+                            data-amount="<?= html_escape($maf['maf_amount']); ?>"
+                            data-remarks="<?= html_escape($maf['maf_remarks']); ?>"
+                            data-bs-toggle="modal" data-bs-target="#editMafModal">
+                            <i class="bi bi-pencil-square"></i> Edit
+                        </button>
+                    </td>
+                </tr>
+            <?php endforeach; ?>
+        <?php endif; ?>
+    </tbody>
+</table>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+<!-- Edit MAF Modal -->
+<div class="modal fade" id="editMafModal" tabindex="-1" aria-labelledby="editMafModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action="<?= base_url('adl/update_maf'); ?>" method="POST">
+                <div class="modal-header bg-light">
+                    <h5 class="modal-title fw-bold text-primary" id="editMafModalLabel">
+                        <i class="bi bi-pencil-square me-2"></i>Edit MAF Record
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                
+                <div class="modal-body">
+                    <!-- Hidden input for the primary key ID -->
+                    <input type="hidden" name="maf_id" id="edit_maf_id">
+                    
+                    <div class="mb-3">
+                        <label for="edit_maf_no" class="form-label fw-semibold">MAF No.</label>
+                        <input type="text" class="form-control" name="maf_no" id="edit_maf_no" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="edit_maf_amount" class="form-label fw-semibold">Amount</label>
+                        <input type="number" step="0.01" class="form-control" name="maf_amount" id="edit_maf_amount" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="edit_maf_remarks" class="form-label fw-semibold">Remarks</label>
+                        <textarea class="form-control" name="maf_remarks" id="edit_maf_remarks" rows="3"></textarea>
+                    </div>
+                </div>
+                
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
             <!-- Duplicate ADL Warning Modal -->
             <div class="modal fade" id="duplicateAdlModal" tabindex="-1" aria-labelledby="duplicateAdlModalLabel" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered">
@@ -522,6 +666,22 @@
             }
         });
     });
+
+    $(document).ready(function () {
+    // Initialize DataTables
+    $('#mafTable').DataTable({
+        "pageLength": 10,
+        "order": [[5, "desc"]]
+    });
+
+    // Populate Edit Modal on button click
+    $(document).on('click', '.edit-maf-btn', function () {
+        $('#edit_maf_id').val($(this).data('id'));
+        $('#edit_maf_no').val($(this).data('no'));
+        $('#edit_maf_amount').val($(this).data('amount'));
+        $('#edit_maf_remarks').val($(this).data('remarks'));
+    });
+});
     </script>
 </body>
 
