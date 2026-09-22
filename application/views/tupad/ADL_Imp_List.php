@@ -225,20 +225,52 @@
                                                     </td>
 
                                                     <!-- Column 3: Compact Status Pipeline Badges -->
-                                                    <td style="max-width: 320px;">
-                                                        <div class="d-flex flex-wrap gap-1 align-items-center">
-                                                            <?php if ($c1): ?><span class="badge bg-light text-dark border" title="Coordinated"><i class="bi bi-check text-success"></i> Coordinated</span><?php endif; ?>
-                                                            <?php if ($c2): ?><span class="badge bg-light text-dark border" title="Appraisal Submitted"><i class="bi bi-check text-success"></i> Appraisal Sub.</span><?php endif; ?>
-                                                            <?php if ($c3): ?><span class="badge bg-light text-dark border" title="Appraisal Approved"><i class="bi bi-check text-success"></i> Appraisal App.</span><?php endif; ?>
-                                                            <?php if ($c4): ?><span class="badge bg-light text-dark border" title="Issued PPEs"><i class="bi bi-check text-success"></i> PPEs</span><?php endif; ?>
-                                                            <?php if ($c5): ?><span class="badge bg-light text-dark border" title="Oriented"><i class="bi bi-check text-success"></i> Oriented</span><?php endif; ?>
-                                                            <?php if ($c6): ?><span class="badge bg-light text-dark border" title="GSIS Enrolled"><i class="bi bi-check text-success"></i> GSIS</span><?php endif; ?>
-                                                            <?php if ($c7): ?><span class="badge bg-light text-dark border" title="Implemented"><i class="bi bi-check text-success"></i> Implemented</span><?php endif; ?>
-                                                            <?php if ($c8): ?><span class="badge bg-light text-dark border" title="Completed"><i class="bi bi-check text-success"></i> Finished</span><?php endif; ?>
-                                                            <?php if ($c9): ?><span class="badge bg-light text-dark border" title="Funding Processed"><i class="bi bi-check text-success"></i> Funded</span><?php endif; ?>
-                                                            <?php if ($c10): ?><span class="badge bg-light text-dark border" title="For payout"><i class="bi bi-check text-success"></i> Payout</span><?php endif; ?>
-                                                        </div>
-                                                    </td>
+                                                   <!-- Column 3: Compact Status Pipeline Badges -->
+<!-- Column 3: Compact Status Pipeline Badges -->
+<td style="max-width: 320px;">
+    <div class="d-flex flex-wrap gap-1 align-items-center">
+        <!-- Step 1 -->
+        <span class="badge <?= $c1 ? 'bg-success bg-opacity-10 text-success border border-success border-opacity-25' : 'bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25'; ?>" title="Coordinated">
+            <i class="bi <?= $c1 ? 'bi-check text-success' : 'bi-x text-danger'; ?>"></i> Coordinated
+        </span>
+        <!-- Step 2 -->
+        <span class="badge <?= $c2 ? 'bg-success bg-opacity-10 text-success border border-success border-opacity-25' : 'bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25'; ?>" title="Appraisal Submitted">
+            <i class="bi <?= $c2 ? 'bi-check text-success' : 'bi-x text-danger'; ?>"></i> Appraisal Sub.
+        </span>
+        <!-- Step 3 -->
+        <span class="badge <?= $c3 ? 'bg-success bg-opacity-10 text-success border border-success border-opacity-25' : 'bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25'; ?>" title="Appraisal Approved">
+            <i class="bi <?= $c3 ? 'bi-check text-success' : 'bi-x text-danger'; ?>"></i> Appraisal App.
+        </span>
+        <!-- Step 4 -->
+        <span class="badge <?= $c4 ? 'bg-success bg-opacity-10 text-success border border-success border-opacity-25' : 'bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25'; ?>" title="Issued PPEs">
+            <i class="bi <?= $c4 ? 'bi-check text-success' : 'bi-x text-danger'; ?>"></i> PPEs
+        </span>
+        <!-- Step 5 -->
+        <span class="badge <?= $c5 ? 'bg-success bg-opacity-10 text-success border border-success border-opacity-25' : 'bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25'; ?>" title="Oriented">
+            <i class="bi <?= $c5 ? 'bi-check text-success' : 'bi-x text-danger'; ?>"></i> Oriented
+        </span>
+        <!-- Step 6 -->
+        <span class="badge <?= $c6 ? 'bg-success bg-opacity-10 text-success border border-success border-opacity-25' : 'bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25'; ?>" title="GSIS Enrolled">
+            <i class="bi <?= $c6 ? 'bi-check text-success' : 'bi-x text-danger'; ?>"></i> GSIS
+        </span>
+        <!-- Step 7 -->
+        <span class="badge <?= $c7 ? 'bg-success bg-opacity-10 text-success border border-success border-opacity-25' : 'bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25'; ?>" title="Implemented">
+            <i class="bi <?= $c7 ? 'bi-check text-success' : 'bi-x text-danger'; ?>"></i> Implemented
+        </span>
+        <!-- Step 8 -->
+        <span class="badge <?= $c8 ? 'bg-success bg-opacity-10 text-success border border-success border-opacity-25' : 'bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25'; ?>" title="Completed">
+            <i class="bi <?= $c8 ? 'bi-check text-success' : 'bi-x text-danger'; ?>"></i> Finished
+        </span>
+        <!-- Step 9 -->
+        <span class="badge <?= $c9 ? 'bg-success bg-opacity-10 text-success border border-success border-opacity-25' : 'bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25'; ?>" title="Funding Processed">
+            <i class="bi <?= $c9 ? 'bi-check text-success' : 'bi-x text-danger'; ?>"></i> Funded
+        </span>
+        <!-- Step 10 -->
+        <span class="badge <?= $c10 ? 'bg-success bg-opacity-10 text-success border border-success border-opacity-25' : 'bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25'; ?>" title="For payout">
+            <i class="bi <?= $c10 ? 'bi-check text-success' : 'bi-x text-danger'; ?>"></i> Payout
+        </span>
+    </div>
+</td>
 
                                                     <!-- Column 4: Actions -->
                                                     <td class="text-center">
@@ -594,7 +626,7 @@
                                         </div>
                                         <div class="col-md-4">
                                             <label class="form-label fw-semibold small">Service Cost</label>
-                                            <input type="text" id="edit_payout_service_cost" name="payout_service_cost" class="form-control" placeholder="0.00">
+                                            <input type="text" id="edit_payout_service_cost" name="payout_service_cost" class="form-control" placeholder="0.00" readonly>
                                         </div>
                                     </div>
                                 </div>
