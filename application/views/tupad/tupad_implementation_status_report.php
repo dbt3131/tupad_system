@@ -146,11 +146,17 @@
                         </div>
                         <div class="col-md-3 d-flex gap-2">
                             <button type="submit" class="btn btn-primary w-100"><i class="bi bi-filter me-1"></i> Generate</button>
-                            <button type="button" onclick="window.print();" class="btn btn-outline-secondary"><i class="bi bi-printer"></i></button>
+                     <a href="<?= site_url('tupad_report/export_implementation_status_excel?start_date=' . urlencode($start_date ?? '') . '&end_date=' . urlencode($end_date ?? '') . '&province=' . urlencode($selected_province ?? '')); ?>" class="btn btn-success" title="Export Excel"><i class="bi bi-file-earmark-excel"></i></a>
                         </div>
                     </form>
                 </div>
             </div>
+
+           
+                           
+                       
+
+
 
             <!-- Report Results Table -->
             <div class="card shadow-sm border-0">

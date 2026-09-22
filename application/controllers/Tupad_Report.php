@@ -313,7 +313,27 @@ public function tupad_implementation_status_report() {
 }
 
 
+public function export_implementation_status_excel() {
+    $start_date = $this->input->get('start_date');
+    $end_date = $this->input->get('end_date');
+    $province = $this->input->get('province');
 
+    $data['report_data'] = [];
+    if (!empty($start_date) && !empty($end_date)) {
+        $data['report_data'] = $this->Tupad_Report_Model->get_implementation_status_report($start_date, $end_date, $province);
+    }
+
+    $data['start_date'] = $start_date;
+    $data['end_date'] = $end_date;
+
+    $filename = "TUPAD_Implementation_Status_Report_" . date('Y-m-d') . ".xls";
+    header("Content-Type: application/vnd.ms-excel");
+    header("Content-Disposition: attachment; filename=\"$filename\"");
+    header("Pragma: no-cache");
+    header("Expires: 0");
+
+    $this->load->view('tupad/tupad_excel_implementation_status_export', $data);
+}
 
 
 
