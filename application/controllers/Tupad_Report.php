@@ -503,6 +503,11 @@ public function export_excel() {
             $sheet->getStyle('A1:V' . ($row_num - 1))->applyFromArray($borderStyle);
         }
 
+        // --- AUTO-SIZE COLUMNS FOR PROFESSIONAL LOOK ---
+        foreach (range('A', $sheet->getHighestColumn()) as $col) {
+            $sheet->getColumnDimension($col)->setAutoSize(true);
+        }
+
         // Output / Download file
         $filename = 'Tupad_Report_' . date('Y-m-d') . '.xlsx';
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
@@ -513,7 +518,6 @@ public function export_excel() {
         $writer->save('php://output');
         exit;
     }
-
 
 
 
