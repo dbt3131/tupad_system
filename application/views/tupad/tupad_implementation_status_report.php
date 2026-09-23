@@ -132,110 +132,100 @@
                             <input type="date" class="form-control" id="end_date" name="end_date" value="<?= html_escape($end_date ?? ''); ?>" required>
                         </div>
 
-
                         <div class="col-md-3">
-    <label for="province" class="form-label fw-semibold small">Province</label>
-    <select class="form-select" id="province" name="province">
-        <option value="">-- All Provinces --</option>
-        <option value="summary" <?= (isset($selected_province) && $selected_province == 'summary') ? 'selected' : ''; ?>>SUMMARY (Region 3)</option>
-        <?php if (!empty($provinces)): ?>
-            <?php foreach ($provinces as $prov): ?>
-                <option value="<?= $prov['provCode']; ?>" <?= (isset($selected_province) && $selected_province == $prov['provCode']) ? 'selected' : ''; ?>>
-                    <?= html_escape($prov['provDesc']); ?>
-                </option>
-            <?php endforeach; ?>
-        <?php endif; ?>
-    </select>
-</div>
-
-
+                            <label for="province" class="form-label fw-semibold small">Province</label>
+                            <select class="form-select" id="province" name="province">
+                                <option value="">-- All Provinces --</option>
+                                <option value="summary" <?= (isset($selected_province) && $selected_province == 'summary') ? 'selected' : ''; ?>>SUMMARY (Region 3)</option>
+                                <?php if (!empty($provinces)): ?>
+                                    <?php foreach ($provinces as $prov): ?>
+                                        <option value="<?= $prov['provCode']; ?>" <?= (isset($selected_province) && $selected_province == $prov['provCode']) ? 'selected' : ''; ?>>
+                                            <?= html_escape($prov['provDesc']); ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
+                            </select>
+                        </div>
 
                         <div class="col-md-3 d-flex gap-2">
                             <button type="submit" class="btn btn-primary w-100"><i class="bi bi-filter me-1"></i> Generate</button>
-                    <!-- Example PHP/HTML for your Export Button -->
-<a href="<?= site_url('tupad_report/export_excel?start_date=' . $start_date . '&end_date=' . $end_date . '&province=' . ($selected_province ?? '')); ?>" class="btn btn-success">
-    Excel
-</a>
+                            <a href="<?= site_url('tupad_report/export_excel?start_date=' . $start_date . '&end_date=' . $end_date . '&province=' . ($selected_province ?? '')); ?>" class="btn btn-success">
+                                Excel
+                            </a>
                         </div>
                     </form>
                 </div>
             </div>
 
-           
-                           
-                       
-
-
-
             <!-- Report Results Table -->
             <div class="card shadow-sm border-0">
-    <div class="card-body">
-        <div class="table-responsive">
-            <table class="table table-bordered table-striped align-middle text-nowrap" style="font-size: 0.8rem;">
-                <thead class="text-center align-middle">
-                    <?php if (isset($selected_province) && $selected_province === 'summary'): ?>
-                        <!-- SUMMARY HEADERS -->
-                        <tr>
-                            <th rowspan="2" class="th-basic">PROVINCE</th>
-                            <th colspan="3" class="th-target">TARGET</th>
-                            <th colspan="2" class="th-implemented">IMPLEMENTED</th>
-                            <th colspan="2" class="th-payroll">FOR PAYROLL SUBMISSION</th>
-                            <th colspan="2" class="th-gsis">FOR GSIS ENROLLMENT</th>
-                            <th colspan="2" class="th-ongoing">FOR IMPLEMENTATION</th>
-                            <th colspan="2" class="th-notyet">NOT YET IMPLEMENTED</th>
-                        </tr>
-                        <tr>
-                            <th class="th-target">BENEFICIARIES</th>
-                            <th class="th-target">COORDINATED SUBSIDY</th>
-                            <th class="th-target">NO OF WORK DAYS</th>
-                            <th class="th-implemented">BENEFICIARIES</th>
-                            <th class="th-implemented">AMOUNT (WAGES)</th>
-                            <th class="th-payroll">NO OF BENEFICIARIES</th>
-                            <th class="th-payroll">AMOUNT (WAGES)</th>
-                            <th class="th-gsis">NO OF BENEFICIARIES</th>
-                            <th class="th-gsis">AMOUNT (WAGES)</th>
-                            <th class="th-ongoing">NO OF BENEFICIARIES</th>
-                            <th class="th-ongoing">AMOUNT (WAGES)</th>
-                            <th class="th-notyet">NO OF BENEFICIARIES</th>
-                            <th class="th-notyet">AMOUNT WAGES</th>
-                        </tr>
-                    <?php else: ?>
-                        <!-- DEFAULT HEADERS -->
-                        <tr>
-                            <th rowspan="2" class="th-basic">ADL NO</th>
-                            <th rowspan="2" class="th-basic">REFERENCE NO</th>
-                            <th rowspan="2" class="th-basic">SPONSOR</th>
-                            <th rowspan="2" class="th-basic">PROPONENT</th>
-                            <th rowspan="2" class="th-basic">AREA OF IMPLEMENTATION</th>
-                            <th colspan="3" class="th-target">TARGET</th>
-                            <th colspan="3" class="th-implemented">IMPLEMENTED</th>
-                            <th colspan="2" class="th-payroll">FOR PAYROLL SUBMISSION</th>
-                            <th colspan="2" class="th-gsis">FOR GSIS ENROLLMENT</th>
-                            <th colspan="4" class="th-ongoing">FOR IMPLEMENTATION</th>
-                            <th colspan="2" class="th-notyet">NOT YET IMPLEMENTED</th>
-                            <th rowspan="2" class="th-remarks">REMARKS</th>
-                        </tr>
-                        <tr>
-                            <th class="th-target">BENEFICIARIES</th>
-                            <th class="th-target">COORDINATED SUBSIDY</th>
-                            <th class="th-target">NO OF WORK DAYS</th>
-                            <th class="th-implemented">BENEFICIARIES</th>
-                            <th class="th-implemented">AMOUNT (WAGES)</th>
-                            <th class="th-implemented">PAYOUT DATE</th>
-                            <th class="th-payroll">NO OF BENEFICIARIES</th>
-                            <th class="th-payroll">AMOUNT (WAGES)</th>
-                            <th class="th-gsis">NO OF BENEFICIARIES</th>
-                            <th class="th-gsis">AMOUNT (WAGES)</th>
-                            <th class="th-ongoing">NO OF BENEFICIARIES</th>
-                            <th class="th-ongoing">AMOUNT (WAGES)</th>
-                            <th class="th-ongoing">EMPLOYMENT PERIOD</th>
-                            <th class="th-ongoing">TARGET PAYOUT</th>
-                            <th class="th-notyet">NO OF BENEFICIARIES</th>
-                            <th class="th-notyet">AMOUNT WAGES</th>
-                        </tr>
-                    <?php endif; ?>
-                </thead>
-                <tbody>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-striped align-middle text-nowrap" style="font-size: 0.8rem;">
+                            <thead class="text-center align-middle">
+                                <?php if (isset($selected_province) && $selected_province === 'summary'): ?>
+                                    <!-- SUMMARY HEADERS -->
+                                    <tr>
+                                        <th rowspan="2" class="th-basic">PROVINCE</th>
+                                        <th colspan="3" class="th-target">TARGET</th>
+                                        <th colspan="2" class="th-implemented">IMPLEMENTED</th>
+                                        <th colspan="2" class="th-payroll">FOR PAYROLL SUBMISSION</th>
+                                        <th colspan="2" class="th-gsis">FOR GSIS ENROLLMENT</th>
+                                        <th colspan="2" class="th-ongoing">FOR IMPLEMENTATION</th>
+                                        <th colspan="2" class="th-notyet">NOT YET IMPLEMENTED</th>
+                                    </tr>
+                                    <tr>
+                                        <th class="th-target">BENEFICIARIES</th>
+                                        <th class="th-target">COORDINATED SUBSIDY</th>
+                                        <th class="th-target">NO OF WORK DAYS</th>
+                                        <th class="th-implemented">BENEFICIARIES</th>
+                                        <th class="th-implemented">AMOUNT (WAGES)</th>
+                                        <th class="th-payroll">NO OF BENEFICIARIES</th>
+                                        <th class="th-payroll">AMOUNT (WAGES)</th>
+                                        <th class="th-gsis">NO OF BENEFICIARIES</th>
+                                        <th class="th-gsis">AMOUNT (WAGES)</th>
+                                        <th class="th-ongoing">NO OF BENEFICIARIES</th>
+                                        <th class="th-ongoing">AMOUNT (WAGES)</th>
+                                        <th class="th-notyet">NO OF BENEFICIARIES</th>
+                                        <th class="th-notyet">AMOUNT WAGES</th>
+                                    </tr>
+                                <?php else: ?>
+                                    <!-- DEFAULT HEADERS -->
+                                    <tr>
+                                        <th rowspan="2" class="th-basic">ADL NO</th>
+                                        <th rowspan="2" class="th-basic">REFERENCE NO</th>
+                                        <th rowspan="2" class="th-basic">SPONSOR</th>
+                                        <th rowspan="2" class="th-basic">PROPONENT</th>
+                                        <th rowspan="2" class="th-basic">AREA OF IMPLEMENTATION</th>
+                                        <th colspan="3" class="th-target">TARGET</th>
+                                        <th colspan="3" class="th-implemented">IMPLEMENTED</th>
+                                        <th colspan="2" class="th-payroll">FOR PAYROLL SUBMISSION</th>
+                                        <th colspan="2" class="th-gsis">FOR GSIS ENROLLMENT</th>
+                                        <th colspan="4" class="th-ongoing">FOR IMPLEMENTATION</th>
+                                        <th colspan="2" class="th-notyet">NOT YET IMPLEMENTED</th>
+                                        <th rowspan="2" class="th-remarks">REMARKS</th>
+                                    </tr>
+                                    <tr>
+                                        <th class="th-target">BENEFICIARIES</th>
+                                        <th class="th-target">COORDINATED SUBSIDY</th>
+                                        <th class="th-target">NO OF WORK DAYS</th>
+                                        <th class="th-implemented">BENEFICIARIES</th>
+                                        <th class="th-implemented">AMOUNT (WAGES)</th>
+                                        <th class="th-implemented">PAYOUT DATE</th>
+                                        <th class="th-payroll">NO OF BENEFICIARIES</th>
+                                        <th class="th-payroll">AMOUNT (WAGES)</th>
+                                        <th class="th-gsis">NO OF BENEFICIARIES</th>
+                                        <th class="th-gsis">AMOUNT (WAGES)</th>
+                                        <th class="th-ongoing">NO OF BENEFICIARIES</th>
+                                        <th class="th-ongoing">AMOUNT (WAGES)</th>
+                                        <th class="th-ongoing">EMPLOYMENT PERIOD</th>
+                                        <th class="th-ongoing">TARGET PAYOUT</th>
+                                        <th class="th-notyet">NO OF BENEFICIARIES</th>
+                                        <th class="th-notyet">AMOUNT WAGES</th>
+                                    </tr>
+                                <?php endif; ?>
+                            </thead>
+                            <tbody>
                                 <?php if (!empty($report_data)): ?>
                                     <?php 
                                     // If summary mode is active, aggregate rows per province first
@@ -289,26 +279,36 @@
                                             $summary_grouped[$prov_name]['ppes_ben'] += $p_ben;
                                             $summary_grouped[$prov_name]['ppes_amt'] += $p_amt;
 
-                                            // Implemented calculations
-                                            $raw_payout_date_impl = $row['payout_date'] ?? '';
-                                            $is_valid_past_payout = false;
-                                            if (!empty($raw_payout_date_impl) && $raw_payout_date_impl !== '0000-00-00') {
-                                                if (new DateTime($raw_payout_date_impl) <= new DateTime('now')) {
-                                                    $is_valid_past_payout = true;
+                                            // Strict Implemented Check based on ONGOING_IMPLEMENTATION_END_DATE (Summary Loop)
+                                            $ongoing_end_date = $row['ongoing_implementation_end_date'] ?? '';
+                                            $is_expired_end_date = false;
+
+                                            if (!empty($ongoing_end_date) && $ongoing_end_date !== '0000-00-00') {
+                                                $endDateObj = new DateTime($ongoing_end_date);
+                                                $endDateObj->setTime(0, 0, 0);
+                                                
+                                                $todayObj = new DateTime('now');
+                                                $todayObj->setTime(0, 0, 0);
+
+                                                if ($endDateObj <= $todayObj) {
+                                                    $is_expired_end_date = true;
                                                 }
                                             }
-                                            if ($is_valid_past_payout && !$is_completed_valid) {
+
+                                            if ($is_expired_end_date && !$is_completed_valid) {
                                                 $i_ben = $row['gsis_enrollment_benefs'] ?? 0;
                                                 $i_amt = ($i_ben > 0) ? ($i_ben * $no_of_days) * $wage_amount : 0;
                                             } else {
-                                                $i_ben = 0; $i_amt = 0;
+                                                $i_ben = 0; 
+                                                $i_amt = 0;
                                             }
+
                                             $summary_grouped[$prov_name]['impl_ben'] += $i_ben;
                                             $summary_grouped[$prov_name]['impl_amt'] += $i_amt;
 
                                             // Ongoing calculations
                                             $gsis_date = $row['gsis_enrollment_date'] ?? '0000-00-00';
-                                            if (!empty($gsis_date) && $gsis_date !== '0000-00-00' && !$is_valid_past_payout && !$is_completed_valid) {
+                                            if (!empty($gsis_date) && $gsis_date !== '0000-00-00' && !$is_expired_end_date && !$is_completed_valid) {
                                                 $ongoing_start = $row['ongoing_implementation_start_date'] ?? '0000-00-00';
                                                 $ongoing_end   = $row['ongoing_implementation_end_date'] ?? '0000-00-00';
                                                 if ($ongoing_start == '0000-00-00' && $ongoing_end == '0000-00-00') {
@@ -458,15 +458,20 @@
                                             $total_ppes_ben += $p_ben;
                                             $total_ppes_amt += $p_amt;
 
-                                            $raw_payout_date_impl = $row['payout_date'] ?? '';
-                                            $is_valid_past_payout = false;
-                                            if (!empty($raw_payout_date_impl) && $raw_payout_date_impl !== '0000-00-00') {
-                                                if (new DateTime($raw_payout_date_impl) <= new DateTime('now')) {
-                                                    $is_valid_past_payout = true;
+                                            // Strict Implemented Check (Totals calculation pre-loop)
+                                            $ongoing_end_date = $row['ongoing_implementation_end_date'] ?? '';
+                                            $is_expired_end_date = false;
+                                            if (!empty($ongoing_end_date) && $ongoing_end_date !== '0000-00-00') {
+                                                $endDateObj = new DateTime($ongoing_end_date);
+                                                $endDateObj->setTime(0, 0, 0);
+                                                $todayObj = new DateTime('now');
+                                                $todayObj->setTime(0, 0, 0);
+                                                if ($endDateObj <= $todayObj) {
+                                                    $is_expired_end_date = true;
                                                 }
                                             }
 
-                                            if ($is_valid_past_payout && !$is_completed_valid) {
+                                            if ($is_expired_end_date && !$is_completed_valid) {
                                                 $i_ben = $row['gsis_enrollment_benefs'] ?? 0;
                                                 $i_amt = ($i_ben > 0) ? ($i_ben * $no_of_days) * $wage_amount : 0;
                                             } else {
@@ -476,7 +481,7 @@
                                             $total_impl_amt += $i_amt;
 
                                             $gsis_date = $row['gsis_enrollment_date'] ?? '0000-00-00';
-                                            if (!empty($gsis_date) && $gsis_date !== '0000-00-00' && !$is_valid_past_payout && !$is_completed_valid) {
+                                            if (!empty($gsis_date) && $gsis_date !== '0000-00-00' && !$is_expired_end_date && !$is_completed_valid) {
                                                 $ongoing_start = $row['ongoing_implementation_start_date'] ?? '0000-00-00';
                                                 $ongoing_end   = $row['ongoing_implementation_end_date'] ?? '0000-00-00';
                                                 if ($ongoing_start == '0000-00-00' && $ongoing_end == '0000-00-00') {
@@ -568,18 +573,23 @@
                                                 $ppes_amount = '';
                                             }
 
-                                            $raw_payout_date_impl = $row['payout_date'] ?? '';
-                                            $is_valid_past_payout = false;
-                                            if (!empty($raw_payout_date_impl) && $raw_payout_date_impl !== '0000-00-00') {
-                                                if (new DateTime($raw_payout_date_impl) <= new DateTime('now')) {
-                                                    $is_valid_past_payout = true;
+                                            // Strict Implemented Check (Detailed Row Loop)
+                                            $ongoing_end_date = $row['ongoing_implementation_end_date'] ?? '';
+                                            $is_expired_end_date = false;
+                                            if (!empty($ongoing_end_date) && $ongoing_end_date !== '0000-00-00') {
+                                                $endDateObj = new DateTime($ongoing_end_date);
+                                                $endDateObj->setTime(0, 0, 0);
+                                                $todayObj = new DateTime('now');
+                                                $todayObj->setTime(0, 0, 0);
+                                                if ($endDateObj <= $todayObj) {
+                                                    $is_expired_end_date = true;
                                                 }
                                             }
 
-                                            if ($is_valid_past_payout && !$is_completed_valid) {
+                                            if ($is_expired_end_date && !$is_completed_valid) {
                                                 $implemented_beneficiaries = $row['gsis_enrollment_benefs'] ?? '';
                                                 $implemented_amount = (!empty($implemented_beneficiaries) && $implemented_beneficiaries > 0) ? ($implemented_beneficiaries * $no_of_days) * $wage_amount : '';
-                                                $implemented_payout_date = $raw_payout_date_impl;
+                                                $implemented_payout_date = $row['payout_date'] ?? '';
                                             } else {
                                                 $implemented_beneficiaries = '';
                                                 $implemented_amount = '';
@@ -587,7 +597,7 @@
                                             }
 
                                             $gsis_date = $row['gsis_enrollment_date'] ?? '0000-00-00';
-                                            if (!empty($gsis_date) && $gsis_date !== '0000-00-00' && !$is_valid_past_payout && !$is_completed_valid) {
+                                            if (!empty($gsis_date) && $gsis_date !== '0000-00-00' && !$is_expired_end_date && !$is_completed_valid) {
                                                 $ongoing_start = $row['ongoing_implementation_start_date'] ?? '0000-00-00';
                                                 $ongoing_end   = $row['ongoing_implementation_end_date'] ?? '0000-00-00';
                                                 if ($ongoing_start == '0000-00-00' && $ongoing_end == '0000-00-00') {
@@ -663,10 +673,10 @@
                                     </tr>
                                 <?php endif; ?>
                             </tbody>
-            </table>
-        </div>
-    </div>
-</div>
+                        </table>
+                    </div>
+                </div>
+            </div>
         </main>
 
         <footer class="bg-white border-top p-3 text-center text-muted small no-print">
