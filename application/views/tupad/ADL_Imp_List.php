@@ -327,6 +327,13 @@
     </div>
 </div>
 
+<div class="col-12" id="editSubsidyNoticeContainer" style="display: none;">
+    <div class="alert alert-danger py-2 px-3 small mb-2 d-flex align-items-center" role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-2 fs-6"></i>
+        <div id="editSubsidyNoticeText"></div>
+    </div>
+</div>
+
                     <form action="<?= site_url('adl/update_transaction_record'); ?>" method="POST" id="editTransactionForm">
                         <input type="hidden" name="adl_transact_id" id="edit_adl_transact_id">
 
@@ -446,11 +453,11 @@
                                         </div>
                                         <div class="col-md-4">
                                             <label class="form-label fw-semibold small">GPAI INFO (Funds)</label>
-                                            <input type="text" id="edit_gpai_info" name="gpai_info" class="form-control" placeholder="GPAI Funding" required>
+                                            <input type="text" id="edit_gpai_info" name="gpai_info" class="form-control" placeholder="GPAI Funding">
                                         </div>
                                         <div class="col-md-4">
                                             <label class="form-label fw-semibold small">WAGE INFO (Funds)</label>
-                                            <input type="text" id="edit_wage_info" name="wage_info" class="form-control" placeholder="Wage Funding" required>
+                                            <input type="text" id="edit_wage_info" name="wage_info" class="form-control" placeholder="Wage Funding">
                                         </div>
                                         <div class="col-md-4">
                                             <label class="form-label fw-semibold small">LGU Classification</label>
@@ -948,6 +955,52 @@ function validateEditTargetLimit() {
 $(document).on('input', '#target', function () {
     validateEditTargetLimit();
 });
+
+
+let editSubsidyLimitData = { max: 0, encoded: 0, remaining: 0 };
+
+function validateEditSubsidyLimit() {
+    const adlNo = $('#edit_adl_no').val();
+    const transactId = $('#edit_adl_transact_id').val();
+    const currentInputSubsidy = parseFloat($('#edit_subsidy_cost').val().replace(/,/g, '')) || 0;
+    const $noticeContainer = $('#editSubsidyNoticeContainer');
+    const $noticeText = $('#editSubsidyNoticeText');
+    const $saveBtn =$('#editModal').find('button[type="submit"]');
+
+    if (!adlNo || !transactId) {
+        $noticeContainer.hide();
+        return;
+    }
+
+    $.ajax({
+        url: "<?= site_url('adl/check_adl_subsidy_limit_edit'); ?>",
+        type: "GET",
+        data: { adl_no: adlNo, transact_id: transactId },
+        dataType: "json",
+        success: function (response) {
+            if (response.status && response.data) {
+                editSubsidyLimitData.max = response.data.max_subsidy;
+                editSubsidyLimitData.encoded = response.data.encoded_subsidy;
+                editSubsidyLimitData.remaining = response.data.remaining_subsidy;
+
+                if ((editSubsidyLimitData.encoded + currentInputSubsidy) > editSubsidyLimitData.max) {
+                    $noticeText.html(`<strong>Exceeded Subsidy Limit!</strong> Max Allowed: <b>₱${editSubsidyLimitData.max.toLocaleString(undefined, {minimumFractionDigits: 2})}</b> | Other Encoded: <b>₱${editSubsidyLimitData.encoded.toLocaleString(undefined, {minimumFractionDigits: 2})}</b>.`);
+                    $noticeContainer.show();
+                    $saveBtn.prop('disabled', true);
+                } else {
+                    $noticeContainer.hide();
+                    $saveBtn.prop('disabled', false);
+                }
+            }
+        }
+    });
+}
+
+// Trigger validation on input change for subsidy cost
+$(document).on('input', '#edit_subsidy_cost', function () {
+    validateEditSubsidyLimit();
+});
+
     </script>
 </body>
 

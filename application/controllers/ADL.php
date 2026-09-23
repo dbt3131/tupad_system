@@ -833,6 +833,18 @@ public function check_adl_target_limit() {
     }
 }
 
+public function check_adl_target_limit_edit() {
+    $implementation_data = $this->input->get();
+    $adl_no = $this->input->get('adl_no');
+    $transact_id = $this->input->get('transact_id');
+    if ($adl_no && $transact_id) {
+        $result = $this->ADL_Model->get_remaining_target_by_adl_except($adl_no, $transact_id);
+        echo json_encode(['status' => true, 'data' => $result]);
+    } else {
+        echo json_encode(['status' => false, 'data' => null]);
+    }
+}
+
 
 public function check_adl_subsidy_limit() {
     $adl_no = $this->input->get('adl_no');
@@ -844,7 +856,16 @@ public function check_adl_subsidy_limit() {
     }
 }
 
-
+public function check_adl_subsidy_limit_edit() {
+    $adl_no = $this->input->get('adl_no');
+    $transact_id = $this->input->get('transact_id');
+    if ($adl_no && $transact_id) {
+        $result = $this->ADL_Model->get_remaining_subsidy_by_adl_except($adl_no, $transact_id);
+        echo json_encode(['status' => true, 'data' => $result]);
+    } else {
+        echo json_encode(['status' => false, 'data' => null]);
+    }
+}
 
 
 
