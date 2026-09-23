@@ -242,7 +242,7 @@
                                     </div>
                                    <div class="col-md-3">
                                         <label class="form-label fw-semibold small">Audrey Reference No.</label>
-                                        <input type="text" name="audrey_reference_no" id="audrey_reference_no" oninput="this.value = this.value.toUpperCase();" class="form-control" autocomplete='OFF' required>
+                                        <input type="text" name="audrey_reference_no" id="audrey_reference_no" oninput="this.value = this.value.toUpperCase();" placeholder="Manual Reference No" class="form-control" autocomplete='OFF' required>
                                         <input type="hidden" name="implementation_reference_no" id="implementation_reference_no" class="form-control" placeholder="Auto-generated"  readonly required>
                                     </div>
                                     <div class="col-md-2">
@@ -324,12 +324,12 @@
 
                                     <div class="col-md-3">
                                         <label class="form-label fw-semibold small">GPAI (Source of Funds)</label>
-                                        <input type="text" name="gpai_info" class="form-control" placeholder="GPAI Funding"  autocomplete="OFF">
+                                        <input type="text" name="gpai_info" class="form-control" placeholder="GPAI Funding" oninput="this.value = this.value.toUpperCase();"  autocomplete="OFF">
                                     </div>
 
                                     <div class="col-md-3">
                                         <label class="form-label fw-semibold small">WAGE (Source of Funds)</label>
-                                        <input type="text" name="wage_info" class="form-control" placeholder="Wage Funding"  autocomplete="OFF">
+                                        <input type="text" name="wage_info" class="form-control" placeholder="Wage Funding" oninput="this.value = this.value.toUpperCase();"  autocomplete="OFF">
                                     </div>
                                     
                                     <div class="col-md-2">
@@ -354,12 +354,12 @@
 
                                     <div class="col-md-3">
                                         <label class="form-label fw-semibold small">Sponsor</label>
-                                        <input type="text" name="imp_sponsor" class="form-control" placeholder="Sponsor" autocomplete="OFF" required>
+                                        <input type="text" name="imp_sponsor" class="form-control" placeholder="Sponsor" autocomplete="OFF" oninput="this.value = this.value.toUpperCase();" required>
                                     </div>
 
                                     <div class="col-md-4">
                                         <label class="form-label fw-semibold small">Overall Remarks</label>
-                                        <input type="text" name="remarks" class="form-control" placeholder="Remarks" autocomplete="OFF">
+                                        <input type="text" name="remarks" class="form-control" placeholder="Remarks" oninput="this.value = this.value.toUpperCase();" autocomplete="OFF">
                                     </div>
                                 </div>
                             </div>
