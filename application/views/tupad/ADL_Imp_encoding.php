@@ -176,11 +176,20 @@
 
             <div class="container-fluid px-0">
                 <div class="form-card p-4 p-md-5">
-                                                        <!-- Notice container on top of target input fields -->
+
+<!-- Target Notice (You likely already have this) -->
 <div class="col-12" id="targetNoticeContainer" style="display: none;">
     <div class="alert alert-danger py-2 px-3 small mb-2 d-flex align-items-center" role="alert">
         <i class="bi bi-exclamation-triangle-fill me-2 fs-6"></i>
         <div id="targetNoticeText"></div>
+    </div>
+</div>
+
+<!-- Subsidy Notice (Make sure this exists in your view!) -->
+<div class="col-12" id="subsidyNoticeContainer" style="display: none;">
+    <div class="alert alert-danger py-2 px-3 small mb-2 d-flex align-items-center" role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-2 fs-6"></i>
+        <div id="subsidyNoticeText"></div>
     </div>
 </div>
                     <form action="<?= site_url('adl/store_transaction'); ?>" method="POST" id="transactionForm">
@@ -550,9 +559,8 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
-    <script>
-    $(document).ready(function () {
-        $('#adl_no').select2({
+<script>
+    $(document).ready(function () {$('#adl_no').select2({
             theme: 'bootstrap-5',
             placeholder: '-Select or Type ADL-',
             allowClear: true
@@ -560,8 +568,7 @@
 
         $(document).on('click', '#sidebarToggle', function (e) {
             e.preventDefault();
-            if ($(window).width() < 992) {
-                $('#sidebar').toggleClass('show-mobile');
+            if ($(window).width() < 992) {$('#sidebar').toggleClass('show-mobile');
             } else {
                 $('#sidebar').toggleClass('collapsed');
                 $('#main-content').toggleClass('expanded');
@@ -586,8 +593,14 @@
         $('#transactionForm').on('submit', function (e) {
             e.preventDefault();
 
-            const $form = $(this);
-            const $submitBtn = $('#submitBtn');
+            // Prevent submission if either limit is breached
+            if (isTargetExceeded || isSubsidyExceeded) {
+                alert('Please resolve the limit validation errors before submitting.');
+                return;
+            }
+
+            const $form =$(this);
+            const $submitBtn =$('#submitBtn');
             const refNoInput = $('input[name="implementation_reference_no"]').val().trim();
 
             $.ajax({
@@ -601,8 +614,7 @@
                         const duplicateModal = new bootstrap.Modal(document.getElementById('duplicateTransactionModal'));
                         duplicateModal.show();
                     } else {
-                        $submitBtn.prop('disabled', true);
-                        $submitBtn.html(`
+                        $submitBtn.prop('disabled', true);$submitBtn.html(`
                             <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
                             Saving Record...
                         `);
@@ -617,8 +629,8 @@
 
         $(document).on('change', '#implementation_province', function () {
             const provCode = $(this).val();
-            const $cityMunSelect = $('#implementation_area');
-            const $brgySelect = $('#implementation_brgy');
+            const $cityMunSelect =$('#implementation_area');
+            const $brgySelect =$('#implementation_brgy');
 
             $brgySelect.prop('disabled', true).html('<option value="" selected disabled>Select Municipality First</option>');
 
@@ -655,7 +667,7 @@
 
         $(document).on('change', '#implementation_area', function () {
             const citymunCode = $(this).val();
-            const $brgySelect = $('#implementation_brgy');
+            const $brgySelect =$('#implementation_brgy');
 
             if (citymunCode) {
                 $brgySelect.prop('disabled', true).html('<option value="">Loading barangays...</option>');
@@ -686,8 +698,7 @@
         });
     });
 
-    $(document).ready(function() {
-        $('#imp_proponent').select2({
+    $(document).ready(function() {$('#imp_proponent').select2({
             theme: 'bootstrap-5',
             placeholder: '-- Select or type Proponent --',
             allowClear: true
@@ -712,18 +723,9 @@
     $('#completed_benefs').on('input', calculatePayoutServiceCost);
     $('#payout_method').on('change', calculatePayoutServiceCost);
 
-/**
- * Generate Reference Number (AJAX)
- * Automatically builds the reference number using ADL No, auto-incrementing sequence, 
- * province, municipality, and district values.
- */
-
-
-// Automatically generate reference number using dropdown text descriptions
+    // Automatically generate reference number using dropdown text descriptions
     function generateReferenceNo() {
         const adlNo = $('#adl_no').val();
-        
-        // Grab the text (descriptions) instead of the values (codes)
         const province = $('#implementation_province').val() ? $('#implementation_province option:selected').text().trim() : '';
         const municipality = $('#implementation_area').val() ? $('#implementation_area option:selected').text().trim() : '';
         const district = $('#implementation_district').val() ? $('#implementation_district option:selected').text().trim() : '';
@@ -756,54 +758,119 @@
     });
 
 
+    // --- Global Validation State & Management ---
+    let isTargetExceeded = false;
+    let isSubsidyExceeded = false;
 
-
-    let targetLimitData = { max: 0, encoded: 0, remaining: 0 };
-
-function validateTargetLimit() {
-    const adlNo = $('#adl_no').val();
-    const currentInputTarget = parseFloat($('input[name="target"]').val()) || 0;
-    const $noticeContainer = $('#targetNoticeContainer');
-    const $noticeText = $('#targetNoticeText');
-    const $submitBtn =$('#submitBtn');
-
-    if (!adlNo) {
-        $noticeContainer.hide();
-        return;
+    function updateFormSubmitState() {
+        const $submitBtn =$('#submitBtn');
+        if (isTargetExceeded || isSubsidyExceeded) {
+            $submitBtn.prop('disabled', true);
+        } else {
+            $submitBtn.prop('disabled', false);
+        }
     }
 
-    $.ajax({
-        url: "<?= site_url('adl/check_adl_target_limit'); ?>",
-        type: "GET",
-        data: { adl_no: adlNo },
-        dataType: "json",
-        success: function (response) {
-            if (response.status && response.data) {
-                targetLimitData.max = response.data.max_target;
-                targetLimitData.encoded = response.data.encoded_target;
-                targetLimitData.remaining = response.data.remaining_target;
+    // 1. Target Limit Validation
+    let targetLimitData = { max: 0, encoded: 0, remaining: 0 };
 
-                if ((targetLimitData.encoded + currentInputTarget) > targetLimitData.max) {
-                    $noticeText.html(`<strong>Exceeded Target Limit!</strong> Max Allowed: <b>${targetLimitData.max}</b> | Already Encoded: <b>${targetLimitData.encoded}</b> | Remaining: <b>${targetLimitData.remaining}</b>. Current input exceeds the allowed limit.`);
-                    $noticeContainer.show();
-                    $submitBtn.prop('disabled', true);
-                } else {
-                    $noticeContainer.hide();
-                    $submitBtn.prop('disabled', false);
+    function validateTargetLimit() {
+        const adlNo = $('#adl_no').val();
+        const currentInputTarget = parseFloat($('input[name="target"]').val()) || 0;
+        const $noticeContainer = $('#targetNoticeContainer');
+        const $noticeText = $('#targetNoticeText');
+
+        if (!adlNo) {
+            if ($noticeContainer.length) $noticeContainer.hide();
+            isTargetExceeded = false;
+            updateFormSubmitState();
+            return;
+        }
+
+        $.ajax({
+            url: "<?= site_url('adl/check_adl_target_limit'); ?>",
+            type: "GET",
+            data: { adl_no: adlNo },
+            dataType: "json",
+            success: function (response) {
+                if (response.status && response.data) {
+                    targetLimitData.max = response.data.max_target;
+                    targetLimitData.encoded = response.data.encoded_target;
+                    targetLimitData.remaining = response.data.remaining_target;
+
+                    if ((targetLimitData.encoded + currentInputTarget) > targetLimitData.max) {
+                        if ($noticeText.length) {
+                            $noticeText.html(`<strong>Exceeded Target Limit!</strong> Max Allowed: <b>${targetLimitData.max}</b> | Already Encoded: <b>${targetLimitData.encoded}</b> | Remaining: <b>${targetLimitData.remaining}</b>. Current input exceeds the allowed limit.`);
+                        }
+                        if ($noticeContainer.length) $noticeContainer.show();
+                        isTargetExceeded = true;
+                    } else {
+                        if ($noticeContainer.length) $noticeContainer.hide();
+                        isTargetExceeded = false;
+                    }
+                    updateFormSubmitState();
                 }
             }
+        });
+    }
+
+    // 2. Subsidy Cost Limit Validation
+    let subsidyLimitData = { max: 0, encoded: 0, remaining: 0 };
+
+    function validateSubsidyLimit() {
+        const adlNo = $('#adl_no').val();
+        const rawSubsidy = $('input[name="subsidy_cost"]').val() || "0";
+        const currentInputSubsidy = parseFloat(rawSubsidy.toString().replace(/,/g, '')) || 0;
+        const $noticeContainer = $('#subsidyNoticeContainer');
+        const $noticeText = $('#subsidyNoticeText');
+
+        if (!adlNo) {
+            if ($noticeContainer.length) $noticeContainer.hide();
+            isSubsidyExceeded = false;
+            updateFormSubmitState();
+            return;
         }
+
+        $.ajax({
+            url: "<?= site_url('adl/check_adl_subsidy_limit'); ?>",
+            type: "GET",
+            data: { adl_no: adlNo },
+            dataType: "json",
+            success: function (response) {
+                if (response.status && response.data) {
+                    subsidyLimitData.max = response.data.max_subsidy;
+                    subsidyLimitData.encoded = response.data.encoded_subsidy;
+                    subsidyLimitData.remaining = response.data.remaining_subsidy;
+
+                    if ((subsidyLimitData.encoded + currentInputSubsidy) > subsidyLimitData.max) {
+                        if ($noticeText.length) {
+                            $noticeText.html(`<strong>Exceeded Subsidy Limit!</strong> Max Allowed: <b>₱${subsidyLimitData.max.toLocaleString(undefined, {minimumFractionDigits: 2})}</b> | Already Encoded: <b>₱${subsidyLimitData.encoded.toLocaleString(undefined, {minimumFractionDigits: 2})}</b> | Remaining: <b>₱${subsidyLimitData.remaining.toLocaleString(undefined, {minimumFractionDigits: 2})}</b>.`);
+                        }
+                        if ($noticeContainer.length) $noticeContainer.show();
+                        isSubsidyExceeded = true;
+                    } else {
+                        if ($noticeContainer.length) $noticeContainer.hide();
+                        isSubsidyExceeded = false;
+                    }
+                    updateFormSubmitState();
+                }
+            }
+        });
+    }
+
+    // Triggers for both validations
+    $(document).on('change', '#adl_no', function () {
+        validateTargetLimit();
+        validateSubsidyLimit();
     });
-}
 
-// Trigger validation when ADL selection changes or target input is typed
-$(document).on('change', '#adl_no', function () {
-    validateTargetLimit();
-});
+    $(document).on('input', 'input[name="target"]', function () {
+        validateTargetLimit();
+    });
 
-$(document).on('input', 'input[name="target"]', function () {
-    validateTargetLimit();
-});
+    $(document).on('input', 'input[name="subsidy_cost"]', function () {
+        validateSubsidyLimit();
+    });
     </script>
 </body>
 

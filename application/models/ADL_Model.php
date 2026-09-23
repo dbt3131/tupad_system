@@ -445,7 +445,23 @@ public function get_remaining_target_by_adl_except($adl_no, $exclude_transact_id
 }
 
 
+public function get_remaining_subsidy_by_adl($adl_no) {
+    // Get total allowed subsidy from adl_registry[cite: 4]
+    $adl = $this->db->select('adl_subsidy')->where('adl_no', $adl_no)->get('adl_registry')->row_array();
+    $max_subsidy = $adl ? floatval($adl['adl_subsidy']) : 0.00;
 
+    // Get sum of encoded subsidy costs from adl_transactions for this adl_no[cite: 5]
+    $this->db->select_sum('subsidy_cost', 'total_encoded_subsidy');
+    $this->db->where('adl_no', $adl_no);
+    $query = $this->db->get('adl_transactions')->row_array();
+    $encoded_subsidy = $query ? floatval($query['total_encoded_subsidy']) : 0.00;
+
+    return [
+        'max_subsidy' => $max_subsidy,
+        'encoded_subsidy' => $encoded_subsidy,
+        'remaining_subsidy' => max(0, $max_subsidy - $encoded_subsidy)
+    ];
+}
 
 
 

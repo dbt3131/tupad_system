@@ -158,7 +158,25 @@ public function ADL_encode() {
                 return;
             }
 
-            $adl_no = $this->input->post('adl_no', true);
+
+$adl_no = $this->input->post('adl_no', true);
+
+// Clean amount helper closure (already exists in your controller)
+$clean_amount = function($field) {
+    $val = $this->input->post($field, true);
+    return $val !== null && $val !== '' ? (float) str_replace(',', '', $val) : 0.00;
+};
+$subsidy_input = $clean_amount('subsidy_cost');
+
+// SERVER-SIDE SUBSIDY LIMIT CHECK
+$subsidy_info = $this->ADL_Model->get_remaining_subsidy_by_adl($adl_no);
+if (($subsidy_info['encoded_subsidy'] + $subsidy_input) > $subsidy_info['max_subsidy']) {
+    $this->session->set_flashdata('error', 'Security Block: Total encoded subsidy costs exceed the maximum allowed subsidy amount (' . number_format($subsidy_info['max_subsidy'], 2) . ') for ADL No: ' . $adl_no);
+    redirect('adl/Implementation_encode');
+    return;
+}
+
+$adl_no = $this->input->post('adl_no', true);
 $target_input = (int) $this->input->post('target', true);
 
 // SERVER-SIDE TARGET LIMIT CHECK
@@ -816,11 +834,10 @@ public function check_adl_target_limit() {
 }
 
 
-public function check_adl_target_limit_edit() {
+public function check_adl_subsidy_limit() {
     $adl_no = $this->input->get('adl_no');
-    $transact_id = $this->input->get('transact_id');
-    if ($adl_no && $transact_id) {
-        $result = $this->ADL_Model->get_remaining_target_by_adl_except($adl_no, $transact_id);
+    if ($adl_no) {
+        $result = $this->ADL_Model->get_remaining_subsidy_by_adl($adl_no);
         echo json_encode(['status' => true, 'data' => $result]);
     } else {
         echo json_encode(['status' => false, 'data' => null]);
