@@ -220,7 +220,7 @@ public function get_implementation_status_report($start_date = null, $end_date =
         return [];
     }
 
-    // Fetch the wage amount dynamically from the wage_rate table[cite: 8]
+    // Fetch the wage amount dynamically from the wage_rate table
     $wage_query = $this->db->select('wage_amount')
                            ->from('wage_rate')
                            ->order_by('wage_id', 'DESC')
@@ -245,9 +245,10 @@ public function get_implementation_status_report($start_date = null, $end_date =
         $this->db->where('adl_transactions.implementation_province', $province_id);
     }
 
+    // Use DATE() to ignore the time component during comparison
     $this->db->group_start();
-        $this->db->where('adl_transactions.encoded_date >=', $start_date);
-        $this->db->where('adl_transactions.encoded_date <=', $end_date);
+        $this->db->where('DATE(adl_transactions.encoded_date) >=', $start_date);
+        $this->db->where('DATE(adl_transactions.encoded_date) <=', $end_date);
         $this->db->or_where('adl_transactions.encoded_date', '0000-00-00');
         $this->db->or_where('adl_transactions.encoded_date IS NULL');
     $this->db->group_end();
@@ -261,6 +262,9 @@ public function get_implementation_status_report($start_date = null, $end_date =
 
     return $result;
 }
+
+
+
 
 public function get_provinces() {
     $this->db->select('provCode, provDesc');
