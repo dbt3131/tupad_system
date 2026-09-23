@@ -1870,6 +1870,9 @@ public function export_gsis_sequences_excel()
         $sheet->setCellValue("A1", "No records found for the selected date range.");
     }
 
+    $this->load->model('Activity_Model');
+                $user_id = $this->session->userdata('user_id');
+                $this->Activity_Model->log_activity($reference_no, $user_id, 11); 
     // Column Widths
     $sheet->getColumnDimension('A')->setWidth(10);
     $sheet->getColumnDimension('B')->setWidth(55);
