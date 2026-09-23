@@ -137,7 +137,7 @@
     <label for="province" class="form-label fw-semibold small">Province</label>
     <select class="form-select" id="province" name="province">
         <option value="">-- All Provinces --</option>
-        <option value="summary" <?= (isset($selected_province) && $selected_province == 'summary') ? 'selected' : ''; ?>>-- SUMMARY (Per Province Only) --</option>
+        <option value="summary" <?= (isset($selected_province) && $selected_province == 'summary') ? 'selected' : ''; ?>>SUMMARY (Region 3)</option>
         <?php if (!empty($provinces)): ?>
             <?php foreach ($provinces as $prov): ?>
                 <option value="<?= $prov['provCode']; ?>" <?= (isset($selected_province) && $selected_province == $prov['provCode']) ? 'selected' : ''; ?>>
@@ -152,7 +152,10 @@
 
                         <div class="col-md-3 d-flex gap-2">
                             <button type="submit" class="btn btn-primary w-100"><i class="bi bi-filter me-1"></i> Generate</button>
-                     <a href="<?= site_url('tupad_report/export_implementation_status_excel?start_date=' . urlencode($start_date ?? '') . '&end_date=' . urlencode($end_date ?? '') . '&province=' . urlencode($selected_province ?? '')); ?>" class="btn btn-success" title="Export Excel"><i class="bi bi-file-earmark-excel"></i></a>
+                    <!-- Example PHP/HTML for your Export Button -->
+<a href="<?= site_url('tupad_report/export_excel?start_date=' . $start_date . '&end_date=' . $end_date . '&province=' . ($selected_province ?? '')); ?>" class="btn btn-success">
+    Export to Excel
+</a>
                         </div>
                     </form>
                 </div>
@@ -233,394 +236,433 @@
                     <?php endif; ?>
                 </thead>
                 <tbody>
-                    <?php if (!empty($report_data)): ?>
-                        <?php 
-                        // If summary mode is active, aggregate rows per province first
-                        if (isset($selected_province) && $selected_province === 'summary') {
-                            $summary_grouped = [];
+                                <?php if (!empty($report_data)): ?>
+                                    <?php 
+                                    // If summary mode is active, aggregate rows per province first
+                                    if (isset($selected_province) && $selected_province === 'summary') {
+                                        $summary_grouped = [];
 
-                            foreach ($report_data as $row) {
-                                $prov_name = !empty($row['province_name']) ? $row['province_name'] : 'UNKNOWN PROVINCE';
-                                
-                                if (!isset($summary_grouped[$prov_name])) {
-                                    $summary_grouped[$prov_name] = [
-                                        'target_ben' => 0, 'target_subsidy' => 0, 'work_days' => 0,
-                                        'impl_ben' => 0, 'impl_amt' => 0,
-                                        'ppes_ben' => 0, 'ppes_amt' => 0,
-                                        'gsis_ben' => 0, 'gsis_amt' => 0,
-                                        'ongoing_ben' => 0, 'ongoing_amt' => 0,
-                                        'not_yet_ben' => 0, 'not_yet_amt' => 0,
-                                        'count' => 0
-                                    ];
-                                }
+                                        foreach ($report_data as $row) {
+                                            $prov_name = !empty($row['province_name']) ? $row['province_name'] : 'UNKNOWN PROVINCE';
+                                            
+                                            if (!isset($summary_grouped[$prov_name])) {
+                                                $summary_grouped[$prov_name] = [
+                                                    'target_ben' => 0, 'target_subsidy' => 0, 'work_days' => 0,
+                                                    'impl_ben' => 0, 'impl_amt' => 0,
+                                                    'ppes_ben' => 0, 'ppes_amt' => 0,
+                                                    'gsis_ben' => 0, 'gsis_amt' => 0,
+                                                    'ongoing_ben' => 0, 'ongoing_amt' => 0,
+                                                    'not_yet_ben' => 0, 'not_yet_amt' => 0,
+                                                    'count' => 0
+                                                ];
+                                            }
 
-                                $no_of_days  = $row['no_of_days'] ?? 0;
-                                $wage_amount = $row['wage_amount'] ?? 0;
-                                $target      = $row['target'] ?? 0;
+                                            $no_of_days  = $row['no_of_days'] ?? 0;
+                                            $wage_amount = $row['wage_amount'] ?? 0;
+                                            $target      = $row['target'] ?? 0;
 
-                                $summary_grouped[$prov_name]['target_ben'] += $target;
-                                $summary_grouped[$prov_name]['target_subsidy'] += ($row['subsidy_cost'] ?? 0);
-                                $summary_grouped[$prov_name]['work_days'] += $no_of_days;
+                                            $summary_grouped[$prov_name]['target_ben'] += $target;
+                                            $summary_grouped[$prov_name]['target_subsidy'] += ($row['subsidy_cost'] ?? 0);
+                                            $summary_grouped[$prov_name]['work_days'] += $no_of_days;
 
-                                // GSIS calculations
-                                $is_gsis_empty = (empty($row['gsis_enrollment_date']) || $row['gsis_enrollment_date'] == '0000-00-00');
-                                $is_ppe_empty  = (empty($row['ppes_date_issued']) || $row['ppes_date_issued'] == '0000-00-00');
-                                if ($is_gsis_empty && !$is_ppe_empty) {
-                                    $g_ben = $row['ppes_count'] ?? 0;
-                                    $g_amt = ($g_ben * $no_of_days) * $wage_amount;
-                                } else {
-                                    $g_ben = 0; $g_amt = 0;
-                                }
-                                $summary_grouped[$prov_name]['gsis_ben'] += $g_ben;
-                                $summary_grouped[$prov_name]['gsis_amt'] += $g_amt;
+                                            // GSIS calculations
+                                            $is_gsis_empty = (empty($row['gsis_enrollment_date']) || $row['gsis_enrollment_date'] == '0000-00-00');
+                                            $is_ppe_empty  = (empty($row['ppes_date_issued']) || $row['ppes_date_issued'] == '0000-00-00');
+                                            if ($is_gsis_empty && !$is_ppe_empty) {
+                                                $g_ben = $row['ppes_count'] ?? 0;
+                                                $g_amt = ($g_ben * $no_of_days) * $wage_amount;
+                                            } else {
+                                                $g_ben = 0; $g_amt = 0;
+                                            }
+                                            $summary_grouped[$prov_name]['gsis_ben'] += $g_ben;
+                                            $summary_grouped[$prov_name]['gsis_amt'] += $g_amt;
 
-                                // Payroll/Completed calculations
-                                $completed_period = $row['completed_employment_amount'] ?? '';
-                                $is_completed_valid = (!empty($completed_period) && $completed_period !== '0000-00-00');
-                                if ($is_completed_valid) {
-                                    $p_ben = $row['ongoing_implementation_benefs'] ?? 0;
-                                    $p_amt = ($p_ben > 0) ? ($p_ben * $no_of_days) * $wage_amount : 0;
-                                } else {
-                                    $p_ben = 0; $p_amt = 0;
-                                }
-                                $summary_grouped[$prov_name]['ppes_ben'] += $p_ben;
-                                $summary_grouped[$prov_name]['ppes_amt'] += $p_amt;
+                                            // Payroll/Completed calculations
+                                            $completed_period = $row['completed_employment_amount'] ?? '';
+                                            $is_completed_valid = (!empty($completed_period) && $completed_period !== '0000-00-00');
+                                            if ($is_completed_valid) {
+                                                $p_ben = $row['ongoing_implementation_benefs'] ?? 0;
+                                                $p_amt = ($p_ben > 0) ? ($p_ben * $no_of_days) * $wage_amount : 0;
+                                            } else {
+                                                $p_ben = 0; $p_amt = 0;
+                                            }
+                                            $summary_grouped[$prov_name]['ppes_ben'] += $p_ben;
+                                            $summary_grouped[$prov_name]['ppes_amt'] += $p_amt;
 
-                                // Implemented calculations
-                                $raw_payout_date_impl = $row['payout_date'] ?? '';
-                                $is_valid_past_payout = false;
-                                if (!empty($raw_payout_date_impl) && $raw_payout_date_impl !== '0000-00-00') {
-                                    if (new DateTime($raw_payout_date_impl) <= new DateTime('now')) {
-                                        $is_valid_past_payout = true;
-                                    }
-                                }
-                                if ($is_valid_past_payout && !$is_completed_valid) {
-                                    $i_ben = $row['gsis_enrollment_benefs'] ?? 0;
-                                    $i_amt = ($i_ben > 0) ? ($i_ben * $no_of_days) * $wage_amount : 0;
-                                } else {
-                                    $i_ben = 0; $i_amt = 0;
-                                }
-                                $summary_grouped[$prov_name]['impl_ben'] += $i_ben;
-                                $summary_grouped[$prov_name]['impl_amt'] += $i_amt;
+                                            // Implemented calculations
+                                            $raw_payout_date_impl = $row['payout_date'] ?? '';
+                                            $is_valid_past_payout = false;
+                                            if (!empty($raw_payout_date_impl) && $raw_payout_date_impl !== '0000-00-00') {
+                                                if (new DateTime($raw_payout_date_impl) <= new DateTime('now')) {
+                                                    $is_valid_past_payout = true;
+                                                }
+                                            }
+                                            if ($is_valid_past_payout && !$is_completed_valid) {
+                                                $i_ben = $row['gsis_enrollment_benefs'] ?? 0;
+                                                $i_amt = ($i_ben > 0) ? ($i_ben * $no_of_days) * $wage_amount : 0;
+                                            } else {
+                                                $i_ben = 0; $i_amt = 0;
+                                            }
+                                            $summary_grouped[$prov_name]['impl_ben'] += $i_ben;
+                                            $summary_grouped[$prov_name]['impl_amt'] += $i_amt;
 
-                                // Ongoing calculations
-                                $gsis_date = $row['gsis_enrollment_date'] ?? '0000-00-00';
-                                if (!empty($gsis_date) && $gsis_date !== '0000-00-00' && !$is_valid_past_payout && !$is_completed_valid) {
-                                    $ongoing_start = $row['ongoing_implementation_start_date'] ?? '0000-00-00';
-                                    $ongoing_end   = $row['ongoing_implementation_end_date'] ?? '0000-00-00';
-                                    if ($ongoing_start == '0000-00-00' && $ongoing_end == '0000-00-00') {
-                                        $o_ben = $row['gsis_enrollment_benefs'] ?? 0;
-                                    } else {
-                                        $o_ben = $row['ongoing_implementation_benefs'] ?? 0;
-                                    }
-                                    $o_amt = ($o_ben > 0) ? ($o_ben * $no_of_days) * $wage_amount : 0;
-                                } else {
-                                    $o_ben = 0; $o_amt = 0;
-                                }
-                                $summary_grouped[$prov_name]['ongoing_ben'] += $o_ben;
-                                $summary_grouped[$prov_name]['ongoing_amt'] += $o_amt;
+                                            // Ongoing calculations
+                                            $gsis_date = $row['gsis_enrollment_date'] ?? '0000-00-00';
+                                            if (!empty($gsis_date) && $gsis_date !== '0000-00-00' && !$is_valid_past_payout && !$is_completed_valid) {
+                                                $ongoing_start = $row['ongoing_implementation_start_date'] ?? '0000-00-00';
+                                                $ongoing_end   = $row['ongoing_implementation_end_date'] ?? '0000-00-00';
+                                                if ($ongoing_start == '0000-00-00' && $ongoing_end == '0000-00-00') {
+                                                    $o_ben = $row['gsis_enrollment_benefs'] ?? 0;
+                                                } else {
+                                                    $o_ben = $row['ongoing_implementation_benefs'] ?? 0;
+                                                }
+                                                $o_amt = ($o_ben > 0) ? ($o_ben * $no_of_days) * $wage_amount : 0;
+                                            } else {
+                                                $o_ben = 0; $o_amt = 0;
+                                            }
+                                            $summary_grouped[$prov_name]['ongoing_ben'] += $o_ben;
+                                            $summary_grouped[$prov_name]['ongoing_amt'] += $o_amt;
 
-                                // Not yet implemented calculations
-                                $is_empty_val = function($val) {
-                                    return empty($val) || $val === '0000-00-00' || $val === '0.00' || $val == 0;
-                                };
-                                $is_all_empty = (
-                                    $is_empty_val($row['ppes_date_issued'] ?? '') &&
-                                    $is_empty_val($row['orientation_date'] ?? '') &&
-                                    $is_empty_val($row['gsis_enrollment_date'] ?? '') &&
-                                    $is_empty_val($row['ongoing_implementation_start_date'] ?? '') &&
-                                    $is_empty_val($row['ongoing_implementation_end_date'] ?? '') &&
-                                    $is_empty_val($row['completed_employment_amount'] ?? '') &&
-                                    $is_empty_val($row['payout_amount'] ?? '') &&
-                                    $is_empty_val($row['payout_date'] ?? '')
-                                );
-                                if ($is_all_empty) {
-                                    $n_ben = $target;
-                                    $n_amt = ($target * $no_of_days) * $wage_amount;
-                                } else {
-                                    $n_ben = $row['not_yet_beneficiaries'] ?? 0;
-                                    $n_amt = $row['not_yet_amount'] ?? 0;
-                                }
-                                $summary_grouped[$prov_name]['not_yet_ben'] += $n_ben;
-                                $summary_grouped[$prov_name]['not_yet_amt'] += $n_amt;
-                                $summary_grouped[$prov_name]['count']++;
-                            }
+                                            // Not yet implemented calculations
+                                            $is_empty_val = function($val) {
+                                                return empty($val) || $val === '0000-00-00' || $val === '0.00' || $val == 0;
+                                            };
+                                            $is_all_empty = (
+                                                $is_empty_val($row['ppes_date_issued'] ?? '') &&
+                                                $is_empty_val($row['orientation_date'] ?? '') &&
+                                                $is_empty_val($row['gsis_enrollment_date'] ?? '') &&
+                                                $is_empty_val($row['ongoing_implementation_start_date'] ?? '') &&
+                                                $is_empty_val($row['ongoing_implementation_end_date'] ?? '') &&
+                                                $is_empty_val($row['completed_employment_amount'] ?? '') &&
+                                                $is_empty_val($row['payout_amount'] ?? '') &&
+                                                $is_empty_val($row['payout_date'] ?? '')
+                                            );
+                                            if ($is_all_empty) {
+                                                $n_ben = $target;
+                                                $n_amt = ($target * $no_of_days) * $wage_amount;
+                                            } else {
+                                                $n_ben = $row['not_yet_beneficiaries'] ?? 0;
+                                                $n_amt = $row['not_yet_amount'] ?? 0;
+                                            }
+                                            $summary_grouped[$prov_name]['not_yet_ben'] += $n_ben;
+                                            $summary_grouped[$prov_name]['not_yet_amt'] += $n_amt;
+                                            $summary_grouped[$prov_name]['count']++;
+                                        }
 
-                            // Render rows per province
-                            foreach ($summary_grouped as $prov_name => $s):
-                            ?>
-                                <tr>
-                                    <td class="fw-semibold"><?= html_escape($prov_name); ?></td>
-                                    <!-- TARGET -->
-                                    <td class="text-center"><?= number_format($s['target_ben']); ?></td>
-                                    <td class="text-end">&#8369; <?= number_format($s['target_subsidy'], 2); ?></td>
-                                    <td class="text-center"><?= number_format($s['work_days']); ?></td>
-                                    <!-- IMPLEMENTED -->
-                                    <td class="text-center"><?= $s['impl_ben'] > 0 ? number_format($s['impl_ben']) : ''; ?></td>
-                                    <td class="text-end"><?= $s['impl_amt'] > 0 ? '&#8369; ' . number_format($s['impl_amt'], 2) : ''; ?></td>
-                                    <!-- FOR PAYROLL SUBMISSION -->
-                                    <td class="text-center"><?= $s['ppes_ben'] > 0 ? number_format($s['ppes_ben']) : ''; ?></td>
-                                    <td class="text-end"><?= $s['ppes_amt'] > 0 ? '&#8369; ' . number_format($s['ppes_amt'], 2) : ''; ?></td>
-                                    <!-- FOR GSIS ENROLLMENT -->
-                                    <td class="text-center"><?= $s['gsis_ben'] > 0 ? number_format($s['gsis_ben']) : ''; ?></td>
-                                    <td class="text-end"><?= $s['gsis_amt'] > 0 ? '&#8369; ' . number_format($s['gsis_amt'], 2) : ''; ?></td>
-                                    <!-- FOR IMPLEMENTATION -->
-                                    <td class="text-center"><?= $s['ongoing_ben'] > 0 ? number_format($s['ongoing_ben']) : ''; ?></td>
-                                    <td class="text-end"><?= $s['ongoing_amt'] > 0 ? '&#8369; ' . number_format($s['ongoing_amt'], 2) : ''; ?></td>
-                                    <!-- NOT YET IMPLEMENTED -->
-                                    <td class="text-center"><?= $s['not_yet_ben'] > 0 ? number_format($s['not_yet_ben']) : ''; ?></td>
-                                    <td class="text-end"><?= $s['not_yet_amt'] > 0 ? '&#8369; ' . number_format($s['not_yet_amt'], 2) : ''; ?></td>
-                                </tr>
-                            <?php 
-                            endforeach;
+                                        // Initialize grand totals collector for summary view
+                                        $grand_summary = [
+                                            'target_ben' => 0, 'target_subsidy' => 0, 'work_days' => 0,
+                                            'impl_ben' => 0, 'impl_amt' => 0,
+                                            'ppes_ben' => 0, 'ppes_amt' => 0,
+                                            'gsis_ben' => 0, 'gsis_amt' => 0,
+                                            'ongoing_ben' => 0, 'ongoing_amt' => 0,
+                                            'not_yet_ben' => 0, 'not_yet_amt' => 0
+                                        ];
 
-                        } else {
-                            // STANDARD DETAILED VIEW (with Grand Total row on top + normal rows below)
-                            // Initialize grand total accumulators
-                            $total_target_ben = 0; $total_target_subsidy = 0;
-                            $total_impl_ben = 0; $total_impl_amt = 0;
-                            $total_ppes_ben = 0; $total_ppes_amt = 0;
-                            $total_gsis_ben = 0; $total_gsis_amt = 0;
-                            $total_ongoing_ben = 0; $total_ongoing_amt = 0;
-                            $total_not_yet_ben = 0; $total_not_yet_amt = 0;
+                                        // Render rows per province and add to grand summary accumulator
+                                        foreach ($summary_grouped as $prov_name => $s):
+                                            $grand_summary['target_ben'] += $s['target_ben'];
+                                            $grand_summary['target_subsidy'] += $s['target_subsidy'];
+                                            $grand_summary['work_days'] += $s['work_days'];
+                                            $grand_summary['impl_ben'] += $s['impl_ben'];
+                                            $grand_summary['impl_amt'] += $s['impl_amt'];
+                                            $grand_summary['ppes_ben'] += $s['ppes_ben'];
+                                            $grand_summary['ppes_amt'] += $s['ppes_amt'];
+                                            $grand_summary['gsis_ben'] += $s['gsis_ben'];
+                                            $grand_summary['gsis_amt'] += $s['gsis_amt'];
+                                            $grand_summary['ongoing_ben'] += $s['ongoing_ben'];
+                                            $grand_summary['ongoing_amt'] += $s['ongoing_amt'];
+                                            $grand_summary['not_yet_ben'] += $s['not_yet_ben'];
+                                            $grand_summary['not_yet_amt'] += $s['not_yet_amt'];
+                                        ?>
+                                            <tr>
+                                                <td class="fw-semibold"><?= html_escape($prov_name); ?></td>
+                                                <!-- TARGET -->
+                                                <td class="text-center"><?= number_format($s['target_ben']); ?></td>
+                                                <td class="text-end">&#8369; <?= number_format($s['target_subsidy'], 2); ?></td>
+                                                <td class="text-center"><?= number_format($s['work_days']); ?></td>
+                                                <!-- IMPLEMENTED -->
+                                                <td class="text-center"><?= $s['impl_ben'] > 0 ? number_format($s['impl_ben']) : ''; ?></td>
+                                                <td class="text-end"><?= $s['impl_amt'] > 0 ? '&#8369; ' . number_format($s['impl_amt'], 2) : ''; ?></td>
+                                                <!-- FOR PAYROLL SUBMISSION -->
+                                                <td class="text-center"><?= $s['ppes_ben'] > 0 ? number_format($s['ppes_ben']) : ''; ?></td>
+                                                <td class="text-end"><?= $s['ppes_amt'] > 0 ? '&#8369; ' . number_format($s['ppes_amt'], 2) : ''; ?></td>
+                                                <!-- FOR GSIS ENROLLMENT -->
+                                                <td class="text-center"><?= $s['gsis_ben'] > 0 ? number_format($s['gsis_ben']) : ''; ?></td>
+                                                <td class="text-end"><?= $s['gsis_amt'] > 0 ? '&#8369; ' . number_format($s['gsis_amt'], 2) : ''; ?></td>
+                                                <!-- FOR IMPLEMENTATION -->
+                                                <td class="text-center"><?= $s['ongoing_ben'] > 0 ? number_format($s['ongoing_ben']) : ''; ?></td>
+                                                <td class="text-end"><?= $s['ongoing_amt'] > 0 ? '&#8369; ' . number_format($s['ongoing_amt'], 2) : ''; ?></td>
+                                                <!-- NOT YET IMPLEMENTED -->
+                                                <td class="text-center"><?= $s['not_yet_ben'] > 0 ? number_format($s['not_yet_ben']) : ''; ?></td>
+                                                <td class="text-end"><?= $s['not_yet_amt'] > 0 ? '&#8369; ' . number_format($s['not_yet_amt'], 2) : ''; ?></td>
+                                            </tr>
+                                        <?php endforeach; ?>
 
-                            foreach ($report_data as $row) {
-                                $no_of_days  = $row['no_of_days'] ?? 0;
-                                $wage_amount = $row['wage_amount'] ?? 0;
-                                $target      = $row['target'] ?? 0;
+                                        <!-- GRAND TOTAL ROW FOR SUMMARY VIEW -->
+                                        <tr class="table-warning fw-bold">
+                                            <td class="text-end">GRAND TOTAL:</td>
+                                            <td class="text-center"><?= number_format($grand_summary['target_ben']); ?></td>
+                                            <td class="text-end">&#8369; <?= number_format($grand_summary['target_subsidy'], 2); ?></td>
+                                            <td class="text-center"><?= number_format($grand_summary['work_days']); ?></td>
+                                            <td class="text-center"><?= $grand_summary['impl_ben'] > 0 ? number_format($grand_summary['impl_ben']) : ''; ?></td>
+                                            <td class="text-end"><?= $grand_summary['impl_amt'] > 0 ? '&#8369; ' . number_format($grand_summary['impl_amt'], 2) : ''; ?></td>
+                                            <td class="text-center"><?= $grand_summary['ppes_ben'] > 0 ? number_format($grand_summary['ppes_ben']) : ''; ?></td>
+                                            <td class="text-end"><?= $grand_summary['ppes_amt'] > 0 ? '&#8369; ' . number_format($grand_summary['ppes_amt'], 2) : ''; ?></td>
+                                            <td class="text-center"><?= $grand_summary['gsis_ben'] > 0 ? number_format($grand_summary['gsis_ben']) : ''; ?></td>
+                                            <td class="text-end"><?= $grand_summary['gsis_amt'] > 0 ? '&#8369; ' . number_format($grand_summary['gsis_amt'], 2) : ''; ?></td>
+                                            <td class="text-center"><?= $grand_summary['ongoing_ben'] > 0 ? number_format($grand_summary['ongoing_ben']) : ''; ?></td>
+                                            <td class="text-end"><?= $grand_summary['ongoing_amt'] > 0 ? '&#8369; ' . number_format($grand_summary['ongoing_amt'], 2) : ''; ?></td>
+                                            <td class="text-center"><?= $grand_summary['not_yet_ben'] > 0 ? number_format($grand_summary['not_yet_ben']) : ''; ?></td>
+                                            <td class="text-end"><?= $grand_summary['not_yet_amt'] > 0 ? '&#8369; ' . number_format($grand_summary['not_yet_amt'], 2) : ''; ?></td>
+                                        </tr>
 
-                                $total_target_ben += $target;
-                                $total_target_subsidy += ($row['subsidy_cost'] ?? 0);
+                                    <?php } else { 
+                                        // STANDARD DETAILED VIEW 
+                                        $total_target_ben = 0; $total_target_subsidy = 0;
+                                        $total_impl_ben = 0; $total_impl_amt = 0;
+                                        $total_ppes_ben = 0; $total_ppes_amt = 0;
+                                        $total_gsis_ben = 0; $total_gsis_amt = 0;
+                                        $total_ongoing_ben = 0; $total_ongoing_amt = 0;
+                                        $total_not_yet_ben = 0; $total_not_yet_amt = 0;
 
-                                $is_gsis_empty = (empty($row['gsis_enrollment_date']) || $row['gsis_enrollment_date'] == '0000-00-00');
-                                $is_ppe_empty  = (empty($row['ppes_date_issued']) || $row['ppes_date_issued'] == '0000-00-00');
-                                
-                                if ($is_gsis_empty && !$is_ppe_empty) {
-                                    $g_ben = $row['ppes_count'] ?? 0;
-                                    $g_amt = ($g_ben * $no_of_days) * $wage_amount;
-                                } else {
-                                    $g_ben = 0; $g_amt = 0;
-                                }
-                                $total_gsis_ben += $g_ben;
-                                $total_gsis_amt += $g_amt;
+                                        foreach ($report_data as $row) {
+                                            $no_of_days  = $row['no_of_days'] ?? 0;
+                                            $wage_amount = $row['wage_amount'] ?? 0;
+                                            $target      = $row['target'] ?? 0;
 
-                                $completed_period = $row['completed_employment_amount'] ?? '';
-                                $is_completed_valid = (!empty($completed_period) && $completed_period !== '0000-00-00');
+                                            $total_target_ben += $target;
+                                            $total_target_subsidy += ($row['subsidy_cost'] ?? 0);
 
-                                if ($is_completed_valid) {
-                                    $p_ben = $row['ongoing_implementation_benefs'] ?? 0;
-                                    $p_amt = ($p_ben > 0) ? ($p_ben * $no_of_days) * $wage_amount : 0;
-                                } else {
-                                    $p_ben = 0; $p_amt = 0;
-                                }
-                                $total_ppes_ben += $p_ben;
-                                $total_ppes_amt += $p_amt;
+                                            $is_gsis_empty = (empty($row['gsis_enrollment_date']) || $row['gsis_enrollment_date'] == '0000-00-00');
+                                            $is_ppe_empty  = (empty($row['ppes_date_issued']) || $row['ppes_date_issued'] == '0000-00-00');
+                                            
+                                            if ($is_gsis_empty && !$is_ppe_empty) {
+                                                $g_ben = $row['ppes_count'] ?? 0;
+                                                $g_amt = ($g_ben * $no_of_days) * $wage_amount;
+                                            } else {
+                                                $g_ben = 0; $g_amt = 0;
+                                            }
+                                            $total_gsis_ben += $g_ben;
+                                            $total_gsis_amt += $g_amt;
 
-                                $raw_payout_date_impl = $row['payout_date'] ?? '';
-                                $is_valid_past_payout = false;
-                                if (!empty($raw_payout_date_impl) && $raw_payout_date_impl !== '0000-00-00') {
-                                    if (new DateTime($raw_payout_date_impl) <= new DateTime('now')) {
-                                        $is_valid_past_payout = true;
-                                    }
-                                }
+                                            $completed_period = $row['completed_employment_amount'] ?? '';
+                                            $is_completed_valid = (!empty($completed_period) && $completed_period !== '0000-00-00');
 
-                                if ($is_valid_past_payout && !$is_completed_valid) {
-                                    $i_ben = $row['gsis_enrollment_benefs'] ?? 0;
-                                    $i_amt = ($i_ben > 0) ? ($i_ben * $no_of_days) * $wage_amount : 0;
-                                } else {
-                                    $i_ben = 0; $i_amt = 0;
-                                }
-                                $total_impl_ben += $i_ben;
-                                $total_impl_amt += $i_amt;
+                                            if ($is_completed_valid) {
+                                                $p_ben = $row['ongoing_implementation_benefs'] ?? 0;
+                                                $p_amt = ($p_ben > 0) ? ($p_ben * $no_of_days) * $wage_amount : 0;
+                                            } else {
+                                                $p_ben = 0; $p_amt = 0;
+                                            }
+                                            $total_ppes_ben += $p_ben;
+                                            $total_ppes_amt += $p_amt;
 
-                                $gsis_date = $row['gsis_enrollment_date'] ?? '0000-00-00';
-                                if (!empty($gsis_date) && $gsis_date !== '0000-00-00' && !$is_valid_past_payout && !$is_completed_valid) {
-                                    $ongoing_start = $row['ongoing_implementation_start_date'] ?? '0000-00-00';
-                                    $ongoing_end   = $row['ongoing_implementation_end_date'] ?? '0000-00-00';
-                                    if ($ongoing_start == '0000-00-00' && $ongoing_end == '0000-00-00') {
-                                        $o_ben = $row['gsis_enrollment_benefs'] ?? 0;
-                                    } else {
-                                        $o_ben = $row['ongoing_implementation_benefs'] ?? 0;
-                                    }
-                                    $o_amt = ($o_ben > 0) ? ($o_ben * $no_of_days) * $wage_amount : 0;
-                                } else {
-                                    $o_ben = 0; $o_amt = 0;
-                                }
-                                $total_ongoing_ben += $o_ben;
-                                $total_ongoing_amt += $o_amt;
-                                
-                                $is_empty_val = function($val) {
-                                    return empty($val) || $val === '0000-00-00' || $val === '0.00' || $val == 0;
-                                };
+                                            $raw_payout_date_impl = $row['payout_date'] ?? '';
+                                            $is_valid_past_payout = false;
+                                            if (!empty($raw_payout_date_impl) && $raw_payout_date_impl !== '0000-00-00') {
+                                                if (new DateTime($raw_payout_date_impl) <= new DateTime('now')) {
+                                                    $is_valid_past_payout = true;
+                                                }
+                                            }
 
-                                $is_all_empty = (
-                                    $is_empty_val($row['ppes_date_issued'] ?? '') &&
-                                    $is_empty_val($row['orientation_date'] ?? '') &&
-                                    $is_empty_val($row['gsis_enrollment_date'] ?? '') &&
-                                    $is_empty_val($row['ongoing_implementation_start_date'] ?? '') &&
-                                    $is_empty_val($row['ongoing_implementation_end_date'] ?? '') &&
-                                    $is_empty_val($row['completed_employment_amount'] ?? '') &&
-                                    $is_empty_val($row['payout_amount'] ?? '') &&
-                                    $is_empty_val($row['payout_date'] ?? '')
-                                );
+                                            if ($is_valid_past_payout && !$is_completed_valid) {
+                                                $i_ben = $row['gsis_enrollment_benefs'] ?? 0;
+                                                $i_amt = ($i_ben > 0) ? ($i_ben * $no_of_days) * $wage_amount : 0;
+                                            } else {
+                                                $i_ben = 0; $i_amt = 0;
+                                            }
+                                            $total_impl_ben += $i_ben;
+                                            $total_impl_amt += $i_amt;
 
-                                if ($is_all_empty) {
-                                    $n_ben = $target;
-                                    $n_amt = ($target * $no_of_days) * $wage_amount;
-                                } else {
-                                    $n_ben = $row['not_yet_beneficiaries'] ?? 0;
-                                    $n_amt = $row['not_yet_amount'] ?? 0;
-                                }
-                                $total_not_yet_ben += $n_ben;
-                                $total_not_yet_amt += $n_amt;
-                            }
-                            ?>
+                                            $gsis_date = $row['gsis_enrollment_date'] ?? '0000-00-00';
+                                            if (!empty($gsis_date) && $gsis_date !== '0000-00-00' && !$is_valid_past_payout && !$is_completed_valid) {
+                                                $ongoing_start = $row['ongoing_implementation_start_date'] ?? '0000-00-00';
+                                                $ongoing_end   = $row['ongoing_implementation_end_date'] ?? '0000-00-00';
+                                                if ($ongoing_start == '0000-00-00' && $ongoing_end == '0000-00-00') {
+                                                    $o_ben = $row['gsis_enrollment_benefs'] ?? 0;
+                                                } else {
+                                                    $o_ben = $row['ongoing_implementation_benefs'] ?? 0;
+                                                }
+                                                $o_amt = ($o_ben > 0) ? ($o_ben * $no_of_days) * $wage_amount : 0;
+                                            } else {
+                                                $o_ben = 0; $o_amt = 0;
+                                            }
+                                            $total_ongoing_ben += $o_ben;
+                                            $total_ongoing_amt += $o_amt;
+                                            
+                                            $is_empty_val = function($val) {
+                                                return empty($val) || $val === '0000-00-00' || $val === '0.00' || $val == 0;
+                                            };
 
-                            <!-- GRAND TOTAL ROW AT THE TOP -->
-                            <tr class="table-warning fw-bold">
-                                <td colspan="5" class="text-end">GRAND TOTAL:</td>
-                                <td class="text-center"><?= number_format($total_target_ben); ?></td>
-                                <td class="text-end">&#8369; <?= number_format($total_target_subsidy, 2); ?></td>
-                                <td></td>
-                                <td class="text-center"><?= $total_impl_ben > 0 ? number_format($total_impl_ben) : ''; ?></td>
-                                <td class="text-end"><?= $total_impl_amt > 0 ? '&#8369; ' . number_format($total_impl_amt, 2) : ''; ?></td>
-                                <td></td>
-                                <td class="text-center"><?= $total_ppes_ben > 0 ? number_format($total_ppes_ben) : ''; ?></td>
-                                <td class="text-end"><?= $total_ppes_amt > 0 ? '&#8369; ' . number_format($total_ppes_amt, 2) : ''; ?></td>
-                                <td class="text-center"><?= $total_gsis_ben > 0 ? number_format($total_gsis_ben) : ''; ?></td>
-                                <td class="text-end"><?= $total_gsis_amt > 0 ? '&#8369; ' . number_format($total_gsis_amt, 2) : ''; ?></td>
-                                <td class="text-center"><?= $total_ongoing_ben > 0 ? number_format($total_ongoing_ben) : ''; ?></td>
-                                <td class="text-end"><?= $total_ongoing_amt > 0 ? '&#8369; ' . number_format($total_ongoing_amt, 2) : ''; ?></td>
-                                <td></td>
-                                <td></td>
-                                <td class="text-center"><?= $total_not_yet_ben > 0 ? number_format($total_not_yet_ben) : ''; ?></td>
-                                <td class="text-end"><?= $total_not_yet_amt > 0 ? '&#8369; ' . number_format($total_not_yet_amt, 2) : ''; ?></td>
-                                <td></td>
-                            </tr>
+                                            $is_all_empty = (
+                                                $is_empty_val($row['ppes_date_issued'] ?? '') &&
+                                                $is_empty_val($row['orientation_date'] ?? '') &&
+                                                $is_empty_val($row['gsis_enrollment_date'] ?? '') &&
+                                                $is_empty_val($row['ongoing_implementation_start_date'] ?? '') &&
+                                                $is_empty_val($row['ongoing_implementation_end_date'] ?? '') &&
+                                                $is_empty_val($row['completed_employment_amount'] ?? '') &&
+                                                $is_empty_val($row['payout_amount'] ?? '') &&
+                                                $is_empty_val($row['payout_date'] ?? '')
+                                            );
 
-                            <?php foreach ($report_data as $row): ?>
-                                <?php 
-                                $no_of_days  = $row['no_of_days'] ?? 0;
-                                $wage_amount = $row['wage_amount'] ?? 0;
-                                $target      = $row['target'] ?? 0;
+                                            if ($is_all_empty) {
+                                                $n_ben = $target;
+                                                $n_amt = ($target * $no_of_days) * $wage_amount;
+                                            } else {
+                                                $n_ben = $row['not_yet_beneficiaries'] ?? 0;
+                                                $n_amt = $row['not_yet_amount'] ?? 0;
+                                            }
+                                            $total_not_yet_ben += $n_ben;
+                                            $total_not_yet_amt += $n_amt;
+                                        }
+                                        ?>
 
-                                $is_gsis_empty = (empty($row['gsis_enrollment_date']) || $row['gsis_enrollment_date'] == '0000-00-00');
-                                $is_ppe_empty  = (empty($row['ppes_date_issued']) || $row['ppes_date_issued'] == '0000-00-00');
-                                
-                                if ($is_gsis_empty && !$is_ppe_empty) {
-                                    $gsis_beneficiaries = $row['ppes_count'] ?? 0;
-                                    $gsis_amount = ($gsis_beneficiaries * $no_of_days) * $wage_amount;
-                                } else {
-                                    $gsis_beneficiaries = '';
-                                    $gsis_amount = '';
-                                }
+                                        <!-- GRAND TOTAL ROW AT THE TOP -->
+                                        <tr class="table-warning fw-bold">
+                                            <td colspan="5" class="text-end">GRAND TOTAL:</td>
+                                            <td class="text-center"><?= number_format($total_target_ben); ?></td>
+                                            <td class="text-end">&#8369; <?= number_format($total_target_subsidy, 2); ?></td>
+                                            <td></td>
+                                            <td class="text-center"><?= $total_impl_ben > 0 ? number_format($total_impl_ben) : ''; ?></td>
+                                            <td class="text-end"><?= $total_impl_amt > 0 ? '&#8369; ' . number_format($total_impl_amt, 2) : ''; ?></td>
+                                            <td></td>
+                                            <td class="text-center"><?= $total_ppes_ben > 0 ? number_format($total_ppes_ben) : ''; ?></td>
+                                            <td class="text-end"><?= $total_ppes_amt > 0 ? '&#8369; ' . number_format($total_ppes_amt, 2) : ''; ?></td>
+                                            <td class="text-center"><?= $total_gsis_ben > 0 ? number_format($total_gsis_ben) : ''; ?></td>
+                                            <td class="text-end"><?= $total_gsis_amt > 0 ? '&#8369; ' . number_format($total_gsis_amt, 2) : ''; ?></td>
+                                            <td class="text-center"><?= $total_ongoing_ben > 0 ? number_format($total_ongoing_ben) : ''; ?></td>
+                                            <td class="text-end"><?= $total_ongoing_amt > 0 ? '&#8369; ' . number_format($total_ongoing_amt, 2) : ''; ?></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td class="text-center"><?= $total_not_yet_ben > 0 ? number_format($total_not_yet_ben) : ''; ?></td>
+                                            <td class="text-end"><?= $total_not_yet_amt > 0 ? '&#8369; ' . number_format($total_not_yet_amt, 2) : ''; ?></td>
+                                            <td></td>
+                                        </tr>
 
-                                $completed_period = $row['completed_employment_amount'] ?? '';
-                                $is_completed_valid = (!empty($completed_period) && $completed_period !== '0000-00-00');
+                                        <?php foreach ($report_data as $row): ?>
+                                            <?php 
+                                            $no_of_days  = $row['no_of_days'] ?? 0;
+                                            $wage_amount = $row['wage_amount'] ?? 0;
+                                            $target      = $row['target'] ?? 0;
 
-                                if ($is_completed_valid) {
-                                    $ppes_beneficiaries = $row['ongoing_implementation_benefs'] ?? 0;
-                                    $ppes_amount = ($ppes_beneficiaries > 0) ? ($ppes_beneficiaries * $no_of_days) * $wage_amount : '';
-                                } else {
-                                    $ppes_beneficiaries = '';
-                                    $ppes_amount = '';
-                                }
+                                            $is_gsis_empty = (empty($row['gsis_enrollment_date']) || $row['gsis_enrollment_date'] == '0000-00-00');
+                                            $is_ppe_empty  = (empty($row['ppes_date_issued']) || $row['ppes_date_issued'] == '0000-00-00');
+                                            
+                                            if ($is_gsis_empty && !$is_ppe_empty) {
+                                                $gsis_beneficiaries = $row['ppes_count'] ?? 0;
+                                                $gsis_amount = ($gsis_beneficiaries * $no_of_days) * $wage_amount;
+                                            } else {
+                                                $gsis_beneficiaries = '';
+                                                $gsis_amount = '';
+                                            }
 
-                                $raw_payout_date_impl = $row['payout_date'] ?? '';
-                                $is_valid_past_payout = false;
-                                if (!empty($raw_payout_date_impl) && $raw_payout_date_impl !== '0000-00-00') {
-                                    if (new DateTime($raw_payout_date_impl) <= new DateTime('now')) {
-                                        $is_valid_past_payout = true;
-                                    }
-                                }
+                                            $completed_period = $row['completed_employment_amount'] ?? '';
+                                            $is_completed_valid = (!empty($completed_period) && $completed_period !== '0000-00-00');
 
-                                if ($is_valid_past_payout && !$is_completed_valid) {
-                                    $implemented_beneficiaries = $row['gsis_enrollment_benefs'] ?? '';
-                                    $implemented_amount = (!empty($implemented_beneficiaries) && $implemented_beneficiaries > 0) ? ($implemented_beneficiaries * $no_of_days) * $wage_amount : '';
-                                    $implemented_payout_date = $raw_payout_date_impl;
-                                } else {
-                                    $implemented_beneficiaries = '';
-                                    $implemented_amount = '';
-                                    $implemented_payout_date = '';
-                                }
+                                            if ($is_completed_valid) {
+                                                $ppes_beneficiaries = $row['ongoing_implementation_benefs'] ?? 0;
+                                                $ppes_amount = ($ppes_beneficiaries > 0) ? ($ppes_beneficiaries * $no_of_days) * $wage_amount : '';
+                                            } else {
+                                                $ppes_beneficiaries = '';
+                                                $ppes_amount = '';
+                                            }
 
-                                $gsis_date = $row['gsis_enrollment_date'] ?? '0000-00-00';
-                                if (!empty($gsis_date) && $gsis_date !== '0000-00-00' && !$is_valid_past_payout && !$is_completed_valid) {
-                                    $ongoing_start = $row['ongoing_implementation_start_date'] ?? '0000-00-00';
-                                    $ongoing_end   = $row['ongoing_implementation_end_date'] ?? '0000-00-00';
-                                    if ($ongoing_start == '0000-00-00' && $ongoing_end == '0000-00-00') {
-                                        $ongoing_beneficiaries = $row['gsis_enrollment_benefs'] ?? 0;
-                                    } else {
-                                        $ongoing_beneficiaries = $row['ongoing_implementation_benefs'] ?? 0;
-                                    }
-                                    $ongoing_amount    = ($ongoing_beneficiaries > 0) ? ($ongoing_beneficiaries * $no_of_days) * $wage_amount : '';
-                                    $employment_period = $row['orientation_employment_period'] ?? '';
-                                    $raw_payout_date   = $row['payout_date'] ?? '';
-                                    $target_payout     = (!empty($raw_payout_date) && $raw_payout_date !== '0000-00-00') ? $raw_payout_date : '';
-                                } else {
-                                    $ongoing_beneficiaries = '';
-                                    $ongoing_amount        = '';
-                                    $employment_period     = '';
-                                    $target_payout         = '';
-                                }
-                                
-                                $is_empty_val = function($val) {
-                                    return empty($val) || $val === '0000-00-00' || $val === '0.00' || $val == 0;
-                                };
+                                            $raw_payout_date_impl = $row['payout_date'] ?? '';
+                                            $is_valid_past_payout = false;
+                                            if (!empty($raw_payout_date_impl) && $raw_payout_date_impl !== '0000-00-00') {
+                                                if (new DateTime($raw_payout_date_impl) <= new DateTime('now')) {
+                                                    $is_valid_past_payout = true;
+                                                }
+                                            }
 
-                                $is_all_empty = (
-                                    $is_empty_val($row['ppes_date_issued'] ?? '') &&
-                                    $is_empty_val($row['orientation_date'] ?? '') &&
-                                    $is_empty_val($row['gsis_enrollment_date'] ?? '') &&
-                                    $is_empty_val($row['ongoing_implementation_start_date'] ?? '') &&
-                                    $is_empty_val($row['ongoing_implementation_end_date'] ?? '') &&
-                                    $is_empty_val($row['completed_employment_amount'] ?? '') &&
-                                    $is_empty_val($row['payout_amount'] ?? '') &&
-                                    $is_empty_val($row['payout_date'] ?? '')
-                                );
+                                            if ($is_valid_past_payout && !$is_completed_valid) {
+                                                $implemented_beneficiaries = $row['gsis_enrollment_benefs'] ?? '';
+                                                $implemented_amount = (!empty($implemented_beneficiaries) && $implemented_beneficiaries > 0) ? ($implemented_beneficiaries * $no_of_days) * $wage_amount : '';
+                                                $implemented_payout_date = $raw_payout_date_impl;
+                                            } else {
+                                                $implemented_beneficiaries = '';
+                                                $implemented_amount = '';
+                                                $implemented_payout_date = '';
+                                            }
 
-                                if ($is_all_empty) {
-                                    $not_yet_beneficiaries = $target;
-                                    $not_yet_amount = ($target * $no_of_days) * $wage_amount;
-                                } else {
-                                    $not_yet_beneficiaries = $row['not_yet_beneficiaries'] ?? '';
-                                    $not_yet_amount = $row['not_yet_amount'] ?? '';
-                                }
-                                ?>
-                                <tr>
-                                    <td class="fw-semibold text-center"><?= html_escape($row['adl_no']); ?></td>
-                                    <td><?= html_escape($row['implementation_reference_no']); ?></td>
-                                    <td><?= html_escape($row['implementation_sponsor']); ?></td>
-                                    <td><?= html_escape($row['p_name']); ?></td>
-                                    <td><?= html_escape($row['area_description']); ?></td>
-                                    <td class="text-center"><?= number_format($target); ?></td>
-                                    <td class="text-end">&#8369; <?= number_format($row['subsidy_cost'] ?? 0, 2); ?></td>
-                                    <td class="text-center"><?= html_escape($no_of_days); ?></td>
-                                    <td class="text-center"><?= ($implemented_beneficiaries !== '' && $implemented_beneficiaries > 0) ? number_format($implemented_beneficiaries) : ''; ?></td>
-                                    <td class="text-end"><?= ($implemented_amount !== '' && $implemented_amount > 0) ? '&#8369; ' . number_format($implemented_amount, 2) : ''; ?></td>
-                                    <td class="text-center"><?= html_escape($implemented_payout_date); ?></td>
-                                    <td class="text-center"><?= ($ppes_beneficiaries !== '' && $ppes_beneficiaries > 0) ? number_format($ppes_beneficiaries) : ''; ?></td>
-                                    <td class="text-end"><?= ($ppes_amount !== '' && $ppes_amount > 0) ? '&#8369; ' . number_format($ppes_amount, 2) : ''; ?></td>
-                                    <td class="text-center"><?= ($gsis_beneficiaries !== '' && $gsis_beneficiaries > 0) ? number_format($gsis_beneficiaries) : ''; ?></td>
-                                    <td class="text-end"><?= ($gsis_amount !== '' && $gsis_amount > 0) ? '&#8369; ' . number_format($gsis_amount, 2) : ''; ?></td>
-                                    <td class="text-center"><?= ($ongoing_beneficiaries !== '' && $ongoing_beneficiaries > 0) ? number_format($ongoing_beneficiaries) : ''; ?></td>
-                                    <td class="text-end"><?= ($ongoing_amount !== '' && $ongoing_amount > 0) ? '&#8369; ' . number_format($ongoing_amount, 2) : ''; ?></td>
-                                    <td class="text-center"><?= html_escape($employment_period); ?></td>
-                                    <td class="text-center"><?= html_escape($target_payout); ?></td>
-                                    <td class="text-center"><?= ($not_yet_beneficiaries !== '' && $not_yet_beneficiaries > 0) ? number_format($not_yet_beneficiaries) : ''; ?></td>
-                                    <td class="text-end"><?= ($not_yet_amount !== '' && $not_yet_amount > 0) ? '&#8369; ' . number_format($not_yet_amount, 2) : ''; ?></td>
-                                    <td><?= html_escape($row['remarks'] ?? ''); ?></td>
-                                </tr>
-                            <?php endforeach; ?>
-                        <?php } ?>
-                    <?php else: ?>
-                        <tr>
-                            <td colspan="22" class="text-center text-muted py-4">
-                                <?= (!empty($start_date)) ? 'No records found for the selected date period.' : 'Please select a start and end date to display report records.'; ?>
-                            </td>
-                        </tr>
-                    <?php endif; ?>
-                </tbody>
+                                            $gsis_date = $row['gsis_enrollment_date'] ?? '0000-00-00';
+                                            if (!empty($gsis_date) && $gsis_date !== '0000-00-00' && !$is_valid_past_payout && !$is_completed_valid) {
+                                                $ongoing_start = $row['ongoing_implementation_start_date'] ?? '0000-00-00';
+                                                $ongoing_end   = $row['ongoing_implementation_end_date'] ?? '0000-00-00';
+                                                if ($ongoing_start == '0000-00-00' && $ongoing_end == '0000-00-00') {
+                                                    $ongoing_beneficiaries = $row['gsis_enrollment_benefs'] ?? 0;
+                                                } else {
+                                                    $ongoing_beneficiaries = $row['ongoing_implementation_benefs'] ?? 0;
+                                                }
+                                                $ongoing_amount    = ($ongoing_beneficiaries > 0) ? ($ongoing_beneficiaries * $no_of_days) * $wage_amount : '';
+                                                $employment_period = $row['orientation_employment_period'] ?? '';
+                                                $raw_payout_date   = $row['payout_date'] ?? '';
+                                                $target_payout     = (!empty($raw_payout_date) && $raw_payout_date !== '0000-00-00') ? $raw_payout_date : '';
+                                            } else {
+                                                $ongoing_beneficiaries = '';
+                                                $ongoing_amount        = '';
+                                                $employment_period     = '';
+                                                $target_payout         = '';
+                                            }
+                                            
+                                            $is_empty_val = function($val) {
+                                                return empty($val) || $val === '0000-00-00' || $val === '0.00' || $val == 0;
+                                            };
+
+                                            $is_all_empty = (
+                                                $is_empty_val($row['ppes_date_issued'] ?? '') &&
+                                                $is_empty_val($row['orientation_date'] ?? '') &&
+                                                $is_empty_val($row['gsis_enrollment_date'] ?? '') &&
+                                                $is_empty_val($row['ongoing_implementation_start_date'] ?? '') &&
+                                                $is_empty_val($row['ongoing_implementation_end_date'] ?? '') &&
+                                                $is_empty_val($row['completed_employment_amount'] ?? '') &&
+                                                $is_empty_val($row['payout_amount'] ?? '') &&
+                                                $is_empty_val($row['payout_date'] ?? '')
+                                            );
+
+                                            if ($is_all_empty) {
+                                                $not_yet_beneficiaries = $target;
+                                                $not_yet_amount = ($target * $no_of_days) * $wage_amount;
+                                            } else {
+                                                $not_yet_beneficiaries = $row['not_yet_beneficiaries'] ?? '';
+                                                $not_yet_amount = $row['not_yet_amount'] ?? '';
+                                            }
+                                            ?>
+                                            <tr>
+                                                <td class="fw-semibold text-center"><?= html_escape($row['adl_no']); ?></td>
+                                                <td><?= html_escape($row['implementation_reference_no']); ?></td>
+                                                <td><?= html_escape($row['implementation_sponsor']); ?></td>
+                                                <td><?= html_escape($row['p_name']); ?></td>
+                                                <td><?= html_escape($row['area_description']); ?></td>
+                                                <td class="text-center"><?= number_format($target); ?></td>
+                                                <td class="text-end">&#8369; <?= number_format($row['subsidy_cost'] ?? 0, 2); ?></td>
+                                                <td class="text-center"><?= html_escape($no_of_days); ?></td>
+                                                <td class="text-center"><?= ($implemented_beneficiaries !== '' && $implemented_beneficiaries > 0) ? number_format($implemented_beneficiaries) : ''; ?></td>
+                                                <td class="text-end"><?= ($implemented_amount !== '' && $implemented_amount > 0) ? '&#8369; ' . number_format($implemented_amount, 2) : ''; ?></td>
+                                                <td class="text-center"><?= html_escape($implemented_payout_date); ?></td>
+                                                <td class="text-center"><?= ($ppes_beneficiaries !== '' && $ppes_beneficiaries > 0) ? number_format($ppes_beneficiaries) : ''; ?></td>
+                                                <td class="text-end"><?= ($ppes_amount !== '' && $ppes_amount > 0) ? '&#8369; ' . number_format($ppes_amount, 2) : ''; ?></td>
+                                                <td class="text-center"><?= ($gsis_beneficiaries !== '' && $gsis_beneficiaries > 0) ? number_format($gsis_beneficiaries) : ''; ?></td>
+                                                <td class="text-end"><?= ($gsis_amount !== '' && $gsis_amount > 0) ? '&#8369; ' . number_format($gsis_amount, 2) : ''; ?></td>
+                                                <td class="text-center"><?= ($ongoing_beneficiaries !== '' && $ongoing_beneficiaries > 0) ? number_format($ongoing_beneficiaries) : ''; ?></td>
+                                                <td class="text-end"><?= ($ongoing_amount !== '' && $ongoing_amount > 0) ? '&#8369; ' . number_format($ongoing_amount, 2) : ''; ?></td>
+                                                <td class="text-center"><?= html_escape($employment_period); ?></td>
+                                                <td class="text-center"><?= html_escape($target_payout); ?></td>
+                                                <td class="text-center"><?= ($not_yet_beneficiaries !== '' && $not_yet_beneficiaries > 0) ? number_format($not_yet_beneficiaries) : ''; ?></td>
+                                                <td class="text-end"><?= ($not_yet_amount !== '' && $not_yet_amount > 0) ? '&#8369; ' . number_format($not_yet_amount, 2) : ''; ?></td>
+                                                <td><?= html_escape($row['remarks'] ?? ''); ?></td>
+                                            </tr>
+                                        <?php endforeach; ?>
+                                    <?php } ?>
+                                <?php else: ?>
+                                    <tr>
+                                        <td colspan="22" class="text-center text-muted py-4">
+                                            <?= (!empty($start_date)) ? 'No records found for the selected date period.' : 'Please select a start and end date to display report records.'; ?>
+                                        </td>
+                                    </tr>
+                                <?php endif; ?>
+                            </tbody>
             </table>
         </div>
     </div>
