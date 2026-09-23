@@ -713,7 +713,7 @@ public function store_adl_maf() {
         $adl_no = $this->input->post('adl_no', true);
 
         if ($insert) {
-            $this->load->model('Activity_Model');
+                $this->load->model('Activity_Model');
                 $user_id = $this->session->userdata('user_id');
                 $this->Activity_Model->log_activity($adl_no, $user_id, 8); 
             $this->session->set_flashdata('success', 'MAF record successfully saved!');
@@ -765,6 +765,9 @@ public function update_adl() {
         $update = $this->ADL_Model->update_adl($original_adl_no, $data);
 
         if ($update) {
+                 $this->load->model('Activity_Model');
+                $user_id = $this->session->userdata('user_id');
+                $this->Activity_Model->log_activity($original_adl_no, $user_id, 9); 
             $this->session->set_flashdata('success', 'ADL record successfully updated!');
         } else {
             $this->session->set_flashdata('error', 'Failed to update ADL record.');
@@ -786,6 +789,13 @@ public function update_maf() {
     // Call your model to update the database
     $this->db->where('maf_id', $maf_id);
     $this->db->update('adl_maf', $update_data);
+
+     $maf_ref = $this->input->post('maf_no');
+
+        $this->load->model('Activity_Model');
+        $user_id = $this->session->userdata('user_id');
+        $this->Activity_Model->log_activity($maf_ref, $user_id, 10); 
+    
 
     // Redirect back to the monitoring page
     redirect('adl/ADL_encode');
