@@ -91,7 +91,6 @@
             #sidebar, .top-navbar, .no-print { display: none !important; }
             #main-content { margin-left: 0 !important; }
             
-            /* Ensure colors print properly */
             .th-basic, .th-target, .th-implemented, .th-payroll, .th-gsis, .th-ongoing, .th-notyet, .th-remarks {
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
@@ -267,10 +266,19 @@
                                             $summary_grouped[$prov_name]['gsis_ben'] += $g_ben;
                                             $summary_grouped[$prov_name]['gsis_amt'] += $g_amt;
 
-                                            // Payroll/Completed calculations
+                                            // Payment Check & Payroll Calculations
                                             $completed_period = $row['completed_employment_amount'] ?? '';
                                             $is_completed_valid = (!empty($completed_period) && $completed_period !== '0000-00-00');
-                                            if ($is_completed_valid) {
+                                            
+                                            $is_paid = (
+                                                !empty($row['payment_alob_no']) && $row['payment_alob_no'] !== '0' &&
+                                                !empty($row['payment_dv_no']) && $row['payment_dv_no'] !== '0' &&
+                                                !empty($row['payment_check_no']) && $row['payment_check_no'] !== '0' &&
+                                                !empty($row['payment_amount']) && $row['payment_amount'] !== '0' && $row['payment_amount'] !== '0.00' &&
+                                                !empty($row['payment_date']) && $row['payment_date'] !== '0000-00-00'
+                                            );
+
+                                            if ($is_completed_valid && !$is_paid) {
                                                 $p_ben = $row['ongoing_implementation_benefs'] ?? 0;
                                                 $p_amt = ($p_ben > 0) ? ($p_ben * $no_of_days) * $wage_amount : 0;
                                             } else {
@@ -279,7 +287,7 @@
                                             $summary_grouped[$prov_name]['ppes_ben'] += $p_ben;
                                             $summary_grouped[$prov_name]['ppes_amt'] += $p_amt;
 
-                                            // Strict Implemented Check based on ONGOING_IMPLEMENTATION_END_DATE (Summary Loop)
+                                            // Implemented Check (Strictly tomorrow onwards)
                                             $ongoing_end_date = $row['ongoing_implementation_end_date'] ?? '';
                                             $is_expired_end_date = false;
 
@@ -290,7 +298,6 @@
                                                 $todayObj = new DateTime('now');
                                                 $todayObj->setTime(0, 0, 0);
 
-                                                // Changed from <= to < so today's end date is considered still ongoing today
                                                 if ($endDateObj < $todayObj) {
                                                     $is_expired_end_date = true;
                                                 }
@@ -350,7 +357,6 @@
                                             $summary_grouped[$prov_name]['count']++;
                                         }
 
-                                        // Initialize grand totals collector for summary view
                                         $grand_summary = [
                                             'target_ben' => 0, 'target_subsidy' => 0, 'work_days' => 0,
                                             'impl_ben' => 0, 'impl_amt' => 0,
@@ -360,7 +366,6 @@
                                             'not_yet_ben' => 0, 'not_yet_amt' => 0
                                         ];
 
-                                        // Render rows per province and add to grand summary accumulator
                                         foreach ($summary_grouped as $prov_name => $s):
                                             $grand_summary['target_ben'] += $s['target_ben'];
                                             $grand_summary['target_subsidy'] += $s['target_subsidy'];
@@ -449,8 +454,16 @@
 
                                             $completed_period = $row['completed_employment_amount'] ?? '';
                                             $is_completed_valid = (!empty($completed_period) && $completed_period !== '0000-00-00');
+                                            
+                                            $is_paid = (
+                                                !empty($row['payment_alob_no']) && $row['payment_alob_no'] !== '0' &&
+                                                !empty($row['payment_dv_no']) && $row['payment_dv_no'] !== '0' &&
+                                                !empty($row['payment_check_no']) && $row['payment_check_no'] !== '0' &&
+                                                !empty($row['payment_amount']) && $row['payment_amount'] !== '0' && $row['payment_amount'] !== '0.00' &&
+                                                !empty($row['payment_date']) && $row['payment_date'] !== '0000-00-00'
+                                            );
 
-                                            if ($is_completed_valid) {
+                                            if ($is_completed_valid && !$is_paid) {
                                                 $p_ben = $row['ongoing_implementation_benefs'] ?? 0;
                                                 $p_amt = ($p_ben > 0) ? ($p_ben * $no_of_days) * $wage_amount : 0;
                                             } else {
@@ -459,7 +472,6 @@
                                             $total_ppes_ben += $p_ben;
                                             $total_ppes_amt += $p_amt;
 
-                                            // Strict Implemented Check (Totals calculation pre-loop)
                                             $ongoing_end_date = $row['ongoing_implementation_end_date'] ?? '';
                                             $is_expired_end_date = false;
                                             if (!empty($ongoing_end_date) && $ongoing_end_date !== '0000-00-00') {
@@ -467,7 +479,6 @@
                                                 $endDateObj->setTime(0, 0, 0);
                                                 $todayObj = new DateTime('now');
                                                 $todayObj->setTime(0, 0, 0);
-                                                // Changed from <= to < so today's end date is considered still ongoing today
                                                 if ($endDateObj < $todayObj) {
                                                     $is_expired_end_date = true;
                                                 }
@@ -566,8 +577,16 @@
 
                                             $completed_period = $row['completed_employment_amount'] ?? '';
                                             $is_completed_valid = (!empty($completed_period) && $completed_period !== '0000-00-00');
+                                            
+                                            $is_paid = (
+                                                !empty($row['payment_alob_no']) && $row['payment_alob_no'] !== '0' &&
+                                                !empty($row['payment_dv_no']) && $row['payment_dv_no'] !== '0' &&
+                                                !empty($row['payment_check_no']) && $row['payment_check_no'] !== '0' &&
+                                                !empty($row['payment_amount']) && $row['payment_amount'] !== '0' && $row['payment_amount'] !== '0.00' &&
+                                                !empty($row['payment_date']) && $row['payment_date'] !== '0000-00-00'
+                                            );
 
-                                            if ($is_completed_valid) {
+                                            if ($is_completed_valid && !$is_paid) {
                                                 $ppes_beneficiaries = $row['ongoing_implementation_benefs'] ?? 0;
                                                 $ppes_amount = ($ppes_beneficiaries > 0) ? ($ppes_beneficiaries * $no_of_days) * $wage_amount : '';
                                             } else {
@@ -575,7 +594,6 @@
                                                 $ppes_amount = '';
                                             }
 
-                                            // Strict Implemented Check (Detailed Row Loop)
                                             $ongoing_end_date = $row['ongoing_implementation_end_date'] ?? '';
                                             $is_expired_end_date = false;
                                             if (!empty($ongoing_end_date) && $ongoing_end_date !== '0000-00-00') {
@@ -583,7 +601,6 @@
                                                 $endDateObj->setTime(0, 0, 0);
                                                 $todayObj = new DateTime('now');
                                                 $todayObj->setTime(0, 0, 0);
-                                                // Changed from <= to < so today's end date is considered still ongoing today
                                                 if ($endDateObj < $todayObj) {
                                                     $is_expired_end_date = true;
                                                 }
