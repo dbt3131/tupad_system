@@ -537,11 +537,11 @@
                                         </div>
                                         <div class="col-md-3">
                                             <label class="form-label fw-semibold small">GSIS Beneficiaries</label>
-                                            <input type="number" id="edit_gsis_enrollment_benefs" name="gsis_enrollment_benefs" class="form-control" placeholder="0" value="0" readonly>
+                                            <input type="number" id="edit_gsis_enrollment_benefs" name="gsis_enrollment_benefs" class="form-control" placeholder="0" readonly>
                                         </div>
                                         <div class="col-md-2">
                                             <label class="form-label fw-semibold small">GSIS Female</label>
-                                            <input type="number" id="edit_gsis_enrollment_female" name="gsis_enrollment_female" class="form-control" placeholder="0" value="0" readonly>
+                                            <input type="number" id="edit_gsis_enrollment_female" name="gsis_enrollment_female" class="form-control" placeholder="0" readonly>
                                         </div>
                                         <div class="col-md-3">
                                             <label class="form-label fw-semibold small">GSIS Amount</label>
@@ -696,21 +696,54 @@
         const ppeRate = parseFloat("<?= $ppe_rate ?? 325; ?>") || 0;
         const gsisRate = parseFloat("<?= $gsis_rate ?? 50; ?>") || 0;
 
-        // Auto-compute only if current input amount is 0 or empty
-        $('#edit_ppes_count').on('input', function () {
-            const currentAmount = parseFloat($('#edit_ppes_amount').val()) || 0;
-            if (currentAmount === 0) {
-                const count = parseFloat($(this).val()) || 0;
-                $('#edit_ppes_amount').val((count * ppeRate).toFixed(2));
+        // Global reference variables for dynamic auto-population conditions
+        let currentTupadTotalCount = 0;
+        let currentTupadFemaleCount = 0;
+
+        function evaluatePPESAutoValues() {
+            const risVal = $('#edit_ppes_issuance_ris').val();
+            const dateVal = $('#edit_ppes_date_issued').val();
+
+            const isRisValid = risVal && risVal.trim() !== '';
+            const isDateValid = dateVal && dateVal.trim() !== '' && dateVal !== '0000-00-00' && dateVal !== '0000.00.00';
+
+            if (isRisValid && isDateValid) {
+                $('#edit_ppes_count').val(currentTupadTotalCount);
+                $('#edit_ppes_female').val(currentTupadFemaleCount);
+
+                const calculatedPpeAmount = currentTupadTotalCount * ppeRate;
+                $('#edit_ppes_amount').val(calculatedPpeAmount.toFixed(2));
+            } else {
+                $('#edit_ppes_count').val('');
+                $('#edit_ppes_female').val('');
+                $('#edit_ppes_amount').val('');
             }
+        }
+
+        function evaluateGSISAutoValues() {
+            const dateVal = $('#edit_gsis_enrollment_date').val();
+            const isDateValid = dateVal && dateVal.trim() !== '' && dateVal !== '0000-00-00' && dateVal !== '0000.00.00';
+
+            if (isDateValid) {
+                $('#edit_gsis_enrollment_benefs').val(currentTupadTotalCount);
+                $('#edit_gsis_enrollment_female').val(currentTupadFemaleCount);
+
+                const calculatedGsisAmount = currentTupadTotalCount * gsisRate;
+                $('#edit_gsis_enrollment_amount').val(calculatedGsisAmount.toFixed(2));
+            } else {
+                $('#edit_gsis_enrollment_benefs').val('');
+                $('#edit_gsis_enrollment_female').val('');
+                $('#edit_gsis_enrollment_amount').val('');
+            }
+        }
+
+        // Trigger PPES and GSIS conditional checks on user changes
+        $('#edit_ppes_issuance_ris, #edit_ppes_date_issued').on('input change', function () {
+            evaluatePPESAutoValues();
         });
 
-        $('#edit_gsis_enrollment_benefs').on('input', function () {
-            const currentAmount = parseFloat($('#edit_gsis_enrollment_amount').val()) || 0;
-            if (currentAmount === 0) {
-                const benefs = parseFloat($(this).val()) || 0;
-                $('#edit_gsis_enrollment_amount').val((benefs * gsisRate).toFixed(2));
-            }
+        $('#edit_gsis_enrollment_date').on('input change', function () {
+            evaluateGSISAutoValues();
         });
 
         function loadMunicipalities(provCode, selectedArea = '') {
@@ -822,6 +855,10 @@
                     if (response.status && response.data) {
                         const d = response.data;
                         
+                        // Capture backend reference counts globally
+                        currentTupadTotalCount = parseInt(d.tupad_total_count) || 0;
+                        currentTupadFemaleCount = parseInt(d.tupad_female_count) || 0;
+
                         $('#edit_adl_transact_id').val(d.adl_transact_id);
                         $('#edit_adl_no').val(d.adl_no);
                         $('#edit_audrey_reference_no').val(d.audrey_reference_no);
@@ -860,33 +897,39 @@
                         $('#target').val(d.target);
                         $('#edit_reformulated_target').val(d.reformulated_target);
 
+                        // PPES evaluation based on RIS and Date Issued requirements (Set to Readonly instead of Disabled)
                         $('#edit_ppes_issuance_ris').val(d.ppes_issuance_ris);
-                        $('#edit_ppes_count').val(d.tupad_total_count);
-                        $('#edit_ppes_female').val(d.tupad_female_count);
                         
-                        // Condition check for PPES amount: if not equal to 0 or 0.00, use database value. Otherwise, auto-compute.
+                        const hasRis = d.ppes_issuance_ris && d.ppes_issuance_ris.trim() !== '';
+                        const hasDate = d.ppes_date_issued && d.ppes_date_issued.trim() !== '' && d.ppes_date_issued !== '0000-00-00';
+                        
+                        $('#edit_ppes_issuance_ris').prop('readonly', hasRis);
+                        $('#edit_ppes_date_issued').prop('readonly', hasDate);
+
+                        evaluatePPESAutoValues();
+
+                        if (d.ppes_count > 0) { $('#edit_ppes_count').val(d.ppes_count); }
+                        if (d.ppes_female > 0) { $('#edit_ppes_female').val(d.ppes_female); }
                         const dbPpesAmount = parseFloat(d.ppes_amount);
                         if (!isNaN(dbPpesAmount) && dbPpesAmount !== 0) {
                             $('#edit_ppes_amount').val(d.ppes_amount);
-                        } else {
-                            const calculatedPpeAmount = (parseFloat(d.tupad_total_count) || 0) * ppeRate;
-                            $('#edit_ppes_amount').val(calculatedPpeAmount.toFixed(2));
+                        }
+
+                        // GSIS Enrollment Date evaluation and read-only toggle
+                        const hasGsisDate = d.gsis_enrollment_date && d.gsis_enrollment_date.trim() !== '' && d.gsis_enrollment_date !== '0000-00-00';
+                        $('#edit_gsis_enrollment_date').prop('readonly', hasGsisDate);
+                        
+                        evaluateGSISAutoValues();
+
+                        if (d.gsis_enrollment_benefs > 0) { $('#edit_gsis_enrollment_benefs').val(d.gsis_enrollment_benefs); }
+                        if (d.gsis_enrollment_female > 0) { $('#edit_gsis_enrollment_female').val(d.gsis_enrollment_female); }
+                        const dbGsisAmount = parseFloat(d.gsis_enrollment_amount);
+                        if (!isNaN(dbGsisAmount) && dbGsisAmount !== 0) {
+                            $('#edit_gsis_enrollment_amount').val(d.gsis_enrollment_amount);
                         }
 
                         $('#edit_orientation_benefs').val(d.orientation_benefs);
                         $('#edit_orientation_employment_period').val(d.orientation_employment_period);
-                        
-                        $('#edit_gsis_enrollment_benefs').val(d.tupad_total_count);
-                        $('#edit_gsis_enrollment_female').val(d.tupad_female_count);
-                        
-                        // Condition check for GSIS amount: if not equal to 0 or 0.00, use database value. Otherwise, auto-compute.
-                        const dbGsisAmount = parseFloat(d.gsis_enrollment_amount);
-                        if (!isNaN(dbGsisAmount) && dbGsisAmount !== 0) {
-                            $('#edit_gsis_enrollment_amount').val(d.gsis_enrollment_amount);
-                        } else {
-                            const calculatedGsisAmount = (parseFloat(d.tupad_total_count) || 0) * gsisRate;
-                            $('#edit_gsis_enrollment_amount').val(calculatedGsisAmount.toFixed(2));
-                        }
 
                         $('#edit_ongoing_implementation_benefs').val(d.ongoing_implementation_benefs);
                         $('#edit_completed_employment_period').val(d.completed_employment_period);
@@ -923,7 +966,6 @@
         }
     });
 
-    // Calculate Edit Payout Service Cost dynamically
     function calculateEditPayoutServiceCost() {
         const benefs = parseFloat($('#edit_completed_employment_benefs').val()) || 0;
         const selectedOption = $('#edit_payout_method').find(':selected');
@@ -943,10 +985,11 @@
         const currentInputTarget = parseFloat($('#target').val()) || 0;
         const $noticeContainer = $('#editTargetNoticeContainer');
         const $noticeText = $('#editTargetNoticeText');
-        const $saveBtn = $('#editModal').find('button[type="submit"]');
+        const $targetInput = $('#target');
 
         if (!adlNo || !transactId) {
             $noticeContainer.hide();
+            $targetInput.prop('readonly', false);
             return;
         }
 
@@ -964,17 +1007,16 @@
                     if ((editTargetLimitData.encoded + currentInputTarget) > editTargetLimitData.max) {
                         $noticeText.html(`<strong>Exceeded Target Limit!</strong> Max Allowed: <b>${editTargetLimitData.max}</b> | Other Encoded: <b>${editTargetLimitData.encoded}</b>. Total exceeds allowed limit.`);
                         $noticeContainer.show();
-                        $saveBtn.prop('disabled', true);
+                        $targetInput.prop('readonly', true);
                     } else {
                         $noticeContainer.hide();
-                        $saveBtn.prop('disabled', false);
+                        $targetInput.prop('readonly', false);
                     }
                 }
             }
         });
     }
 
-    // Trigger validation when typing in target input inside edit modal
     $(document).on('input', '#target', function () {
         validateEditTargetLimit();
     });
@@ -987,10 +1029,11 @@
         const currentInputSubsidy = parseFloat($('#edit_subsidy_cost').val().replace(/,/g, '')) || 0;
         const $noticeContainer = $('#editSubsidyNoticeContainer');
         const $noticeText = $('#editSubsidyNoticeText');
-        const $saveBtn =$('#editModal').find('button[type="submit"]');
+        const $subsidyInput =$('#edit_subsidy_cost');
 
         if (!adlNo || !transactId) {
             $noticeContainer.hide();
+            $subsidyInput.prop('readonly', false);
             return;
         }
 
@@ -1008,17 +1051,16 @@
                     if ((editSubsidyLimitData.encoded + currentInputSubsidy) > editSubsidyLimitData.max) {
                         $noticeText.html(`<strong>Exceeded Subsidy Limit!</strong> Max Allowed: <b>₱${editSubsidyLimitData.max.toLocaleString(undefined, {minimumFractionDigits: 2})}</b> | Other Encoded: <b>₱${editSubsidyLimitData.encoded.toLocaleString(undefined, {minimumFractionDigits: 2})}</b>.`);
                         $noticeContainer.show();
-                        $saveBtn.prop('disabled', true);
+                        $subsidyInput.prop('readonly', true);
                     } else {
                         $noticeContainer.hide();
-                        $saveBtn.prop('disabled', false);
+                        $subsidyInput.prop('readonly', false);
                     }
                 }
             }
         });
     }
 
-    // Trigger validation on input change for subsidy cost
     $(document).on('input', '#edit_subsidy_cost', function () {
         validateEditSubsidyLimit();
     });
