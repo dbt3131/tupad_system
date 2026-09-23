@@ -156,6 +156,11 @@
                 </div>
             </div>
 
+<div class="alert alert-info py-2 small mb-3 no-print">
+    <i class="bi bi-info-circle me-1"></i> <strong>Note:</strong> All completed and fully paid implementations are automatically hidden from this report.
+</div>
+
+
             <!-- Report Results Table -->
             <div class="card shadow-sm border-0">
                 <div class="card-body">
@@ -232,6 +237,18 @@
                                         $summary_grouped = [];
 
                                         foreach ($report_data as $row) {
+                                            // Check if fully paid/complete; skip if true
+                                            $is_paid = (
+                                                !empty($row['payment_alob_no']) && $row['payment_alob_no'] !== '0' &&
+                                                !empty($row['payment_dv_no']) && $row['payment_dv_no'] !== '0' &&
+                                                !empty($row['payment_check_no']) && $row['payment_check_no'] !== '0' &&
+                                                !empty($row['payment_amount']) && $row['payment_amount'] !== '0' && $row['payment_amount'] !== '0.00' &&
+                                                !empty($row['payment_date']) && $row['payment_date'] !== '0000-00-00'
+                                            );
+                                            if ($is_paid) {
+                                                continue;
+                                            }
+
                                             $prov_name = !empty($row['province_name']) ? $row['province_name'] : 'UNKNOWN PROVINCE';
                                             
                                             if (!isset($summary_grouped[$prov_name])) {
@@ -269,14 +286,6 @@
                                             // Payment Check & Payroll Calculations
                                             $completed_period = $row['completed_employment_amount'] ?? '';
                                             $is_completed_valid = (!empty($completed_period) && $completed_period !== '0000-00-00');
-                                            
-                                            $is_paid = (
-                                                !empty($row['payment_alob_no']) && $row['payment_alob_no'] !== '0' &&
-                                                !empty($row['payment_dv_no']) && $row['payment_dv_no'] !== '0' &&
-                                                !empty($row['payment_check_no']) && $row['payment_check_no'] !== '0' &&
-                                                !empty($row['payment_amount']) && $row['payment_amount'] !== '0' && $row['payment_amount'] !== '0.00' &&
-                                                !empty($row['payment_date']) && $row['payment_date'] !== '0000-00-00'
-                                            );
 
                                             if ($is_completed_valid && !$is_paid) {
                                                 $p_ben = $row['ongoing_implementation_benefs'] ?? 0;
@@ -433,6 +442,17 @@
                                         $total_not_yet_ben = 0; $total_not_yet_amt = 0;
 
                                         foreach ($report_data as $row) {
+                                            $is_paid = (
+                                                !empty($row['payment_alob_no']) && $row['payment_alob_no'] !== '0' &&
+                                                !empty($row['payment_dv_no']) && $row['payment_dv_no'] !== '0' &&
+                                                !empty($row['payment_check_no']) && $row['payment_check_no'] !== '0' &&
+                                                !empty($row['payment_amount']) && $row['payment_amount'] !== '0' && $row['payment_amount'] !== '0.00' &&
+                                                !empty($row['payment_date']) && $row['payment_date'] !== '0000-00-00'
+                                            );
+                                            if ($is_paid) {
+                                                continue;
+                                            }
+
                                             $no_of_days  = $row['no_of_days'] ?? 0;
                                             $wage_amount = $row['wage_amount'] ?? 0;
                                             $target      = $row['target'] ?? 0;
@@ -454,14 +474,6 @@
 
                                             $completed_period = $row['completed_employment_amount'] ?? '';
                                             $is_completed_valid = (!empty($completed_period) && $completed_period !== '0000-00-00');
-                                            
-                                            $is_paid = (
-                                                !empty($row['payment_alob_no']) && $row['payment_alob_no'] !== '0' &&
-                                                !empty($row['payment_dv_no']) && $row['payment_dv_no'] !== '0' &&
-                                                !empty($row['payment_check_no']) && $row['payment_check_no'] !== '0' &&
-                                                !empty($row['payment_amount']) && $row['payment_amount'] !== '0' && $row['payment_amount'] !== '0.00' &&
-                                                !empty($row['payment_date']) && $row['payment_date'] !== '0000-00-00'
-                                            );
 
                                             if ($is_completed_valid && !$is_paid) {
                                                 $p_ben = $row['ongoing_implementation_benefs'] ?? 0;
@@ -560,6 +572,17 @@
 
                                         <?php foreach ($report_data as $row): ?>
                                             <?php 
+                                            $is_paid = (
+                                                !empty($row['payment_alob_no']) && $row['payment_alob_no'] !== '0' &&
+                                                !empty($row['payment_dv_no']) && $row['payment_dv_no'] !== '0' &&
+                                                !empty($row['payment_check_no']) && $row['payment_check_no'] !== '0' &&
+                                                !empty($row['payment_amount']) && $row['payment_amount'] !== '0' && $row['payment_amount'] !== '0.00' &&
+                                                !empty($row['payment_date']) && $row['payment_date'] !== '0000-00-00'
+                                            );
+                                            if ($is_paid) {
+                                                continue;
+                                            }
+
                                             $no_of_days  = $row['no_of_days'] ?? 0;
                                             $wage_amount = $row['wage_amount'] ?? 0;
                                             $target      = $row['target'] ?? 0;
@@ -577,14 +600,6 @@
 
                                             $completed_period = $row['completed_employment_amount'] ?? '';
                                             $is_completed_valid = (!empty($completed_period) && $completed_period !== '0000-00-00');
-                                            
-                                            $is_paid = (
-                                                !empty($row['payment_alob_no']) && $row['payment_alob_no'] !== '0' &&
-                                                !empty($row['payment_dv_no']) && $row['payment_dv_no'] !== '0' &&
-                                                !empty($row['payment_check_no']) && $row['payment_check_no'] !== '0' &&
-                                                !empty($row['payment_amount']) && $row['payment_amount'] !== '0' && $row['payment_amount'] !== '0.00' &&
-                                                !empty($row['payment_date']) && $row['payment_date'] !== '0000-00-00'
-                                            );
 
                                             if ($is_completed_valid && !$is_paid) {
                                                 $ppes_beneficiaries = $row['ongoing_implementation_benefs'] ?? 0;
