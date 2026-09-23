@@ -290,7 +290,8 @@
                                                 $todayObj = new DateTime('now');
                                                 $todayObj->setTime(0, 0, 0);
 
-                                                if ($endDateObj <= $todayObj) {
+                                                // Changed from <= to < so today's end date is considered still ongoing today
+                                                if ($endDateObj < $todayObj) {
                                                     $is_expired_end_date = true;
                                                 }
                                             }
@@ -466,7 +467,8 @@
                                                 $endDateObj->setTime(0, 0, 0);
                                                 $todayObj = new DateTime('now');
                                                 $todayObj->setTime(0, 0, 0);
-                                                if ($endDateObj <= $todayObj) {
+                                                // Changed from <= to < so today's end date is considered still ongoing today
+                                                if ($endDateObj < $todayObj) {
                                                     $is_expired_end_date = true;
                                                 }
                                             }
@@ -581,7 +583,8 @@
                                                 $endDateObj->setTime(0, 0, 0);
                                                 $todayObj = new DateTime('now');
                                                 $todayObj->setTime(0, 0, 0);
-                                                if ($endDateObj <= $todayObj) {
+                                                // Changed from <= to < so today's end date is considered still ongoing today
+                                                if ($endDateObj < $todayObj) {
                                                     $is_expired_end_date = true;
                                                 }
                                             }
