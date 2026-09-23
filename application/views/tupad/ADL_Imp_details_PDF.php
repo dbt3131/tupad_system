@@ -177,9 +177,16 @@ function display_val($value, $type = 'text') {
                                 <th>Remarks</th>
                                 <td><?= display_val($transaction['remarks']); ?></td>
                             </tr>
-                                                        <tr>
+                            <!-- Added Subsidy Cost and Admin Cost -->
+                            <tr>
+                                <th>Subsidy Cost</th>
+                                <td class="fw-bold text-success"><?= display_val($transaction['subsidy_cost'], 'currency'); ?></td>
+                                <th>Admin Cost</th>
+                                <td class="fw-bold text-success"><?= display_val($transaction['admin_cost'], 'currency'); ?></td>
+                            </tr>
+                            <tr>
                                  <th>Audrey Reference No</th>
-                                <td><?= display_val($transaction['audrey_reference_no']); ?></td>
+                                <td colspan="3"><?= display_val($transaction['audrey_reference_no']); ?></td>
                             </tr>
                             <tr>
                                 <th>GPAI Info</th>
