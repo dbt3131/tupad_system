@@ -154,7 +154,7 @@
                             <button type="submit" class="btn btn-primary w-100"><i class="bi bi-filter me-1"></i> Generate</button>
                     <!-- Example PHP/HTML for your Export Button -->
 <a href="<?= site_url('tupad_report/export_excel?start_date=' . $start_date . '&end_date=' . $end_date . '&province=' . ($selected_province ?? '')); ?>" class="btn btn-success">
-    Export to Excel
+    Excel
 </a>
                         </div>
                     </form>

@@ -36,7 +36,6 @@ class Tupad_Report extends CI_Controller {
 
 
 
-
 public function export_excel() {
         $start_date    = $this->input->get('start_date');
         $end_date      = $this->input->get('end_date');
@@ -48,6 +47,16 @@ public function export_excel() {
         // Initialize PhpSpreadsheet
         $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
+
+        // Common border style definition
+        $borderStyle = [
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                    'color' => ['argb' => 'FF808080'], // Light black/gray border
+                ],
+            ],
+        ];
 
         $is_summary = ($province_id === 'summary');
 
@@ -234,6 +243,9 @@ public function export_excel() {
             $sheet->setCellValue('L' . $row_num, $grand_summary['ongoing_amt'] > 0 ? $grand_summary['ongoing_amt'] : '');
             $sheet->setCellValue('M' . $row_num, $grand_summary['not_yet_ben'] > 0 ? $grand_summary['not_yet_ben'] : '');
             $sheet->setCellValue('N' . $row_num, $grand_summary['not_yet_amt'] > 0 ? $grand_summary['not_yet_amt'] : '');
+
+            // Apply borders to summary table range (A1 to N[row_num])
+            $sheet->getStyle('A1:N' . $row_num)->applyFromArray($borderStyle);
 
         } else {
             // --- STANDARD DETAILED VIEW (All Provinces or Specific Province) ---
@@ -486,6 +498,9 @@ public function export_excel() {
 
                 $row_num++;
             }
+
+            // Apply borders to detailed table range (A1 to V[row_num - 1])
+            $sheet->getStyle('A1:V' . ($row_num - 1))->applyFromArray($borderStyle);
         }
 
         // Output / Download file
