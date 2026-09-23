@@ -193,25 +193,46 @@
                                                     $is_fully_complete = ($c1 && $c2 && $c3 && $c4 && $c5 && $c6 && $c7 && $c8 && $c9 && $c10);
                                                 ?>
                                                 <tr>
-                                                    <!-- Column 1: Core Identification & Dates -->
-                                                    <td>
-                                                        <div class="d-flex flex-column">
-                                                            <div class="d-flex align-items-center gap-2 mb-1">
-                                                                <span class="fw-bold text-primary fs-6"><?= html_escape($row['adl_no']); ?></span>
-                                                                <?php if ($is_fully_complete): ?>
-                                                                    <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-2 py-1">
-                                                                        <i class="bi bi-check-circle-fill me-1"></i> Completed
-                                                                    </span>
-                                                                <?php else: ?>
-                                                                    <span class="badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25 px-2 py-1">
-                                                                        In Progress
-                                                                    </span>
-                                                                <?php endif; ?>
-                                                            </div>
-                                                            <span class="text-muted small mb-1 font-monospace">Ref: <?= html_escape($row['implementation_reference_no']); ?></span>
-                                                            <span class="text-secondary small"><i class="bi bi-calendar3 me-1"></i>Encoded: <?= html_escape($row['encoded_date'] ?? 'N/A'); ?></span>
-                                                        </div>
-                                                    </td>
+
+
+
+
+
+
+
+                                       <!-- Column 1: Core Identification, Dates & Target Info -->
+<td>
+    <div class="d-flex flex-column">
+        <div class="d-flex align-items-center gap-2 mb-1">
+            <span class="fw-bold text-primary fs-6"><?= html_escape($row['adl_no']); ?></span>
+            <?php if ($is_fully_complete): ?>
+                <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-2 py-1">
+                    <i class="bi bi-check-circle-fill me-1"></i> Completed
+                </span>
+            <?php else: ?>
+                <span class="badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25 px-2 py-1">
+                    In Progress
+                </span>
+            <?php endif; ?>
+        </div>
+        <span class="text-muted small mb-1 font-monospace">Ref: <?= html_escape($row['implementation_reference_no']); ?></span>
+        <span class="text-secondary small mb-1"><i class="bi bi-calendar3 me-1"></i>Encoded: <?= html_escape($row['encoded_date'] ?? 'N/A'); ?></span>
+        
+        <!-- Added Target and Days Info -->
+        <div class="d-flex gap-3 mt-1 pt-1 border-top border-light small text-dark fw-medium">
+            <span><i class="bi bi-people me-1 text-primary"></i>Target: <?= number_format($row['target']); ?></span>
+            <span><i class="bi bi-clock-history me-1 text-secondary"></i>Days: <?= html_escape($row['no_of_days']); ?></span>
+        </div>
+    </div>
+</td>
+
+
+
+
+
+
+
+
 
                                                     <!-- Column 2: Location & Proponent info -->
                                                     <td>
