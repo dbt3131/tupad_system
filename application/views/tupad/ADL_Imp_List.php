@@ -319,6 +319,14 @@
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     
+<!-- Edit Notice Container -->
+<div class="col-12" id="editTargetNoticeContainer" style="display: none;">
+    <div class="alert alert-danger py-2 px-3 small mb-2 d-flex align-items-center" role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-2 fs-6"></i>
+        <div id="editTargetNoticeText"></div>
+    </div>
+</div>
+
                     <form action="<?= site_url('adl/update_transaction_record'); ?>" method="POST" id="editTransactionForm">
                         <input type="hidden" name="adl_transact_id" id="edit_adl_transact_id">
 
@@ -358,14 +366,7 @@
                                     <div class="row g-3">
                                         <div class="col-md-2">
                                             <label class="form-label fw-semibold small">ADL Number</label>
-                                            <select id="edit_adl_no" name="adl_no" class="form-select" disabled title="Cannot be edited">
-                                                <option value="">-- Select ADL --</option>
-                                                <?php if (!empty($ADL)): ?>
-                                                    <?php foreach ($ADL as $ad): ?>
-                                                        <option value="<?= html_escape($ad['adl_no']); ?>"><?= html_escape($ad['adl_no']); ?></option>
-                                                    <?php endforeach; ?>
-                                                <?php endif; ?>
-                                            </select>
+                                            <input type="text" id="edit_adl_no" name="adl_no" class="form-control" readonly title="Cannot be edited">
                                         </div>
                                         <div class="col-md-3">
                                             <label class="form-label fw-semibold small">Reference No.</label>
@@ -903,6 +904,50 @@ $('#edit_gsis_enrollment_amount').val(calculatedGsisAmount.toFixed(2));
 
     $('#edit_completed_employment_benefs').on('input', calculateEditPayoutServiceCost);
     $('#edit_payout_method').on('change', calculateEditPayoutServiceCost);
+
+    let editTargetLimitData = { max: 0, encoded: 0, remaining: 0 };
+
+function validateEditTargetLimit() {
+    const adlNo = $('#edit_adl_no').val();
+    const transactId = $('#edit_adl_transact_id').val();
+    const currentInputTarget = parseFloat($('#target').val()) || 0;
+    const $noticeContainer = $('#editTargetNoticeContainer');
+    const $noticeText = $('#editTargetNoticeText');
+    const $saveBtn =$('#editModal').find('button[type="submit"]');
+
+    if (!adlNo || !transactId) {
+        $noticeContainer.hide();
+        return;
+    }
+
+    $.ajax({
+        url: "<?= site_url('adl/check_adl_target_limit_edit'); ?>",
+        type: "GET",
+        data: { adl_no: adlNo, transact_id: transactId },
+        dataType: "json",
+        success: function (response) {
+            if (response.status && response.data) {
+                editTargetLimitData.max = response.data.max_target;
+                editTargetLimitData.encoded = response.data.encoded_target;
+                editTargetLimitData.remaining = response.data.remaining_target;
+
+                if ((editTargetLimitData.encoded + currentInputTarget) > editTargetLimitData.max) {
+                    $noticeText.html(`<strong>Exceeded Target Limit!</strong> Max Allowed: <b>${editTargetLimitData.max}</b> | Other Encoded: <b>${editTargetLimitData.encoded}</b>. Total exceeds allowed limit.`);
+                    $noticeContainer.show();
+                    $saveBtn.prop('disabled', true);
+                } else {
+                    $noticeContainer.hide();
+                    $saveBtn.prop('disabled', false);
+                }
+            }
+        }
+    });
+}
+
+// Trigger validation when typing in target input inside edit modal
+$(document).on('input', '#target', function () {
+    validateEditTargetLimit();
+});
     </script>
 </body>
 

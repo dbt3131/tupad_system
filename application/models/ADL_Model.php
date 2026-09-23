@@ -425,7 +425,24 @@ public function get_remaining_target_by_adl($adl_no) {
 }
 
 
+public function get_remaining_target_by_adl_except($adl_no, $exclude_transact_id) {
+    // Get total allowed target from adl_registry[cite: 4]
+    $adl = $this->db->select('target_benefs')->where('adl_no', $adl_no)->get('adl_registry')->row_array();
+    $max_target = $adl ? intval($adl['target_benefs']) : 0;
 
+    // Get sum of encoded targets from other transactions for this adl_no[cite: 5]
+    $this->db->select_sum('target', 'total_encoded_target');
+    $this->db->where('adl_no', $adl_no);
+    $this->db->where('adl_transact_id !=', $exclude_transact_id);
+    $query = $this->db->get('adl_transactions')->row_array();
+    $encoded_target = $query ? intval($query['total_encoded_target']) : 0;
+
+    return [
+        'max_target' => $max_target,
+        'encoded_target' => $encoded_target,
+        'remaining_target' => max(0, $max_target - $encoded_target)
+    ];
+}
 
 
 

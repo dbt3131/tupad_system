@@ -598,6 +598,18 @@ public function get_generated_reference_no() {
             return is_null($val) ? '' : strip_tags($val);
         };
 
+        $transact_id = $this->input->post('adl_transact_id', true);
+$adl_no = $this->input->post('adl_no', true); // Note: Make sure edit_adl_no is enabled or passed as a hidden input if disabled fields don't submit via POST
+$target_input = (int) $this->input->post('target', true);
+
+// SERVER-SIDE TARGET LIMIT CHECK (EDIT)
+$target_info = $this->ADL_Model->get_remaining_target_by_adl_except($adl_no, $transact_id);
+if (($target_info['encoded_target'] + $target_input) > $target_info['max_target']) {
+    $this->session->set_flashdata('error', 'Security Block: Updated target exceeds the maximum allowed target beneficiaries (' . $target_info['max_target'] . ') for ADL No: ' . $adl_no);
+    redirect('adl/transaction_report');
+    return;
+}
+
         $headers = [
             'ADL Number', 'Reference No', 'Audrey Reference No', 'Province', 'Area / Municipality', 'Barangay', 
             'District', 'Classification', 'Proponent', 'Sponsor', 'Date Coordinated', 
@@ -794,7 +806,16 @@ public function check_adl_target_limit() {
 }
 
 
-
+public function check_adl_target_limit_edit() {
+    $adl_no = $this->input->get('adl_no');
+    $transact_id = $this->input->get('transact_id');
+    if ($adl_no && $transact_id) {
+        $result = $this->ADL_Model->get_remaining_target_by_adl_except($adl_no, $transact_id);
+        echo json_encode(['status' => true, 'data' => $result]);
+    } else {
+        echo json_encode(['status' => false, 'data' => null]);
+    }
+}
 
 
 
