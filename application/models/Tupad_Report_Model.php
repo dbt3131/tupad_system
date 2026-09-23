@@ -220,7 +220,6 @@ public function get_implementation_status_report($start_date = null, $end_date =
         return [];
     }
 
-    // Fetch the wage amount dynamically from the wage_rate table
     $wage_query = $this->db->select('wage_amount')
                            ->from('wage_rate')
                            ->order_by('wage_id', 'DESC')
@@ -240,12 +239,11 @@ public function get_implementation_status_report($start_date = null, $end_date =
     $this->db->join('code_proponent cp', 'cp.proponent_id = adl_transactions.implementation_proponent', 'left');
     $this->db->join('refprovince', 'refprovince.provCode = adl_transactions.implementation_province', 'left');
 
-    // Apply province filter if selected
-    if (!empty($province_id)) {
+    // Only apply province filter if it's a specific province code (not empty and not 'summary')
+    if (!empty($province_id) && $province_id !== 'summary') {
         $this->db->where('adl_transactions.implementation_province', $province_id);
     }
 
-    // Use DATE() to ignore the time component during comparison
     $this->db->group_start();
         $this->db->where('DATE(adl_transactions.encoded_date) >=', $start_date);
         $this->db->where('DATE(adl_transactions.encoded_date) <=', $end_date);
