@@ -36,7 +36,6 @@
             overflow-x: hidden;
         } 
 
-        /* Custom Button & Modal Header Overrides for #0f172a */
         .btn-primary, .btn-outline-primary {
             background-color: #0f172a !important;
             border-color: #0f172a !important;
@@ -81,26 +80,6 @@
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
             max-width: 1100px;
             margin: 0 auto;
-        }
-
-        .nav-tabs .nav-link {
-            color: var(--text-muted);
-            font-weight: 500;
-            border: none;
-            border-bottom: 3px solid transparent;
-            padding: 0.75rem 1rem;
-        }
-
-        .nav-tabs .nav-link.active {
-            color: var(--primary-color);
-            background-color: transparent;
-            border-bottom: 3px solid var(--primary-color);
-            font-weight: 600;
-        }
-
-        .nav-tabs .nav-link:hover {
-            border-color: transparent;
-            color: var(--primary-light);
         }
 
         .form-control::placeholder {
@@ -177,343 +156,161 @@
             <div class="container-fluid px-0">
                 <div class="form-card p-4 p-md-5">
 
-<!-- Target Notice (You likely already have this) -->
-<div class="col-12" id="targetNoticeContainer" style="display: none;">
-    <div class="alert alert-danger py-2 px-3 small mb-2 d-flex align-items-center" role="alert">
-        <i class="bi bi-exclamation-triangle-fill me-2 fs-6"></i>
-        <div id="targetNoticeText"></div>
-    </div>
-</div>
+                    <div class="col-12" id="targetNoticeContainer" style="display: none;">
+                        <div class="alert alert-danger py-2 px-3 small mb-2 d-flex align-items-center" role="alert">
+                            <i class="bi bi-exclamation-triangle-fill me-2 fs-6"></i>
+                            <div id="targetNoticeText"></div>
+                        </div>
+                    </div>
 
-<!-- Subsidy Notice (Make sure this exists in your view!) -->
-<div class="col-12" id="subsidyNoticeContainer" style="display: none;">
-    <div class="alert alert-danger py-2 px-3 small mb-2 d-flex align-items-center" role="alert">
-        <i class="bi bi-exclamation-triangle-fill me-2 fs-6"></i>
-        <div id="subsidyNoticeText"></div>
-    </div>
-</div>
+                    <div class="col-12" id="subsidyNoticeContainer" style="display: none;">
+                        <div class="alert alert-danger py-2 px-3 small mb-2 d-flex align-items-center" role="alert">
+                            <i class="bi bi-exclamation-triangle-fill me-2 fs-6"></i>
+                            <div id="subsidyNoticeText"></div>
+                        </div>
+                    </div>
+
                     <form action="<?= site_url('adl/store_transaction'); ?>" method="POST" id="transactionForm">
                         
-                        <ul class="nav nav-tabs mb-4" id="encodingTabs" role="tablist">
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link active" id="general-tab" data-bs-toggle="tab" data-bs-target="#general-pane" type="button" role="tab">
-                                    <i class="bi bi-info-circle me-1"></i> General Info
-                                </button>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="appraisal-tab" data-bs-toggle="tab" data-bs-target="#appraisal-pane" type="button" role="tab">
-                                    <i class="bi bi-clipboard-check me-1"></i> Appraisal & PPES
-                                </button>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="orientation-tab" data-bs-toggle="tab" data-bs-target="#orientation-pane" type="button" role="tab">
-                                    <i class="bi bi-people me-1"></i> Orientation & GSIS
-                                </button>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="implementation-tab" data-bs-toggle="tab" data-bs-target="#implementation-pane" type="button" role="tab">
-                                    <i class="bi bi-briefcase me-1"></i> Implementation Status
-                                </button>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="payment-tab" data-bs-toggle="tab" data-bs-target="#payment-pane" type="button" role="tab">
-                                    <i class="bi bi-cash-stack me-1"></i> Payment & Payout
-                                </button>
-                            </li>
-                        </ul>
+                        <h5 class="fw-bold mb-4 text-primary">
+                            <i class="bi bi-info-circle me-1"></i> General Information
+                        </h5>
 
-                        <div class="tab-content" id="encodingTabsContent">
+                        <div class="row g-3">
+                            <div class="col-md-3">
+                                <label class="form-label fw-semibold small">ADL Number</label>
+                                <select id="adl_no" name="adl_no" class="form-select" style="width: 100%;" required>
+                                    <option value="">-Select ADL-</option>
+                                    <?php if (!empty($ADL)): ?>
+                                        <?php foreach ($ADL as $ad): ?>
+                                            <option value="<?= html_escape($ad['adl_no']); ?>" <?= set_select('adl_no', $ad['adl_no']); ?>>
+                                                <?= html_escape($ad['adl_no']); ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    <?php endif; ?>
+                                </select>
+                            </div>
+                           <div class="col-md-3">
+                                <label class="form-label fw-semibold small">Audrey Reference No.</label>
+                                <input type="text" name="audrey_reference_no" id="audrey_reference_no" oninput="this.value = this.value.toUpperCase();" placeholder="Manual Reference No" class="form-control" autocomplete='OFF' required>
+                                <input type="hidden" name="implementation_reference_no" id="implementation_reference_no" class="form-control" placeholder="Auto-generated" readonly required>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label fw-semibold small">Date Coordinated</label>
+                                <input type="date" name="status_date" class="form-control" required>
+                            </div>
+                            <div class="col-md-1">
+                                <label class="form-label fw-semibold small"># of Days</label>
+                                <input type="text" name="no_of_days" class="form-control" placeholder="0" required autocomplete="OFF">
+                            </div>
+
+                            <div class="col-md-1">
+                                <label class="form-label fw-semibold small">Benefs</label>
+                                <input type="text" name="target" class="form-control" placeholder="0" required autocomplete="OFF">
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label fw-semibold small">Reformulated Target</label>
+                                <input type="text" name="reformulated_target" class="form-control" placeholder="0" autocomplete="OFF">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label fw-semibold small">Implementation Province</label>
+                                <select name="implementation_province" id="implementation_province" class="form-select" required>
+                                    <option value="" selected disabled>Select Province</option>
+                                    <?php if (!empty($provinces)): ?>
+                                        <?php foreach ($provinces as $prov): ?>
+                                            <option value="<?= html_escape($prov['provCode']); ?>">
+                                                <?= html_escape($prov['provDesc']); ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    <?php endif; ?>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label fw-semibold small">Implementation Area</label>
+                                <select name="implementation_area" id="implementation_area" class="form-select" required disabled>
+                                    <option value="" selected disabled>Select Province First</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-3">
+                                <label class="form-label fw-semibold small">Barangay</label>
+                                <select name="implementation_brgy" id="implementation_brgy" class="form-select" disabled>
+                                    <option value="" selected disabled>Select Municipality First</option>
+                                </select>
+                            </div>
+
+                           <div class="col-md-3">
+                             <label class="form-label fw-semibold small">District</label>
+                             <select name="implementation_district" id="implementation_district" class="form-select" style="width: 100%;" required>
+                                 <option value="" selected disabled>-- Select District --</option>
+                                 <?php if (!empty($districts)): ?>
+                                     <?php foreach ($districts as $dist): ?>
+                                         <option value="<?= html_escape($dist['district_id']); ?>">
+                                             <?= html_escape($dist['district_no']); ?>
+                                         </option>
+                                     <?php endforeach; ?>
+                                 <?php endif; ?>
+                             </select>
+                            </div>
+
+                            <div class="col-md-2">
+                                <label class="form-label fw-semibold small">Admin Cost %</label>
+                                <select name="wage_percentage" id="wage_percentage" class="form-select" required>
+                                    <option value="">Percentage</option>
+                                    <option value="2.5">2.5%</option>
+                                    <option value="3">3%</option>                          
+                                </select>
+                            </div>
+
+                            <div class="col-md-2">
+                                <label class="form-label fw-semibold small">Subsidy Cost</label>
+                                <input type="text" name="subsidy_cost" class="form-control" step="0.01" placeholder="Subsidy Cost" required autocomplete="OFF">
+                            </div>
+
+                            <div class="col-md-2">
+                                <label class="form-label fw-semibold small">Admin Cost</label>
+                                <input type="number" name="admin_cost" class="form-control" step="0.01" placeholder="Admin" required autocomplete="OFF">
+                            </div>
+
+                            <div class="col-md-3">
+                                <label class="form-label fw-semibold small">GPAI (Source of Funds)</label>
+                                <input type="text" name="gpai_info" class="form-control" placeholder="GPAI Funding" oninput="this.value = this.value.toUpperCase();" autocomplete="OFF">
+                            </div>
+
+                            <div class="col-md-3">
+                                <label class="form-label fw-semibold small">WAGE (Source of Funds)</label>
+                                <input type="text" name="wage_info" class="form-control" placeholder="Wage Funding" oninput="this.value = this.value.toUpperCase();" autocomplete="OFF">
+                            </div>
                             
-                            <!-- TAB 1: GENERAL INFORMATION -->
-                            <div class="tab-pane fade show active" id="general-pane" role="tabpanel" aria-labelledby="general-tab">
-                                <div class="row g-3">
-                                    <div class="col-md-3">
-                                        <label class="form-label fw-semibold small">ADL Number</label>
-                                        <select id="adl_no" name="adl_no" class="form-select" style="width: 100%;" required>
-                                            <option value="">-Select ADL-</option>
-                                            <?php if (!empty($ADL)): ?>
-                                                <?php foreach ($ADL as $ad): ?>
-                                                    <option value="<?= html_escape($ad['adl_no']); ?>" <?= set_select('adl_no', $ad['adl_no']); ?>>
-                                                        <?= html_escape($ad['adl_no']); ?>
-                                                    </option>
-                                                <?php endforeach; ?>
-                                            <?php endif; ?>
-                                        </select>
-                                    </div>
-                                   <div class="col-md-3">
-                                        <label class="form-label fw-semibold small">Audrey Reference No.</label>
-                                        <input type="text" name="audrey_reference_no" id="audrey_reference_no" oninput="this.value = this.value.toUpperCase();" placeholder="Manual Reference No" class="form-control" autocomplete='OFF' required>
-                                        <input type="hidden" name="implementation_reference_no" id="implementation_reference_no" class="form-control" placeholder="Auto-generated"  readonly required>
-                                    </div>
-                                    <div class="col-md-2">
-                                        <label class="form-label fw-semibold small">Date Coordinated</label>
-                                        <input type="date" name="status_date" class="form-control" required>
-                                    </div>
-                                    <div class="col-md-1">
-                                        <label class="form-label fw-semibold small"># of Days</label>
-                                        <input type="text" name="no_of_days" class="form-control" placeholder="0" required autocomplete="OFF">
-                                    </div>
-
-                                    <div class="col-md-1">
-                                        <label class="form-label fw-semibold small">Benefs</label>
-                                        <input type="text" name="target" class="form-control" placeholder="0" required autocomplete="OFF">
-                                    </div>
-                                    <div class="col-md-2">
-                                        <label class="form-label fw-semibold small">Reformulated Target</label>
-                                        <input type="text" name="reformulated_target" class="form-control" placeholder="0" autocomplete="OFF">
-                                    </div>
-                                    <div class="col-md-3">
-                                        <label class="form-label fw-semibold small">Implementation Province</label>
-                                        <select name="implementation_province" id="implementation_province" class="form-select" required>
-                                            <option value="" selected disabled>Select Province</option>
-                                            <?php if (!empty($provinces)): ?>
-                                                <?php foreach ($provinces as $prov): ?>
-                                                    <option value="<?= html_escape($prov['provCode']); ?>">
-                                                        <?= html_escape($prov['provDesc']); ?>
-                                                    </option>
-                                                <?php endforeach; ?>
-                                            <?php endif; ?>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-3">
-                                        <label class="form-label fw-semibold small">Implementation Area</label>
-                                        <select name="implementation_area" id="implementation_area" class="form-select" required disabled>
-                                            <option value="" selected disabled>Select Province First</option>
-                                        </select>
-                                    </div>
-
-                                    <div class="col-md-3">
-                                        <label class="form-label fw-semibold small">Barangay</label>
-                                        <select name="implementation_brgy" id="implementation_brgy" class="form-select" disabled>
-                                            <option value="" selected disabled>Select Municipality First</option>
-                                        </select>
-                                    </div>
-
-                                   <div class="col-md-3">
-                                     <label class="form-label fw-semibold small">District</label>
-                                     <select name="implementation_district" id="implementation_district" class="form-select" style="width: 100%;" required>
-                                         <option value="" selected disabled>-- Select District --</option>
-                                         <?php if (!empty($districts)): ?>
-                                             <?php foreach ($districts as $dist): ?>
-                                                 <option value="<?= html_escape($dist['district_id']); ?>">
-                                                     <?= html_escape($dist['district_no']); ?>
-                                                 </option>
-                                             <?php endforeach; ?>
-                                         <?php endif; ?>
-                                     </select>
-                                    </div>
-
-                                    <div class="col-md-2">
-                                        <label class="form-label fw-semibold small">Admin Cost %</label>
-                                        <select name="wage_percentage" id="wage_percentage" class="form-select" required>
-                                            <option value="">Percentage</option>
-                                            <option value="2.5">2.5%</option>
-                                            <option value="3">3%</option>                          
-                                        </select>
-                                    </div>
-
-                                    <div class="col-md-2">
-                                        <label class="form-label fw-semibold small">Subsidy Cost</label>
-                                        <input type="text" name="subsidy_cost" class="form-control" step="0.01" placeholder="Subsidy Cost" required autocomplete="OFF">
-                                    </div>
-
-                                    <div class="col-md-2">
-                                        <label class="form-label fw-semibold small">Admin Cost</label>
-                                        <input type="number" name="admin_cost" class="form-control" step="0.01" placeholder="Admin" required autocomplete="OFF">
-                                    </div>
-
-                                    <div class="col-md-3">
-                                        <label class="form-label fw-semibold small">GPAI (Source of Funds)</label>
-                                        <input type="text" name="gpai_info" class="form-control" placeholder="GPAI Funding" oninput="this.value = this.value.toUpperCase();"  autocomplete="OFF">
-                                    </div>
-
-                                    <div class="col-md-3">
-                                        <label class="form-label fw-semibold small">WAGE (Source of Funds)</label>
-                                        <input type="text" name="wage_info" class="form-control" placeholder="Wage Funding" oninput="this.value = this.value.toUpperCase();"  autocomplete="OFF">
-                                    </div>
-                                    
-                                    <div class="col-md-2">
-                                        <label class="form-label fw-semibold small">LGU Classification</label>
-                                        <input type="text" name="implementation_classification" class="form-control" placeholder="LGU Class" autocomplete="OFF" required>
-                                    </div>
-
-                                    <div class="col-md-3">
-                                        <label class="form-label fw-semibold small">Proponent</label>
-                                        <select name="imp_proponent" id="imp_proponent" class="form-select" style="width: 100%;" required>
-                                            <option value="" selected disabled>-- Select or type Proponent --</option>
-                                            <?php if (!empty($proponents)): ?>
-                                                <?php foreach ($proponents as $prop): ?>
-                                                    <option value="<?= html_escape($prop['proponent_id']); ?>">
-                                                        <?= html_escape($prop['proponent_name']); ?>
-                                                    </option>
-                                                <?php endforeach; ?>
-                                            <?php endif; ?>
-                                        </select>
-                                        <i><font color="red" size="2px">* Proponent not listed? <a href="<?= site_url('ADL/proponent_encode'); ?>">Add it here</a></i></font>
-                                    </div>
-
-                                    <div class="col-md-3">
-                                        <label class="form-label fw-semibold small">Sponsor</label>
-                                        <input type="text" name="imp_sponsor" class="form-control" placeholder="Sponsor" autocomplete="OFF" oninput="this.value = this.value.toUpperCase();" required>
-                                    </div>
-
-                                    <div class="col-md-4">
-                                        <label class="form-label fw-semibold small">Overall Remarks</label>
-                                        <input type="text" name="remarks" class="form-control" placeholder="Remarks" oninput="this.value = this.value.toUpperCase();" autocomplete="OFF">
-                                    </div>
-                                </div>
+                            <div class="col-md-2">
+                                <label class="form-label fw-semibold small">LGU Classification</label>
+                                <input type="text" name="implementation_classification" class="form-control" placeholder="LGU Class" autocomplete="OFF" required>
                             </div>
 
-                            <!-- TAB 2: APPRAISAL & PPES -->
-                            <div class="tab-pane fade" id="appraisal-pane" role="tabpanel" aria-labelledby="appraisal-tab">
-                                <div class="row g-3">
-                                    <div class="col-md-6">
-                                        <label class="form-label fw-semibold small">Appraisal Date Submitted</label>
-                                        <input type="text" name="appraisal_date_submitted" class="form-control" placeholder="Date Submitted" onfocus="this.type='date'" onblur="if(!this.value)this.type='text'">
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label fw-semibold small">Appraisal Date Approved</label>
-                                        <input type="text" name="appraisal_date_approved" class="form-control" placeholder="Date Approved" onfocus="this.type='date'" onblur="if(!this.value)this.type='text'" >
-                                    </div>
-                                    <div class="col-md-3">
-                                        <label class="form-label fw-semibold small">PPES RIS No.</label>
-                                        <input type="text" name="ppes_issuance_ris" class="form-control" placeholder="RIS Number" autocomplete="OFF">
-                                    </div>
-                                    <div class="col-md-3">
-                                        <label class="form-label fw-semibold small">PPES Date Issued</label>
-                                        <input type="text" name="ppes_date_issued" class="form-control" placeholder="Date Issued" onfocus="this.type='date'" onblur="if(!this.value)this.type='text'">
-                                    </div>
-                                    <div class="col-md-2">
-                                        <label class="form-label fw-semibold small">PPES Count</label>
-                                        <input type="number" name="ppes_count" id="ppes_count" class="form-control" placeholder="0">
-                                    </div>
-                                    <div class="col-md-2">
-                                        <label class="form-label fw-semibold small">PPES Female</label>
-                                        <input type="number" name="ppes_female" id="ppes_female" class="form-control" placeholder="0">
-                                    </div>
-                                    <div class="col-md-2">
-                                        <label class="form-label fw-semibold small">PPES Amount</label>
-                                        <input type="text" name="ppes_amount" id="ppes_amount" class="form-control" placeholder="0.00" readonly>
-                                    </div>
-                                </div>
+                            <div class="col-md-3">
+                                <label class="form-label fw-semibold small">Proponent</label>
+                                <select name="imp_proponent" id="imp_proponent" class="form-select" style="width: 100%;" required>
+                                    <option value="" selected disabled>-- Select or type Proponent --</option>
+                                    <?php if (!empty($proponents)): ?>
+                                        <?php foreach ($proponents as $prop): ?>
+                                            <option value="<?= html_escape($prop['proponent_id']); ?>">
+                                                <?= html_escape($prop['proponent_name']); ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    <?php endif; ?>
+                                </select>
+                                <i><font color="red" size="2px">* Proponent not listed? <a href="<?= site_url('ADL/proponent_encode'); ?>">Add it here</a></i></font>
                             </div>
 
-                            <!-- TAB 3: ORIENTATION & GSIS -->
-                            <div class="tab-pane fade" id="orientation-pane" role="tabpanel" aria-labelledby="orientation-tab">
-                                <div class="row g-3">
-                                    <div class="col-md-4">
-                                        <label class="form-label fw-semibold small">Orientation Date</label>
-                                        <input type="text" name="orientation_date" class="form-control" placeholder="Date Orientation" onfocus="this.type='date'" onblur="if(!this.value)this.type='text'">
-                                    </div>
-                                    <div class="col-md-4">
-                                        <label class="form-label fw-semibold small">Orientation Beneficiaries</label>
-                                        <input type="number" name="orientation_benefs" class="form-control" placeholder="0">
-                                    </div>
-                                    <div class="col-md-4">
-                                        <label class="form-label fw-semibold small">Employment Period</label>
-                                        <input type="text" name="orientation_employment_period" class="form-control" placeholder="Employment Period">
-                                    </div>
-                                    <div class="col-md-4">
-                                        <label class="form-label fw-semibold small">GSIS Enrollment Date</label>
-                                        <input type="text" name="gsis_enrollment_date" class="form-control" placeholder="GSIS Enrollment Date" onfocus="this.type='date'" onblur="if(!this.value)this.type='text'">
-                                    </div>
-                                    <div class="col-md-3">
-                                        <label class="form-label fw-semibold small">GSIS Beneficiaries</label>
-                                        <input type="number" name="gsis_enrollment_benefs" id="gsis_benefs" class="form-control" placeholder="0">
-                                    </div>
-                                    <div class="col-md-2">
-                                        <label class="form-label fw-semibold small">GSIS Female</label>
-                                        <input type="number" name="gsis_enrollment_female" id="gsis_female" class="form-control" placeholder="0">
-                                    </div>
-                                    <div class="col-md-3">
-                                        <label class="form-label fw-semibold small">GSIS Amount</label>
-                                        <input type="text" name="gsis_enrollment_amount" id="gsis_amount" class="form-control" placeholder="0.00" readonly>
-                                    </div>
-                                </div>
+                            <div class="col-md-3">
+                                <label class="form-label fw-semibold small">Sponsor</label>
+                                <input type="text" name="imp_sponsor" class="form-control" placeholder="Sponsor" autocomplete="OFF" oninput="this.value = this.value.toUpperCase();" required>
                             </div>
 
-                            <!-- TAB 4: IMPLEMENTATION & COMPLETION STATUS -->
-                            <div class="tab-pane fade" id="implementation-pane" role="tabpanel" aria-labelledby="implementation-tab">
-                                <div class="row g-3">
-                                    <div class="col-md-4">
-                                        <label class="form-label fw-semibold small">Implementation Start Date</label>
-                                        <input type="text" name="ongoing_implementation_start_date" class="form-control" placeholder="Start Date" onfocus="this.type='date'" onblur="if(!this.value)this.type='text'">
-                                    </div>
-                                    <div class="col-md-4">
-                                        <label class="form-label fw-semibold small">Implementation End Date</label>
-                                        <input type="text" name="ongoing_implementation_end_date" class="form-control" placeholder="End Date" onfocus="this.type='date'" onblur="if(!this.value)this.type='text'">
-                                    </div>
-                                    <div class="col-md-4">
-                                        <label class="form-label fw-semibold small">Ongoing Beneficiaries</label>
-                                        <input type="number" name="ongoing_implementation_benefs" class="form-control" placeholder="0">
-                                    </div>
-                                    <div class="col-md-3">
-                                        <label class="form-label fw-semibold small">Completed Period</label>
-                                        <input type="text" name="completed_employment_period" class="form-control" placeholder="Period">
-                                    </div>
-                                    <div class="col-md-3">
-                                        <label class="form-label fw-semibold small">Completed Beneficiaries</label>
-                                        <input type="number" name="completed_employment_benefs" id="completed_benefs" class="form-control" placeholder="0">
-                                    </div>
-                                    <div class="col-md-3">
-                                        <label class="form-label fw-semibold small">Completed Amount</label>
-                                        <input type="text" name="completed_employment_amount" class="form-control" placeholder="0.00">
-                                    </div>
-                                    <div class="col-md-3">
-                                        <label class="form-label fw-semibold small">Documentation Status</label>
-                                        <input type="text" name="completed_employment_documentation" class="form-control" placeholder="Remarks/Status">
-                                    </div>
-                                </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold small">Overall Remarks</label>
+                                <input type="text" name="remarks" class="form-control" placeholder="Remarks" oninput="this.value = this.value.toUpperCase();" autocomplete="OFF">
                             </div>
-
-                            <!-- TAB 5: PAYMENT & PAYOUT DETAILS -->
-                            <div class="tab-pane fade" id="payment-pane" role="tabpanel" aria-labelledby="payment-tab">
-                                <div class="row g-3">
-                                    <div class="col-md-3">
-                                        <label class="form-label fw-semibold small">ALOB No.</label>
-                                        <input type="text" name="payment_alob_no" class="form-control" placeholder="ALOB Number">
-                                    </div>
-                                    <div class="col-md-2">
-                                        <label class="form-label fw-semibold small">DV No.</label>
-                                        <input type="text" name="payment_dv_no" class="form-control" placeholder="DV Number">
-                                    </div>
-                                    <div class="col-md-2">
-                                        <label class="form-label fw-semibold small">Check No.</label>
-                                        <input type="text" name="payment_check_no" class="form-control" placeholder="Check Number">
-                                    </div>
-                                    <div class="col-md-2">
-                                        <label class="form-label fw-semibold small">Payment Date</label>
-                                        <input type="text" name="payment_date" class="form-control" placeholder="Payment Date" onfocus="this.type='date'" onblur="if(!this.value)this.type='text'">
-                                    </div>
-                                    <div class="col-md-3">
-                                        <label class="form-label fw-semibold small">Payment Amount</label>
-                                        <input type="text" name="payment_amount" class="form-control" placeholder="0.00">
-                                    </div>
-                                    <div class="col-md-4">
-                                        <label class="form-label fw-semibold small">Payout Date</label>
-                                        <input type="text" name="payout_date" class="form-control" placeholder="Payout Date" onfocus="this.type='date'" onblur="if(!this.value)this.type='text'">
-                                    </div>
-                                    <div class="col-md-4">
-                                        <label class="form-label fw-semibold small">Payout Method</label>
-                                        <select id="payout_method" name="payout_method" class="form-select" style="color: #7a7979a9; font-style: italic;" 
-                                            onchange="this.style.color='#000000'; this.style.fontStyle='normal';">
-                                            <option value="" disabled selected>-- Select Payout Site --</option>
-                                            <?php if (!empty($payoutSite)): ?>
-                                                <?php foreach ($payoutSite as $pos): ?>
-                                                    <option value="<?= html_escape($pos['payout_site_id']); ?>" data-rate="<?= html_escape($pos['service_cost'] ?? 0); ?>">
-                                                        <?= html_escape($pos['payout_site_name']); ?>
-                                                    </option>
-                                                <?php endforeach; ?>
-                                         <?php endif; ?>
-                                         </select>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <label class="form-label fw-semibold small">Service Cost</label>
-                                        <input type="text" name="payout_service_cost" class="form-control" id="payout_service_cost" placeholder="0.00">
-                                    </div>
-                                </div>
-                            </div>
-
                         </div>
 
                         <input type="hidden" name="encoded_date" value="<?= date('Y-m-d'); ?>">
@@ -575,25 +372,9 @@
             }
         });
 
-        const ppeRate = parseFloat("<?= $ppe_rate ?? 325; ?>") || 0;
-        const gsisRate = parseFloat("<?= $gsis_rate ?? 50; ?>") || 0;
-
-        $('#ppes_count').on('input', function () {
-            const count = parseFloat($(this).val()) || 0;
-            const totalAmount = count * ppeRate;
-            $('#ppes_amount').val(totalAmount.toFixed(2));
-        });
-
-        $('#gsis_benefs').on('input', function () {
-            const benefs = parseFloat($(this).val()) || 0;
-            const totalGsisAmount = benefs * gsisRate;
-            $('#gsis_amount').val(totalGsisAmount.toFixed(2));
-        });
-
         $('#transactionForm').on('submit', function (e) {
             e.preventDefault();
 
-            // Prevent submission if either limit is breached
             if (isTargetExceeded || isSubsidyExceeded) {
                 alert('Please resolve the limit validation errors before submitting.');
                 return;
@@ -711,19 +492,6 @@
         });
     });
 
-    // Calculate Payout Service Cost dynamically
-    function calculatePayoutServiceCost() {
-        const benefs = parseFloat($('#completed_benefs').val()) || 0;
-        const selectedOption = $('#payout_method').find(':selected');
-        const rate = parseFloat(selectedOption.data('rate')) || 0;
-        const totalServiceCost = benefs * rate;
-        $('#payout_service_cost').val(totalServiceCost.toFixed(2));
-    }
-
-    $('#completed_benefs').on('input', calculatePayoutServiceCost);
-    $('#payout_method').on('change', calculatePayoutServiceCost);
-
-    // Automatically generate reference number using dropdown text descriptions
     function generateReferenceNo() {
         const adlNo = $('#adl_no').val();
         const province = $('#implementation_province').val() ? $('#implementation_province option:selected').text().trim() : '';
@@ -752,13 +520,10 @@
         }
     }
 
-    // Trigger generation when any of the key fields change
     $(document).on('change', '#adl_no, #implementation_province, #implementation_area, #implementation_district', function() {
         generateReferenceNo();
     });
 
-
-    // --- Global Validation State & Management ---
     let isTargetExceeded = false;
     let isSubsidyExceeded = false;
 
@@ -771,7 +536,6 @@
         }
     }
 
-    // 1. Target Limit Validation
     let targetLimitData = { max: 0, encoded: 0, remaining: 0 };
 
     function validateTargetLimit() {
@@ -800,7 +564,7 @@
 
                     if ((targetLimitData.encoded + currentInputTarget) > targetLimitData.max) {
                         if ($noticeText.length) {
-                            $noticeText.html(`<strong>Exceeded Target Limit!</strong> Max Allowed: <b>${targetLimitData.max}</b> | Already Encoded: <b>${targetLimitData.encoded}</b> | Remaining: <b>${targetLimitData.remaining}</b>. Current input exceeds the allowed limit.`);
+                            $noticeText.html(`<strong>Exceeded Target Limit!</strong> Max Allowed: <b>${targetLimitData.max}</b> | Already Encoded: <b>${targetLimitData.encoded}</b> | Remaining: <b>${targetLimitData.remaining}</b>.`);
                         }
                         if ($noticeContainer.length) $noticeContainer.show();
                         isTargetExceeded = true;
@@ -814,7 +578,6 @@
         });
     }
 
-    // 2. Subsidy Cost Limit Validation
     let subsidyLimitData = { max: 0, encoded: 0, remaining: 0 };
 
     function validateSubsidyLimit() {
@@ -844,7 +607,7 @@
 
                     if ((subsidyLimitData.encoded + currentInputSubsidy) > subsidyLimitData.max) {
                         if ($noticeText.length) {
-                            $noticeText.html(`<strong>Exceeded Subsidy Limit!</strong> Max Allowed: <b>₱${subsidyLimitData.max.toLocaleString(undefined, {minimumFractionDigits: 2})}</b> | Already Encoded: <b>₱${subsidyLimitData.encoded.toLocaleString(undefined, {minimumFractionDigits: 2})}</b> | Remaining: <b>₱${subsidyLimitData.remaining.toLocaleString(undefined, {minimumFractionDigits: 2})}</b>.`);
+                            $noticeText.html(`<strong>Exceeded Subsidy Limit!</strong> Max Allowed: <b>₱${subsidyLimitData.max.toLocaleString(undefined, {minimumFractionDigits: 2})}</b> | Already Encoded: <b>₱${subsidyLimitData.encoded.toLocaleString(undefined, {minimumFractionDigits: 2})}</b>.`);
                         }
                         if ($noticeContainer.length) $noticeContainer.show();
                         isSubsidyExceeded = true;
@@ -858,7 +621,6 @@
         });
     }
 
-    // Triggers for both validations
     $(document).on('change', '#adl_no', function () {
         validateTargetLimit();
         validateSubsidyLimit();
@@ -871,7 +633,7 @@
     $(document).on('input', 'input[name="subsidy_cost"]', function () {
         validateSubsidyLimit();
     });
-    </script>
+</script>
 </body>
 
 </html>
