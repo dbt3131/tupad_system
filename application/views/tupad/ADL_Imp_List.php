@@ -193,46 +193,31 @@
                                                     $is_fully_complete = ($c1 && $c2 && $c3 && $c4 && $c5 && $c6 && $c7 && $c8 && $c9 && $c10);
                                                 ?>
                                                 <tr>
-
-
-
-
-
-
-
-                                       <!-- Column 1: Core Identification, Dates & Target Info -->
-<td>
-    <div class="d-flex flex-column">
-        <div class="d-flex align-items-center gap-2 mb-1">
-            <span class="fw-bold text-primary fs-6"><?= html_escape($row['adl_no']); ?></span>
-            <?php if ($is_fully_complete): ?>
-                <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-2 py-1">
-                    <i class="bi bi-check-circle-fill me-1"></i> Completed
-                </span>
-            <?php else: ?>
-                <span class="badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25 px-2 py-1">
-                    In Progress
-                </span>
-            <?php endif; ?>
-        </div>
-        <span class="text-muted small mb-1 font-monospace">Ref: <?= html_escape($row['implementation_reference_no']); ?></span>
-        <span class="text-secondary small mb-1"><i class="bi bi-calendar3 me-1"></i>Encoded: <?= html_escape($row['encoded_date'] ?? 'N/A'); ?></span>
-        
-        <!-- Added Target and Days Info -->
-        <div class="d-flex gap-3 mt-1 pt-1 border-top border-light small text-dark fw-medium">
-            <span><i class="bi bi-people me-1 text-primary"></i>Target: <?= number_format($row['target']); ?></span>
-            <span><i class="bi bi-clock-history me-1 text-secondary"></i>Days: <?= html_escape($row['no_of_days']); ?></span>
-        </div>
-    </div>
-</td>
-
-
-
-
-
-
-
-
+                                                    <!-- Column 1: Core Identification, Dates & Target Info -->
+                                                    <td>
+                                                        <div class="d-flex flex-column">
+                                                            <div class="d-flex align-items-center gap-2 mb-1">
+                                                                <span class="fw-bold text-primary fs-6"><?= html_escape($row['adl_no']); ?></span>
+                                                                <?php if ($is_fully_complete): ?>
+                                                                    <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-2 py-1">
+                                                                        <i class="bi bi-check-circle-fill me-1"></i> Completed
+                                                                    </span>
+                                                                <?php else: ?>
+                                                                    <span class="badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25 px-2 py-1">
+                                                                        In Progress
+                                                                    </span>
+                                                                <?php endif; ?>
+                                                            </div>
+                                                            <span class="text-muted small mb-1 font-monospace">Ref: <?= html_escape($row['implementation_reference_no']); ?></span>
+                                                            <span class="text-secondary small mb-1"><i class="bi bi-calendar3 me-1"></i>Encoded: <?= html_escape($row['encoded_date'] ?? 'N/A'); ?></span>
+                                                            
+                                                            <!-- Added Target and Days Info -->
+                                                            <div class="d-flex gap-3 mt-1 pt-1 border-top border-light small text-dark fw-medium">
+                                                                <span><i class="bi bi-people me-1 text-primary"></i>Target: <?= number_format($row['target']); ?></span>
+                                                                <span><i class="bi bi-clock-history me-1 text-secondary"></i>Days: <?= html_escape($row['no_of_days']); ?></span>
+                                                            </div>
+                                                        </div>
+                                                    </td>
 
                                                     <!-- Column 2: Location & Proponent info -->
                                                     <td>
@@ -246,52 +231,50 @@
                                                     </td>
 
                                                     <!-- Column 3: Compact Status Pipeline Badges -->
-                                                   <!-- Column 3: Compact Status Pipeline Badges -->
-<!-- Column 3: Compact Status Pipeline Badges -->
-<td style="max-width: 320px;">
-    <div class="d-flex flex-wrap gap-1 align-items-center">
-        <!-- Step 1 -->
-        <span class="badge <?= $c1 ? 'bg-success bg-opacity-10 text-success border border-success border-opacity-25' : 'bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25'; ?>" title="Coordinated">
-            <i class="bi <?= $c1 ? 'bi-check text-success' : 'bi-x text-danger'; ?>"></i> Coordinated
-        </span>
-        <!-- Step 2 -->
-        <span class="badge <?= $c2 ? 'bg-success bg-opacity-10 text-success border border-success border-opacity-25' : 'bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25'; ?>" title="Appraisal Submitted">
-            <i class="bi <?= $c2 ? 'bi-check text-success' : 'bi-x text-danger'; ?>"></i> Appraisal Sub.
-        </span>
-        <!-- Step 3 -->
-        <span class="badge <?= $c3 ? 'bg-success bg-opacity-10 text-success border border-success border-opacity-25' : 'bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25'; ?>" title="Appraisal Approved">
-            <i class="bi <?= $c3 ? 'bi-check text-success' : 'bi-x text-danger'; ?>"></i> Appraisal App.
-        </span>
-        <!-- Step 4 -->
-        <span class="badge <?= $c4 ? 'bg-success bg-opacity-10 text-success border border-success border-opacity-25' : 'bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25'; ?>" title="Issued PPEs">
-            <i class="bi <?= $c4 ? 'bi-check text-success' : 'bi-x text-danger'; ?>"></i> PPEs
-        </span>
-        <!-- Step 5 -->
-        <span class="badge <?= $c5 ? 'bg-success bg-opacity-10 text-success border border-success border-opacity-25' : 'bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25'; ?>" title="Oriented">
-            <i class="bi <?= $c5 ? 'bi-check text-success' : 'bi-x text-danger'; ?>"></i> Oriented
-        </span>
-        <!-- Step 6 -->
-        <span class="badge <?= $c6 ? 'bg-success bg-opacity-10 text-success border border-success border-opacity-25' : 'bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25'; ?>" title="GSIS Enrolled">
-            <i class="bi <?= $c6 ? 'bi-check text-success' : 'bi-x text-danger'; ?>"></i> GSIS
-        </span>
-        <!-- Step 7 -->
-        <span class="badge <?= $c7 ? 'bg-success bg-opacity-10 text-success border border-success border-opacity-25' : 'bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25'; ?>" title="Implemented">
-            <i class="bi <?= $c7 ? 'bi-check text-success' : 'bi-x text-danger'; ?>"></i> Implemented
-        </span>
-        <!-- Step 8 -->
-        <span class="badge <?= $c8 ? 'bg-success bg-opacity-10 text-success border border-success border-opacity-25' : 'bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25'; ?>" title="Completed">
-            <i class="bi <?= $c8 ? 'bi-check text-success' : 'bi-x text-danger'; ?>"></i> Finished
-        </span>
-        <!-- Step 9 -->
-        <span class="badge <?= $c9 ? 'bg-success bg-opacity-10 text-success border border-success border-opacity-25' : 'bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25'; ?>" title="Funding Processed">
-            <i class="bi <?= $c9 ? 'bi-check text-success' : 'bi-x text-danger'; ?>"></i> Funded
-        </span>
-        <!-- Step 10 -->
-        <span class="badge <?= $c10 ? 'bg-success bg-opacity-10 text-success border border-success border-opacity-25' : 'bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25'; ?>" title="For payout">
-            <i class="bi <?= $c10 ? 'bi-check text-success' : 'bi-x text-danger'; ?>"></i> Payout
-        </span>
-    </div>
-</td>
+                                                    <td style="max-width: 320px;">
+                                                        <div class="d-flex flex-wrap gap-1 align-items-center">
+                                                            <!-- Step 1 -->
+                                                            <span class="badge <?= $c1 ? 'bg-success bg-opacity-10 text-success border border-success border-opacity-25' : 'bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25'; ?>" title="Coordinated">
+                                                                <i class="bi <?= $c1 ? 'bi-check text-success' : 'bi-x text-danger'; ?>"></i> Coordinated
+                                                            </span>
+                                                            <!-- Step 2 -->
+                                                            <span class="badge <?= $c2 ? 'bg-success bg-opacity-10 text-success border border-success border-opacity-25' : 'bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25'; ?>" title="Appraisal Submitted">
+                                                                <i class="bi <?= $c2 ? 'bi-check text-success' : 'bi-x text-danger'; ?>"></i> Appraisal Sub.
+                                                            </span>
+                                                            <!-- Step 3 -->
+                                                            <span class="badge <?= $c3 ? 'bg-success bg-opacity-10 text-success border border-success border-opacity-25' : 'bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25'; ?>" title="Appraisal Approved">
+                                                                <i class="bi <?= $c3 ? 'bi-check text-success' : 'bi-x text-danger'; ?>"></i> Appraisal App.
+                                                            </span>
+                                                            <!-- Step 4 -->
+                                                            <span class="badge <?= $c4 ? 'bg-success bg-opacity-10 text-success border border-success border-opacity-25' : 'bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25'; ?>" title="Issued PPEs">
+                                                                <i class="bi <?= $c4 ? 'bi-check text-success' : 'bi-x text-danger'; ?>"></i> PPEs
+                                                            </span>
+                                                            <!-- Step 5 -->
+                                                            <span class="badge <?= $c5 ? 'bg-success bg-opacity-10 text-success border border-success border-opacity-25' : 'bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25'; ?>" title="Oriented">
+                                                                <i class="bi <?= $c5 ? 'bi-check text-success' : 'bi-x text-danger'; ?>"></i> Oriented
+                                                            </span>
+                                                            <!-- Step 6 -->
+                                                            <span class="badge <?= $c6 ? 'bg-success bg-opacity-10 text-success border border-success border-opacity-25' : 'bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25'; ?>" title="GSIS Enrolled">
+                                                                <i class="bi <?= $c6 ? 'bi-check text-success' : 'bi-x text-danger'; ?>"></i> GSIS
+                                                            </span>
+                                                            <!-- Step 7 -->
+                                                            <span class="badge <?= $c7 ? 'bg-success bg-opacity-10 text-success border border-success border-opacity-25' : 'bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25'; ?>" title="Implemented">
+                                                                <i class="bi <?= $c7 ? 'bi-check text-success' : 'bi-x text-danger'; ?>"></i> Implemented
+                                                            </span>
+                                                            <!-- Step 8 -->
+                                                            <span class="badge <?= $c8 ? 'bg-success bg-opacity-10 text-success border border-success border-opacity-25' : 'bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25'; ?>" title="Completed">
+                                                                <i class="bi <?= $c8 ? 'bi-check text-success' : 'bi-x text-danger'; ?>"></i> Finished
+                                                            </span>
+                                                            <!-- Step 9 -->
+                                                            <span class="badge <?= $c9 ? 'bg-success bg-opacity-10 text-success border border-success border-opacity-25' : 'bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25'; ?>" title="Funding Processed">
+                                                                <i class="bi <?= $c9 ? 'bi-check text-success' : 'bi-x text-danger'; ?>"></i> Funded
+                                                            </span>
+                                                            <!-- Step 10 -->
+                                                            <span class="badge <?= $c10 ? 'bg-success bg-opacity-10 text-success border border-success border-opacity-25' : 'bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25'; ?>" title="For payout">
+                                                                <i class="bi <?= $c10 ? 'bi-check text-success' : 'bi-x text-danger'; ?>"></i> Payout
+                                                            </span>
+                                                        </div>
+                                                    </td>
 
                                                     <!-- Column 4: Actions -->
                                                     <td class="text-center">
@@ -340,20 +323,20 @@
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     
-<!-- Edit Notice Container -->
-<div class="col-12" id="editTargetNoticeContainer" style="display: none;">
-    <div class="alert alert-danger py-2 px-3 small mb-2 d-flex align-items-center" role="alert">
-        <i class="bi bi-exclamation-triangle-fill me-2 fs-6"></i>
-        <div id="editTargetNoticeText"></div>
-    </div>
-</div>
+                    <!-- Edit Notice Container -->
+                    <div class="col-12 px-4 pt-3" id="editTargetNoticeContainer" style="display: none;">
+                        <div class="alert alert-danger py-2 px-3 small mb-2 d-flex align-items-center" role="alert">
+                            <i class="bi bi-exclamation-triangle-fill me-2 fs-6"></i>
+                            <div id="editTargetNoticeText"></div>
+                        </div>
+                    </div>
 
-<div class="col-12" id="editSubsidyNoticeContainer" style="display: none;">
-    <div class="alert alert-danger py-2 px-3 small mb-2 d-flex align-items-center" role="alert">
-        <i class="bi bi-exclamation-triangle-fill me-2 fs-6"></i>
-        <div id="editSubsidyNoticeText"></div>
-    </div>
-</div>
+                    <div class="col-12 px-4 pt-3" id="editSubsidyNoticeContainer" style="display: none;">
+                        <div class="alert alert-danger py-2 px-3 small mb-2 d-flex align-items-center" role="alert">
+                            <i class="bi bi-exclamation-triangle-fill me-2 fs-6"></i>
+                            <div id="editSubsidyNoticeText"></div>
+                        </div>
+                    </div>
 
                     <form action="<?= site_url('adl/update_transaction_record'); ?>" method="POST" id="editTransactionForm">
                         <input type="hidden" name="adl_transact_id" id="edit_adl_transact_id">
@@ -688,13 +671,13 @@
     <script>
     $(document).ready(function () {
         $('#transactionTable').DataTable({
-        "language": {
-            "emptyTable": "No transaction records found. Please select a filtered area."
-        },
-        "pageLength": 10,
-        "lengthMenu": [5, 10, 25, 50, 100],
-        "order": [[0, "desc"]]
-    });
+            "language": {
+                "emptyTable": "No transaction records found. Please select a filtered area."
+            },
+            "pageLength": 10,
+            "lengthMenu": [5, 10, 25, 50, 100],
+            "order": [[0, "desc"]]
+        });
 
         $('#edit_imp_proponent').select2({
             theme: 'bootstrap-5',
@@ -713,14 +696,21 @@
         const ppeRate = parseFloat("<?= $ppe_rate ?? 325; ?>") || 0;
         const gsisRate = parseFloat("<?= $gsis_rate ?? 50; ?>") || 0;
 
+        // Auto-compute only if current input amount is 0 or empty
         $('#edit_ppes_count').on('input', function () {
-            const count = parseFloat($(this).val()) || 0;
-            $('#edit_ppes_amount').val((count * ppeRate).toFixed(2));
+            const currentAmount = parseFloat($('#edit_ppes_amount').val()) || 0;
+            if (currentAmount === 0) {
+                const count = parseFloat($(this).val()) || 0;
+                $('#edit_ppes_amount').val((count * ppeRate).toFixed(2));
+            }
         });
 
         $('#edit_gsis_enrollment_benefs').on('input', function () {
-            const benefs = parseFloat($(this).val()) || 0;
-            $('#edit_gsis_enrollment_amount').val((benefs * gsisRate).toFixed(2));
+            const currentAmount = parseFloat($('#edit_gsis_enrollment_amount').val()) || 0;
+            if (currentAmount === 0) {
+                const benefs = parseFloat($(this).val()) || 0;
+                $('#edit_gsis_enrollment_amount').val((benefs * gsisRate).toFixed(2));
+            }
         });
 
         function loadMunicipalities(provCode, selectedArea = '') {
@@ -871,21 +861,32 @@
                         $('#edit_reformulated_target').val(d.reformulated_target);
 
                         $('#edit_ppes_issuance_ris').val(d.ppes_issuance_ris);
-                       $('#edit_ppes_count').val(d.tupad_total_count).trigger('input');
-$('#edit_ppes_female').val(d.tupad_female_count);
-                        $('#edit_ppes_amount').val(d.ppes_amount);
-
-                        const calculatedPpeAmount = (parseFloat(d.tupad_total_count) || 0) * ppeRate;
-$('#edit_ppes_amount').val(calculatedPpeAmount.toFixed(2));
+                        $('#edit_ppes_count').val(d.tupad_total_count);
+                        $('#edit_ppes_female').val(d.tupad_female_count);
+                        
+                        // Condition check for PPES amount: if not equal to 0 or 0.00, use database value. Otherwise, auto-compute.
+                        const dbPpesAmount = parseFloat(d.ppes_amount);
+                        if (!isNaN(dbPpesAmount) && dbPpesAmount !== 0) {
+                            $('#edit_ppes_amount').val(d.ppes_amount);
+                        } else {
+                            const calculatedPpeAmount = (parseFloat(d.tupad_total_count) || 0) * ppeRate;
+                            $('#edit_ppes_amount').val(calculatedPpeAmount.toFixed(2));
+                        }
 
                         $('#edit_orientation_benefs').val(d.orientation_benefs);
                         $('#edit_orientation_employment_period').val(d.orientation_employment_period);
-                       $('#edit_gsis_enrollment_benefs').val(d.tupad_total_count).trigger('input');
-$('#edit_gsis_enrollment_female').val(d.tupad_female_count);
-                        $('#edit_gsis_enrollment_amount').val(d.gsis_enrollment_amount);
-
-                        const calculatedGsisAmount = (parseFloat(d.tupad_total_count) || 0) * gsisRate;
-$('#edit_gsis_enrollment_amount').val(calculatedGsisAmount.toFixed(2));
+                        
+                        $('#edit_gsis_enrollment_benefs').val(d.tupad_total_count);
+                        $('#edit_gsis_enrollment_female').val(d.tupad_female_count);
+                        
+                        // Condition check for GSIS amount: if not equal to 0 or 0.00, use database value. Otherwise, auto-compute.
+                        const dbGsisAmount = parseFloat(d.gsis_enrollment_amount);
+                        if (!isNaN(dbGsisAmount) && dbGsisAmount !== 0) {
+                            $('#edit_gsis_enrollment_amount').val(d.gsis_enrollment_amount);
+                        } else {
+                            const calculatedGsisAmount = (parseFloat(d.tupad_total_count) || 0) * gsisRate;
+                            $('#edit_gsis_enrollment_amount').val(calculatedGsisAmount.toFixed(2));
+                        }
 
                         $('#edit_ongoing_implementation_benefs').val(d.ongoing_implementation_benefs);
                         $('#edit_completed_employment_period').val(d.completed_employment_period);
@@ -911,17 +912,18 @@ $('#edit_gsis_enrollment_amount').val(calculatedGsisAmount.toFixed(2));
             });
         });
     });
-        $(document).on('click', '#sidebarToggle', function (e) {
-            e.preventDefault();
-            if ($(window).width() < 992) {
-                $('#sidebar').toggleClass('show-mobile');
-            } else {
-                $('#sidebar').toggleClass('collapsed');
-                $('#main-content').toggleClass('expanded');
-            }
-        });
 
-        // Calculate Edit Payout Service Cost dynamically
+    $(document).on('click', '#sidebarToggle', function (e) {
+        e.preventDefault();
+        if ($(window).width() < 992) {
+            $('#sidebar').toggleClass('show-mobile');
+        } else {
+            $('#sidebar').toggleClass('collapsed');
+            $('#main-content').toggleClass('expanded');
+        }
+    });
+
+    // Calculate Edit Payout Service Cost dynamically
     function calculateEditPayoutServiceCost() {
         const benefs = parseFloat($('#edit_completed_employment_benefs').val()) || 0;
         const selectedOption = $('#edit_payout_method').find(':selected');
@@ -935,93 +937,91 @@ $('#edit_gsis_enrollment_amount').val(calculatedGsisAmount.toFixed(2));
 
     let editTargetLimitData = { max: 0, encoded: 0, remaining: 0 };
 
-function validateEditTargetLimit() {
-    const adlNo = $('#edit_adl_no').val();
-    const transactId = $('#edit_adl_transact_id').val();
-    const currentInputTarget = parseFloat($('#target').val()) || 0;
-    const $noticeContainer = $('#editTargetNoticeContainer');
-    const $noticeText = $('#editTargetNoticeText');
-    const $saveBtn =$('#editModal').find('button[type="submit"]');
+    function validateEditTargetLimit() {
+        const adlNo = $('#edit_adl_no').val();
+        const transactId = $('#edit_adl_transact_id').val();
+        const currentInputTarget = parseFloat($('#target').val()) || 0;
+        const $noticeContainer = $('#editTargetNoticeContainer');
+        const $noticeText = $('#editTargetNoticeText');
+        const $saveBtn = $('#editModal').find('button[type="submit"]');
 
-    if (!adlNo || !transactId) {
-        $noticeContainer.hide();
-        return;
-    }
+        if (!adlNo || !transactId) {
+            $noticeContainer.hide();
+            return;
+        }
 
-    $.ajax({
-        url: "<?= site_url('adl/check_adl_target_limit_edit'); ?>",
-        type: "GET",
-        data: { adl_no: adlNo, transact_id: transactId },
-        dataType: "json",
-        success: function (response) {
-            if (response.status && response.data) {
-                editTargetLimitData.max = response.data.max_target;
-                editTargetLimitData.encoded = response.data.encoded_target;
-                editTargetLimitData.remaining = response.data.remaining_target;
+        $.ajax({
+            url: "<?= site_url('adl/check_adl_target_limit_edit'); ?>",
+            type: "GET",
+            data: { adl_no: adlNo, transact_id: transactId },
+            dataType: "json",
+            success: function (response) {
+                if (response.status && response.data) {
+                    editTargetLimitData.max = response.data.max_target;
+                    editTargetLimitData.encoded = response.data.encoded_target;
+                    editTargetLimitData.remaining = response.data.remaining_target;
 
-                if ((editTargetLimitData.encoded + currentInputTarget) > editTargetLimitData.max) {
-                    $noticeText.html(`<strong>Exceeded Target Limit!</strong> Max Allowed: <b>${editTargetLimitData.max}</b> | Other Encoded: <b>${editTargetLimitData.encoded}</b>. Total exceeds allowed limit.`);
-                    $noticeContainer.show();
-                    $saveBtn.prop('disabled', true);
-                } else {
-                    $noticeContainer.hide();
-                    $saveBtn.prop('disabled', false);
+                    if ((editTargetLimitData.encoded + currentInputTarget) > editTargetLimitData.max) {
+                        $noticeText.html(`<strong>Exceeded Target Limit!</strong> Max Allowed: <b>${editTargetLimitData.max}</b> | Other Encoded: <b>${editTargetLimitData.encoded}</b>. Total exceeds allowed limit.`);
+                        $noticeContainer.show();
+                        $saveBtn.prop('disabled', true);
+                    } else {
+                        $noticeContainer.hide();
+                        $saveBtn.prop('disabled', false);
+                    }
                 }
             }
-        }
-    });
-}
-
-// Trigger validation when typing in target input inside edit modal
-$(document).on('input', '#target', function () {
-    validateEditTargetLimit();
-});
-
-
-let editSubsidyLimitData = { max: 0, encoded: 0, remaining: 0 };
-
-function validateEditSubsidyLimit() {
-    const adlNo = $('#edit_adl_no').val();
-    const transactId = $('#edit_adl_transact_id').val();
-    const currentInputSubsidy = parseFloat($('#edit_subsidy_cost').val().replace(/,/g, '')) || 0;
-    const $noticeContainer = $('#editSubsidyNoticeContainer');
-    const $noticeText = $('#editSubsidyNoticeText');
-    const $saveBtn =$('#editModal').find('button[type="submit"]');
-
-    if (!adlNo || !transactId) {
-        $noticeContainer.hide();
-        return;
+        });
     }
 
-    $.ajax({
-        url: "<?= site_url('adl/check_adl_subsidy_limit_edit'); ?>",
-        type: "GET",
-        data: { adl_no: adlNo, transact_id: transactId },
-        dataType: "json",
-        success: function (response) {
-            if (response.status && response.data) {
-                editSubsidyLimitData.max = response.data.max_subsidy;
-                editSubsidyLimitData.encoded = response.data.encoded_subsidy;
-                editSubsidyLimitData.remaining = response.data.remaining_subsidy;
+    // Trigger validation when typing in target input inside edit modal
+    $(document).on('input', '#target', function () {
+        validateEditTargetLimit();
+    });
 
-                if ((editSubsidyLimitData.encoded + currentInputSubsidy) > editSubsidyLimitData.max) {
-                    $noticeText.html(`<strong>Exceeded Subsidy Limit!</strong> Max Allowed: <b>₱${editSubsidyLimitData.max.toLocaleString(undefined, {minimumFractionDigits: 2})}</b> | Other Encoded: <b>₱${editSubsidyLimitData.encoded.toLocaleString(undefined, {minimumFractionDigits: 2})}</b>.`);
-                    $noticeContainer.show();
-                    $saveBtn.prop('disabled', true);
-                } else {
-                    $noticeContainer.hide();
-                    $saveBtn.prop('disabled', false);
+    let editSubsidyLimitData = { max: 0, encoded: 0, remaining: 0 };
+
+    function validateEditSubsidyLimit() {
+        const adlNo = $('#edit_adl_no').val();
+        const transactId = $('#edit_adl_transact_id').val();
+        const currentInputSubsidy = parseFloat($('#edit_subsidy_cost').val().replace(/,/g, '')) || 0;
+        const $noticeContainer = $('#editSubsidyNoticeContainer');
+        const $noticeText = $('#editSubsidyNoticeText');
+        const $saveBtn =$('#editModal').find('button[type="submit"]');
+
+        if (!adlNo || !transactId) {
+            $noticeContainer.hide();
+            return;
+        }
+
+        $.ajax({
+            url: "<?= site_url('adl/check_adl_subsidy_limit_edit'); ?>",
+            type: "GET",
+            data: { adl_no: adlNo, transact_id: transactId },
+            dataType: "json",
+            success: function (response) {
+                if (response.status && response.data) {
+                    editSubsidyLimitData.max = response.data.max_subsidy;
+                    editSubsidyLimitData.encoded = response.data.encoded_subsidy;
+                    editSubsidyLimitData.remaining = response.data.remaining_subsidy;
+
+                    if ((editSubsidyLimitData.encoded + currentInputSubsidy) > editSubsidyLimitData.max) {
+                        $noticeText.html(`<strong>Exceeded Subsidy Limit!</strong> Max Allowed: <b>₱${editSubsidyLimitData.max.toLocaleString(undefined, {minimumFractionDigits: 2})}</b> | Other Encoded: <b>₱${editSubsidyLimitData.encoded.toLocaleString(undefined, {minimumFractionDigits: 2})}</b>.`);
+                        $noticeContainer.show();
+                        $saveBtn.prop('disabled', true);
+                    } else {
+                        $noticeContainer.hide();
+                        $saveBtn.prop('disabled', false);
+                    }
                 }
             }
-        }
+        });
+    }
+
+    // Trigger validation on input change for subsidy cost
+    $(document).on('input', '#edit_subsidy_cost', function () {
+        validateEditSubsidyLimit();
     });
-}
-
-// Trigger validation on input change for subsidy cost
-$(document).on('input', '#edit_subsidy_cost', function () {
-    validateEditSubsidyLimit();
-});
-
     </script>
 </body>
 
