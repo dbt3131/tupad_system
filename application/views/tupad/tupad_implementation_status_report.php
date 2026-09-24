@@ -754,7 +754,7 @@
                             </div>
                             <div class="d-flex align-items-start gap-3">
                                 <div class="badge bg-primary bg-opacity-10 text-primary p-2 rounded-2 mt-1"><i class="bi bi-3-circle-fill"></i></div>
-                                <div class="small text-muted"><strong>Implemented Column:</strong> Kapag lumipas napo ang Implementation End Date..</div>
+                                <div class="small text-muted"><strong>Implemented:</strong> Kapag lumipas napo ang Implementation End Date or recorded na ang completed employment details.</div>
                             </div>
                             <div class="d-flex align-items-start gap-3">
                                 <div class="badge bg-primary bg-opacity-10 text-primary p-2 rounded-2 mt-1"><i class="bi bi-4-circle-fill"></i></div>

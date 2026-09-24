@@ -846,6 +846,26 @@ $('#btnOpenModal').on('click', function() {
     var uploadModal = bootstrap.Modal.getOrCreateInstance(uploadModalEl);
     uploadModal.show();
 });
+
+document.addEventListener('contextmenu', function (e) {
+    e.preventDefault();
+});
+
+document.addEventListener('keydown', function (e) {
+    // Disable F12
+    if (e.key === 'F12') {
+        e.preventDefault();
+    }
+    
+    // Disable Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+Shift+C, Ctrl+U
+    if (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i' || e.key === 'J' || e.key === 'j' || e.key === 'C' || e.key === 'c')) {
+        e.preventDefault();
+    }
+    
+    if (e.ctrlKey && (e.key === 'U' || e.key === 'u')) {
+        e.preventDefault();
+    }
+});
 </script>
 
 </body>
