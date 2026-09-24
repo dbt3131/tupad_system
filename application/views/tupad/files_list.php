@@ -270,8 +270,9 @@
                     </button>   
 
                     <!-- Modal Trigger Button -->
-                    <button type="button" class="btn btn-success px-3 py-2 fw-semibold mb-0 cursor-pointer shadow-sm" id="btnOpenModal">
-                        <i class="bi bi-cloud-arrow-up-fill me-1"></i> Upload New Excel
+                  <?php $isDisabled = ($this->session->userdata('assigned_prov') == 0) ? 'disabled' : ''; ?>
+                    <button type="button" class="btn btn-success px-3 py-2 fw-semibold mb-0 cursor-pointer shadow-sm <?= $isDisabled; ?>" id="btnOpenModal" <?= $isDisabled; ?>>
+                      <i class="bi bi-cloud-arrow-up-fill me-1"></i> Upload New Excel
                     </button>
                 </div>
             </div>
@@ -832,6 +833,19 @@ $(document).ready(function () {
             table.search(this.value).draw();
         });
     });
+
+    // Modal Open Trigger
+$('#btnOpenModal').on('click', function() {
+    <?php if ($this->session->userdata('assigned_prov') == 0): ?>
+        showCustomAlert('Unauthorized action: Your account is not assigned to a valid province.', 'Access Denied');
+        return;
+    <?php endif; ?>
+
+    $('#uploadBatchForm')[0].reset();
+    var uploadModalEl = document.getElementById('uploadModal');
+    var uploadModal = bootstrap.Modal.getOrCreateInstance(uploadModalEl);
+    uploadModal.show();
+});
 </script>
 
 </body>
