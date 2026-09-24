@@ -578,7 +578,7 @@ $(document).ready(function () {
                     },
                     {
                         element: document.querySelector('#filesTable'),
-                        intro: "The uploaded <B>GSIS ENROLLMENT</B> lists can be viewed here, you will only be able to see your <B>ASSIGNED PROVINCE</B> in this portion",
+                        intro: "The uploaded <B>GSIS ENROLLMENT</B> lists can be viewed here, you will only be able to see your <B>ASSIGNED PROVINCE</B> in this portion. All buttons will be disabled once user's province is not set.",
                         position: 'top'
                     },
                 ],

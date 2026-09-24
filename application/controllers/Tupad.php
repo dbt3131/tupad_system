@@ -909,7 +909,7 @@ public function upload_tupad_excel()
         $this->load->view('tupad/profile_view', $data);
     }
 
-    public function get_files_json()
+public function get_files_json()
     {
         $draw   = intval($this->input->post('draw'));
         $start  = intval($this->input->post('start'));
@@ -919,10 +919,11 @@ public function upload_tupad_excel()
         $search      = isset($search_data['value']) ? $search_data['value'] : '';
 
         $files = $this->Tupad_model->get_uploaded_files(); 
+        $assigned_prov = $this->session->userdata('assigned_prov'); // Check assigned province session
 
         $data = [];
         foreach ($files as $f) {
-            $uploader         = trim(($f['uploader_fname'] ?? '') . ' ' . ($f['uploader_lname'] ?? ''));
+            $uploader          = trim(($f['uploader_fname'] ?? '') . ' ' . ($f['uploader_lname'] ?? ''));
             $uploader_display = !empty($uploader) ? $uploader : 'N/A';
             $date_uploaded    = !empty($f['uploaded_at']) ? date('M d, Y', strtotime($f['uploaded_at'])) : 'N/A';
             
@@ -960,21 +961,35 @@ public function upload_tupad_excel()
                     </button>';
             }
 
-            $actionButtons = '
-                <a href="' . site_url('tupad/view_file_data?file_name=' . $encoded_filename) . '" class="btn btn-sm btn-primary me-1">
-                    <i class="bi bi-eye me-1"></i> View
-                </a>
-                <a href="' . site_url('tupad/export_excel?file_name=' . $encoded_filename) . '" class="btn btn-sm btn-success me-1">
-                    <i class="bi bi-file-earmark-excel-fill me-1"></i> GPAI
-                </a>' . $gsisButton;
+            // Disable all action buttons if assigned_prov is 0
+            if ($assigned_prov == 0) {
+                $actionButtons = '
+                    <button type="button" class="btn btn-sm btn-secondary me-1 disabled" disabled title="Action Restricted">
+                        <i class="bi bi-eye me-1"></i> View
+                    </button>
+                    <button type="button" class="btn btn-sm btn-secondary me-1 disabled" disabled title="Action Restricted">
+                        <i class="bi bi-file-earmark-excel-fill me-1"></i> GPAI
+                    </button>
+                    <button type="button" class="btn btn-sm btn-secondary disabled" disabled title="Action Restricted">
+                        <i class="bi bi-slash-circle me-1"></i> Restricted
+                    </button>';
+            } else {
+                $actionButtons = '
+                    <a href="' . site_url('tupad/view_file_data?file_name=' . $encoded_filename) . '" class="btn btn-sm btn-primary me-1">
+                        <i class="bi bi-eye me-1"></i> View
+                    </a>
+                    <a href="' . site_url('tupad/export_excel?file_name=' . $encoded_filename) . '" class="btn btn-sm btn-success me-1">
+                        <i class="bi bi-file-earmark-excel-fill me-1"></i> GPAI
+                    </a>' . $gsisButton;
+            }
 
             $data[] = [
                 '<i class="bi bi-file-earmark-excel me-1 text-success"></i>' . htmlspecialchars($f['file_name']),
                 htmlspecialchars($f['reference_no'] ?? 'N/A'), 
-                $status_badge,                               
+                $status_badge,                             
                 htmlspecialchars($uploader_display),         
                 htmlspecialchars($date_uploaded),            
-                $actionButtons                               
+                $actionButtons                             
             ];
         }
 
