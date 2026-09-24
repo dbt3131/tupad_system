@@ -258,7 +258,7 @@ public function upload_tupad_excel()
         'tupad_dob_month', 'tupad_dob_day', 'tupad_dob_year', 'tupad_province', 
         'tupad_municipality', 'tupad_barangay', 'street', 'district', 'IDType', 
         'IDNumber', 'tupad_contact_no', 'bene_type', 'training_Interest', 'skills', 
-        'tupad_epayment', 'tupad_account_no', 'tupad_occupation', 'civil_Status', 
+        'Epayment_account', 'epayment_account_no', 'tupad_occupation', 'civil_Status', 
         'age', 'average_monthly', 'dependent', 'interested_employment', 'tupad_convergence'
     ];
 
