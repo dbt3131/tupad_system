@@ -98,10 +98,10 @@
     <div class="col-md-5 d-flex">
         <button type="submit" class="btn btn-dark btn-sm me-2"><i class="bi bi-filter"></i> Generate Report</button>
         
-        <!-- Export Excel Button -->
-        <a href="<?= site_url('tupad_report/export_excel') ?>?start_date=<?= isset($start_date) ? urlencode($start_date) : '' ?>&end_date=<?= isset($end_date) ? urlencode($end_date) : '' ?>&view_type=<?= isset($view_type) ? $view_type : 'all' ?>" class="btn btn-success btn-sm">
-            <i class="bi bi-file-earmark-excel"></i> Export Excel (.xlsx)
-        </a>
+        <!-- Dynamic Excel Export Button -->
+        <button type="button" id="exportExcelBtn" class="btn btn-success btn-sm">
+            <i class="bi bi-file-earmark-excel"></i> Export to Excel
+        </button>
     </div>
 </form>
 
@@ -352,6 +352,25 @@
                 $('#sidebar').toggleClass('collapsed');
                 $('#main-content').toggleClass('expanded');
             }
+        });
+
+        // Dynamic Excel Export Click Handler
+        $('#exportExcelBtn').on('click', function () {
+            var startDate = $('#start_date').val();
+            var endDate = $('#end_date').val();
+            var viewType = $('#view_type').val();
+
+            if (!startDate || !endDate) {
+                alert('Please select both Start Date and End Date before exporting.');
+                return;
+            }
+
+            var exportUrl = "<?= site_url('tupad_report/export_tupad_summ_excel'); ?>?" + 
+                            "start_date=" + encodeURIComponent(startDate) + 
+                            "&end_date=" + encodeURIComponent(endDate) + 
+                            "&view_type=" + encodeURIComponent(viewType);
+
+            window.location.href = exportUrl;
         });
     });
     </script>

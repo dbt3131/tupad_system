@@ -648,7 +648,36 @@ public function export_implementation_status_excel() {
 }
 
 
+public function export_tupad_summ_excel() {
+    // 1. Retrieve filter parameters from the GET request
+    $start_date = $this->input->get('start_date');
+    $end_date   = $this->input->get('end_date');
+    $view_type  = $this->input->get('view_type') ? $this->input->get('view_type') : 'all';
 
+    // 2. Validate parameters (redirect back if dates are missing)
+    if (empty($start_date) || empty($end_date)) {
+        redirect('tupad_report/tupad_summ_report');
+    }
+
+    // 3. Load the model (ensure the model name matches your file)
+    $this->load->model('Tupad_Report_Bene_Model');
+
+    // 4. Fetch the report data using your model method
+    $data['start_date']  = $start_date;
+    $data['end_date']    = $end_date;
+    $data['view_type']   = $view_type;
+    $data['report_data'] = $this->Tupad_Report_Bene_Model->get_summary_report($start_date, $end_date, $view_type);
+
+    // 5. Force browser download as an Excel file (.xls)
+    header("Content-Type: application/vnd.ms-excel");
+    header("Content-Disposition: attachment; filename=TUPAD_Summary_Report_" . date('Y-m-d') . ".xls");
+    header("Pragma: no-cache");
+    header("Expires: 0");
+
+    // 6. Load the excel export view file
+    // (Make sure this file is located at: application/views/tupad/tupad_excel_summ_export.php)
+    $this->load->view('tupad/tupad_excel_summ_export', $data);
+}
 
     
 }
