@@ -110,11 +110,16 @@
             <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3 no-print">
                 <div>
                     <div class="d-flex align-items-center gap-2 mb-1">
-                        <span class="badge bg-primary bg-opacity-10 text-primary px-2 py-1 fw-semibold" style="font-size: 0.7rem;">DOLE RO3</span>
+                        <span class="badge bg-dark bg-opacity-10 text-dark px-2 py-1 fw-semibold" style="font-size: 0.7rem;">DOLE RO3</span>
                         <span class="text-uppercase text-muted fw-bold" style="font-size: 0.75rem; letter-spacing: 0.05em;">Department of Labor and Employment</span>
                     </div>
                     <h3 class="fw-bold mb-1 text-dark" style="font-size: 1.25rem;">TUPAD Implementation Status</h3>
                     <p class="text-muted small mb-0"><i class="bi bi-calendar3 me-1"></i> As of <?= date('F d, Y'); ?></p>
+                </div>
+                <div>
+                    <button type="button" class="btn btn-outline-dark btn-sm" data-bs-toggle="modal" data-bs-target="#howItWorksModal">
+                        <i class="bi bi-question-circle me-1"></i> How This Page Works
+                    </button>
                 </div>
             </div>
 
@@ -147,8 +152,8 @@
                         </div>
 
                         <div class="col-md-3 d-flex gap-2">
-                            <button type="submit" class="btn btn-primary w-100"><i class="bi bi-filter me-1"></i> Generate</button>
-                            <a href="<?= site_url('tupad_report/export_excel?start_date=' . $start_date . '&end_date=' . $end_date . '&province=' . ($selected_province ?? '')); ?>" class="btn btn-success">
+                            <button type="submit" class="btn btn-dark w-100"><i class="bi bi-filter me-1"></i> Generate</button>
+                            <a href="<?= site_url('tupad_report/export_excel?start_date=' . $start_date . '&end_date=' . $end_date . '&province=' . ($selected_province ?? '')); ?>" class="btn btn-dark">
                                 Excel
                             </a>
                         </div>
@@ -156,7 +161,7 @@
                 </div>
             </div>
 
-<div class="alert alert-info py-2 small mb-3 no-print">
+<div class="alert alert-secondary py-2 small mb-3 no-print">
     <i class="bi bi-info-circle me-1"></i> <strong>Note:</strong> All completed and fully paid implementations are automatically hidden from this report.
 </div>
 
@@ -717,6 +722,56 @@
         <footer class="bg-white border-top p-3 text-center text-muted small no-print">
             &copy; <?= date('Y'); ?> Department of Labor and Employment. All rights reserved.
         </footer>
+    </div>
+
+<!-- How This Page Works Modal -->
+    <div class="modal fade no-print" id="howItWorksModal" tabindex="-1" aria-labelledby="howItWorksModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+                <div class="modal-header bg-dark text-white px-4 py-3 border-0">
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="bg-white bg-opacity-10 p-2 rounded-3 text-info">
+                            <i class="bi bi-info-circle-fill fs-5"></i>
+                        </div>
+                        <div>
+                            <h5 class="modal-title fw-bold mb-0" id="howItWorksModalLabel">How This Page Works</h5>
+                            <p class="text-white-50 small mb-0">Status display guidelines and automated reporting logic</p>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4 bg-light">
+                    <div class="card border-0 shadow-sm rounded-3 p-3 bg-white">
+                        <h6 class="text-uppercase text-secondary fw-bold fs-7 mb-3 tracking-wide">Status Display Guidelines Per Column</h6>
+                        <div class="d-flex flex-column gap-3">
+                            <div class="d-flex align-items-start gap-3">
+                                <div class="badge bg-primary bg-opacity-10 text-primary p-2 rounded-2 mt-1"><i class="bi bi-1-circle-fill"></i></div>
+                                <div class="small text-muted"><strong>For GSIS Enrollment:</strong> Kapag recorded napo sa system ang PPES details.</div>
+                            </div>
+                            <div class="d-flex align-items-start gap-3">
+                                <div class="badge bg-primary bg-opacity-10 text-primary p-2 rounded-2 mt-1"><i class="bi bi-2-circle-fill"></i></div>
+                                <div class="small text-muted"><strong>For Implementation:</strong> Kapag recorded napo sa system and GSIS enrollment details.</div>
+                            </div>
+                            <div class="d-flex align-items-start gap-3">
+                                <div class="badge bg-primary bg-opacity-10 text-primary p-2 rounded-2 mt-1"><i class="bi bi-3-circle-fill"></i></div>
+                                <div class="small text-muted"><strong>Implemented Column:</strong> Kapag lumipas napo ang Implementation End Date..</div>
+                            </div>
+                            <div class="d-flex align-items-start gap-3">
+                                <div class="badge bg-primary bg-opacity-10 text-primary p-2 rounded-2 mt-1"><i class="bi bi-4-circle-fill"></i></div>
+                                <div class="small text-muted"><strong>Submission of Payroll:</strong> Kapag recorded napo ang completed employment details.</div>
+                            </div>
+                            <div class="d-flex align-items-start gap-3">
+                                <div class="badge bg-danger bg-opacity-10 text-danger p-2 rounded-2 mt-1"><i class="bi bi-5-circle-fill"></i></div>
+                                <div class="small text-muted"><strong>Excluded Data:</strong> Kapag fully completed napo ang implementation and payout.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer bg-white border-0 px-4 py-3">
+                    <button type="button" class="btn btn-dark btn-sm px-4 rounded-pill shadow-sm" data-bs-dismiss="modal">Got it</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Bootstrap Bundle JS -->
