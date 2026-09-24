@@ -728,6 +728,8 @@ public function upload_tupad_excel()
         echo json_encode($output);
     }
 
+    
+
     public function get_records_by_file_json()
     {
         $draw   = intval($this->input->post('draw'));
@@ -751,6 +753,12 @@ public function upload_tupad_excel()
 
         echo json_encode($output);
     }
+
+
+
+
+
+
     
     public function file_records($file_name = NULL)
     {
@@ -1387,24 +1395,38 @@ public function export_excel()
     }
 
     public function set_record_inactive($id = NULL) {
-        if (!$this->session->userdata('logged_in')) {
-            echo json_encode(['status' => 'error', 'message' => 'Unauthorized access.']);
-            return;
-        }
-
-        if (empty($id)) {
-            echo json_encode(['status' => 'error', 'message' => 'Invalid record ID.']);
-            return;
-        }
-
-        $updated = $this->Tupad_model->set_inactive($id);
-
-        if ($updated) {
-            echo json_encode(['status' => 'success', 'message' => 'Record has been set to inactive.']);
-        } else {
-            echo json_encode(['status' => 'error', 'message' => 'Failed to update record status.']);
-        }
+    if (!$this->session->userdata('logged_in')) {
+        echo json_encode(['status' => 'error', 'message' => 'Unauthorized access.']);
+        return;
     }
+
+    if (empty($id)) {
+        echo json_encode(['status' => 'error', 'message' => 'Invalid record ID.']);
+        return;
+    }
+
+    // Fetch the beneficiary record to get the first and last name
+    $beneficiary = $this->Tupad_model->get_beneficiary_by_id($id);
+
+    $updated = $this->Tupad_model->set_inactive($id);
+
+    if ($updated) {
+        $this->load->model('Activity_Model'); 
+        $user_id = $this->session->userdata('user_id');
+        
+        $fname = isset($beneficiary['tupad_fname']) ? $beneficiary['tupad_fname'] : '';
+        $lname = isset($beneficiary['tupad_lname']) ? $beneficiary['tupad_lname'] : '';
+        $fullName = trim($fname . ' ' . $lname);
+        
+        // Pass the name details into your activity log reference parameter
+        $log_message = !empty($fullName) ? "Set Inactive: " . $fullName : "Record ID: " . $id;
+        $this->Activity_Model->log_activity($log_message, $user_id, 12);    
+
+        echo json_encode(['status' => 'success', 'message' => 'Record has been set to inactive.']);
+    } else {
+        echo json_encode(['status' => 'error', 'message' => 'Failed to update record status.']);
+    }
+}
 
 public function export_gsis_letter_excel()
     {
