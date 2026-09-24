@@ -190,7 +190,7 @@
                                     <?php endif; ?>
                                 </select>
                             </div>
-                           <div class="col-md-3">
+                           <div class="col-md-5">
                                 <label class="form-label fw-semibold small">Audrey Reference No.</label>
                                 <input type="text" name="audrey_reference_no" id="audrey_reference_no" oninput="this.value = this.value.toUpperCase();" placeholder="Manual Reference No" class="form-control" autocomplete='OFF' required>
                                 <input type="hidden" name="implementation_reference_no" id="implementation_reference_no" class="form-control" placeholder="Auto-generated" readonly required>
@@ -208,10 +208,11 @@
                                 <label class="form-label fw-semibold small">Benefs</label>
                                 <input type="text" name="target" class="form-control" placeholder="0" required autocomplete="OFF">
                             </div>
+                            <!--
                             <div class="col-md-2">
                                 <label class="form-label fw-semibold small">Reformulated Target</label>
                                 <input type="text" name="reformulated_target" class="form-control" placeholder="0" autocomplete="OFF">
-                            </div>
+                            </div> -->
                             <div class="col-md-3">
                                 <label class="form-label fw-semibold small">Implementation Province</label>
                                 <select name="implementation_province" id="implementation_province" class="form-select" required>

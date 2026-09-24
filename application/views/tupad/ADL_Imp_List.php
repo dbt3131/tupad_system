@@ -532,6 +532,18 @@
                                 <div class="tab-pane fade" id="edit-orientation-pane" role="tabpanel">
                                     <div class="row g-3">
                                          <div class="col-md-4">
+                                            <label class="form-label fw-semibold small">Orientation Date</label>
+                                            <input type="text" id="edit_orientation_date" name="orientation_date" class="form-control" placeholder="Date Orientation" onfocus="this.type='date'" onblur="if(!this.value)this.type='text'">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label fw-semibold small">Orientation Beneficiaries</label>
+                                            <input type="number" id="edit_orientation_benefs" name="orientation_benefs" class="form-control" placeholder="0" value="0">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label fw-semibold small">Employment Period</label>
+                                            <input type="text" id="edit_orientation_employment_period" name="orientation_employment_period" class="form-control" placeholder="Employment Period">
+                                        </div>               
+                                         <div class="col-md-4">
                                             <label class="form-label fw-semibold small">GSIS Enrollment Date</label>
                                             <input type="text" id="edit_gsis_enrollment_date" name="gsis_enrollment_date" class="form-control" placeholder="GSIS Enrollment Date" onfocus="this.type='date'" onblur="if(!this.value)this.type='text'">
                                         </div>
@@ -546,19 +558,7 @@
                                         <div class="col-md-3">
                                             <label class="form-label fw-semibold small">GSIS Amount</label>
                                             <input type="text" id="edit_gsis_enrollment_amount" name="gsis_enrollment_amount" class="form-control" placeholder="0.00" readonly>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <label class="form-label fw-semibold small">Orientation Date</label>
-                                            <input type="text" id="edit_orientation_date" name="orientation_date" class="form-control" placeholder="Date Orientation" onfocus="this.type='date'" onblur="if(!this.value)this.type='text'">
-                                        </div>
-                                        <div class="col-md-4">
-                                            <label class="form-label fw-semibold small">Orientation Beneficiaries</label>
-                                            <input type="number" id="edit_orientation_benefs" name="orientation_benefs" class="form-control" placeholder="0" value="0">
-                                        </div>
-                                        <div class="col-md-4">
-                                            <label class="form-label fw-semibold small">Employment Period</label>
-                                            <input type="text" id="edit_orientation_employment_period" name="orientation_employment_period" class="form-control" placeholder="Employment Period">
-                                        </div>                                      
+                                        </div>                       
                                     </div>
                                 </div>
 
