@@ -381,8 +381,8 @@
                                         </div>
                                         <div class="col-md-3">
                                             <label class="form-label fw-semibold small">Reference No.</label>
-                                             <input type="text" id="edit_audrey_reference_no" name="audrey_reference_no" class="form-control" disabled title="Cannot be edited">
-                                            <input type="hidden" id="edit_implementation_reference_no" name="implementation_reference_no" class="form-control" disabled title="Cannot be edited">
+                                             <input type="text" id="edit_audrey_reference_no" name="audrey_reference_no" class="form-control" readonly title="Cannot be edited">
+                                            <input type="hidden" id="edit_implementation_reference_no" name="implementation_reference_no" class="form-control" readonly title="Cannot be edited">
                                         </div>
                                         <div class="col-md-2">
                                             <label class="form-label fw-semibold small">Date Coordinated</label>

@@ -6,7 +6,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 | Base Site URL
 |--------------------------------------------------------------------------
 */
-$config['base_url'] = 'http://10.6.11.226/dole_tupad_is/';
+$config['base_url'] = 'http://10.6.8.79/dole_tupad_is/';
 
 
 /*

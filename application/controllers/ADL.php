@@ -420,6 +420,9 @@ public function get_generated_reference_no() {
             $province = $this->input->post('implementation_province', true);
             $area_brgy = $this->input->post('implementation_brgy', true);
             $area = $this->input->post('implementation_area', true);
+            $audrey_ref_no = $this->input->post('audrey_reference_no', true);
+            $imp_ref_no = $this->input->post('implementation_reference_no', true);
+            $full_ref = $audrey_ref_no." & ".$imp_ref_no;
 
             $data = [
                 'implementation_province'           => $province,
@@ -473,6 +476,10 @@ public function get_generated_reference_no() {
             $update = $this->ADL_Model->update_transaction($id, $data);
 
             if ($update) {
+                 $this->load->model('Activity_Model');
+                $user_id = $this->session->userdata('user_id');
+                $this->Activity_Model->log_activity($full_ref, $user_id, 13); 
+
                 $this->session->set_flashdata('success', 'ADL Transaction record successfully updated!');
             } else {
                 $this->session->set_flashdata('error', 'Failed to update transaction record.');
