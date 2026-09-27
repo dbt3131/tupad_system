@@ -678,6 +678,10 @@ public function export_tupad_summ_excel() {
     // (Make sure this file is located at: application/views/tupad/tupad_excel_summ_export.php)
     $this->load->view('tupad/tupad_excel_summ_export', $data);
 }
+public function reports_hub() {
 
+
+    $this->load->view('tupad/reports_hub'); // The new hub view
     
+}
 }

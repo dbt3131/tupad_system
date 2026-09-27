@@ -329,31 +329,10 @@ $is_report_active  = in_array($current_controller, ['ADL', 'tupad_report', 'tupa
       
       <ul class="collapse submenu <?= $is_report_active ? 'show' : ''; ?>" id="reportMenu">
         <li>
-          <a href="<?= site_url('ADL/ADL_report'); ?>" 
-             class="nav-sub-link <?= ($current_controller === 'ADL' && $current_method === 'adl_report') ? 'active' : ''; ?>">
+          <a href="<?= site_url('Tupad_Report/reports_hub'); ?>" 
+             class="nav-sub-link <?= ($current_controller === 'Tupad_Report' && $current_method === 'reports_hub') ? 'active' : ''; ?>">
             <i class="bi bi-circle-fill"></i>
-            <span>ADL Distribution Report</span>
-          </a>
-        </li>
-        <li>
-          <a href="<?= site_url('Tupad_Report/coa_tupad_report_page'); ?>" 
-             class="nav-sub-link <?= (strtolower($current_controller) === 'tupad_report' && $current_method === 'coa_tupad_report_page') ? 'active' : ''; ?>">
-            <i class="bi bi-circle-fill"></i>
-            <span>ADL - COA Quarterly Report</span>
-          </a>
-        </li>
-          <li>
-          <a href="<?= site_url('Tupad_Report/tupad_implementation_status_report'); ?>" 
-             class="nav-sub-link <?= (strtolower($current_controller) === 'tupad_report' && $current_method === 'tupad_implementation_status_report') ? 'active' : ''; ?>">
-            <i class="bi bi-circle-fill"></i>
-            <span>ADL - TUPAD Implementation Status</span>
-          </a>
-        </li>
-        <li>
-          <a href="<?= site_url('tupad_report/tupad_summ_report'); ?>" 
-             class="nav-sub-link <?= (strtolower($current_controller) === 'tupad_report' && $current_method === 'tupad_summ_report') ? 'active' : ''; ?>">
-            <i class="bi bi-circle-fill"></i>
-            <span>Benefs Summary Report</span>
+            <span>Reports Hub</span>
           </a>
         </li>
       </ul>
