@@ -193,7 +193,6 @@
                                                     $is_fully_complete = ($c1 && $c2 && $c3 && $c4 && $c5 && $c6 && $c7 && $c8 && $c9 && $c10);
                                                 ?>
                                                 <tr>
-                                                    <!-- Column 1: Core Identification, Dates & Target Info -->
                                                     <td>
                                                         <div class="d-flex flex-column">
                                                             <div class="d-flex align-items-center gap-2 mb-1">
@@ -211,7 +210,6 @@
                                                             <span class="text-muted small mb-1 font-monospace">Ref: <?= html_escape($row['implementation_reference_no']); ?></span>
                                                             <span class="text-secondary small mb-1"><i class="bi bi-calendar3 me-1"></i>Encoded: <?= html_escape($row['encoded_date'] ?? 'N/A'); ?></span>
                                                             
-                                                            <!-- Added Target and Days Info -->
                                                             <div class="d-flex gap-3 mt-1 pt-1 border-top border-light small text-dark fw-medium">
                                                                 <span><i class="bi bi-people me-1 text-primary"></i>Target: <?= number_format($row['target']); ?></span>
                                                                 <span><i class="bi bi-clock-history me-1 text-secondary"></i>Days: <?= html_escape($row['no_of_days']); ?></span>
@@ -219,7 +217,6 @@
                                                         </div>
                                                     </td>
 
-                                                    <!-- Column 2: Location & Proponent info -->
                                                     <td>
                                                         <div class="d-flex flex-column">
                                                             <span class="fw-semibold text-dark mb-1">
@@ -230,7 +227,6 @@
                                                         </div>
                                                     </td>
 
-                                                    <!-- Column 3: Compact Status Pipeline Badges -->
                                                     <td style="max-width: 320px;">
                                                         <div class="d-flex flex-wrap gap-1 align-items-center">
                                                             <span class="badge <?= $c1 ? 'bg-success bg-opacity-10 text-success border border-success border-opacity-25' : 'bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25'; ?>" title="Coordinated">
@@ -266,7 +262,6 @@
                                                         </div>
                                                     </td>
 
-                                                    <!-- Column 4: Actions -->
                                                     <td class="text-center">
                                                         <div class="dropdown">
                                                             <button class="btn btn-light btn-sm border dropdown-toggle px-2 py-1" type="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -313,7 +308,6 @@
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     
-                    <!-- Edit Notice Container -->
                     <div class="col-12 px-4 pt-3" id="editTargetNoticeContainer" style="display: none;">
                         <div class="alert alert-danger py-2 px-3 small mb-2 d-flex align-items-center" role="alert">
                             <i class="bi bi-exclamation-triangle-fill me-2 fs-6"></i>
@@ -414,7 +408,6 @@
                                             </select>
                                         </div>
                                         
-                                        <!-- DISTRICT SELECT FIELD -->
                                         <div class="col-md-3">
                                             <label class="form-label fw-semibold small">District</label>
                                             <select name="implementation_district" id="edit_implementation_district" class="form-select" style="width: 100%;" required>
@@ -458,7 +451,6 @@
                                             <input type="text" id="edit_implementation_classification" name="implementation_classification" class="form-control" placeholder="LGU Class" required>
                                         </div>
 
-                                        <!-- PROPONENT SELECT FIELD -->
                                         <div class="col-md-4">
                                             <label class="form-label fw-semibold small">Proponent</label>
                                             <select name="imp_proponent" id="edit_imp_proponent" class="form-select" style="width: 100%;" required>
@@ -504,23 +496,29 @@
                                             <input type="text" id="edit_ppes_date_issued" name="ppes_date_issued" class="form-control" placeholder="Date Issued" onfocus="this.type='date'" onblur="if(!this.value)this.type='text'">
                                         </div>
                                         
-                                        <!-- PPES Count with Note Element -->
                                         <div class="col-md-2">
-                                            <label class="form-label fw-semibold small">PPES Count</label>
+                                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                                <label class="form-label fw-semibold small mb-0">PPES Count</label>
+                                                <button type="button" class="btn btn-outline-secondary btn-sm py-0 px-1" id="btn_override_ppes_count" style="font-size: 0.65rem;" title="Click to override auto-calculation">Override</button>
+                                            </div>
                                             <input type="number" id="edit_ppes_count" name="ppes_count" class="form-control" placeholder="0" readonly>
                                             <small class="text-danger d-none mt-1 d-block" id="note_ppes_count" style="font-size: 0.65rem; line-height: 1.1;">THIS VALUE IS NOT YET RECORDED IN THE ADL TRANSACTION TABLE. CLICK SAVE TO RECORD</small>
                                         </div>
 
-                                        <!-- PPES Female with Note Element -->
                                         <div class="col-md-2">
-                                            <label class="form-label fw-semibold small">PPES Female</label>
+                                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                                <label class="form-label fw-semibold small mb-0">PPES Female</label>
+                                                <button type="button" class="btn btn-outline-secondary btn-sm py-0 px-1" id="btn_override_ppes_female" style="font-size: 0.65rem;" title="Click to override auto-calculation">Override</button>
+                                            </div>
                                             <input type="number" id="edit_ppes_female" name="ppes_female" class="form-control" placeholder="0" readonly>
                                             <small class="text-danger d-none mt-1 d-block" id="note_ppes_female" style="font-size: 0.65rem; line-height: 1.1;">THIS VALUE IS NOT YET RECORDED IN THE ADL TRANSACTION TABLE. CLICK SAVE TO RECORD</small>
                                         </div>
 
-                                        <!-- PPES Amount with Note Element -->
                                         <div class="col-md-2">
-                                            <label class="form-label fw-semibold small">PPES Amount</label>
+                                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                                <label class="form-label fw-semibold small mb-0">PPES Amount</label>
+                                                <button type="button" class="btn btn-outline-secondary btn-sm py-0 px-1" id="btn_override_ppes_amount" style="font-size: 0.65rem;" title="Click to override auto-calculation">Override</button>
+                                            </div>
                                             <input type="text" id="edit_ppes_amount" name="ppes_amount" class="form-control" placeholder="0.00" readonly>
                                             <small class="text-danger d-none mt-1 d-block" id="note_ppes_amount" style="font-size: 0.65rem; line-height: 1.1;">THIS VALUE IS NOT YET RECORDED IN THE ADL TRANSACTION TABLE. CLICK SAVE TO RECORD</small>
                                         </div>
@@ -547,23 +545,29 @@
                                             <input type="text" id="edit_gsis_enrollment_date" name="gsis_enrollment_date" class="form-control" placeholder="GSIS Enrollment Date" onfocus="this.type='date'" onblur="if(!this.value)this.type='text'">
                                         </div>
                                         
-                                        <!-- GSIS Beneficiaries with Note Element -->
                                         <div class="col-md-3">
-                                            <label class="form-label fw-semibold small">GSIS Beneficiaries</label>
+                                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                                <label class="form-label fw-semibold small mb-0">GSIS Beneficiaries</label>
+                                                <button type="button" class="btn btn-outline-secondary btn-sm py-0 px-1" id="btn_override_gsis_benefs" style="font-size: 0.65rem;" title="Click to override auto-calculation">Override</button>
+                                            </div>
                                             <input type="number" id="edit_gsis_enrollment_benefs" name="gsis_enrollment_benefs" class="form-control" placeholder="0" readonly>
                                             <small class="text-danger d-none mt-1 d-block" id="note_gsis_benefs" style="font-size: 0.65rem; line-height: 1.1;">THIS VALUE IS NOT YET RECORDED IN THE ADL TRANSACTION TABLE. CLICK SAVE TO RECORD</small>
                                         </div>
 
-                                        <!-- GSIS Female with Note Element -->
                                         <div class="col-md-2">
-                                            <label class="form-label fw-semibold small">GSIS Female</label>
+                                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                                <label class="form-label fw-semibold small mb-0">GSIS Female</label>
+                                                <button type="button" class="btn btn-outline-secondary btn-sm py-0 px-1" id="btn_override_gsis_female" style="font-size: 0.65rem;" title="Click to override auto-calculation">Override</button>
+                                            </div>
                                             <input type="number" id="edit_gsis_enrollment_female" name="gsis_enrollment_female" class="form-control" placeholder="0" readonly>
                                             <small class="text-danger d-none mt-1 d-block" id="note_gsis_female" style="font-size: 0.65rem; line-height: 1.1;">THIS VALUE IS NOT YET RECORDED IN THE ADL TRANSACTION TABLE. CLICK SAVE TO RECORD</small>
                                         </div>
 
-                                        <!-- GSIS Amount with Note Element -->
                                         <div class="col-md-3">
-                                            <label class="form-label fw-semibold small">GSIS Amount</label>
+                                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                                <label class="form-label fw-semibold small mb-0">GSIS Amount</label>
+                                                <button type="button" class="btn btn-outline-secondary btn-sm py-0 px-1" id="btn_override_gsis_amount" style="font-size: 0.65rem;" title="Click to override auto-calculation">Override</button>
+                                            </div>
                                             <input type="text" id="edit_gsis_enrollment_amount" name="gsis_enrollment_amount" class="form-control" placeholder="0.00" readonly>
                                             <small class="text-danger d-none mt-1 d-block" id="note_gsis_amount" style="font-size: 0.65rem; line-height: 1.1;">THIS VALUE IS NOT YET RECORDED IN THE ADL TRANSACTION TABLE. CLICK SAVE TO RECORD</small>
                                         </div>    
@@ -704,11 +708,109 @@
         const ppeRate = parseFloat("<?= $ppe_rate ?? 325; ?>") || 0;
         const gsisRate = parseFloat("<?= $gsis_rate ?? 50; ?>") || 0;
 
-        // Global reference tracking variables
         let currentTupadTotalCount = 0;
         let currentTupadFemaleCount = 0;
         let originalPpesCount = 0;
         let originalGsisBenefs = 0;
+
+        let overridePpesCount = false;
+        let overridePpesFemale = false;
+        let overridePpesAmount = false;
+        let overrideGsisBenefs = false;
+        let overrideGsisFemale = false;
+        let overrideGsisAmount = false;
+
+        $('#btn_override_ppes_count').on('click', function() {
+            overridePpesCount = !overridePpesCount;
+            const $input = $('#edit_ppes_count');
+            if (overridePpesCount) {
+                $input.prop('readonly', false).focus();
+                $(this).removeClass('btn-outline-secondary').addClass('btn-warning text-dark');
+            } else {
+                $input.prop('readonly', true);
+                $(this).removeClass('btn-warning text-dark').addClass('btn-outline-secondary');
+                evaluatePPESAutoValues();
+            }
+        });
+
+        $('#btn_override_ppes_female').on('click', function() {
+            overridePpesFemale = !overridePpesFemale;
+            const $input = $('#edit_ppes_female');
+            if (overridePpesFemale) {
+                $input.prop('readonly', false).focus();
+                $(this).removeClass('btn-outline-secondary').addClass('btn-warning text-dark');
+            } else {
+                $input.prop('readonly', true);
+                $(this).removeClass('btn-warning text-dark').addClass('btn-outline-secondary');
+                evaluatePPESAutoValues();
+            }
+        });
+
+        $('#btn_override_ppes_amount').on('click', function() {
+            overridePpesAmount = !overridePpesAmount;
+            const $input = $('#edit_ppes_amount');
+            if (overridePpesAmount) {
+                $input.prop('readonly', false).focus();
+                $(this).removeClass('btn-outline-secondary').addClass('btn-warning text-dark');
+            } else {
+                $input.prop('readonly', true);
+                $(this).removeClass('btn-warning text-dark').addClass('btn-outline-secondary');
+                evaluatePPESAutoValues();
+            }
+        });
+
+        $('#btn_override_gsis_benefs').on('click', function() {
+            overrideGsisBenefs = !overrideGsisBenefs;
+            const $input = $('#edit_gsis_enrollment_benefs');
+            if (overrideGsisBenefs) {
+                $input.prop('readonly', false).focus();
+                $(this).removeClass('btn-outline-secondary').addClass('btn-warning text-dark');
+            } else {
+                $input.prop('readonly', true);
+                $(this).removeClass('btn-warning text-dark').addClass('btn-outline-secondary');
+                evaluateGSISAutoValues();
+            }
+        });
+
+        $('#btn_override_gsis_female').on('click', function() {
+            overrideGsisFemale = !overrideGsisFemale;
+            const $input = $('#edit_gsis_enrollment_female');
+            if (overrideGsisFemale) {
+                $input.prop('readonly', false).focus();
+                $(this).removeClass('btn-outline-secondary').addClass('btn-warning text-dark');
+            } else {
+                $input.prop('readonly', true);
+                $(this).removeClass('btn-warning text-dark').addClass('btn-outline-secondary');
+                evaluateGSISAutoValues();
+            }
+        });
+
+        $('#btn_override_gsis_amount').on('click', function() {
+            overrideGsisAmount = !overrideGsisAmount;
+            const $input = $('#edit_gsis_enrollment_amount');
+            if (overrideGsisAmount) {
+                $input.prop('readonly', false).focus();
+                $(this).removeClass('btn-outline-secondary').addClass('btn-warning text-dark');
+            } else {
+                $input.prop('readonly', true);
+                $(this).removeClass('btn-warning text-dark').addClass('btn-outline-secondary');
+                evaluateGSISAutoValues();
+            }
+        });
+
+        $('#edit_ppes_count').on('input', function() {
+            if (overridePpesCount && !overridePpesAmount) {
+                const count = parseFloat($(this).val()) || 0;
+                $('#edit_ppes_amount').val((count * ppeRate).toFixed(2));
+            }
+        });
+
+        $('#edit_gsis_enrollment_benefs').on('input', function() {
+            if (overrideGsisBenefs && !overrideGsisAmount) {
+                const benefs = parseFloat($(this).val()) || 0;
+                $('#edit_gsis_enrollment_amount').val((benefs * gsisRate).toFixed(2));
+            }
+        });
 
         function evaluatePPESAutoValues() {
             const risVal = $('#edit_ppes_issuance_ris').val();
@@ -718,22 +820,28 @@
             const isDateValid = dateVal && dateVal.trim() !== '' && dateVal !== '0000-00-00' && dateVal !== '0000.00.00';
 
             if (isRisValid && isDateValid) {
-                $('#edit_ppes_count').val(currentTupadTotalCount);
-                $('#edit_ppes_female').val(currentTupadFemaleCount);
+                if (!overridePpesCount) {
+                    $('#edit_ppes_count').val(currentTupadTotalCount);
+                }
+                if (!overridePpesFemale) {
+                    $('#edit_ppes_female').val(currentTupadFemaleCount);
+                }
 
-                const calculatedPpeAmount = currentTupadTotalCount * ppeRate;
-                $('#edit_ppes_amount').val(calculatedPpeAmount.toFixed(2));
+                if (!overridePpesAmount) {
+                    const currentCount = overridePpesCount ? (parseFloat($('#edit_ppes_count').val()) || 0) : currentTupadTotalCount;
+                    const calculatedPpeAmount = currentCount * ppeRate;
+                    $('#edit_ppes_amount').val(calculatedPpeAmount.toFixed(2));
+                }
 
-                // Show conditional warning if data is missing from record table
-                if (originalPpesCount === 0 && currentTupadTotalCount > 0) {
+                if (originalPpesCount === 0 && currentTupadTotalCount > 0 && !overridePpesCount) {
                     $('#note_ppes_count, #note_ppes_female, #note_ppes_amount').removeClass('d-none');
                 } else {
                     $('#note_ppes_count, #note_ppes_female, #note_ppes_amount').addClass('d-none');
                 }
             } else {
-                $('#edit_ppes_count').val('');
-                $('#edit_ppes_female').val('');
-                $('#edit_ppes_amount').val('');
+                if (!overridePpesCount) $('#edit_ppes_count').val('');
+                if (!overridePpesFemale) $('#edit_ppes_female').val('');
+                if (!overridePpesAmount) $('#edit_ppes_amount').val('');
                 $('#note_ppes_count, #note_ppes_female, #note_ppes_amount').addClass('d-none');
             }
         }
@@ -743,27 +851,32 @@
             const isDateValid = dateVal && dateVal.trim() !== '' && dateVal !== '0000-00-00' && dateVal !== '0000.00.00';
 
             if (isDateValid) {
-                $('#edit_gsis_enrollment_benefs').val(currentTupadTotalCount);
-                $('#edit_gsis_enrollment_female').val(currentTupadFemaleCount);
+                if (!overrideGsisBenefs) {
+                    $('#edit_gsis_enrollment_benefs').val(currentTupadTotalCount);
+                }
+                if (!overrideGsisFemale) {
+                    $('#edit_gsis_enrollment_female').val(currentTupadFemaleCount);
+                }
 
-                const calculatedGsisAmount = currentTupadTotalCount * gsisRate;
-                $('#edit_gsis_enrollment_amount').val(calculatedGsisAmount.toFixed(2));
+                if (!overrideGsisAmount) {
+                    const currentBenefs = overrideGsisBenefs ? (parseFloat($('#edit_gsis_enrollment_benefs').val()) || 0) : currentTupadTotalCount;
+                    const calculatedGsisAmount = currentBenefs * gsisRate;
+                    $('#edit_gsis_enrollment_amount').val(calculatedGsisAmount.toFixed(2));
+                }
 
-                // Show conditional warning if data is missing from record table
-                if (originalGsisBenefs === 0 && currentTupadTotalCount > 0) {
+                if (originalGsisBenefs === 0 && currentTupadTotalCount > 0 && !overrideGsisBenefs) {
                     $('#note_gsis_benefs, #note_gsis_female, #note_gsis_amount').removeClass('d-none');
                 } else {
                     $('#note_gsis_benefs, #note_gsis_female, #note_gsis_amount').addClass('d-none');
                 }
             } else {
-                $('#edit_gsis_enrollment_benefs').val('');
-                $('#edit_gsis_enrollment_female').val('');
-                $('#edit_gsis_enrollment_amount').val('');
+                if (!overrideGsisBenefs) $('#edit_gsis_enrollment_benefs').val('');
+                if (!overrideGsisFemale) $('#edit_gsis_enrollment_female').val('');
+                if (!overrideGsisAmount) $('#edit_gsis_enrollment_amount').val('');
                 $('#note_gsis_benefs, #note_gsis_female, #note_gsis_amount').addClass('d-none');
             }
         }
 
-        // Trigger PPES and GSIS conditional checks on user changes
         $('#edit_ppes_issuance_ris, #edit_ppes_date_issued').on('input change', function () {
             evaluatePPESAutoValues();
         });
@@ -871,7 +984,15 @@
 
         $(document).on('click', '.edit-btn', function () {
             const transactionId = $(this).data('id');
-            $('.text-danger.d-block').addClass('d-none'); // Reset warnings on edit modal open
+            $('.text-danger.d-block').addClass('d-none');
+
+            overridePpesCount = false;
+            overridePpesFemale = false;
+            overridePpesAmount = false;
+            overrideGsisBenefs = false;
+            overrideGsisFemale = false;
+            overrideGsisAmount = false;
+            $('#btn_override_ppes_count, #btn_override_ppes_female, #btn_override_ppes_amount, #btn_override_gsis_benefs, #btn_override_gsis_female, #btn_override_gsis_amount').removeClass('btn-warning text-dark').addClass('btn-outline-secondary');
 
             $.ajax({
                 url: "<?= site_url('adl/get_transaction_details'); ?>",
@@ -882,11 +1003,9 @@
                     if (response.status && response.data) {
                         const d = response.data;
                         
-                        // Capture backend reference counts globally
                         currentTupadTotalCount = parseInt(d.tupad_total_count) || 0;
                         currentTupadFemaleCount = parseInt(d.tupad_female_count) || 0;
                         
-                        // Capture original database states
                         originalPpesCount = parseInt(d.ppes_count) || 0;
                         originalGsisBenefs = parseInt(d.gsis_enrollment_benefs) || 0;
 
@@ -928,7 +1047,6 @@
                         $('#target').val(d.target);
                         $('#edit_reformulated_target').val(d.reformulated_target);
 
-                        // PPES evaluation based on RIS and Date Issued requirements
                         $('#edit_ppes_issuance_ris').val(d.ppes_issuance_ris);
                         
                         const hasRis = d.ppes_issuance_ris && d.ppes_issuance_ris.trim() !== '';
@@ -946,7 +1064,6 @@
                             $('#edit_ppes_amount').val(d.ppes_amount);
                         }
 
-                        // GSIS Enrollment Date evaluation and read-only toggle
                         const hasGsisDate = d.gsis_enrollment_date && d.gsis_enrollment_date.trim() !== '' && d.gsis_enrollment_date !== '0000-00-00';
                         $('#edit_gsis_enrollment_date').prop('readonly', hasGsisDate);
                         
@@ -1095,25 +1212,24 @@
     $(document).on('input', '#edit_subsidy_cost', function () {
         validateEditSubsidyLimit();
     });
-    
 
-document.addEventListener('contextmenu', function (e) {
-    e.preventDefault();
-});
+    document.addEventListener('contextmenu', function (e) {
+        e.preventDefault();
+    });
 
     document.addEventListener('keydown', function (e) {
-    if (e.key === 'F12') {
-        e.preventDefault();
-    }
-    
-    if (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i' || e.key === 'J' || e.key === 'j' || e.key === 'C' || e.key === 'c')) {
-        e.preventDefault();
-    }
-    
-    if (e.ctrlKey && (e.key === 'U' || e.key === 'u')) {
-        e.preventDefault();
-    }
-});
+        if (e.key === 'F12') {
+            e.preventDefault();
+        }
+        
+        if (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i' || e.key === 'J' || e.key === 'j' || e.key === 'C' || e.key === 'c')) {
+            e.preventDefault();
+        }
+        
+        if (e.ctrlKey && (e.key === 'U' || e.key === 'u')) {
+            e.preventDefault();
+        }
+    });
     </script>
 </body>
 
