@@ -182,6 +182,27 @@
             </div>
         </div>
 
+
+<!-- Report 3: Implementation Status -->
+        <div class="col-md-6 col-xl-3">
+            <div class="card border-0 shadow-sm h-100 report-card">
+                <div class="card-body d-flex flex-column p-4">
+                    <div class="icon-box bg-warning bg-opacity-10 text-warning rounded-3 mb-3 d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+                        <i class="bi bi-activity fs-4"></i>
+                    </div>
+                    <h5 class="fw-bold text-dark mb-2">Transparency Report</h5>
+                    <p class="text-muted small mb-4 flex-grow-1">List of TUPAD beneficiaries.</p>
+                    <a href="<?= site_url('tupad_transparency/index'); ?>" class="btn btn-outline-warning text-dark btn-sm w-100 d-flex align-items-center justify-content-center gap-2">
+                        <span>Open Report</span>
+                        <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+
+
+
     </div>
 </div>
 

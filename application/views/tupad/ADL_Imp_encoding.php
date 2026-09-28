@@ -285,7 +285,7 @@
                             
                             <div class="col-md-2">
                                 <label class="form-label fw-semibold small">LGU Classification</label>
-                                <input type="text" name="implementation_classification" class="form-control" placeholder="LGU Class" autocomplete="OFF" required>
+                                <input type="text" name="implementation_classification" class="form-control" placeholder="LGU Class" title="Put N/A if the municipality is VARIOUS" autocomplete="OFF" required>
                             </div>
 
                             <div class="col-md-3">
