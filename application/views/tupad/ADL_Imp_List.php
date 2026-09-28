@@ -661,7 +661,7 @@
 
                         <div class="modal-footer bg-light">
                             <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">Cancel</button>
-                            <button type="submit" class="btn px-4 text-white" style="background-color: #0f172a;">
+                            <button type="submit" id="updateTransactionBtn" class="btn px-4 text-white" style="background-color: #0f172a;">
                                 <i class="bi bi-save me-1"></i> Save Changes
                             </button>
                         </div>
@@ -682,6 +682,32 @@
 
     <script>
     $(document).ready(function () {
+        // Prevent Multiple Form Submissions for Edit Transaction Modal
+        $('#editTransactionForm').on('submit', function (e) {
+            e.preventDefault(); // Temporarily stop standard submission
+
+            const $form = $(this);
+            const $submitBtn = $('#updateTransactionBtn');
+
+            // Check HTML5 form validation validity
+            if ($form[0].checkValidity() === false) {
+                $form[0].reportValidity();
+                return;
+            }
+
+            // Disable button and swap text for a loading spinner
+            $submitBtn.prop('disabled', true);
+            $submitBtn.html(`
+                <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                Saving Changes...
+            `);
+
+            // Small delay to ensure visual feedback renders before submission
+            setTimeout(function() {
+                $form.get(0).submit();
+            }, 200);
+        });
+
         $('#transactionTable').DataTable({
             "language": {
                 "emptyTable": "No transaction records found. Please select a filtered area."
