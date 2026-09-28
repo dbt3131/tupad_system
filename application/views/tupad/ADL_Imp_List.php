@@ -233,43 +233,33 @@
                                                     <!-- Column 3: Compact Status Pipeline Badges -->
                                                     <td style="max-width: 320px;">
                                                         <div class="d-flex flex-wrap gap-1 align-items-center">
-                                                            <!-- Step 1 -->
                                                             <span class="badge <?= $c1 ? 'bg-success bg-opacity-10 text-success border border-success border-opacity-25' : 'bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25'; ?>" title="Coordinated">
                                                                 <i class="bi <?= $c1 ? 'bi-check text-success' : 'bi-x text-danger'; ?>"></i> Coordinated
                                                             </span>
-                                                            <!-- Step 2 -->
                                                             <span class="badge <?= $c2 ? 'bg-success bg-opacity-10 text-success border border-success border-opacity-25' : 'bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25'; ?>" title="Appraisal Submitted">
                                                                 <i class="bi <?= $c2 ? 'bi-check text-success' : 'bi-x text-danger'; ?>"></i> Appraisal Sub.
                                                             </span>
-                                                            <!-- Step 3 -->
                                                             <span class="badge <?= $c3 ? 'bg-success bg-opacity-10 text-success border border-success border-opacity-25' : 'bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25'; ?>" title="Appraisal Approved">
                                                                 <i class="bi <?= $c3 ? 'bi-check text-success' : 'bi-x text-danger'; ?>"></i> Appraisal App.
                                                             </span>
-                                                            <!-- Step 4 -->
                                                             <span class="badge <?= $c4 ? 'bg-success bg-opacity-10 text-success border border-success border-opacity-25' : 'bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25'; ?>" title="Issued PPEs">
                                                                 <i class="bi <?= $c4 ? 'bi-check text-success' : 'bi-x text-danger'; ?>"></i> PPEs
                                                             </span>
-                                                            <!-- Step 5 -->
                                                             <span class="badge <?= $c5 ? 'bg-success bg-opacity-10 text-success border border-success border-opacity-25' : 'bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25'; ?>" title="Oriented">
                                                                 <i class="bi <?= $c5 ? 'bi-check text-success' : 'bi-x text-danger'; ?>"></i> Oriented
                                                             </span>
-                                                            <!-- Step 6 -->
                                                             <span class="badge <?= $c6 ? 'bg-success bg-opacity-10 text-success border border-success border-opacity-25' : 'bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25'; ?>" title="GSIS Enrolled">
                                                                 <i class="bi <?= $c6 ? 'bi-check text-success' : 'bi-x text-danger'; ?>"></i> GSIS
                                                             </span>
-                                                            <!-- Step 7 -->
                                                             <span class="badge <?= $c7 ? 'bg-success bg-opacity-10 text-success border border-success border-opacity-25' : 'bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25'; ?>" title="Implemented">
                                                                 <i class="bi <?= $c7 ? 'bi-check text-success' : 'bi-x text-danger'; ?>"></i> Implemented
                                                             </span>
-                                                            <!-- Step 8 -->
                                                             <span class="badge <?= $c8 ? 'bg-success bg-opacity-10 text-success border border-success border-opacity-25' : 'bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25'; ?>" title="Completed">
                                                                 <i class="bi <?= $c8 ? 'bi-check text-success' : 'bi-x text-danger'; ?>"></i> Finished
                                                             </span>
-                                                            <!-- Step 9 -->
                                                             <span class="badge <?= $c9 ? 'bg-success bg-opacity-10 text-success border border-success border-opacity-25' : 'bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25'; ?>" title="Funding Processed">
                                                                 <i class="bi <?= $c9 ? 'bi-check text-success' : 'bi-x text-danger'; ?>"></i> Funded
                                                             </span>
-                                                            <!-- Step 10 -->
                                                             <span class="badge <?= $c10 ? 'bg-success bg-opacity-10 text-success border border-success border-opacity-25' : 'bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25'; ?>" title="For payout">
                                                                 <i class="bi <?= $c10 ? 'bi-check text-success' : 'bi-x text-danger'; ?>"></i> Payout
                                                             </span>
@@ -513,17 +503,26 @@
                                             <label class="form-label fw-semibold small">PPES Date Issued</label>
                                             <input type="text" id="edit_ppes_date_issued" name="ppes_date_issued" class="form-control" placeholder="Date Issued" onfocus="this.type='date'" onblur="if(!this.value)this.type='text'">
                                         </div>
+                                        
+                                        <!-- PPES Count with Note Element -->
                                         <div class="col-md-2">
                                             <label class="form-label fw-semibold small">PPES Count</label>
                                             <input type="number" id="edit_ppes_count" name="ppes_count" class="form-control" placeholder="0" readonly>
+                                            <small class="text-danger d-none mt-1 d-block" id="note_ppes_count" style="font-size: 0.65rem; line-height: 1.1;">THIS VALUE IS NOT YET RECORDED IN THE ADL TRANSACTION TABLE. CLICK SAVE TO RECORD</small>
                                         </div>
+
+                                        <!-- PPES Female with Note Element -->
                                         <div class="col-md-2">
                                             <label class="form-label fw-semibold small">PPES Female</label>
                                             <input type="number" id="edit_ppes_female" name="ppes_female" class="form-control" placeholder="0" readonly>
+                                            <small class="text-danger d-none mt-1 d-block" id="note_ppes_female" style="font-size: 0.65rem; line-height: 1.1;">THIS VALUE IS NOT YET RECORDED IN THE ADL TRANSACTION TABLE. CLICK SAVE TO RECORD</small>
                                         </div>
+
+                                        <!-- PPES Amount with Note Element -->
                                         <div class="col-md-2">
                                             <label class="form-label fw-semibold small">PPES Amount</label>
                                             <input type="text" id="edit_ppes_amount" name="ppes_amount" class="form-control" placeholder="0.00" readonly>
+                                            <small class="text-danger d-none mt-1 d-block" id="note_ppes_amount" style="font-size: 0.65rem; line-height: 1.1;">THIS VALUE IS NOT YET RECORDED IN THE ADL TRANSACTION TABLE. CLICK SAVE TO RECORD</small>
                                         </div>
                                     </div>
                                 </div>
@@ -547,18 +546,27 @@
                                             <label class="form-label fw-semibold small">GSIS Enrollment Date</label>
                                             <input type="text" id="edit_gsis_enrollment_date" name="gsis_enrollment_date" class="form-control" placeholder="GSIS Enrollment Date" onfocus="this.type='date'" onblur="if(!this.value)this.type='text'">
                                         </div>
+                                        
+                                        <!-- GSIS Beneficiaries with Note Element -->
                                         <div class="col-md-3">
                                             <label class="form-label fw-semibold small">GSIS Beneficiaries</label>
                                             <input type="number" id="edit_gsis_enrollment_benefs" name="gsis_enrollment_benefs" class="form-control" placeholder="0" readonly>
+                                            <small class="text-danger d-none mt-1 d-block" id="note_gsis_benefs" style="font-size: 0.65rem; line-height: 1.1;">THIS VALUE IS NOT YET RECORDED IN THE ADL TRANSACTION TABLE. CLICK SAVE TO RECORD</small>
                                         </div>
+
+                                        <!-- GSIS Female with Note Element -->
                                         <div class="col-md-2">
                                             <label class="form-label fw-semibold small">GSIS Female</label>
                                             <input type="number" id="edit_gsis_enrollment_female" name="gsis_enrollment_female" class="form-control" placeholder="0" readonly>
+                                            <small class="text-danger d-none mt-1 d-block" id="note_gsis_female" style="font-size: 0.65rem; line-height: 1.1;">THIS VALUE IS NOT YET RECORDED IN THE ADL TRANSACTION TABLE. CLICK SAVE TO RECORD</small>
                                         </div>
+
+                                        <!-- GSIS Amount with Note Element -->
                                         <div class="col-md-3">
                                             <label class="form-label fw-semibold small">GSIS Amount</label>
                                             <input type="text" id="edit_gsis_enrollment_amount" name="gsis_enrollment_amount" class="form-control" placeholder="0.00" readonly>
-                                        </div>                       
+                                            <small class="text-danger d-none mt-1 d-block" id="note_gsis_amount" style="font-size: 0.65rem; line-height: 1.1;">THIS VALUE IS NOT YET RECORDED IN THE ADL TRANSACTION TABLE. CLICK SAVE TO RECORD</small>
+                                        </div>    
                                     </div>
                                 </div>
 
@@ -696,9 +704,11 @@
         const ppeRate = parseFloat("<?= $ppe_rate ?? 325; ?>") || 0;
         const gsisRate = parseFloat("<?= $gsis_rate ?? 50; ?>") || 0;
 
-        // Global reference variables for dynamic auto-population conditions
+        // Global reference tracking variables
         let currentTupadTotalCount = 0;
         let currentTupadFemaleCount = 0;
+        let originalPpesCount = 0;
+        let originalGsisBenefs = 0;
 
         function evaluatePPESAutoValues() {
             const risVal = $('#edit_ppes_issuance_ris').val();
@@ -713,10 +723,18 @@
 
                 const calculatedPpeAmount = currentTupadTotalCount * ppeRate;
                 $('#edit_ppes_amount').val(calculatedPpeAmount.toFixed(2));
+
+                // Show conditional warning if data is missing from record table
+                if (originalPpesCount === 0 && currentTupadTotalCount > 0) {
+                    $('#note_ppes_count, #note_ppes_female, #note_ppes_amount').removeClass('d-none');
+                } else {
+                    $('#note_ppes_count, #note_ppes_female, #note_ppes_amount').addClass('d-none');
+                }
             } else {
                 $('#edit_ppes_count').val('');
                 $('#edit_ppes_female').val('');
                 $('#edit_ppes_amount').val('');
+                $('#note_ppes_count, #note_ppes_female, #note_ppes_amount').addClass('d-none');
             }
         }
 
@@ -730,10 +748,18 @@
 
                 const calculatedGsisAmount = currentTupadTotalCount * gsisRate;
                 $('#edit_gsis_enrollment_amount').val(calculatedGsisAmount.toFixed(2));
+
+                // Show conditional warning if data is missing from record table
+                if (originalGsisBenefs === 0 && currentTupadTotalCount > 0) {
+                    $('#note_gsis_benefs, #note_gsis_female, #note_gsis_amount').removeClass('d-none');
+                } else {
+                    $('#note_gsis_benefs, #note_gsis_female, #note_gsis_amount').addClass('d-none');
+                }
             } else {
                 $('#edit_gsis_enrollment_benefs').val('');
                 $('#edit_gsis_enrollment_female').val('');
                 $('#edit_gsis_enrollment_amount').val('');
+                $('#note_gsis_benefs, #note_gsis_female, #note_gsis_amount').addClass('d-none');
             }
         }
 
@@ -845,6 +871,7 @@
 
         $(document).on('click', '.edit-btn', function () {
             const transactionId = $(this).data('id');
+            $('.text-danger.d-block').addClass('d-none'); // Reset warnings on edit modal open
 
             $.ajax({
                 url: "<?= site_url('adl/get_transaction_details'); ?>",
@@ -858,6 +885,10 @@
                         // Capture backend reference counts globally
                         currentTupadTotalCount = parseInt(d.tupad_total_count) || 0;
                         currentTupadFemaleCount = parseInt(d.tupad_female_count) || 0;
+                        
+                        // Capture original database states
+                        originalPpesCount = parseInt(d.ppes_count) || 0;
+                        originalGsisBenefs = parseInt(d.gsis_enrollment_benefs) || 0;
 
                         $('#edit_adl_transact_id').val(d.adl_transact_id);
                         $('#edit_adl_no').val(d.adl_no);
@@ -897,7 +928,7 @@
                         $('#target').val(d.target);
                         $('#edit_reformulated_target').val(d.reformulated_target);
 
-                        // PPES evaluation based on RIS and Date Issued requirements (Set to Readonly instead of Disabled)
+                        // PPES evaluation based on RIS and Date Issued requirements
                         $('#edit_ppes_issuance_ris').val(d.ppes_issuance_ris);
                         
                         const hasRis = d.ppes_issuance_ris && d.ppes_issuance_ris.trim() !== '';
@@ -1071,12 +1102,10 @@ document.addEventListener('contextmenu', function (e) {
 });
 
     document.addEventListener('keydown', function (e) {
-    // Disable F12
     if (e.key === 'F12') {
         e.preventDefault();
     }
     
-    // Disable Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+Shift+C, Ctrl+U
     if (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i' || e.key === 'J' || e.key === 'j' || e.key === 'C' || e.key === 'c')) {
         e.preventDefault();
     }
