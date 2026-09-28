@@ -339,7 +339,8 @@
 <div class="modal fade" id="editMafModal" tabindex="-1" aria-labelledby="editMafModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
-            <form action="<?= base_url('adl/update_maf'); ?>" method="POST">
+            <!-- MAKE SURE id="editMafForm" IS HERE -->
+            <form action="<?= base_url('adl/update_maf'); ?>" method="POST" id="editMafForm">
                 <div class="modal-header bg-light">
                     <h5 class="modal-title fw-bold text-primary" id="editMafModalLabel">
                         <i class="bi bi-pencil-square me-2"></i>Edit MAF Record
@@ -369,7 +370,8 @@
                 
                 <div class="modal-footer bg-light">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                    <!-- MAKE SURE id="updateMafBtn" IS HERE -->
+                    <button type="submit" id="updateMafBtn" class="btn btn-primary">Save Changes</button>
                 </div>
             </form>
         </div>
@@ -580,6 +582,10 @@
             mafModal.show();
         });
 
+
+
+
+
         // Prevent Multiple Form Submissions and Check for Duplicate ADL via AJAX
         $('#adlForm').on('submit', function (e) {
             e.preventDefault(); 
@@ -619,6 +625,12 @@
                 }
             });
         });
+
+
+
+
+
+
 
         // Prevent Multiple Form Submissions for MAF Modal
         $('#mafForm').on('submit', function (e) {
@@ -702,6 +714,51 @@ document.addEventListener('keydown', function (e) {
         e.preventDefault();
     }
 });
+
+// Prevent Multiple Form Submissions for Edit MAF Modal with visible feedback
+    $('#editMafForm').on('submit', function (e) {
+        e.preventDefault(); // Temporarily stop standard submit to show the loader
+
+        const $form =$(this);
+        const $submitBtn =$('#updateMafBtn');
+
+        if ($form[0].checkValidity() === false) {$form[0].reportValidity();
+            return; 
+        }
+
+        // Disable button and show loading spinner & text
+        $submitBtn.prop('disabled', true);$submitBtn.html(`
+            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+            Updating...
+        `);
+
+        // Submit the form after a tiny delay so the user actually sees the spinner
+        setTimeout(function() {
+            $form[0].submit();
+        }, 150);
+    });
+
+    $('#editAdlForm').on('submit', function (e) {
+        e.preventDefault(); // Stop normal submission temporarily
+
+        const $form =$(this);
+        const $submitBtn =$('#updateAdlBtn');
+
+        if ($form[0].checkValidity() === false) {$form[0].reportValidity();
+            return; 
+        }
+
+        // Disable button and show loading text/spinner
+        $submitBtn.prop('disabled', true);$submitBtn.html(`
+            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+            Updating Record...
+        `);
+
+        // Small delay so the user sees the spinner before page reload
+        setTimeout(function() {
+            $form.get(0).submit();
+        }, 200);
+    });
     </script>
 </body>
 

@@ -172,6 +172,8 @@ function display_val($value, $type = 'text') {
 
     <script>
     $(document).ready(function () {
+        let isSubmitting = false; // Flag to track submission state
+
         // Sidebar Toggle Handler
         $(document).on('click', '#sidebarToggle', function (e) {
             e.preventDefault();
@@ -193,7 +195,7 @@ function display_val($value, $type = 'text') {
 
             if (proponentName === '') {
                 feedback.html('This will be automatically saved in uppercase format.').removeClass('text-danger text-success');
-                submitBtn.prop('disabled', false);
+                if (!isSubmitting) submitBtn.prop('disabled', false);
                 return;
             }
 
@@ -204,6 +206,8 @@ function display_val($value, $type = 'text') {
                     data: { proponent_name: proponentName },
                     dataType: "json",
                     success: function (response) {
+                        if (isSubmitting) return; // Ignore if already submitting
+
                         if (response.exists) {
                             feedback.html('<i class="bi bi-exclamation-triangle-fill me-1"></i> This proponent name already exists!').addClass('text-danger').removeClass('text-success');
                             submitBtn.prop('disabled', true);
@@ -216,35 +220,49 @@ function display_val($value, $type = 'text') {
             }, 300);
         });
 
-        // Prevent submission if duplicate detected
+        // Prevent multiple submissions completely
         $('#proponentForm').on('submit', function (e) {
-            if ($('#submitBtn').prop('disabled')) {
+            let submitBtn = $('#submitBtn');
+
+            // If already submitting, stop it immediately
+            if (isSubmitting) {
                 e.preventDefault();
-                alert('Please use a unique proponent name before saving.');
+                return false;
             }
+
+            // Check if the button is disabled due to a duplicate name
+            if (submitBtn.prop('disabled')) {
+                e.preventDefault();
+                alert('Please resolve any errors or use a unique proponent name before saving.');
+                return false;
+            }
+
+            // Set the lock flag
+            isSubmitting = true;
+
+            // Immediately disable and change appearance
+            submitBtn.prop('disabled', true);
+            submitBtn.html('<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span> Saving...');
         });
     });
 
     document.addEventListener('contextmenu', function (e) {
-    e.preventDefault();
-});
+        e.preventDefault();
+    });
 
-document.addEventListener('keydown', function (e) {
-    // Disable F12
-    if (e.key === 'F12') {
-        e.preventDefault();
-    }
-    
-    // Disable Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+Shift+C, Ctrl+U
-    if (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i' || e.key === 'J' || e.key === 'j' || e.key === 'C' || e.key === 'c')) {
-        e.preventDefault();
-    }
-    
-    if (e.ctrlKey && (e.key === 'U' || e.key === 'u')) {
-        e.preventDefault();
-    }
-});
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'F12') {
+            e.preventDefault();
+        }
+        if (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i' || e.key === 'J' || e.key === 'j' || e.key === 'C' || e.key === 'c')) {
+            e.preventDefault();
+        }
+        if (e.ctrlKey && (e.key === 'U' || e.key === 'u')) {
+            e.preventDefault();
+        }
+    });
     </script>
+
 </body>
 
 </html>
