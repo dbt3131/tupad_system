@@ -3,6 +3,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use PhpOffice\PhpSpreadsheet\Style\Border;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
 
 class Tupad_Transparency extends CI_Controller {
 
@@ -46,16 +49,18 @@ class Tupad_Transparency extends CI_Controller {
         $consoSheet = $spreadsheet->getActiveSheet();
         $consoSheet->setTitle('CONSOLIDATED (' . $totalBeneficiariesCount . ')');
         $this->populate_sheet_data($consoSheet, $beneficiaries);
+        $this->apply_professional_styling($consoSheet);
 
         // Sheet 2: TRANSPARENCY SHEET (Restricted columns format) with total count
         $transSheet = $spreadsheet->createSheet();
         $transSheet->setTitle('TRANSPARENCY (' . $totalBeneficiariesCount . ')');
         $this->populate_transparency_sheet($transSheet, $beneficiaries);
+        $this->apply_professional_styling($transSheet);
 
         // Dynamically group records by Beneficiary Type Description
         $groupedByBeneType = [];
         foreach ($beneficiaries as $row) {
-            $beneTypeDescription = $row['bene_type_desc'] ?? 'GENERAL';
+            $beneTypeDescription = $row['bene_type_desc'] ?? 'MARGINALIZED';
             
             if (empty($beneTypeDescription)) {
                 $beneTypeDescription = 'MARGINALIZED';
@@ -90,6 +95,7 @@ class Tupad_Transparency extends CI_Controller {
             $typeSheet = $spreadsheet->createSheet();
             $typeSheet->setTitle($uniqueSheetName);
             $this->populate_sheet_data($typeSheet, $typeRows);
+            $this->apply_professional_styling($typeSheet);
         }
 
         // Output download headers
@@ -99,6 +105,61 @@ class Tupad_Transparency extends CI_Controller {
 
         $writer = new Xlsx($spreadsheet);
         $writer->save('php://output');
+    }
+
+    // Professional Styling Helper for Borders, Spacing, and Layout
+    private function apply_professional_styling($sheet) {
+        $highestRow = $sheet->getHighestRow();
+        $highestColumn = $sheet->getHighestColumn();
+
+        // Header Styling (Professional Navy Blue, Bold White Text, Centered)
+        $headerStyle = [
+            'font' => [
+                'bold' => true,
+                'color' => ['argb' => 'FFFFFFFF'],
+                'size' => 11,
+            ],
+            'fill' => [
+                'fillType' => Fill::FILL_SOLID,
+                'startColor' => ['argb' => 'FF1E3A8A'],
+            ],
+            'alignment' => [
+                'horizontal' => Alignment::HORIZONTAL_CENTER,
+                'vertical' => Alignment::VERTICAL_CENTER,
+            ],
+        ];
+        $sheet->getStyle('A1:' . $highestColumn . '1')->applyFromArray($headerStyle);
+        $sheet->getRowDimension(1)->setRowHeight(26);
+
+        // Data Cells Borders and Alignment
+        $dataStyle = [
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => Border::BORDER_THIN,
+                    'color' => ['argb' => 'FFCBD5E1'], // Soft professional gray border
+                ],
+            ],
+            'alignment' => [
+                'vertical' => Alignment::VERTICAL_CENTER,
+            ],
+            'font' => [
+                'size' => 10,
+            ],
+        ];
+
+        if ($highestRow >= 2) {
+            $sheet->getStyle('A2:' . $highestColumn . $highestRow)->applyFromArray($dataStyle);
+        }
+
+        // Set comfortable row height for data spacing
+        for ($i = 2; $i <= $highestRow; $i++) {
+            $sheet->getRowDimension($i)->setRowHeight(20);
+        }
+
+        // Auto-size columns with padding for clean spacing
+        for ($col = 'A'; $col <= $highestColumn; $col++) {
+            $sheet->getColumnDimension($col)->setAutoSize(true);
+        }
     }
 
     // Helper for standard sheets with all columns
