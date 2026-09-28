@@ -38,43 +38,53 @@ class Tupad_Transparency extends CI_Controller {
         $province_code = $this->input->get('province_code');
 
         $beneficiaries = $this->Tupad_Transparency_Model->get_filtered_beneficiaries($start_date, $end_date, $province_code);
+        $totalBeneficiariesCount = count($beneficiaries);
 
         $spreadsheet = new Spreadsheet();
 
-        // Sheet 1: CONSOLIDATED SHEET (All records)
+        // Sheet 1: CONSOLIDATED SHEET (All records) with total count
         $consoSheet = $spreadsheet->getActiveSheet();
-        $consoSheet->setTitle('CONSOLIDATED SHEET');
+        $consoSheet->setTitle('CONSOLIDATED (' . $totalBeneficiariesCount . ')');
         $this->populate_sheet_data($consoSheet, $beneficiaries);
 
-        // Sheet 2: TRANSPARENCY SHEET (Restricted columns format)
+        // Sheet 2: TRANSPARENCY SHEET (Restricted columns format) with total count
         $transSheet = $spreadsheet->createSheet();
-        $transSheet->setTitle('TRANSPARENCY SHEET');
+        $transSheet->setTitle('TRANSPARENCY (' . $totalBeneficiariesCount . ')');
         $this->populate_transparency_sheet($transSheet, $beneficiaries);
 
-        // Dynamically group records by Beneficiary Type Description for individual sheets
+        // Dynamically group records by Beneficiary Type Description
         $groupedByBeneType = [];
         foreach ($beneficiaries as $row) {
-            $beneTypeDescription =$row['bene_type_desc'] ?? 'GENERAL';
+            $beneTypeDescription = $row['bene_type_desc'] ?? 'GENERAL';
             
             if (empty($beneTypeDescription)) {
                 $beneTypeDescription = 'MARGINALIZED';
             }
 
-            // Clean sheet name using str_replace to avoid regex errors
-            $invalidChars = ['\\', '/', '?', '*', ':', '[', ']'];
-            $sheetName = str_replace($invalidChars, '', $beneTypeDescription);
-            $sheetName = substr(strtoupper($sheetName), 0, 31);
-            
-            $groupedByBeneType[$sheetName][] = $row;
+            $groupedByBeneType[$beneTypeDescription][] = $row;
         }
 
-        // Create a separate sheet for each unique Beneficiary Type Description
+        // Create a separate sheet for each unique Beneficiary Type Description with its count
         foreach ($groupedByBeneType as $typeName => $typeRows) {
-            $uniqueSheetName = $typeName;
+            $totalCount = count($typeRows);
+            
+            // Clean sheet name using str_replace to avoid regex errors
+            $invalidChars = ['\\', '/', '?', '*', ':', '[', ']'];
+            $cleanTypeName = str_replace($invalidChars, '', $typeName);
+            
+            // Format sheet name: Name + Total Count (e.g., SENIOR CITIZEN (45))
+            $suffix = ' (' . $totalCount . ')';
+            $maxNameLength = 31 - strlen($suffix);
+            
+            $sheetName = substr(strtoupper($cleanTypeName), 0, $maxNameLength) . $suffix;
+            
+            $uniqueSheetName = $sheetName;
             $counter = 1;
             
             while ($spreadsheet->sheetNameExists($uniqueSheetName)) {
-                $uniqueSheetName = substr($typeName, 0, 27) . '_' . $counter++;
+                $altSuffix = ' (' . $totalCount . ')_' . $counter++;
+                $maxAltLength = 31 - strlen($altSuffix);
+                $uniqueSheetName = substr(strtoupper($cleanTypeName), 0, $maxAltLength) . $altSuffix;
             }
 
             $typeSheet = $spreadsheet->createSheet();
@@ -114,21 +124,20 @@ class Tupad_Transparency extends CI_Controller {
             $fullName = trim(($row['tupad_lname'] ?? '') . ', ' . ($row['tupad_fname'] ?? '') . ' ' . ($row['tupad_mname'] ?? '') . ' ' . ($row['tupad_ext'] ?? ''));
             $birthdate = trim(($row['tupad_dob_month'] ?? '') . '/' . ($row['tupad_dob_day'] ?? '') . '/' . ($row['tupad_dob_year'] ?? ''));
 
-            // Safely grab description text for the beneficiary type
-            $beneTypeDescription = $row['bene_type_desc'];
+            $beneTypeDescription = $row['bene_type_desc'] ?? '';
 
             $sheet->setCellValue('A' . $rowNum, $counter++);
             $sheet->setCellValue('B' . $rowNum, $fullName);
             $sheet->setCellValue('C' . $rowNum, $row['tupad_gender'] ?? '');
-            $sheet->setCellValue('D' . $rowNum, $birthdate === '//' ? '' : $birthdate);
+            $sheet->setCellValue('D' . $rowNum, $birthdate);
             $sheet->setCellValue('E' . $rowNum, $row['tupad_age'] ?? '');
             $sheet->setCellValue('F' . $rowNum, $row['tupad_street'] ?? '');
             $sheet->setCellValue('G' . $rowNum, $row['brgy_name'] ?? '');
             $sheet->setCellValue('H' . $rowNum, $row['city_name'] ?? '');
             $sheet->setCellValue('I' . $rowNum, $row['province_name'] ?? '');
             $sheet->setCellValue('J' . $rowNum, $row['tupad_dependent'] ?? '');
-            $sheet->setCellValue('K' . $rowNum,  $beneTypeDescription ?? '');
-            
+            $sheet->setCellValue('K' . $rowNum, $beneTypeDescription);
+          
             $rowNum++;
         }
     }
