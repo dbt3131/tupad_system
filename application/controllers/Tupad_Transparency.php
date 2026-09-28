@@ -41,35 +41,46 @@ class Tupad_Transparency extends CI_Controller {
 
         $spreadsheet = new Spreadsheet();
 
-        // Sheet 1: CONSOLIDATED SHEET (Full columns)
+        // Sheet 1: CONSOLIDATED SHEET (All records)
         $consoSheet = $spreadsheet->getActiveSheet();
         $consoSheet->setTitle('CONSOLIDATED SHEET');
-        $this->populate_sheet_data($consoSheet, $beneficiaries, 'full');
+        $this->populate_sheet_data($consoSheet, $beneficiaries);
 
-        // Sheet 2: TRANSPARENCY SHEET (Custom restricted columns: No, Name of Beneficiary, Gender, Age, Province)
+        // Sheet 2: TRANSPARENCY SHEET (Restricted columns format)
         $transSheet = $spreadsheet->createSheet();
         $transSheet->setTitle('TRANSPARENCY SHEET');
         $this->populate_transparency_sheet($transSheet, $beneficiaries);
 
-        // Sheet 3: SENIOR CITIZEN (Full columns, filtered)
-        $seniorBeneficiaries = array_filter($beneficiaries, function($row) {
-            $type = strtolower($row['bene_type_desc'] ?? '');
-            $dep = strtolower($row['tupad_dependent'] ?? '');
-            return strpos($type, 'senior') !== false || strpos($dep, 'senior') !== false;
-        });
-        $seniorSheet = $spreadsheet->createSheet();
-        $seniorSheet->setTitle('SENIOR CITIZEN');
-        $this->populate_sheet_data($seniorSheet, $seniorBeneficiaries, 'full');
+        // Dynamically group records by Beneficiary Type Description for individual sheets
+        $groupedByBeneType = [];
+        foreach ($beneficiaries as $row) {
+            $beneTypeDescription =$row['bene_type_desc'] ?? 'GENERAL';
+            
+            if (empty($beneTypeDescription)) {
+                $beneTypeDescription = 'MARGINALIZED';
+            }
 
-        // Sheet 4: OTHER BENEFICIARIES (Full columns, filtered)
-        $otherBeneficiaries = array_filter($beneficiaries, function($row) {
-            $type = strtolower($row['bene_type_desc'] ?? '');
-            $dep = strtolower($row['tupad_dependent'] ?? '');
-            return strpos($type, 'senior') === false && strpos($dep, 'senior') === false;
-        });
-        $otherSheet = $spreadsheet->createSheet();
-        $otherSheet->setTitle('OTHER BENEFICIARIES');
-        $this->populate_sheet_data($otherSheet, $otherBeneficiaries, 'full');
+            // Clean sheet name using str_replace to avoid regex errors
+            $invalidChars = ['\\', '/', '?', '*', ':', '[', ']'];
+            $sheetName = str_replace($invalidChars, '', $beneTypeDescription);
+            $sheetName = substr(strtoupper($sheetName), 0, 31);
+            
+            $groupedByBeneType[$sheetName][] = $row;
+        }
+
+        // Create a separate sheet for each unique Beneficiary Type Description
+        foreach ($groupedByBeneType as $typeName => $typeRows) {
+            $uniqueSheetName = $typeName;
+            $counter = 1;
+            
+            while ($spreadsheet->sheetNameExists($uniqueSheetName)) {
+                $uniqueSheetName = substr($typeName, 0, 27) . '_' . $counter++;
+            }
+
+            $typeSheet = $spreadsheet->createSheet();
+            $typeSheet->setTitle($uniqueSheetName);
+            $this->populate_sheet_data($typeSheet, $typeRows);
+        }
 
         // Output download headers
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
@@ -103,6 +114,9 @@ class Tupad_Transparency extends CI_Controller {
             $fullName = trim(($row['tupad_lname'] ?? '') . ', ' . ($row['tupad_fname'] ?? '') . ' ' . ($row['tupad_mname'] ?? '') . ' ' . ($row['tupad_ext'] ?? ''));
             $birthdate = trim(($row['tupad_dob_month'] ?? '') . '/' . ($row['tupad_dob_day'] ?? '') . '/' . ($row['tupad_dob_year'] ?? ''));
 
+            // Safely grab description text for the beneficiary type
+            $beneTypeDescription = $row['bene_type_desc'];
+
             $sheet->setCellValue('A' . $rowNum, $counter++);
             $sheet->setCellValue('B' . $rowNum, $fullName);
             $sheet->setCellValue('C' . $rowNum, $row['tupad_gender'] ?? '');
@@ -113,7 +127,7 @@ class Tupad_Transparency extends CI_Controller {
             $sheet->setCellValue('H' . $rowNum, $row['city_name'] ?? '');
             $sheet->setCellValue('I' . $rowNum, $row['province_name'] ?? '');
             $sheet->setCellValue('J' . $rowNum, $row['tupad_dependent'] ?? '');
-            $sheet->setCellValue('K' . $rowNum, $row['bene_type_desc'] ?? '');
+            $sheet->setCellValue('K' . $rowNum,  $beneTypeDescription ?? '');
             
             $rowNum++;
         }
@@ -121,7 +135,6 @@ class Tupad_Transparency extends CI_Controller {
 
     // Helper specifically for Transparency Sheet matching your requested layout
     private function populate_transparency_sheet($sheet, $data) {
-        // Based on your template sample (like Annex B), matching: No, Name of Beneficiary, Gender, Age, Province
         $headers = [
             'No', 
             'Name of Beneficiary', 
@@ -145,31 +158,4 @@ class Tupad_Transparency extends CI_Controller {
             $rowNum++;
         }
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    
 }
