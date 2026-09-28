@@ -63,10 +63,20 @@
 
         <!-- Main Workspace Area -->
         <main class="p-3 p-md-4 flex-grow-1">
-            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3 no-print">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-3 gap-3 no-print">
                 <div>
                     <h3 class="fw-bold mb-1"><i class="bi bi-file-earmark-spreadsheet me-2"></i>TUPAD Beneficiary Reports & Transparency</h3>
                     <p class="text-muted small mb-0">Department of Labor and Employment &bull; Multi-Sheet Excel Generation</p>
+                </div>
+            </div>
+
+            <!-- Reminder Notice -->
+            <div class="alert alert-info border-0 shadow-sm mb-4 no-print bg-white border-start border-primary border-4" role="alert">
+                <div class="d-flex align-items-center">
+                    <i class="bi bi-info-circle-fill text-primary fs-5 me-2"></i>
+                    <div class="small">
+                        <strong>Reminder:</strong> Start Date and End Date filters are based on the <strong>Payout Date</strong> field found in the <strong>Payment and Payout Tab</strong>.
+                    </div>
                 </div>
             </div>
 
@@ -85,7 +95,7 @@
                         <label for="province_code" class="form-label fw-semibold small">Province</label>
                         <select class="form-select" id="province_code" name="province_code">
                             <option value="">All Provinces</option>
-                            <?php foreach($provinces as $prov): ?>
+                            <?php foreach($provinces as$prov): ?>
                                 <option value="<?= $prov->provCode; ?>"><?= $prov->provDesc; ?></option>
                             <?php endforeach; ?>
                         </select>
@@ -208,7 +218,6 @@ $(document).ready(function () {
     });
 });
 </script>
-
 
 </body>
 </html>
