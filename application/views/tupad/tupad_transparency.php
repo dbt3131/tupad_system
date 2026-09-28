@@ -92,7 +92,7 @@
                     </div>
                     <div class="col-md-3 d-flex gap-2">
                         <button type="button" id="btnFilter" class="btn btn-primary w-50 shadow-sm"><i class="bi bi-filter me-1"></i> Filter</button>
-                        <button type="button" id="btnExport" class="btn btn-success w-50 shadow-sm"><i class="bi bi-file-excel me-1"></i> Excel</button>
+                        <button type="button" id="btnExport" class="btn btn-success w-50 shadow-sm"><i class="bi bi-file-excel me-1"></i>Transparency Report</button>
                     </div>
                 </form>
             </div>
@@ -135,64 +135,80 @@
     <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.8/js/dataTables.bootstrap5.min.js"></script>
 
-    <script>
-    $(document).ready(function () {
-        let table = $('#beneficiaryTable').DataTable();
+<script>
+$(document).ready(function () {
+    let table = $('#beneficiaryTable').DataTable();
 
-        function loadTableData() {
-            $.ajax({
-                url: "<?= site_url('tupad_transparency/fetch_data'); ?>",
-                type: "POST",
-                data: $('#filterForm').serialize(),
-                dataType: "json",
-                success: function (response) {
-                    table.clear();
-                    if (response.status === 'success' && response.data.length > 0) {
-                        let counter = 1;
-                        response.data.forEach(row => {
-                            table.row.add([
-                                counter++,
-                                `${row.tupad_lname || ''}, ${row.tupad_fname || ''} ${row.tupad_mname || ''} ${row.tupad_ext || ''}`,
-                                row.tupad_gender || '',
-                                `${row.tupad_dob_month || '/'}, ${row.tupad_dob_day || '/'} ${row.tupad_dob_year || ''}`,
-                                row.tupad_age || '',
-                                row.tupad_street || '',
-                                row.brgy_name || '',
-                                row.city_name || '',
-                                row.province_name || '',
-                                row.tupad_dependent || '',
-                                row.bene_type_desc || ''
-                            ]);
-                        });
-                    }
-                    table.draw();
-                }
-            });
+    function loadTableData() {
+        let startDate = $('#start_date').val();
+        let endDate = $('#end_date').val();
+
+        // Only dates are mandatory now; province can be left as "All Provinces"
+        if (!startDate || !endDate) {
+            alert('Please select both a Start Date and an End Date before filtering.');
+            table.clear().draw(); 
+            return;
         }
 
-        // Initial load
-        loadTableData();
-
-        $('#btnFilter').on('click', function () {
-            loadTableData();
-        });
-
-        $('#btnExport').on('click', function () {
-            let params = $('#filterForm').serialize();
-            window.location.href = "<?= site_url('tupad_transparency/export_excel?'); ?>" + params;
-        });
-
-        // Sidebar Toggle Handler
-        $(document).on('click', '#sidebarToggle', function (e) {
-            e.preventDefault();
-            if ($(window).width() < 992) {
-                $('#sidebar').toggleClass('show-mobile');
-            } else {
-                $('#sidebar').toggleClass('collapsed');
-                $('#main-content').toggleClass('expanded');
+        $.ajax({
+            url: "<?= site_url('tupad_transparency/fetch_data'); ?>",
+            type: "POST",
+            data: $('#filterForm').serialize(),
+            dataType: "json",
+            success: function (response) {
+                table.clear();
+                if (response.status === 'success' && response.data.length > 0) {
+                    let counter = 1;
+                    response.data.forEach(row => {
+                        table.row.add([
+                            counter++,
+                            `${row.tupad_lname || ''}, ${row.tupad_fname || ''} ${row.tupad_mname || ''} ${row.tupad_ext || ''}`,
+                            row.tupad_gender || '',
+                            `${row.tupad_dob_month || '/'}/${row.tupad_dob_day || '/'}/${row.tupad_dob_year || ''}`,
+                            row.tupad_age || '',
+                            row.tupad_street || '',
+                            row.brgy_name || '',
+                            row.city_name || '',
+                            row.province_name || '',
+                            row.tupad_dependent || '',
+                            row.bene_type_desc || ''
+                        ]);
+                    });
+                }
+                table.draw();
             }
         });
+    }
+
+    $('#btnFilter').on('click', function () {
+        loadTableData();
     });
-    </script>
+
+    $('#btnExport').on('click', function () {
+        let startDate = $('#start_date').val();
+        let endDate = $('#end_date').val();
+
+        if (!startDate || !endDate) {
+            alert('Please select both a Start Date and an End Date before exporting.');
+            return;
+        }
+
+        let params = $('#filterForm').serialize();
+        window.location.href = "<?= site_url('tupad_transparency/export_excel?'); ?>" + params;
+    });
+
+    // Sidebar Toggle Handler
+    $(document).on('click', '#sidebarToggle', function (e) {
+        e.preventDefault();
+        if ($(window).width() < 992) {$('#sidebar').toggleClass('show-mobile');
+        } else {
+            $('#sidebar').toggleClass('collapsed');
+            $('#main-content').toggleClass('expanded');
+        }
+    });
+});
+</script>
+
+
 </body>
 </html>
