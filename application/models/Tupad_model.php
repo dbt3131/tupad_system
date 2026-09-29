@@ -845,8 +845,33 @@ public function check_adl_reference_exists($reference_no) {
     return $this->db->get('adl_transactions')->num_rows() > 0;
 }
 
+//dashboard geographic preview
+public function get_municipal_worker_stats() {
+    $this->db->select('
+        refcitymun.citymunDesc as municipality_name,
+        refprovince.provDesc as province_name,
+        COUNT(tbl_tupad_list.id) as workers,
+        CASE 
+            WHEN refprovince.provDesc = "Aurora" THEN "#0ea5e9"
+            WHEN refprovince.provDesc = "Bataan" THEN "#6366f1"
+            WHEN refprovince.provDesc = "Bulacan" THEN "#2563eb"
+            WHEN refprovince.provDesc = "Nueva Ecija" THEN "#10b981"
+            WHEN refprovince.provDesc = "Pampanga" THEN "#f59e0b"
+            WHEN refprovince.provDesc = "Tarlac" THEN "#8b5cf6"
+            WHEN refprovince.provDesc = "Zambales" THEN "#ec4899"
+            ELSE "#2563eb"
+        END as color
+    ', FALSE);
 
-
+    $this->db->from('tbl_tupad_list');
+    $this->db->join('refcitymun', 'refcitymun.cityCode = tbl_tupad_list.tupad_municipality', 'left');
+    $this->db->join('refprovince', 'refprovince.provCode = tbl_tupad_list.tupad_province', 'left');
+    $this->db->where('tbl_tupad_list.tupad_active', 0);
+    $this->db->group_by(array('refcitymun.cityCode', 'refcitymun.citymunDesc', 'refprovince.provDesc'));
+    
+    $query = $this->db->get();
+    return $query->result_array();
+}
 
 
 

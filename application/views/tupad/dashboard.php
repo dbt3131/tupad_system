@@ -294,9 +294,10 @@
     }
 
     // Safely capture PHP JSON from your database query
-    let provinceData = [];
+
+    let municipalityData = [];
     try {
-      provinceData = <?php echo isset($map_json_data) && !empty($map_json_data) ? $map_json_data : '[]'; ?>;
+      municipalityData = <?php echo isset($map_json_data) && !empty($map_json_data) ?$map_json_data : '[]'; ?>;
     } catch(e) {
       console.error("JSON Parse Error:", e);
     }
@@ -304,36 +305,35 @@
     // Initialize Leaflet Map centered over Central Luzon (Region III)
     const map = L.map('centralLuzonMap').setView([15.35, 120.75], 8);
 
-    // Add OpenStreetMap Tile Layer
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 18,
       attribution: '&copy; OpenStreetMap contributors'
     }).addTo(map);
 
-    // Plot Province Circles and Pins strictly from database rows
-    provinceData.forEach(item => {
+    // Plot Municipality Circles and Pins
+    municipalityData.forEach(item => {
       const workersCount = Number(item.workers) || 0;
-      if (workersCount <= 0) return;
+      if (workersCount <= 0 || !item.lat || !item.lng) return;
 
-      const radiusSize = Math.max(workersCount * 0.45, 5000);
+      const radiusSize = Math.max(workersCount * 25, 2000);
 
       L.circle([item.lat, item.lng], {
         color: item.color || '#2563eb',
         fillColor: item.color || '#2563eb',
         fillOpacity: 0.4,
         radius: radiusSize
-      }).addTo(map).bindPopup(`<strong>${item.name} Province</strong><br>Database Workers: <strong>${workersCount.toLocaleString()}</strong>`);
+      }).addTo(map).bindPopup(`<strong>${item.name}, ${item.province}</strong><br>Active Workers: <strong>${workersCount.toLocaleString()}</strong>`);
 
-      const markerHtml = `<div style="background-color: ${item.color || '#2563eb'}; width: 16px; height: 16px; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 6px rgba(0,0,0,0.5);"></div>`;
+      const markerHtml = `<div style="background-color: ${item.color || '#2563eb'}; width: 12px; height: 12px; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 4px rgba(0,0,0,0.4);"></div>`;
       const customIcon = L.divIcon({
         html: markerHtml,
         className: 'custom-map-marker',
-        iconSize: [16, 16]
+        iconSize: [12, 12]
       });
 
       L.marker([item.lat, item.lng], { icon: customIcon })
         .addTo(map)
-        .bindPopup(`<b>${item.name}</b><br>Table Count: <b>${workersCount.toLocaleString()}</b> workers`);
+        .bindPopup(`<b>${item.name}</b> (${item.province})<br>Workers: <b>${workersCount.toLocaleString()}</b>`);
     });
 
     // Standalone Pagination & Search Script for ADL Table
@@ -442,9 +442,9 @@
 
 document.addEventListener('keydown', function (e) {
     // Disable F12
-    if (e.key === 'F12') {
-        e.preventDefault();
-    }
+    //if (e.key === 'F12') {
+        //e.preventDefault();
+    //}
     
     // Disable Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+Shift+C, Ctrl+U
     if (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i' || e.key === 'J' || e.key === 'j' || e.key === 'C' || e.key === 'c')) {
