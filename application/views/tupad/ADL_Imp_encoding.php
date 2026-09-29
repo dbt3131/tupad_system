@@ -193,7 +193,7 @@
                            <div class="col-md-5">
                                 <label class="form-label fw-semibold small">Audrey Reference No.</label>
                                 <input type="text" name="audrey_reference_no" id="audrey_reference_no" oninput="this.value = this.value.toUpperCase();" placeholder="Manual Reference No" class="form-control" autocomplete='OFF' required>
-                                <input type="hidden" name="implementation_reference_no" id="implementation_reference_no" class="form-control" placeholder="Auto-generated" readonly required>
+                                <input type="text" name="implementation_reference_no" id="implementation_reference_no" class="form-control" placeholder="Auto-generated" readonly required>
                             </div>
                             <div class="col-md-2">
                                 <label class="form-label fw-semibold small">Date Coordinated</label>
@@ -493,11 +493,28 @@
         });
     });
 
+
+
+
+    let cachedTotalAdlSubsidy = 0;
+
+    function formatSubsidyVal(val) {
+        let num = parseFloat(val.toString().replace(/,/g, '')) || 0;
+        if (num === 0) return '0k';
+        if (num < 1000000) {
+            return Math.round(num / 1000) + 'k';
+        } else {
+            let mVal = num / 1000000;
+            return mVal.toFixed(3) + 'M';
+        }
+    }
+
     function generateReferenceNo() {
         const adlNo = $('#adl_no').val();
         const province = $('#implementation_province').val() ? $('#implementation_province option:selected').text().trim() : '';
         const municipality = $('#implementation_area').val() ? $('#implementation_area option:selected').text().trim() : '';
         const district = $('#implementation_district').val() ? $('#implementation_district option:selected').text().trim() : '';
+        const transactionSubsidy = $('input[name="subsidy_cost"]').val() || '0';
 
         if (adlNo) {
             $.ajax({
@@ -512,7 +529,13 @@
                 dataType: "json",
                 success: function(response) {
                     if (response.status) {
-                        $('#implementation_reference_no').val(response.ref_no);
+                        cachedTotalAdlSubsidy = response.total_adl_subsidy || 0;
+                        const formattedTransSubsidy = formatSubsidyVal(transactionSubsidy);
+                        const formattedTotalSubsidy = formatSubsidyVal(cachedTotalAdlSubsidy);
+                        
+                        // Combine base reference with 3-decimal formatted subsidy costs
+                        const finalRefNo = response.ref_no + '_' + formattedTransSubsidy + '/' + formattedTotalSubsidy;
+                        $('#implementation_reference_no').val(finalRefNo);
                     }
                 }
             });
@@ -524,6 +547,16 @@
     $(document).on('change', '#adl_no, #implementation_province, #implementation_area, #implementation_district', function() {
         generateReferenceNo();
     });
+
+    $(document).on('input', 'input[name="subsidy_cost"]', function() {
+        generateReferenceNo();
+    });
+
+
+
+
+
+
 
     let isTargetExceeded = false;
     let isSubsidyExceeded = false;

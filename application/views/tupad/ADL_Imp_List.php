@@ -93,35 +93,35 @@
         }
 
         /* Wrapper to hold input and the modern 'Auto' label */
-.readonly-field-wrapper {
-    position: relative;
-}
+        .readonly-field-wrapper {
+            position: relative;
+        }
 
-/* Modern Auto Badge styling */
-.auto-field-badge {
-    position: absolute;
-    right: 12px;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 0.65rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    background-color: rgba(13, 110, 253, 0.1);
-    color: #0d6efd;
-    padding: 2px 6px;
-    border-radius: 4px;
-    pointer-events: none;
-    letter-spacing: 0.5px;
-    border: 1px solid rgba(13, 110, 253, 0.2);
-    z-index: 5;
-}
+        /* Modern Auto Badge styling */
+        .auto-field-badge {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.65rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            background-color: rgba(13, 110, 253, 0.1);
+            color: #0d6efd;
+            padding: 2px 6px;
+            border-radius: 4px;
+            pointer-events: none;
+            letter-spacing: 0.5px;
+            border: 1px solid rgba(13, 110, 253, 0.2);
+            z-index: 5;
+        }
 
-/* Adjust padding of read-only inputs so text doesn't overlap the badge */
-input[readonly].form-control {
-    padding-right: 45px;
-    background-color: #f8fafc;
-    color: var(--text-muted);
-}
+        /* Adjust padding of read-only inputs so text doesn't overlap the badge */
+        input[readonly].form-control {
+            padding-right: 45px;
+            background-color: #f8fafc;
+            color: var(--text-muted);
+        }
     </style>
 </head>
 
@@ -154,6 +154,12 @@ input[readonly].form-control {
                         <i class="bi bi-folder2-open text-primary me-2"></i>ADL Implementation List
                     </h3>
                     <p class="text-muted small mb-0">List of recorded ADL Implementation</p>
+                </div>
+                <!-- Button to trigger Reminder Modal -->
+                <div>
+                    <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#reminderModal">
+                        <i class="bi bi-info-circle-fill me-1"></i> Read this first!
+                    </button>
                 </div>
             </div>
 
@@ -327,6 +333,36 @@ input[readonly].form-control {
             </div>
 
         </main>
+
+        <!-- REMINDER / GUIDELINES MODAL -->
+        <div class="modal fade" id="reminderModal" tabindex="-1" aria-labelledby="reminderModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+                <div class="modal-content border-0 shadow">
+                    <div class="modal-header text-white" style="background-color: #0f172a;">
+                        <h5 class="modal-title" id="reminderModalLabel">
+                            <i class="bi bi-journal-text me-2"></i>Progress Pipeline Guidance Note
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body p-4">
+                        <p class="text-muted small mb-3">Please be guided by the following conditions that turn field status indicator labels into <strong>color green</strong>:</p>
+                        <ul class="list-group list-group-numbered small">
+                            <li class="list-group-item"><strong>Coordinated Label:</strong> Turns green when General Info has entries/values filled.</li>
+                            <li class="list-group-item"><strong>Appraisal Sub. & Appraisal App.:</strong> Turns green when <i>Appraisal Date Submitted</i> and <i>Appraisal Date Approved</i> both have entries.</li>
+                            <li class="list-group-item"><strong>PPEs Label:</strong> Turns green when <i>PPES RIS No.</i> and <i>PPES Date Issued</i> both have entries.</li>
+                            <li class="list-group-item"><strong>GSIS Label:</strong> Turns green when <i>Orientation Date</i>, <i>Orientation Beneficiaries</i>, and <i>Employment Period</i> have entries.</li>
+                            <li class="list-group-item"><strong>Implemented Label:</strong> Turns green when <i>Implementation Start Date</i>, <i>Implementation End Date</i>, and <i>Implementation Beneficiaries</i> have entries.</li>
+                            <li class="list-group-item"><strong>Finished Label:</strong> Turns green when <i>Payroll Period</i>, <i>Payroll Beneficiaries</i>, and <i>Payroll Amount</i> have entries.</li>
+                            <li class="list-group-item"><strong>Funded Label:</strong> Turns green when <i>ALOB No.</i>, <i>DV No.</i>, <i>Check No.</i>, and <i>Payment Date</i> have entries.</li>
+                            <li class="list-group-item"><strong>Payout Label:</strong> Turns green when <i>Payout Date</i>, <i>Payout Method</i>, and <i>Service Cost</i> have entries.</li>
+                        </ul>
+                    </div>
+                    <div class="modal-footer bg-light">
+                        <button type="button" class="btn btn-secondary btn-sm px-4" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <!-- EDIT TRANSACTION MODAL -->
         <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
@@ -605,13 +641,6 @@ input[readonly].form-control {
                                     </div>
                                 </div>
 
-
-
-
-
-
-
-
                                 <!-- TAB 4: IMPLEMENTATION & COMPLETION STATUS -->
                                 <div class="tab-pane fade" id="edit-implementation-pane" role="tabpanel">
                                     <div class="row g-3">
@@ -645,12 +674,6 @@ input[readonly].form-control {
                                         </div>
                                     </div>
                                 </div>
-
-
-
-
-
-
 
                                 <!-- TAB 5: PAYMENT & PAYOUT DETAILS -->
                                 <div class="tab-pane fade" id="edit-payment-pane" role="tabpanel">
@@ -1308,7 +1331,6 @@ input[readonly].form-control {
         
         console.log("Beneficiaries:", beneficiaries, "| Days:", noOfDays);
 
-        // Fetch the wage_amount from your database via AJAX
         $.ajax({
             url: '<?= site_url("tupad/get_wage_rate"); ?>',
             type: 'GET',
@@ -1317,14 +1339,10 @@ input[readonly].form-control {
                 let wageAmount = parseFloat(response.wage_amount) || 0;
                 console.log("Wage Amount from DB:", wageAmount);
                 
-                // Formula: beneficiaries * no_of_days * wage_amount
                 let totalAmount = beneficiaries * noOfDays * wageAmount;
                 let formattedAmount = totalAmount.toFixed(2);
                 
-                // 1. Always update the completed employment amount field
                 $('#edit_completed_employment_amount').val(formattedAmount);
-                
-                // 2. Check conditions and update payment amount
                 checkAndSetPaymentAmount(formattedAmount);
             },
             error: function(xhr, status, error) {
@@ -1334,35 +1352,27 @@ input[readonly].form-control {
     }
 
     function checkAndSetPaymentAmount(amount) {
-        // Read values safely using your exact HTML IDs
         let alobNo = $('#edit_payment_alob_no').length ? $('#edit_payment_alob_no').val().trim() : '';
         let dvNo = $('#edit_payment_dv_no').length ? $('#edit_payment_dv_no').val().trim() : '';
         let checkNo = $('#edit_payment_check_no').length ? $('#edit_payment_check_no').val().trim() : '';
         let paymentDate = $('#edit_payment_date').length ? $('#edit_payment_date').val().trim() : '';
 
-        console.log("Checking conditions for Payment Amount:", { alobNo, dvNo, checkNo, paymentDate });
-
-        // Criteria: Not empty, not '0', and payment date not '0000-00-00'
         let isAlobValid = alobNo !== '' && alobNo !== '0';
         let isDvValid = dvNo !== '' && dvNo !== '0';
         let isCheckValid = checkNo !== '' && checkNo !== '0';
         let isDateValid = paymentDate !== '' && paymentDate !== '0000-00-00';
 
         if (isAlobValid && isDvValid && isCheckValid && isDateValid) {
-            console.log("Conditions met! Setting payment_amount to:", amount);
             $('#edit_payment_amount').val(amount);
         } else {
-            console.log("Conditions NOT met. Clearing payment_amount.");
             $('#edit_payment_amount').val('');
         }
     }
 
-    // Trigger calculations when beneficiaries or days change
     $('#edit_completed_employment_benefs, #no_of_days').on('input change', function() {
         calculateAmounts();
     });
 
-    // Trigger condition checks when any of the payment fields change
     $('#edit_payment_alob_no, #edit_payment_dv_no, #edit_payment_check_no, #edit_payment_date').on('input change', function() {
         let currentPayrollAmount = $('#edit_completed_employment_amount').val();
         if (currentPayrollAmount) {
@@ -1375,25 +1385,18 @@ input[readonly].form-control {
 
 // Automatically append a modern 'Auto' badge to all read-only inputs
 function applyAutoBadges() {
-    // 1. First, clean up any duplicate or incorrectly wrapped badges from previous runs
     $('.readonly-field-wrapper').each(function() {
-        const $wrapper = $(this);
-        const $input = $wrapper.find('input');
-        $wrapper.before($input);
-        $wrapper.remove();
+        const $wrapper =$(this);
+        const $input = $wrapper.find('input');$wrapper.before($input);$wrapper.remove();
     });
 
-    // 2. Select read-only inputs, but exclude fields based on their associated label text
     $('input[readonly]').filter(function() {
-        const $input = $(this);
-        
-        // Find the label text right above or associated with this input
+        const $input =$(this);
         const labelText = $input.closest('.form-group, .mb-3, div')
                                 .find('label')
                                 .text()
                                 .trim();
 
-        // List of label titles to exclude
         const exclusions = [
             "GSIS Enrollment Date", 
             "PPES RIS No.", 
@@ -1402,30 +1405,25 @@ function applyAutoBadges() {
             "ADL Number"
         ];
 
-        // If the label matches any exclusion, skip it (return false)
         for (let i = 0; i < exclusions.length; i++) {
             if (labelText.includes(exclusions[i])) {
                 return false; 
             }
         }
         
-        return true; // Keep and apply badge to everything else
+        return true;
     }).each(function () {
-        const $input = $(this);
+        const $input =$(this);
         
-        // Final safety check: wrap only if it isn't already wrapped
-        if (!$input.parent().hasClass('readonly-field-wrapper')) {
-            $input.wrap('<div class="readonly-field-wrapper"></div>');
+        if (!$input.parent().hasClass('readonly-field-wrapper')) {$input.wrap('<div class="readonly-field-wrapper"></div>');
             $input.after('<span class="auto-field-badge">Auto</span>');
         }
     });
 
-    // Remove wrapper/badge if an input changes back to editable
     $('input:not([readonly])').each(function () {
-        const $input = $(this);
+        const $input =$(this);
         if ($input.parent().hasClass('readonly-field-wrapper')) {
-            $input.siblings('.auto-field-badge').remove();
-            $input.unwrap();
+            $input.siblings('.auto-field-badge').remove();$input.unwrap();
         }
     });
 }
@@ -1433,7 +1431,6 @@ function applyAutoBadges() {
 // Run on page load
 applyAutoBadges();
 
-// If you dynamically toggle states via override buttons:
 $(document).on('click', 'button[id^="btn_override_"]', function() {
     setTimeout(applyAutoBadges, 50);
 });

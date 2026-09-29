@@ -264,9 +264,17 @@ public function get_generated_reference_no() {
         $ref_parts[] = strtoupper($district); 
     }
 
-    $ref_no = implode('-', $ref_parts);
+    $base_ref_no = implode('-', $ref_parts);
 
-    echo json_encode(['status' => true, 'ref_no' => $ref_no]);
+    // Fetch total adl_subsidy from adl_registry table for this ADL number
+    $adl_record = $this->ADL_Model->get_adl_by_no($adl_no);
+    $total_adl_subsidy = $adl_record ? floatval($adl_record['adl_subsidy']) : 0;
+
+    echo json_encode([
+        'status' => true, 
+        'ref_no' => $base_ref_no,
+        'total_adl_subsidy' => $total_adl_subsidy
+    ]);
 }
 
 
