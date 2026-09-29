@@ -228,7 +228,7 @@ class Tupad_Transparency extends CI_Controller {
 
     // Helper specifically for Transparency Sheet matching your requested layout
     private function populate_transparency_sheet($sheet, $data) {
-        $highestColumn = 'E'; // Transparency sheet has 5 columns (A to E)
+        $highestColumn = 'F'; // Transparency sheet now has 6 columns (A to F)
 
         // Insert and merge custom header block across the width of the table
         $sheet->mergeCells('A1:' . $highestColumn . '1');
@@ -253,6 +253,7 @@ class Tupad_Transparency extends CI_Controller {
 
         $headers = [
             'No', 
+            'PROGRAM/PROJECT', 
             'Name of Beneficiary', 
             'Gender', 
             'Age', 
@@ -266,10 +267,11 @@ class Tupad_Transparency extends CI_Controller {
             $fullName = trim(($row['tupad_lname'] ?? '') . ', ' . ($row['tupad_fname'] ?? '') . ' ' . ($row['tupad_mname'] ?? '') . ' ' . ($row['tupad_ext'] ?? ''));
 
             $sheet->setCellValue('A' . $rowNum, $counter++);
-            $sheet->setCellValue('B' . $rowNum, $fullName);
-            $sheet->setCellValue('C' . $rowNum, $row['tupad_gender'] ?? '');
-            $sheet->setCellValue('D' . $rowNum, $row['tupad_age'] ?? '');
-            $sheet->setCellValue('E' . $rowNum, $row['province_name'] ?? '');
+            $sheet->setCellValue('B' . $rowNum, 'DOLE Tulong Panghanapbuhay sa Ating Disadvantaged Workers (TUPAD)');
+            $sheet->setCellValue('C' . $rowNum, $fullName);
+            $sheet->setCellValue('D' . $rowNum, $row['tupad_gender'] ?? '');
+            $sheet->setCellValue('E' . $rowNum, $row['tupad_age'] ?? '');
+            $sheet->setCellValue('F' . $rowNum, $row['province_name'] ?? '');
             
             $rowNum++;
         }

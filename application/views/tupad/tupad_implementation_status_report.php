@@ -178,7 +178,7 @@
                                         <th rowspan="2" class="th-basic">PROVINCE</th>
                                         <th colspan="3" class="th-target">TARGET</th>
                                         <th colspan="2" class="th-implemented">IMPLEMENTED</th>
-                                        <th colspan="2" class="th-payroll">FOR PAYROLL SUBMISSION</th>
+                                        <th colspan="2" class="th-payroll">(COMPLETED FOR PROCESSING) FOR PAYROLL SUBMISSION</th>
                                         <th colspan="2" class="th-gsis">FOR GSIS ENROLLMENT</th>
                                         <th colspan="2" class="th-ongoing">FOR IMPLEMENTATION</th>
                                         <th colspan="2" class="th-notyet">NOT YET IMPLEMENTED</th>
@@ -405,7 +405,7 @@
                                                 <td class="text-center"><?= $s['impl_ben'] > 0 ? number_format($s['impl_ben']) : ''; ?></td>
                                                 <td class="text-end"><?= $s['impl_amt'] > 0 ? '&#8369; ' . number_format($s['impl_amt'], 2) : ''; ?></td>
                                                 <!-- FOR PAYROLL SUBMISSION -->
-                                                <td class="text-center"><?= $s['ongoing_bene'] > 0 ? number_format($s['ongoing_bene']) : ''; ?></td>
+                                                <td class="text-center"><?= $s['ongoing_ben'] > 0 ? number_format($s['ongoing_ben']) : ''; ?></td>
                                                 <td class="text-end"><?= $s['ongoing_amt'] > 0 ? '&#8369; ' . number_format($s['ongoing_amt'], 2) : ''; ?></td>
                                                 <!-- FOR GSIS ENROLLMENT -->
                                                 <td class="text-center"><?= $s['gsis_ben'] > 0 ? number_format($s['gsis_ben']) : ''; ?></td>
