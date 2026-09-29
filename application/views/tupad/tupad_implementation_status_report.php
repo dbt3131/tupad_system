@@ -321,8 +321,8 @@
                                             $summary_grouped[$prov_name]['ppes_ben'] += $p_ben;
                                             $summary_grouped[$prov_name]['ppes_amt'] += $p_amt;
 
-                                            // Implemented Calculations
-                                            if ($is_expired_end_date && !$is_completed_valid) {
+                                            // Implemented Calculations (Triggered by expired end date OR early completion data entry)
+                                            if (($is_expired_end_date || $is_completed_valid) && !($is_completed_valid && $is_expired_end_date && !$is_paid)) {
                                                 $i_ben = !empty($row['ongoing_implementation_benefs']) && $row['ongoing_implementation_benefs'] > 0 ? $row['ongoing_implementation_benefs'] : $target;
                                                 $i_amt = ($i_ben > 0) ? ($i_ben * $no_of_days) * $wage_amount : 0;
                                             } else {
@@ -497,7 +497,7 @@
                                             $total_ppes_ben += $p_ben;
                                             $total_ppes_amt += $p_amt;
 
-                                            if ($is_expired_end_date && !$is_completed_valid) {
+                                            if (($is_expired_end_date || $is_completed_valid) && !($is_completed_valid && $is_expired_end_date && !$is_paid)) {
                                                 $i_ben = !empty($row['ongoing_implementation_benefs']) && $row['ongoing_implementation_benefs'] > 0 ? $row['ongoing_implementation_benefs'] : $target;
                                                 $i_amt = ($i_ben > 0) ? ($i_ben * $no_of_days) * $wage_amount : 0;
                                             } else {
@@ -614,7 +614,7 @@
                                                 $ppes_amount = '';
                                             }
 
-                                            if ($is_expired_end_date && !$is_completed_valid) {
+                                            if (($is_expired_end_date || $is_completed_valid) && !($is_completed_valid && $is_expired_end_date && !$is_paid)) {
                                                 $implemented_beneficiaries = !empty($row['ongoing_implementation_benefs']) && $row['ongoing_implementation_benefs'] > 0 ? $row['ongoing_implementation_benefs'] : $target;
                                                 $implemented_amount = ($implemented_beneficiaries > 0) ? ($implemented_beneficiaries * $no_of_days) * $wage_amount : '';
                                                 $implemented_payout_date = $row['payout_date'] ?? '';
