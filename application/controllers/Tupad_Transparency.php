@@ -112,7 +112,7 @@ class Tupad_Transparency extends CI_Controller {
         $highestRow = $sheet->getHighestRow();
         $highestColumn = $sheet->getHighestColumn();
 
-        // Header Styling (Professional Navy Blue, Bold White Text, Centered)
+        // Header Table Styling (Professional Navy Blue, Bold White Text, Centered at row 5)
         $headerStyle = [
             'font' => [
                 'bold' => true,
@@ -128,10 +128,10 @@ class Tupad_Transparency extends CI_Controller {
                 'vertical' => Alignment::VERTICAL_CENTER,
             ],
         ];
-        $sheet->getStyle('A1:' . $highestColumn . '1')->applyFromArray($headerStyle);
-        $sheet->getRowDimension(1)->setRowHeight(26);
+        $sheet->getStyle('A5:' . $highestColumn . '5')->applyFromArray($headerStyle);
+        $sheet->getRowDimension(5)->setRowHeight(26);
 
-        // Data Cells Borders and Alignment
+        // Data Cells Borders and Alignment (Starts from row 6)
         $dataStyle = [
             'borders' => [
                 'allBorders' => [
@@ -147,12 +147,12 @@ class Tupad_Transparency extends CI_Controller {
             ],
         ];
 
-        if ($highestRow >= 2) {
-            $sheet->getStyle('A2:' . $highestColumn . $highestRow)->applyFromArray($dataStyle);
+        if ($highestRow >= 6) {
+            $sheet->getStyle('A6:' . $highestColumn . $highestRow)->applyFromArray($dataStyle);
         }
 
         // Set comfortable row height for data spacing
-        for ($i = 2; $i <= $highestRow; $i++) {
+        for ($i = 6; $i <= $highestRow; $i++) {
             $sheet->getRowDimension($i)->setRowHeight(20);
         }
 
@@ -164,6 +164,29 @@ class Tupad_Transparency extends CI_Controller {
 
     // Helper for standard sheets with all columns
     private function populate_sheet_data($sheet, $data) {
+        $highestColumn = 'K'; // Standard sheets have 11 columns (A to K)
+
+        // Insert and merge custom header block across the width of the table
+        $sheet->mergeCells('A1:' . $highestColumn . '1');
+        $sheet->mergeCells('A2:' . $highestColumn . '2');
+        $sheet->mergeCells('A3:' . $highestColumn . '3');
+
+        $sheet->setCellValue('A1', 'Department of Labor and Employment');
+        $sheet->setCellValue('A2', 'Regional Office 3');
+        $sheet->setCellValue('A3', 'TRANSPARENCY REPORT');
+
+        // Style the header block (Centered alignment)
+        $sheet->getStyle('A1:' . $highestColumn . '3')->applyFromArray([
+            'alignment' => [
+                'horizontal' => Alignment::HORIZONTAL_CENTER,
+                'vertical' => Alignment::VERTICAL_CENTER,
+            ]
+        ]);
+
+        $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(12);
+        $sheet->getStyle('A2')->getFont()->setBold(true)->setSize(11);
+        $sheet->getStyle('A3')->getFont()->setBold(true)->setSize(12)->getColor()->setARGB('FF1E3A8A');
+
         $headers = [
             'No', 
             'Name', 
@@ -177,9 +200,9 @@ class Tupad_Transparency extends CI_Controller {
             'Beneficiary Type', 
             'Tupad Type'
         ];
-        $sheet->fromArray($headers, NULL, 'A1');
+        $sheet->fromArray($headers, NULL, 'A5');
 
-        $rowNum = 2;
+        $rowNum = 6;
         $counter = 1;
         foreach ($data as $row) {
             $fullName = trim(($row['tupad_lname'] ?? '') . ', ' . ($row['tupad_fname'] ?? '') . ' ' . ($row['tupad_mname'] ?? '') . ' ' . ($row['tupad_ext'] ?? ''));
@@ -205,6 +228,29 @@ class Tupad_Transparency extends CI_Controller {
 
     // Helper specifically for Transparency Sheet matching your requested layout
     private function populate_transparency_sheet($sheet, $data) {
+        $highestColumn = 'E'; // Transparency sheet has 5 columns (A to E)
+
+        // Insert and merge custom header block across the width of the table
+        $sheet->mergeCells('A1:' . $highestColumn . '1');
+        $sheet->mergeCells('A2:' . $highestColumn . '2');
+        $sheet->mergeCells('A3:' . $highestColumn . '3');
+
+        $sheet->setCellValue('A1', 'Department of Labor and Employment');
+        $sheet->setCellValue('A2', 'Regional Office 3');
+        $sheet->setCellValue('A3', 'TRANSPARENCY REPORT');
+
+        // Style the header block (Centered alignment)
+        $sheet->getStyle('A1:' . $highestColumn . '3')->applyFromArray([
+            'alignment' => [
+                'horizontal' => Alignment::HORIZONTAL_CENTER,
+                'vertical' => Alignment::VERTICAL_CENTER,
+            ]
+        ]);
+
+        $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(12);
+        $sheet->getStyle('A2')->getFont()->setBold(true)->setSize(11);
+        $sheet->getStyle('A3')->getFont()->setBold(true)->setSize(12)->getColor()->setARGB('FF1E3A8A');
+
         $headers = [
             'No', 
             'Name of Beneficiary', 
@@ -212,9 +258,9 @@ class Tupad_Transparency extends CI_Controller {
             'Age', 
             'Province'
         ];
-        $sheet->fromArray($headers, NULL, 'A1');
+        $sheet->fromArray($headers, NULL, 'A5');
 
-        $rowNum = 2;
+        $rowNum = 6;
         $counter = 1;
         foreach ($data as $row) {
             $fullName = trim(($row['tupad_lname'] ?? '') . ', ' . ($row['tupad_fname'] ?? '') . ' ' . ($row['tupad_mname'] ?? '') . ' ' . ($row['tupad_ext'] ?? ''));
