@@ -574,6 +574,13 @@
                                     </div>
                                 </div>
 
+
+
+
+
+
+
+
                                 <!-- TAB 4: IMPLEMENTATION & COMPLETION STATUS -->
                                 <div class="tab-pane fade" id="edit-implementation-pane" role="tabpanel">
                                     <div class="row g-3">
@@ -586,27 +593,33 @@
                                             <input type="text" id="edit_ongoing_implementation_end_date" name="ongoing_implementation_end_date" class="form-control" placeholder="End Date" onfocus="this.type='date'" onblur="if(!this.value)this.type='text'">
                                         </div>
                                         <div class="col-md-4">
-                                            <label class="form-label fw-semibold small">Ongoing Beneficiaries</label>
+                                            <label class="form-label fw-semibold small">Implementation Beneficiaries</label>
                                             <input type="number" id="edit_ongoing_implementation_benefs" name="ongoing_implementation_benefs" class="form-control" placeholder="0" value="0">
                                         </div>
-                                        <div class="col-md-3">
-                                            <label class="form-label fw-semibold small">Completed Period</label>
+                                        <div class="col-md-2">
+                                            <label class="form-label fw-semibold small">Payroll Period</label>
                                             <input type="text" id="edit_completed_employment_period" name="completed_employment_period" class="form-control" placeholder="Period">
                                         </div>
-                                        <div class="col-md-3">
-                                            <label class="form-label fw-semibold small">Completed Beneficiaries</label>
+                                        <div class="col-md-2">
+                                            <label class="form-label fw-semibold small">Payroll Beneficiaries</label>
                                             <input type="number" id="edit_completed_employment_benefs" name="completed_employment_benefs" class="form-control" placeholder="0" value="0">
                                         </div>
-                                        <div class="col-md-3">
-                                            <label class="form-label fw-semibold small">Completed Amount</label>
-                                            <input type="text" id="edit_completed_employment_amount" name="completed_employment_amount" class="form-control" placeholder="0.00">
+                                        <div class="col-md-2">
+                                            <label class="form-label fw-semibold small">Payroll Amount</label>
+                                            <input type="text" id="edit_completed_employment_amount" name="completed_employment_amount" class="form-control" readonly placeholder="0.00">
                                         </div>
-                                        <div class="col-md-3">
+                                        <div class="col-md-6">
                                             <label class="form-label fw-semibold small">Documentation Status</label>
                                             <input type="text" id="edit_completed_employment_documentation" name="completed_employment_documentation" class="form-control" placeholder="Remarks/Status">
                                         </div>
                                     </div>
                                 </div>
+
+
+
+
+
+
 
                                 <!-- TAB 5: PAYMENT & PAYOUT DETAILS -->
                                 <div class="tab-pane fade" id="edit-payment-pane" role="tabpanel">
@@ -629,7 +642,7 @@
                                         </div>
                                         <div class="col-md-3">
                                             <label class="form-label fw-semibold small">Payment Amount</label>
-                                            <input type="text" id="edit_payment_amount" name="payment_amount" class="form-control" placeholder="0.00">
+                                            <input type="text" id="edit_payment_amount" name="payment_amount" class="form-control" readonly placeholder="0.00">
                                         </div>
                                         <div class="col-md-4">
                                             <label class="form-label fw-semibold small">Payout Date</label>
@@ -1256,6 +1269,78 @@
             e.preventDefault();
         }
     });
+
+    $(document).ready(function() {
+    function calculateAmounts() {
+        let beneficiaries = parseFloat($('#edit_completed_employment_benefs').val()) || 0;
+        let noOfDays = parseFloat($('#no_of_days').val()) || 0; 
+        
+        console.log("Beneficiaries:", beneficiaries, "| Days:", noOfDays);
+
+        // Fetch the wage_amount from your database via AJAX
+        $.ajax({
+            url: '<?= site_url("tupad/get_wage_rate"); ?>',
+            type: 'GET',
+            dataType: 'json',
+            success: function(response) {
+                let wageAmount = parseFloat(response.wage_amount) || 0;
+                console.log("Wage Amount from DB:", wageAmount);
+                
+                // Formula: beneficiaries * no_of_days * wage_amount
+                let totalAmount = beneficiaries * noOfDays * wageAmount;
+                let formattedAmount = totalAmount.toFixed(2);
+                
+                // 1. Always update the completed employment amount field
+                $('#edit_completed_employment_amount').val(formattedAmount);
+                
+                // 2. Check conditions and update payment amount
+                checkAndSetPaymentAmount(formattedAmount);
+            },
+            error: function(xhr, status, error) {
+                console.error("Error fetching wage amount:", error);
+            }
+        });
+    }
+
+    function checkAndSetPaymentAmount(amount) {
+        // Read values safely using your exact HTML IDs
+        let alobNo = $('#edit_payment_alob_no').length ? $('#edit_payment_alob_no').val().trim() : '';
+        let dvNo = $('#edit_payment_dv_no').length ? $('#edit_payment_dv_no').val().trim() : '';
+        let checkNo = $('#edit_payment_check_no').length ? $('#edit_payment_check_no').val().trim() : '';
+        let paymentDate = $('#edit_payment_date').length ? $('#edit_payment_date').val().trim() : '';
+
+        console.log("Checking conditions for Payment Amount:", { alobNo, dvNo, checkNo, paymentDate });
+
+        // Criteria: Not empty, not '0', and payment date not '0000-00-00'
+        let isAlobValid = alobNo !== '' && alobNo !== '0';
+        let isDvValid = dvNo !== '' && dvNo !== '0';
+        let isCheckValid = checkNo !== '' && checkNo !== '0';
+        let isDateValid = paymentDate !== '' && paymentDate !== '0000-00-00';
+
+        if (isAlobValid && isDvValid && isCheckValid && isDateValid) {
+            console.log("Conditions met! Setting payment_amount to:", amount);
+            $('#edit_payment_amount').val(amount);
+        } else {
+            console.log("Conditions NOT met. Clearing payment_amount.");
+            $('#edit_payment_amount').val('');
+        }
+    }
+
+    // Trigger calculations when beneficiaries or days change
+    $('#edit_completed_employment_benefs, #no_of_days').on('input change', function() {
+        calculateAmounts();
+    });
+
+    // Trigger condition checks when any of the payment fields change
+    $('#edit_payment_alob_no, #edit_payment_dv_no, #edit_payment_check_no, #edit_payment_date').on('input change', function() {
+        let currentPayrollAmount = $('#edit_completed_employment_amount').val();
+        if (currentPayrollAmount) {
+            checkAndSetPaymentAmount(currentPayrollAmount);
+        } else {
+            calculateAmounts();
+        }
+    });
+});
     </script>
 </body>
 

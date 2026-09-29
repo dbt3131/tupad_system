@@ -1704,7 +1704,19 @@ public function export_gsis_letter_excel()
     }
 
 
-
+public function get_wage_rate() {
+    // Adjust based on how you fetch your active or specific wage rate
+    $this->db->select('wage_amount');
+    $this->db->from('wage_rate');
+    // Add any necessary where clause if you have multiple rates, e.g., $this->db->where('id', $id);
+    $query = $this->db->get();
+    
+    $result = $query->row();
+    
+    echo json_encode([
+        'wage_amount' => $result ? $result->wage_amount : 0
+    ]);
+}
 
 
 
