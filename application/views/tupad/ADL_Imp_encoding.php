@@ -505,7 +505,9 @@
             return Math.round(num / 1000) + 'k';
         } else {
             let mVal = num / 1000000;
-            return mVal.toFixed(3) + 'M';
+            // Rounds to 3 decimals, then strips trailing zeros (e.g., 2.000 becomes 2, 2.100 becomes 2.1)
+            let formatted = parseFloat(mVal.toFixed(3)).toString();
+            return formatted + 'M';
         }
     }
 
@@ -533,7 +535,7 @@
                         const formattedTransSubsidy = formatSubsidyVal(transactionSubsidy);
                         const formattedTotalSubsidy = formatSubsidyVal(cachedTotalAdlSubsidy);
                         
-                        // Combine base reference with 3-decimal formatted subsidy costs
+                        // Combine base reference with smart decimal-trimmed subsidy costs
                         const finalRefNo = response.ref_no + '_' + formattedTransSubsidy + '/' + formattedTotalSubsidy;
                         $('#implementation_reference_no').val(finalRefNo);
                     }
@@ -551,6 +553,7 @@
     $(document).on('input', 'input[name="subsidy_cost"]', function() {
         generateReferenceNo();
     });
+
 
 
 
