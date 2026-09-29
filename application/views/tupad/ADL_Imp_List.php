@@ -91,6 +91,37 @@
             color: #555;
             font-style: normal;
         }
+
+        /* Wrapper to hold input and the modern 'Auto' label */
+.readonly-field-wrapper {
+    position: relative;
+}
+
+/* Modern Auto Badge styling */
+.auto-field-badge {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.65rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    background-color: rgba(13, 110, 253, 0.1);
+    color: #0d6efd;
+    padding: 2px 6px;
+    border-radius: 4px;
+    pointer-events: none;
+    letter-spacing: 0.5px;
+    border: 1px solid rgba(13, 110, 253, 0.2);
+    z-index: 5;
+}
+
+/* Adjust padding of read-only inputs so text doesn't overlap the badge */
+input[readonly].form-control {
+    padding-right: 45px;
+    background-color: #f8fafc;
+    color: var(--text-muted);
+}
     </style>
 </head>
 
@@ -1340,6 +1371,71 @@
             calculateAmounts();
         }
     });
+});
+
+// Automatically append a modern 'Auto' badge to all read-only inputs
+function applyAutoBadges() {
+    // 1. First, clean up any duplicate or incorrectly wrapped badges from previous runs
+    $('.readonly-field-wrapper').each(function() {
+        const $wrapper = $(this);
+        const $input = $wrapper.find('input');
+        $wrapper.before($input);
+        $wrapper.remove();
+    });
+
+    // 2. Select read-only inputs, but exclude fields based on their associated label text
+    $('input[readonly]').filter(function() {
+        const $input = $(this);
+        
+        // Find the label text right above or associated with this input
+        const labelText = $input.closest('.form-group, .mb-3, div')
+                                .find('label')
+                                .text()
+                                .trim();
+
+        // List of label titles to exclude
+        const exclusions = [
+            "GSIS Enrollment Date", 
+            "PPES RIS No.", 
+            "PPES Date Issued", 
+            "Reference No.", 
+            "ADL Number"
+        ];
+
+        // If the label matches any exclusion, skip it (return false)
+        for (let i = 0; i < exclusions.length; i++) {
+            if (labelText.includes(exclusions[i])) {
+                return false; 
+            }
+        }
+        
+        return true; // Keep and apply badge to everything else
+    }).each(function () {
+        const $input = $(this);
+        
+        // Final safety check: wrap only if it isn't already wrapped
+        if (!$input.parent().hasClass('readonly-field-wrapper')) {
+            $input.wrap('<div class="readonly-field-wrapper"></div>');
+            $input.after('<span class="auto-field-badge">Auto</span>');
+        }
+    });
+
+    // Remove wrapper/badge if an input changes back to editable
+    $('input:not([readonly])').each(function () {
+        const $input = $(this);
+        if ($input.parent().hasClass('readonly-field-wrapper')) {
+            $input.siblings('.auto-field-badge').remove();
+            $input.unwrap();
+        }
+    });
+}
+
+// Run on page load
+applyAutoBadges();
+
+// If you dynamically toggle states via override buttons:
+$(document).on('click', 'button[id^="btn_override_"]', function() {
+    setTimeout(applyAutoBadges, 50);
 });
     </script>
 </body>
