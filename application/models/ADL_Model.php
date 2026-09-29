@@ -215,7 +215,7 @@ public function update_adl($original_adl_no, $data) {
 
 
 
-    // DATATABLE FOR IMPLEMENTATION LIST (Updated with proponent join)
+// DATATABLE FOR IMPLEMENTATION LIST (Updated with TUPAD list count subquery)
     public function get_filtered_transactions($province = null, $area = null, $proponent = null, $district = null) {
         if (empty($province)) {
             return [];
@@ -225,7 +225,8 @@ public function update_adl($original_adl_no, $data) {
             adl_transactions.*, 
             refcitymun.citymunDesc as implementation_area_name, 
             refprovince.provDesc as implementation_province_name,
-            code_proponent.proponent_name as implementation_proponent_name');
+            code_proponent.proponent_name as implementation_proponent_name,
+            (SELECT COUNT(*) FROM tbl_tupad_list WHERE tbl_tupad_list.reference_no = adl_transactions.implementation_reference_no) as tupad_list_count');
         $this->db->from('adl_transactions');
         $this->db->join('refprovince', 'adl_transactions.implementation_province = refprovince.provCode', 'left');
         $this->db->join('refcitymun', 'adl_transactions.implementation_area = refcitymun.cityCode', 'left');
@@ -248,6 +249,18 @@ public function update_adl($original_adl_no, $data) {
         $query = $this->db->get();
         return $query->result_array();
     }
+
+
+
+
+
+
+
+
+
+
+
+
 
     public function check_adl_exists($adl_no) {
         return $this->db->where('adl_no', $adl_no)->get('adl_registry')->num_rows() > 0;
@@ -341,13 +354,14 @@ public function update_adl($original_adl_no, $data) {
     }
 
     // adl reporting data table (Updated with optional proponent and district)[cite: 1]
-    public function get_all_or_filtered_transactions($province = null, $proponent = null, $district = null) {
+public function get_all_or_filtered_transactions($province = null, $proponent = null, $district = null) {
         $this->db->select('
             adl_transactions.*, 
             refcitymun.citymunDesc as implementation_area_name,
             code_proponent.proponent_name as implementation_proponent_name,
             code_district.district_no as implementation_district_no, 
-            refprovince.provDesc as implementation_province_name');
+            refprovince.provDesc as implementation_province_name,
+            (SELECT COUNT(*) FROM tbl_tupad_list WHERE tbl_tupad_list.reference_no = adl_transactions.implementation_reference_no) as tupad_list_count');
         $this->db->from('adl_transactions');
         $this->db->join('refprovince', 'adl_transactions.implementation_province = refprovince.provCode', 'left');
         $this->db->join('refcitymun', 'adl_transactions.implementation_area = refcitymun.cityCode', 'left');

@@ -231,28 +231,46 @@
                                                 ?>
                                                 <tr>
                                                     <td>
-                                                        <div class="d-flex flex-column">
-                                                            <div class="d-flex align-items-center gap-2 mb-1">
-                                                                <span class="fw-bold text-primary fs-6"><?= html_escape($row['adl_no']); ?></span>
-                                                                <?php if ($is_fully_complete): ?>
-                                                                    <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-2 py-1">
-                                                                        <i class="bi bi-check-circle-fill me-1"></i> Completed
-                                                                    </span>
-                                                                <?php else: ?>
-                                                                    <span class="badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25 px-2 py-1">
-                                                                        In Progress
-                                                                    </span>
-                                                                <?php endif; ?>
-                                                            </div>
-                                                            <span class="text-muted small mb-1 font-monospace">Ref: <?= html_escape($row['implementation_reference_no']); ?></span>
-                                                            <span class="text-secondary small mb-1"><i class="bi bi-calendar3 me-1"></i>Encoded: <?= html_escape($row['encoded_date'] ?? 'N/A'); ?></span>
-                                                            
-                                                            <div class="d-flex gap-3 mt-1 pt-1 border-top border-light small text-dark fw-medium">
-                                                                <span><i class="bi bi-people me-1 text-primary"></i>Target: <?= number_format($row['target']); ?></span>
-                                                                <span><i class="bi bi-clock-history me-1 text-secondary"></i>Days: <?= html_escape($row['no_of_days']); ?></span>
-                                                            </div>
-                                                        </div>
-                                                    </td>
+    <div class="d-flex flex-column">
+        <div class="d-flex align-items-center gap-2 mb-1">
+            <span class="fw-bold text-primary fs-6"><?= html_escape($row['adl_no']); ?></span>
+            <?php if ($is_fully_complete): ?>
+                <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-2 py-1">
+                    <i class="bi bi-check-circle-fill me-1"></i> Completed
+                </span>
+            <?php else: ?>
+                <span class="badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25 px-2 py-1">
+                    In Progress
+                </span>
+            <?php endif; ?>
+        </div>
+        <span class="text-muted small mb-1 font-monospace">Ref: <?= html_escape($row['implementation_reference_no']); ?></span>
+        <span class="text-secondary small mb-1"><i class="bi bi-calendar3 me-1"></i>Encoded: <?= html_escape($row['encoded_date'] ?? 'N/A'); ?></span>
+        
+        <div class="d-flex gap-3 mt-1 pt-1 border-top border-light small text-dark fw-medium">
+            <span><i class="bi bi-people me-1 text-primary"></i>Target: <?= number_format($row['target']); ?></span>
+            <span><i class="bi bi-clock-history me-1 text-secondary"></i>Days: <?= html_escape($row['no_of_days']); ?></span>
+        </div>
+
+        <!-- TUPAD Target Count Match Label -->
+        <?php 
+            $target_val = intval($row['target'] ?? 0);
+            $tupad_count = intval($row['tupad_list_count'] ?? 0);
+            $is_matched = ($target_val === $tupad_count);
+        ?>
+        <div class="mt-2">
+            <?php if ($is_matched): ?>
+                <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-2 py-1" title="TUPAD benefs list count matches target">
+                    <i class="bi bi-check-circle-fill me-1"></i> List Matched (<?= number_format($tupad_count); ?>/<?= number_format($target_val); ?>)
+                </span>
+            <?php else: ?>
+                <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 px-2 py-1" title="TUPAD benefs list count does not match target">
+                    <i class="bi bi-exclamation-triangle-fill me-1"></i> List Mismatch (<?= number_format($tupad_count); ?>/<?= number_format($target_val); ?>)
+                </span>
+            <?php endif; ?>
+        </div>
+    </div>
+</td>
 
                                                     <td>
                                                         <div class="d-flex flex-column">
@@ -569,7 +587,7 @@
                                                 <button type="button" class="btn btn-outline-secondary btn-sm py-0 px-1" id="btn_override_ppes_count" style="font-size: 0.65rem;" title="Click to override auto-calculation">Override</button>
                                             </div>
                                             <input type="number" id="edit_ppes_count" name="ppes_count" class="form-control" placeholder="0" readonly>
-                                            <small class="text-danger d-none mt-1 d-block" id="note_ppes_count" style="font-size: 0.65rem; line-height: 1.1;">THIS VALUE IS NOT YET RECORDED IN THE ADL TRANSACTION TABLE. CLICK SAVE TO RECORD</small>
+                                            <small class="text-danger d-none mt-1 d-block" id="note_ppes_count" style="font-size: 0.65rem; line-height: 1.1;">THIS VALUE IS NOT YET RECORDED IN THE ADL TRANSACTION TABLE. CLICK SAVE CHANGES TO RECORD</small>
                                         </div>
 
                                         <div class="col-md-2">
@@ -578,7 +596,7 @@
                                                 <button type="button" class="btn btn-outline-secondary btn-sm py-0 px-1" id="btn_override_ppes_female" style="font-size: 0.65rem;" title="Click to override auto-calculation">Override</button>
                                             </div>
                                             <input type="number" id="edit_ppes_female" name="ppes_female" class="form-control" placeholder="0" readonly>
-                                            <small class="text-danger d-none mt-1 d-block" id="note_ppes_female" style="font-size: 0.65rem; line-height: 1.1;">THIS VALUE IS NOT YET RECORDED IN THE ADL TRANSACTION TABLE. CLICK SAVE TO RECORD</small>
+                                            <small class="text-danger d-none mt-1 d-block" id="note_ppes_female" style="font-size: 0.65rem; line-height: 1.1;">THIS VALUE IS NOT YET RECORDED IN THE ADL TRANSACTION TABLE. CLICK SAVE CHANGES TO RECORD</small>
                                         </div>
 
                                         <div class="col-md-2">
@@ -587,7 +605,7 @@
                                                 <button type="button" class="btn btn-outline-secondary btn-sm py-0 px-1" id="btn_override_ppes_amount" style="font-size: 0.65rem;" title="Click to override auto-calculation">Override</button>
                                             </div>
                                             <input type="text" id="edit_ppes_amount" name="ppes_amount" class="form-control" placeholder="0.00" readonly>
-                                            <small class="text-danger d-none mt-1 d-block" id="note_ppes_amount" style="font-size: 0.65rem; line-height: 1.1;">THIS VALUE IS NOT YET RECORDED IN THE ADL TRANSACTION TABLE. CLICK SAVE TO RECORD</small>
+                                            <small class="text-danger d-none mt-1 d-block" id="note_ppes_amount" style="font-size: 0.65rem; line-height: 1.1;">THIS VALUE IS NOT YET RECORDED IN THE ADL TRANSACTION TABLE. CLICK SAVE CHANGES TO RECORD</small>
                                         </div>
                                     </div>
                                 </div>
@@ -618,7 +636,7 @@
                                                 <button type="button" class="btn btn-outline-secondary btn-sm py-0 px-1" id="btn_override_gsis_benefs" style="font-size: 0.65rem;" title="Click to override auto-calculation">Override</button>
                                             </div>
                                             <input type="number" id="edit_gsis_enrollment_benefs" name="gsis_enrollment_benefs" class="form-control" placeholder="0" readonly>
-                                            <small class="text-danger d-none mt-1 d-block" id="note_gsis_benefs" style="font-size: 0.65rem; line-height: 1.1;">THIS VALUE IS NOT YET RECORDED IN THE ADL TRANSACTION TABLE. CLICK SAVE TO RECORD</small>
+                                            <small class="text-danger d-none mt-1 d-block" id="note_gsis_benefs" style="font-size: 0.65rem; line-height: 1.1;">THIS VALUE IS NOT YET RECORDED IN THE ADL TRANSACTION TABLE. CLICK SAVE CHANGES TO RECORD</small>
                                         </div>
 
                                         <div class="col-md-2">
@@ -627,7 +645,7 @@
                                                 <button type="button" class="btn btn-outline-secondary btn-sm py-0 px-1" id="btn_override_gsis_female" style="font-size: 0.65rem;" title="Click to override auto-calculation">Override</button>
                                             </div>
                                             <input type="number" id="edit_gsis_enrollment_female" name="gsis_enrollment_female" class="form-control" placeholder="0" readonly>
-                                            <small class="text-danger d-none mt-1 d-block" id="note_gsis_female" style="font-size: 0.65rem; line-height: 1.1;">THIS VALUE IS NOT YET RECORDED IN THE ADL TRANSACTION TABLE. CLICK SAVE TO RECORD</small>
+                                            <small class="text-danger d-none mt-1 d-block" id="note_gsis_female" style="font-size: 0.65rem; line-height: 1.1;">THIS VALUE IS NOT YET RECORDED IN THE ADL TRANSACTION TABLE. CLICK SAVE CHANGES TO RECORD</small>
                                         </div>
 
                                         <div class="col-md-3">
@@ -636,7 +654,7 @@
                                                 <button type="button" class="btn btn-outline-secondary btn-sm py-0 px-1" id="btn_override_gsis_amount" style="font-size: 0.65rem;" title="Click to override auto-calculation">Override</button>
                                             </div>
                                             <input type="text" id="edit_gsis_enrollment_amount" name="gsis_enrollment_amount" class="form-control" placeholder="0.00" readonly>
-                                            <small class="text-danger d-none mt-1 d-block" id="note_gsis_amount" style="font-size: 0.65rem; line-height: 1.1;">THIS VALUE IS NOT YET RECORDED IN THE ADL TRANSACTION TABLE. CLICK SAVE TO RECORD</small>
+                                            <small class="text-danger d-none mt-1 d-block" id="note_gsis_amount" style="font-size: 0.65rem; line-height: 1.1;">THIS VALUE IS NOT YET RECORDED IN THE ADL TRANSACTION TABLE. CLICK SAVE CHANGES TO RECORD</small>
                                         </div>    
                                     </div>
                                 </div>

@@ -193,7 +193,7 @@
                            <div class="col-md-5">
                                 <label class="form-label fw-semibold small">Audrey Reference No.</label>
                                 <input type="text" name="audrey_reference_no" id="audrey_reference_no" oninput="this.value = this.value.toUpperCase();" placeholder="Manual Reference No" class="form-control" autocomplete='OFF' required>
-                                <input type="text" name="implementation_reference_no" id="implementation_reference_no" class="form-control" placeholder="Auto-generated" readonly required>
+                                <input type="hidden" name="implementation_reference_no" id="implementation_reference_no" class="form-control" placeholder="Auto-generated" readonly required>
                             </div>
                             <div class="col-md-2">
                                 <label class="form-label fw-semibold small">Date Coordinated</label>
