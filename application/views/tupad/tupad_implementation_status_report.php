@@ -177,26 +177,26 @@
                                     <tr>
                                         <th rowspan="2" class="th-basic">PROVINCE</th>
                                         <th colspan="3" class="th-target">TARGET</th>
-                                        <th colspan="2" class="th-implemented">IMPLEMENTED</th>
-                                        <th colspan="2" class="th-payroll">(COMPLETED FOR PROCESSING) FOR PAYROLL SUBMISSION</th>
+                                        <th colspan="2" class="th-notyet">NOT YET IMPLEMENTED</th>
                                         <th colspan="2" class="th-gsis">FOR GSIS ENROLLMENT</th>
                                         <th colspan="2" class="th-ongoing">FOR IMPLEMENTATION</th>
-                                        <th colspan="2" class="th-notyet">NOT YET IMPLEMENTED</th>
+                                        <th colspan="2" class="th-implemented">IMPLEMENTED</th>
+                                        <th colspan="2" class="th-payroll">(COMPLETED FOR PROCESSING) FOR PAYROLL SUBMISSION</th>
                                     </tr>
                                     <tr>
                                         <th class="th-target">BENEFICIARIES</th>
                                         <th class="th-target">COORDINATED SUBSIDY</th>
                                         <th class="th-target">NO OF WORK DAYS</th>
-                                        <th class="th-implemented">BENEFICIARIES</th>
-                                        <th class="th-implemented">AMOUNT (WAGES)</th>
-                                        <th class="th-payroll">NO OF BENEFICIARIES</th>
-                                        <th class="th-payroll">AMOUNT (WAGES)</th>
+                                        <th class="th-notyet">NO OF BENEFICIARIES</th>
+                                        <th class="th-notyet">AMOUNT WAGES</th>
                                         <th class="th-gsis">NO OF BENEFICIARIES</th>
                                         <th class="th-gsis">AMOUNT (WAGES)</th>
                                         <th class="th-ongoing">NO OF BENEFICIARIES</th>
                                         <th class="th-ongoing">AMOUNT (WAGES)</th>
-                                        <th class="th-notyet">NO OF BENEFICIARIES</th>
-                                        <th class="th-notyet">AMOUNT WAGES</th>
+                                        <th class="th-implemented">BENEFICIARIES</th>
+                                        <th class="th-implemented">AMOUNT (WAGES)</th>
+                                        <th class="th-payroll">NO OF BENEFICIARIES</th>
+                                        <th class="th-payroll">AMOUNT (WAGES)</th>
                                     </tr>
                                 <?php else: ?>
                                     <!-- DEFAULT HEADERS -->
@@ -207,30 +207,30 @@
                                         <th rowspan="2" class="th-basic">PROPONENT</th>
                                         <th rowspan="2" class="th-basic">AREA OF IMPLEMENTATION</th>
                                         <th colspan="3" class="th-target">TARGET</th>
-                                        <th colspan="3" class="th-implemented">IMPLEMENTED</th>
-                                        <th colspan="2" class="th-payroll">FOR PAYROLL SUBMISSION</th>
+                                        <th colspan="2" class="th-notyet">NOT YET IMPLEMENTED</th>
                                         <th colspan="2" class="th-gsis">FOR GSIS ENROLLMENT</th>
                                         <th colspan="4" class="th-ongoing">FOR IMPLEMENTATION</th>
-                                        <th colspan="2" class="th-notyet">NOT YET IMPLEMENTED</th>
+                                        <th colspan="3" class="th-implemented">IMPLEMENTED</th>
+                                        <th colspan="2" class="th-payroll">FOR PAYROLL SUBMISSION</th>
                                         <th rowspan="2" class="th-remarks">REMARKS</th>
                                     </tr>
                                     <tr>
                                         <th class="th-target">BENEFICIARIES</th>
                                         <th class="th-target">COORDINATED SUBSIDY</th>
                                         <th class="th-target">NO OF WORK DAYS</th>
-                                        <th class="th-implemented">BENEFICIARIES</th>
-                                        <th class="th-implemented">AMOUNT (WAGES)</th>
-                                        <th class="th-implemented">PAYOUT DATE</th>
-                                        <th class="th-payroll">NO OF BENEFICIARIES</th>
-                                        <th class="th-payroll">AMOUNT (WAGES)</th>
+                                        <th class="th-notyet">NO OF BENEFICIARIES</th>
+                                        <th class="th-notyet">AMOUNT WAGES</th>
                                         <th class="th-gsis">NO OF BENEFICIARIES</th>
                                         <th class="th-gsis">AMOUNT (WAGES)</th>
                                         <th class="th-ongoing">NO OF BENEFICIARIES</th>
                                         <th class="th-ongoing">AMOUNT (WAGES)</th>
                                         <th class="th-ongoing">EMPLOYMENT PERIOD</th>
                                         <th class="th-ongoing">TARGET PAYOUT</th>
-                                        <th class="th-notyet">NO OF BENEFICIARIES</th>
-                                        <th class="th-notyet">AMOUNT WAGES</th>
+                                        <th class="th-implemented">BENEFICIARIES</th>
+                                        <th class="th-implemented">AMOUNT (WAGES)</th>
+                                        <th class="th-implemented">PAYOUT DATE</th>
+                                        <th class="th-payroll">NO OF BENEFICIARIES</th>
+                                        <th class="th-payroll">AMOUNT (WAGES)</th>
                                     </tr>
                                 <?php endif; ?>
                             </thead>
@@ -318,7 +318,7 @@
                                             }
 
                                             if ($is_expired_end_date && !$is_completed_valid) {
-                                                $i_ben = $row['gsis_enrollment_benefs'] ?? 0;
+                                                $i_ben = $row['ongoing_implementation_benefs'] ?? 0;
                                                 $i_amt = ($i_ben > 0) ? ($i_ben * $no_of_days) * $wage_amount : 0;
                                             } else {
                                                 $i_ben = 0; 
@@ -401,21 +401,21 @@
                                                 <td class="text-center"><?= number_format($s['target_ben']); ?></td>
                                                 <td class="text-end">&#8369; <?= number_format($s['target_subsidy'], 2); ?></td>
                                                 <td class="text-center"><?= number_format($s['work_days']); ?></td>
-                                                <!-- IMPLEMENTED -->
-                                                <td class="text-center"><?= $s['impl_ben'] > 0 ? number_format($s['impl_ben']) : ''; ?></td>
-                                                <td class="text-end"><?= $s['impl_amt'] > 0 ? '&#8369; ' . number_format($s['impl_amt'], 2) : ''; ?></td>
-                                                <!-- FOR PAYROLL SUBMISSION -->
-                                                <td class="text-center"><?= $s['ongoing_ben'] > 0 ? number_format($s['ongoing_ben']) : ''; ?></td>
-                                                <td class="text-end"><?= $s['ongoing_amt'] > 0 ? '&#8369; ' . number_format($s['ongoing_amt'], 2) : ''; ?></td>
+                                                <!-- NOT YET IMPLEMENTED -->
+                                                <td class="text-center"><?= $s['not_yet_ben'] > 0 ? number_format($s['not_yet_ben']) : ''; ?></td>
+                                                <td class="text-end"><?= $s['not_yet_amt'] > 0 ? '&#8369; ' . number_format($s['not_yet_amt'], 2) : ''; ?></td>
                                                 <!-- FOR GSIS ENROLLMENT -->
                                                 <td class="text-center"><?= $s['gsis_ben'] > 0 ? number_format($s['gsis_ben']) : ''; ?></td>
                                                 <td class="text-end"><?= $s['gsis_amt'] > 0 ? '&#8369; ' . number_format($s['gsis_amt'], 2) : ''; ?></td>
                                                 <!-- FOR IMPLEMENTATION -->
                                                 <td class="text-center"><?= $s['ongoing_ben'] > 0 ? number_format($s['ongoing_ben']) : ''; ?></td>
                                                 <td class="text-end"><?= $s['ongoing_amt'] > 0 ? '&#8369; ' . number_format($s['ongoing_amt'], 2) : ''; ?></td>
-                                                <!-- NOT YET IMPLEMENTED -->
-                                                <td class="text-center"><?= $s['not_yet_ben'] > 0 ? number_format($s['not_yet_ben']) : ''; ?></td>
-                                                <td class="text-end"><?= $s['not_yet_amt'] > 0 ? '&#8369; ' . number_format($s['not_yet_amt'], 2) : ''; ?></td>
+                                                <!-- IMPLEMENTED -->
+                                                <td class="text-center"><?= $s['impl_ben'] > 0 ? number_format($s['impl_ben']) : ''; ?></td>
+                                                <td class="text-end"><?= $s['impl_amt'] > 0 ? '&#8369; ' . number_format($s['impl_amt'], 2) : ''; ?></td>
+                                                <!-- FOR PAYROLL SUBMISSION -->
+                                                <td class="text-center"><?= $s['ppes_ben'] > 0 ? number_format($s['ppes_ben']) : ''; ?></td>
+                                                <td class="text-end"><?= $s['ppes_amt'] > 0 ? '&#8369; ' . number_format($s['ppes_amt'], 2) : ''; ?></td>
                                             </tr>
                                         <?php endforeach; ?>
 
@@ -425,16 +425,16 @@
                                             <td class="text-center"><?= number_format($grand_summary['target_ben']); ?></td>
                                             <td class="text-end">&#8369; <?= number_format($grand_summary['target_subsidy'], 2); ?></td>
                                             <td class="text-center"><?= number_format($grand_summary['work_days']); ?></td>
-                                            <td class="text-center"><?= $grand_summary['impl_ben'] > 0 ? number_format($grand_summary['impl_ben']) : ''; ?></td>
-                                            <td class="text-end"><?= $grand_summary['impl_amt'] > 0 ? '&#8369; ' . number_format($grand_summary['impl_amt'], 2) : ''; ?></td>
-                                            <td class="text-center"><?= $grand_summary['ppes_ben'] > 0 ? number_format($grand_summary['ppes_ben']) : ''; ?></td>
-                                            <td class="text-end"><?= $grand_summary['ppes_amt'] > 0 ? '&#8369; ' . number_format($grand_summary['ppes_amt'], 2) : ''; ?></td>
+                                            <td class="text-center"><?= $grand_summary['not_yet_ben'] > 0 ? number_format($grand_summary['not_yet_ben']) : ''; ?></td>
+                                            <td class="text-end"><?= $grand_summary['not_yet_amt'] > 0 ? '&#8369; ' . number_format($grand_summary['not_yet_amt'], 2) : ''; ?></td>
                                             <td class="text-center"><?= $grand_summary['gsis_ben'] > 0 ? number_format($grand_summary['gsis_ben']) : ''; ?></td>
                                             <td class="text-end"><?= $grand_summary['gsis_amt'] > 0 ? '&#8369; ' . number_format($grand_summary['gsis_amt'], 2) : ''; ?></td>
                                             <td class="text-center"><?= $grand_summary['ongoing_ben'] > 0 ? number_format($grand_summary['ongoing_ben']) : ''; ?></td>
                                             <td class="text-end"><?= $grand_summary['ongoing_amt'] > 0 ? '&#8369; ' . number_format($grand_summary['ongoing_amt'], 2) : ''; ?></td>
-                                            <td class="text-center"><?= $grand_summary['not_yet_ben'] > 0 ? number_format($grand_summary['not_yet_ben']) : ''; ?></td>
-                                            <td class="text-end"><?= $grand_summary['not_yet_amt'] > 0 ? '&#8369; ' . number_format($grand_summary['not_yet_amt'], 2) : ''; ?></td>
+                                            <td class="text-center"><?= $grand_summary['impl_ben'] > 0 ? number_format($grand_summary['impl_ben']) : ''; ?></td>
+                                            <td class="text-end"><?= $grand_summary['impl_amt'] > 0 ? '&#8369; ' . number_format($grand_summary['impl_amt'], 2) : ''; ?></td>
+                                            <td class="text-center"><?= $grand_summary['ppes_ben'] > 0 ? number_format($grand_summary['ppes_ben']) : ''; ?></td>
+                                            <td class="text-end"><?= $grand_summary['ppes_amt'] > 0 ? '&#8369; ' . number_format($grand_summary['ppes_amt'], 2) : ''; ?></td>
                                         </tr>
 
                                     <?php } else { 
@@ -502,7 +502,7 @@
                                             }
 
                                             if ($is_expired_end_date && !$is_completed_valid) {
-                                                $i_ben = $row['gsis_enrollment_benefs'] ?? 0;
+                                                $i_ben = $row['ongoing_implementation_benefs'] ?? 0;
                                                 $i_amt = ($i_ben > 0) ? ($i_ben * $no_of_days) * $wage_amount : 0;
                                             } else {
                                                 $i_ben = 0; $i_amt = 0;
@@ -559,19 +559,19 @@
                                             <td class="text-center"><?= number_format($total_target_ben); ?></td>
                                             <td class="text-end">&#8369; <?= number_format($total_target_subsidy, 2); ?></td>
                                             <td></td>
-                                            <td class="text-center"><?= $total_impl_ben > 0 ? number_format($total_impl_ben) : ''; ?></td>
-                                            <td class="text-end"><?= $total_impl_amt > 0 ? '&#8369; ' . number_format($total_impl_amt, 2) : ''; ?></td>
-                                            <td></td>
-                                            <td class="text-center"><?= $total_ppes_ben > 0 ? number_format($total_ppes_ben) : ''; ?></td>
-                                            <td class="text-end"><?= $total_ppes_amt > 0 ? '&#8369; ' . number_format($total_ppes_amt, 2) : ''; ?></td>
+                                            <td class="text-center"><?= $total_not_yet_ben > 0 ? number_format($total_not_yet_ben) : ''; ?></td>
+                                            <td class="text-end"><?= $total_not_yet_amt > 0 ? '&#8369; ' . number_format($total_not_yet_amt, 2) : ''; ?></td>
                                             <td class="text-center"><?= $total_gsis_ben > 0 ? number_format($total_gsis_ben) : ''; ?></td>
                                             <td class="text-end"><?= $total_gsis_amt > 0 ? '&#8369; ' . number_format($total_gsis_amt, 2) : ''; ?></td>
                                             <td class="text-center"><?= $total_ongoing_ben > 0 ? number_format($total_ongoing_ben) : ''; ?></td>
                                             <td class="text-end"><?= $total_ongoing_amt > 0 ? '&#8369; ' . number_format($total_ongoing_amt, 2) : ''; ?></td>
                                             <td></td>
                                             <td></td>
-                                            <td class="text-center"><?= $total_not_yet_ben > 0 ? number_format($total_not_yet_ben) : ''; ?></td>
-                                            <td class="text-end"><?= $total_not_yet_amt > 0 ? '&#8369; ' . number_format($total_not_yet_amt, 2) : ''; ?></td>
+                                            <td class="text-center"><?= $total_impl_ben > 0 ? number_format($total_impl_ben) : ''; ?></td>
+                                            <td class="text-end"><?= $total_impl_amt > 0 ? '&#8369; ' . number_format($total_impl_amt, 2) : ''; ?></td>
+                                            <td></td>
+                                            <td class="text-center"><?= $total_ppes_ben > 0 ? number_format($total_ppes_ben) : ''; ?></td>
+                                            <td class="text-end"><?= $total_ppes_amt > 0 ? '&#8369; ' . number_format($total_ppes_amt, 2) : ''; ?></td>
                                             <td></td>
                                         </tr>
 
@@ -627,7 +627,7 @@
                                             }
 
                                             if ($is_expired_end_date && !$is_completed_valid) {
-                                                $implemented_beneficiaries = $row['gsis_enrollment_benefs'] ?? '';
+                                                $implemented_beneficiaries = $row['ongoing_implementation_benefs'] ?? '';
                                                 $implemented_amount = (!empty($implemented_beneficiaries) && $implemented_beneficiaries > 0) ? ($implemented_beneficiaries * $no_of_days) * $wage_amount : '';
                                                 $implemented_payout_date = $row['payout_date'] ?? '';
                                             } else {
@@ -688,19 +688,19 @@
                                                 <td class="text-center"><?= number_format($target); ?></td>
                                                 <td class="text-end">&#8369; <?= number_format($row['subsidy_cost'] ?? 0, 2); ?></td>
                                                 <td class="text-center"><?= html_escape($no_of_days); ?></td>
-                                                <td class="text-center"><?= ($implemented_beneficiaries !== '' && $implemented_beneficiaries > 0) ? number_format($implemented_beneficiaries) : ''; ?></td>
-                                                <td class="text-end"><?= ($implemented_amount !== '' && $implemented_amount > 0) ? '&#8369; ' . number_format($implemented_amount, 2) : ''; ?></td>
-                                                <td class="text-center"><?= html_escape($implemented_payout_date); ?></td>
-                                                <td class="text-center"><?= ($ppes_beneficiaries !== '' && $ppes_beneficiaries > 0) ? number_format($ppes_beneficiaries) : ''; ?></td>
-                                                <td class="text-end"><?= ($ppes_amount !== '' && $ppes_amount > 0) ? '&#8369; ' . number_format($ppes_amount, 2) : ''; ?></td>
+                                                <td class="text-center"><?= ($not_yet_beneficiaries !== '' && $not_yet_beneficiaries > 0) ? number_format($not_yet_beneficiaries) : ''; ?></td>
+                                                <td class="text-end"><?= ($not_yet_amount !== '' && $not_yet_amount > 0) ? '&#8369; ' . number_format($not_yet_amount, 2) : ''; ?></td>
                                                 <td class="text-center"><?= ($gsis_beneficiaries !== '' && $gsis_beneficiaries > 0) ? number_format($gsis_beneficiaries) : ''; ?></td>
                                                 <td class="text-end"><?= ($gsis_amount !== '' && $gsis_amount > 0) ? '&#8369; ' . number_format($gsis_amount, 2) : ''; ?></td>
                                                 <td class="text-center"><?= ($ongoing_beneficiaries !== '' && $ongoing_beneficiaries > 0) ? number_format($ongoing_beneficiaries) : ''; ?></td>
                                                 <td class="text-end"><?= ($ongoing_amount !== '' && $ongoing_amount > 0) ? '&#8369; ' . number_format($ongoing_amount, 2) : ''; ?></td>
                                                 <td class="text-center"><?= html_escape($employment_period); ?></td>
                                                 <td class="text-center"><?= html_escape($target_payout); ?></td>
-                                                <td class="text-center"><?= ($not_yet_beneficiaries !== '' && $not_yet_beneficiaries > 0) ? number_format($not_yet_beneficiaries) : ''; ?></td>
-                                                <td class="text-end"><?= ($not_yet_amount !== '' && $not_yet_amount > 0) ? '&#8369; ' . number_format($not_yet_amount, 2) : ''; ?></td>
+                                                <td class="text-center"><?= ($implemented_beneficiaries !== '' && $implemented_beneficiaries > 0) ? number_format($implemented_beneficiaries) : ''; ?></td>
+                                                <td class="text-end"><?= ($implemented_amount !== '' && $implemented_amount > 0) ? '&#8369; ' . number_format($implemented_amount, 2) : ''; ?></td>
+                                                <td class="text-center"><?= html_escape($implemented_payout_date); ?></td>
+                                                <td class="text-center"><?= ($ppes_beneficiaries !== '' && $ppes_beneficiaries > 0) ? number_format($ppes_beneficiaries) : ''; ?></td>
+                                                <td class="text-end"><?= ($ppes_amount !== '' && $ppes_amount > 0) ? '&#8369; ' . number_format($ppes_amount, 2) : ''; ?></td>
                                                 <td><?= html_escape($row['remarks'] ?? ''); ?></td>
                                             </tr>
                                         <?php endforeach; ?>
