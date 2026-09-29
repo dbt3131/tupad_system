@@ -683,10 +683,14 @@
                                             <input type="number" id="edit_completed_employment_benefs" name="completed_employment_benefs" class="form-control" placeholder="0" value="0">
                                         </div>
                                         <div class="col-md-2">
+                                            <label class="form-label fw-semibold small">No of Absent Days</label>
+                                            <input type="number" id="edit_absent_days" name="absent_days" class="form-control" autocomplete="OFF" placeholder="0" value="0">
+                                        </div>
+                                        <div class="col-md-2">
                                             <label class="form-label fw-semibold small">Payroll Amount</label>
                                             <input type="text" id="edit_completed_employment_amount" name="completed_employment_amount" class="form-control" readonly placeholder="0.00">
                                         </div>
-                                        <div class="col-md-6">
+                                        <div class="col-md-4">
                                             <label class="form-label fw-semibold small">Documentation Status</label>
                                             <input type="text" id="edit_completed_employment_documentation" name="completed_employment_documentation" class="form-control" placeholder="Remarks/Status">
                                         </div>
@@ -1193,6 +1197,7 @@
                         $('#edit_ongoing_implementation_benefs').val(d.ongoing_implementation_benefs);
                         $('#edit_completed_employment_period').val(d.completed_employment_period);
                         $('#edit_completed_employment_benefs').val(d.completed_employment_benefs);
+                        $('#edit_absent_days').val(d.no_of_absent_days);
                         $('#edit_completed_employment_amount').val(d.completed_employment_amount);
                         $('#edit_completed_employment_documentation').val(d.completed_employment_documentation);
                         $('#edit_payment_alob_no').val(d.payment_alob_no);
@@ -1344,30 +1349,40 @@
 
     $(document).ready(function() {
     function calculateAmounts() {
-        let beneficiaries = parseFloat($('#edit_completed_employment_benefs').val()) || 0;
-        let noOfDays = parseFloat($('#no_of_days').val()) || 0; 
-        
-        console.log("Beneficiaries:", beneficiaries, "| Days:", noOfDays);
+    let beneficiaries = parseFloat($('#edit_completed_employment_benefs').val()) || 0;
+    let noOfDays = parseFloat($('#no_of_days').val()) || 0; 
+    let absentDays = parseFloat($('#edit_absent_days').val()) || 0;
+    
+    console.log("Beneficiaries:", beneficiaries, "| Days:", noOfDays, "| Absent Days:", absentDays);
 
-        $.ajax({
-            url: '<?= site_url("tupad/get_wage_rate"); ?>',
-            type: 'GET',
-            dataType: 'json',
-            success: function(response) {
-                let wageAmount = parseFloat(response.wage_amount) || 0;
-                console.log("Wage Amount from DB:", wageAmount);
-                
-                let totalAmount = beneficiaries * noOfDays * wageAmount;
-                let formattedAmount = totalAmount.toFixed(2);
-                
-                $('#edit_completed_employment_amount').val(formattedAmount);
-                checkAndSetPaymentAmount(formattedAmount);
-            },
-            error: function(xhr, status, error) {
-                console.error("Error fetching wage amount:", error);
-            }
-        });
-    }
+    $.ajax({
+        url: '<?= site_url("tupad/get_wage_rate"); ?>',
+        type: 'GET',
+        dataType: 'json',
+        success: function(response) {
+            let wageAmount = parseFloat(response.wage_amount) || 0;
+            console.log("Wage Amount from DB:", wageAmount);
+            
+            // Formula updated to account for absent days (Total Person-Days minus Absent Days)
+            let totalPersonDays = (beneficiaries * noOfDays) - absentDays;
+            if (totalPersonDays < 0) totalPersonDays = 0; // Prevent negative totals
+            
+            let totalAmount = totalPersonDays * wageAmount;
+            let formattedAmount = totalAmount.toFixed(2);
+            
+            $('#edit_completed_employment_amount').val(formattedAmount);
+            checkAndSetPaymentAmount(formattedAmount);
+        },
+        error: function(xhr, status, error) {
+            console.error("Error fetching wage amount:", error);
+        }
+    });
+}
+
+
+$('#edit_completed_employment_benefs, #no_of_days, #edit_absent_days').on('input change', function() {
+    calculateAmounts();
+});
 
     function checkAndSetPaymentAmount(amount) {
         let alobNo = $('#edit_payment_alob_no').length ? $('#edit_payment_alob_no').val().trim() : '';
@@ -1452,6 +1467,8 @@ applyAutoBadges();
 $(document).on('click', 'button[id^="btn_override_"]', function() {
     setTimeout(applyAutoBadges, 50);
 });
+
+
     </script>
 </body>
 

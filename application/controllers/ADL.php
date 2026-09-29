@@ -466,6 +466,7 @@ public function get_generated_reference_no() {
                 'gsis_enrollment_amount'            => $this->input->post('gsis_enrollment_amount', true),
                 'ongoing_implementation_start_date' => $this->input->post('ongoing_implementation_start_date', true),
                 'ongoing_implementation_end_date'   => $this->input->post('ongoing_implementation_end_date', true),
+                'no_of_absent_days'                 => (int) $this->input->post('absent_days', true), 
                 'ongoing_implementation_benefs'     => $this->input->post('ongoing_implementation_benefs', true),
                 'completed_employment_period'       => strtoupper($this->input->post('completed_employment_period', true)),
                 'completed_employment_benefs'       => $this->input->post('completed_employment_benefs', true),
