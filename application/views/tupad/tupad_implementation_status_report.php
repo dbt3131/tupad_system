@@ -210,7 +210,7 @@
                                         <th colspan="2" class="th-gsis">FOR GSIS ENROLLMENT</th>
                                         <th colspan="4" class="th-ongoing">FOR IMPLEMENTATION</th>
                                         <th colspan="3" class="th-implemented">IMPLEMENTED</th>
-                                        <th colspan="2" class="th-payroll">FOR PAYROLL SUBMISSION</th>
+                                        <th colspan="2" class="th-payroll">(COMPLETED FOR PROCESSING) FOR PAYROLL SUBMISSION</th>
                                         <th rowspan="2" class="th-remarks">REMARKS</th>
                                     </tr>
                                     <tr>

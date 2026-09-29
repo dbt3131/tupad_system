@@ -184,15 +184,15 @@
 
 
 <!-- Report 3: Implementation Status -->
-        <div class="col-md-6 col-xl-3">
+<div class="col-md-6 col-xl-3">
             <div class="card border-0 shadow-sm h-100 report-card">
                 <div class="card-body d-flex flex-column p-4">
-                    <div class="icon-box bg-warning bg-opacity-10 text-warning rounded-3 mb-3 d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+                    <div class="icon-box rounded-3 mb-3 d-flex align-items-center justify-content-center" style="width: 48px; height: 48px; background-color: rgba(236, 72, 153, 0.1); color: #db2777;">
                         <i class="bi bi-people fs-4"></i>
                     </div>
                     <h5 class="fw-bold text-dark mb-2">Transparency Report</h5>
                     <p class="text-muted small mb-4 flex-grow-1">List of TUPAD beneficiaries.</p>
-                    <a href="<?= site_url('tupad_transparency/index'); ?>" class="btn btn-outline-warning text-dark btn-sm w-100 d-flex align-items-center justify-content-center gap-2">
+                    <a href="<?= site_url('tupad_transparency/index'); ?>" class="btn btn-sm w-100 d-flex align-items-center justify-content-center gap-2 text-dark" style="border-color: #db2777; background-color: #fff; color: #db2777 !important; transition: all 0.2s;" onmouseover="this.style.backgroundColor='#db2777'; this.style.color='#ffffff';" onmouseout="this.style.backgroundColor='#fff'; this.style.color='#db2777';">
                         <span>Open Report</span>
                         <i class="bi bi-arrow-right"></i>
                     </a>
