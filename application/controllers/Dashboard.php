@@ -17,6 +17,7 @@ class Dashboard extends CI_Controller {
         
         // Load the model handling TUPAD data
         $this->load->model('Tupad_model');
+        $this->load->model('ADL_Model');
 
         // Protect the dashboard: Redirect to login if user is not logged in
         if (!$this->session->userdata('logged_in')) {
@@ -33,52 +34,67 @@ class Dashboard extends CI_Controller {
      */
    
 
-public function index()
-{
-    $this->load->model('ADL_Model');
+public function index() {
+        $data = [];
 
-    $data['user_name'] = $this->session->userdata('reg_fname') ? $this->session->userdata('reg_fname') : 'User';
-    $data['total_active_workers'] = number_format($this->Tupad_model->get_total_active_workers());
-    $data['total_inactive_workers'] = number_format($this->Tupad_model->get_total_inactive_workers());
-    $data['adl_records'] = $this->ADL_Model->get_ADL();
+        // Session user name fallback
+        $data['user_name'] = $this->session->userdata('reg_fname') 
+            ? $this->session->userdata('reg_fname') 
+            : 'User';
 
-    $db_stats = $this->Tupad_model->get_municipal_worker_stats();
+        // Fetch general dashboard statistics
+        $data['total_active_workers'] = number_format($this->Tupad_model->get_total_active_workers());
+        $data['total_inactive_workers'] = number_format($this->Tupad_model->get_total_inactive_workers());
+        
+        // Fetch raw ADL records from your existing working model
+        $adl_raw = $this->ADL_Model->get_ADL();
+        $adl_records = [];
 
-    $map_data = [];
-    foreach($db_stats as $row) {
-        $workers = (int)($row['workers'] ?? 0);
-        if($workers <= 0) continue;
+        // Loop through each ADL entry and sum up breakdown amounts from adl_transactions
+        if (!empty($adl_raw)) {
+            foreach ($adl_raw as $row) {
+                $adl_no = $row['adl_no'] ?? null;
+                
+                // Initialize breakdown accumulators
+                $breakdown = [
+                    'ppes_amount' => 0,
+                    'gsis_enrollment_amount' => 0,
+                    'completed_employment_amount' => 0,
+                    'payout_service_cost' => 0,
+                    'maf_amount' => 0
+                ];
 
-        $mun_raw = trim($row['municipality_name'] ?? '');
-        $mun_lower = strtolower($mun_raw);
-        $prov_name = trim($row['province_name'] ?? 'Zambales');
+                if ($adl_no) {
+                    // Query all rows sharing this adl_no in adl_transactions
+                    $child_rows = $this->db->get_where('adl_transactions', ['adl_no' => $adl_no])->result_array();
+                    
+                    foreach ($child_rows as $child) {
+                        $breakdown['ppes_amount'] += floatval($child['ppes_amount'] ?? 0);
+                        $breakdown['gsis_enrollment_amount'] += floatval($child['gsis_enrollment_amount'] ?? 0);
+                        $breakdown['completed_employment_amount'] += floatval($child['completed_employment_amount'] ?? 0);
+                        $breakdown['payout_service_cost'] += floatval($child['payout_service_cost'] ?? 0);
+                    }
 
-        // Explicit coordinate assignment for Masinloc and Olongapo
-        if (strpos($mun_lower, 'masinloc') !== false) {
-            $lat = 15.528553; // Exact coordinates for Masinloc, Zambales
-            $lng = 119.960800;
-        } elseif (strpos($mun_lower, 'olongapo') !== false) {
-            $lat = 14.8292;
-            $lng = 120.2828;
-        } else {
-            // General fallback center for Central Luzon if other towns appear later
-            $lat = 15.3500;
-            $lng = 120.7500;
+                    // Query separate MAF table if applicable
+                    $maf_rows = $this->db->get_where('adl_maf', ['adl_source' => $adl_no])->result_array();
+                    foreach ($maf_rows as $maf_row) {
+                        $breakdown['maf_amount'] += floatval($maf_row['maf_amount'] ?? 0);
+                    }
+                }
+
+                // Merge raw ADL row with the calculated breakdown totals
+                $adl_records[] = array_merge($row, $breakdown);
+            }
         }
 
-        $map_data[] = [
-            'name' => $mun_raw !== '' ? $mun_raw : 'Masinloc',
-            'province' => $prov_name,
-            'lat' => $lat,
-            'lng' => $lng,
-            'workers' => $workers,
-            'color' => $row['color'] ?? '#2563eb'
-        ];
-    }
+        $data['adl_records'] = $adl_records;
 
-    $data['map_json_data'] = json_encode($map_data);
-    $this->load->view('tupad/dashboard', $data);
-}
+        // Fetch municipal worker stats or other dashboard payloads if needed
+        $data['db_stats'] = $this->Tupad_model->get_municipal_worker_stats();
+
+        // Load your dashboard view file (adjust view path if yours is named differently)
+        $this->load->view('tupad/dashboard', $data);
+    }
 
 
 }

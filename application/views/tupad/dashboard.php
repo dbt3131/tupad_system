@@ -16,6 +16,10 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <!-- Leaflet CSS for Map -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+  <!-- DataTables Bootstrap 5 CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/datatables.net-bs5@1.13.6/css/dataTables.bootstrap5.min.css">
+  <!-- DataTables Buttons Bootstrap 5 CSS -->
+  <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.bootstrap5.min.css">
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
@@ -49,51 +53,22 @@
       overflow: hidden;
     }
 
-    /* Modernized Table Design */
-    .table {
-      border-collapse: separate;
-      border-spacing: 0 0.4rem;
-      margin-bottom: 0 !important;
+    /* Modernized Table Design Compatibility with DataTables */
+    .dataTables_wrapper .dataTables_length select,
+    .dataTables_wrapper .dataTables_filter input {
+      border: 1px solid var(--card-border);
+      border-radius: 0.5rem;
+      padding: 0.4rem 0.75rem;
+      background-color: #f8fafc;
+      font-size: 0.875rem;
     }
 
-    .table thead th {
-      background-color: #f8fafc !important;
-      color: #475569;
-      font-weight: 600;
-      border-top: none;
-      border-bottom: 1px solid #e2e8f0;
-      padding: 1rem 1rem;
-    }
-
-    .table tbody tr {
+    .dataTables_wrapper .dataTables_filter input:focus,
+    .dataTables_wrapper .dataTables_length select:focus {
       background-color: #ffffff;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.01);
-      transition: all 0.2s ease;
-    }
-
-    .table tbody tr:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.04);
-      background-color: #ffffff !important;
-    }
-
-    .table tbody td {
-      padding: 1rem 1rem;
-      vertical-align: middle;
-      border-top: 1px solid #f1f5f9;
-      border-bottom: 1px solid #f1f5f9;
-    }
-
-    .table tbody td:first-child {
-      border-left: 1px solid #f1f5f9;
-      border-top-left-radius: 0.5rem;
-      border-bottom-left-radius: 0.5rem;
-    }
-
-    .table tbody td:last-child {
-      border-right: 1px solid #f1f5f9;
-      border-top-right-radius: 0.5rem;
-      border-bottom-right-radius: 0.5rem;
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+      outline: none;
     }
 
     /* Form Controls & Inputs */
@@ -110,28 +85,6 @@
       background-color: #ffffff;
       border-color: #3b82f6;
       box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
-    }
-
-    /* Pagination Style */
-    .pagination .page-item .page-link {
-      border: none;
-      border-radius: 0.375rem;
-      margin: 0 3px;
-      color: #475569;
-      font-weight: 500;
-      padding: 0.5rem 0.75rem;
-      background-color: #f1f5f9;
-    }
-
-    .pagination .page-item.active .page-link {
-      background: var(--primary-gradient);
-      color: #ffffff;
-      box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);
-    }
-
-    .pagination .page-item .page-link:hover {
-      background-color: #e2e8f0;
-      color: #1e293b;
     }
   </style>
 </head>
@@ -160,10 +113,9 @@
           <div class="content-card">
             <div class="p-4 border-bottom d-flex justify-content-between align-items-center bg-white">
               <div>
-                <h6 class="fw-bold mb-0 text-dark"><i class="bi bi-map text-primary me-2"></i>Central Luzon Geographic Deployment Preview</h6>
+                <h6 class="fw-bold mb-0 text-dark"><i class="bi bi-map text-primary me-2"></i>Central Luzon Geographic Deployment Preview.</h6>
                 <p class="text-muted small mb-0">Interactive markers indicating active cluster concentrations across Region III provinces.</p>
               </div>
-
             </div>
             <div class="p-3">
               <!-- Map Container -->
@@ -173,7 +125,7 @@
         </div>
       </div>
 
-      <!-- Alternative ADL Transactions Table Section with Search and Pagination -->
+      <!-- ADL Transactions Table Section with DataTables & Excel Export -->
       <div class="row g-3 mb-4">
         <div class="col-12">
           <div class="content-card">
@@ -184,78 +136,80 @@
                 <h5 class="fw-bold mb-1 text-dark">
                   <i class="bi bi-file-earmark-text text-primary me-2"></i>ADL Transactions Overview
                 </h5>
-                <p class="text-muted small mb-0">Active Authorized Disbursement List (ADL) records and fund balances.</p>
+                <p class="text-muted small mb-0">Active Authorized Disbursement List (ADL) records, deductions breakdown, and fund balances[cite: 8].</p>
               </div>
               
-              <!-- Search and Limit Controls Toolbar -->
-              <div class="d-flex align-items-center gap-2 flex-wrap">
-                <div class="input-group input-group-sm bg-light rounded-pill px-2 border" style="width: 240px;">
-                  <span class="input-group-text bg-transparent border-0 text-muted ps-1"><i class="bi bi-search"></i></span>
-                  <input type="text" id="altAdlSearch" class="form-control form-control-sm bg-transparent border-0 shadow-none" placeholder="Search ADL records...">
-                </div>
-                <select id="altAdlLimit" class="form-select form-select-sm rounded-pill px-3 border text-secondary" style="width: 110px;">
-                  <option value="5">5 rows</option>
-                  <option value="10" selected>10 rows</option>
-                  <option value="25">25 rows</option>
-                  <option value="50">50 rows</option>
-                </select>
-              </div>
+              <!-- Target container for the Excel download button -->
+              <div id="exportButtonContainer"></div>
             </div>
 
             <!-- Responsive Table Container -->
             <div class="table-responsive p-3">
-              <table class="table align-middle text-nowrap" id="altAdlTable">
-                <thead>
+              <table class="table table-striped table-hover align-middle w-100 text-nowrap" id="altAdlTable">
+                <thead class="table-light">
                   <tr>
                     <th class="ps-4">ADL No.</th>
                     <th>ADL Date</th>
                     <th>Date Received</th>
-                    <th>Target Beneficiaries</th>
-                    <th>Amount</th>
-                    <th class="pe-4 text-end">Balance</th>
+                    <th class="text-end">Target Beneficiaries</th>
+                    <th class="text-end">ADL Subsidy</th>
+                    <th class="text-end">PPEs Amount</th>
+                    <th class="text-end">GSIS Amount</th>
+                    <th class="text-end">Completed Emp. Amount</th>
+                    <th class="text-end">Payout Cost</th>
+                    <th class="text-end">MAF Amount</th>
+                    <th class="text-end">Total Deductions</th>
+                    <th class="pe-4 text-end">Net Balance</th>
                   </tr>
                 </thead>
-                <tbody id="altAdlBody">
-                  <?php if (!empty($adl_records)): ?>
-                    <?php foreach ($adl_records as $row): ?>
-                      <tr class="adl-row">
-                        <td class="ps-4 fw-bold text-dark">
-                          <a href="#" class="text-decoration-none text-primary"><?= html_escape($row['adl_no']); ?></a>
-                        </td>
-                        <td class="text-secondary"><?= html_escape($row['adl_date']); ?></td>
-                        <td class="text-secondary"><?= html_escape($row['date_received']); ?></td>
-                        <td>
-                          <span class="badge bg-secondary-subtle text-dark fw-normal px-2.5 py-1.5 rounded-pill border border-secondary-subtle">
-                            <?= number_format($row['target_benefs']); ?>
-                          </span>
-                        </td>
-                        <td class="fw-medium text-success">
-                          &#8369;<?= number_format($row['adl_subsidy'], 2); ?>
-                        </td>
-                        <td class="pe-4 text-end fw-bold text-primary">
-                          &#8369;<?= number_format($row['balance'], 2); ?>
-                        </td>
-                      </tr>
-                    <?php endforeach; ?>
-                  <?php else: ?>
-                    <tr id="altNoDataRow">
-                      <td colspan="6" class="text-center py-4 text-muted">No ADL records found.</td>
-                    </tr>
-                  <?php endif; ?>
-                </tbody>
-              </table>
-            </div>
+               <tbody id="altAdlBody">
+  <?php if (!empty($adl_records)): ?>
+    <?php foreach ($adl_records as $row): ?>
+    
+      
+<?php 
+        $subsidy   = floatval($row['adl_subsidy'] ?? 0);
+        $ppes      = floatval($row['ppes_amount'] ?? 0);
+        $gsis      = floatval($row['gsis_enrollment_amount'] ?? 0);
+        $completed = floatval($row['completed_employment_amount'] ?? 0);
+        $payout    = floatval($row['payout_service_cost'] ?? 0);
+        $maf       = floatval($row['maf_amount'] ?? 0);
 
-            <!-- Clean Card Footer with Counter and Pagination -->
-            <div class="card-footer bg-white py-3 px-4 border-top d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
-              <div class="text-muted small" id="altAdlInfo">
-                Showing 0 entries
-              </div>
-              <nav aria-label="Page navigation">
-                <ul class="pagination pagination-sm mb-0" id="altAdlPagination">
-                  <!-- Pagination items injected via script -->
-                </ul>
-              </nav>
+        // CHANGE THIS LINE: Force it to explicitly add all breakdown components together
+        $total_deductions = $ppes + $gsis + $completed + $payout + $maf;
+        
+        // Net Balance
+        $net_balance = $subsidy - $total_deductions;
+      ?>
+
+      <tr class="adl-row">
+        <td class="ps-4 fw-bold text-dark">
+          <a href="#" class="text-decoration-none text-primary"><?= html_escape($row['adl_no'] ?? ''); ?></a>
+        </td>
+        <td class="text-secondary"><?= html_escape($row['adl_date'] ?? ''); ?></td>
+        <td class="text-secondary"><?= html_escape($row['date_received'] ?? ''); ?></td>
+        <td class="text-end">
+          <?= number_format($row['target_benefs'] ?? 0); ?>
+        </td>
+        <td class="text-end fw-medium text-success">
+          <?= number_format($subsidy, 2); ?>
+        </td>
+        <td class="text-end text-secondary"><?= number_format($ppes, 2); ?></td>
+        <td class="text-end text-secondary"><?= number_format($gsis, 2); ?></td>
+        <td class="text-end text-secondary"><?= number_format($completed, 2); ?></td>
+        <td class="text-end text-secondary"><?= number_format($payout, 2); ?></td>
+        <td class="text-end text-secondary"><?= number_format($maf, 2); ?></td>
+        <td class="text-end fw-medium text-danger">
+          <?= number_format($total_deductions, 2); ?>
+        </td>
+        <td class="pe-4 text-end fw-bold text-primary">
+          <?= number_format($net_balance, 2); ?>
+        </td>
+      </tr>
+    <?php endforeach; ?>
+  <?php endif; ?>
+</tbody>
+              </table>
             </div>
 
           </div>
@@ -270,10 +224,21 @@
     </footer>
   </div>
 
+  <!-- jQuery -->
+  <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
   <!-- Bootstrap JS Bundle -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <!-- Leaflet JS -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <!-- DataTables JS -->
+  <script src="https://cdn.jsdelivr.net/npm/datatables.net@1.13.6/js/jquery.dataTables.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/datatables.net-bs5@1.13.6/js/dataTables.bootstrap5.min.js"></script>
+  <!-- JSZip (Required for Excel export) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <!-- DataTables Buttons JS & HTML5 Export Plugin -->
+  <script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.bootstrap5.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
 
   <!-- Dashboard Functionality & Map Integration & Table Script -->
   <script>
@@ -294,7 +259,6 @@
     }
 
     // Safely capture PHP JSON from your database query
-
     let municipalityData = [];
     try {
       municipalityData = <?php echo isset($map_json_data) && !empty($map_json_data) ?$map_json_data : '[]'; ?>;
@@ -336,125 +300,231 @@
         .bindPopup(`<b>${item.name}</b> (${item.province})<br>Workers: <b>${workersCount.toLocaleString()}</b>`);
     });
 
-    // Standalone Pagination & Search Script for ADL Table
+    // Initialize DataTables with Excel Button Integration
     document.addEventListener("DOMContentLoaded", function () {
-      const searchInput = document.getElementById('altAdlSearch');
-      const limitSelect = document.getElementById('altAdlLimit');
-      const tableBody = document.getElementById('altAdlBody');
-      const paginationEl = document.getElementById('altAdlPagination');
-      const infoEl = document.getElementById('altAdlInfo');
-      
-      const allRows = Array.from(tableBody.querySelectorAll('.adl-row'));
-      let currentPage = 1;
-
-      function updateTable() {
-        const query = searchInput.value.toLowerCase().trim();
-        const limit = parseInt(limitSelect.value);
-
-        // Filter rows based on search input
-        const filtered = allRows.filter(row => {
-          return row.textContent.toLowerCase().includes(query);
-        });
-
-        // Pagination calculation
-        const totalPages = Math.ceil(filtered.length / limit) || 1;
-        if (currentPage > totalPages) currentPage = totalPages;
-
-        const start = (currentPage - 1) * limit;
-        const end = start + limit;
-
-        // Hide all rows first
-        allRows.forEach(r => r.style.display = 'none');
-
-        // Show current page slice
-        const currentSlice = filtered.slice(start, end);
-        currentSlice.forEach(r => r.style.display = '');
-
-        // Update info text
-        if (filtered.length > 0) {
-          infoEl.innerHTML = `Showing <b>${start + 1}</b> to <b>${Math.min(end, filtered.length)}</b> of <b>${filtered.length}</b> entries`;
-        } else {
-          infoEl.innerHTML = `No matching records found`;
-        }
-
-        buildPagination(totalPages);
-      }
-
-      function buildPagination(totalPages) {
-        paginationEl.innerHTML = '';
-
-        if (totalPages <= 1) return;
-
-        // Previous Button
-        const prevClass = currentPage === 1 ? 'disabled' : '';
-        paginationEl.innerHTML += `
-          <li class="page-item ${prevClass}">
-            <a class="page-link rounded-start-pill px-3" href="#" data-page="${currentPage - 1}">&laquo; Prev</a>
-          </li>`;
-
-        // Page Numbers
-        for (let i = 1; i <= totalPages; i++) {
-          const activeClass = i === currentPage ? 'active' : '';
-          paginationEl.innerHTML += `
-            <li class="page-item ${activeClass}">
-              <a class="page-link px-3" href="#" data-page="${i}">${i}</a>
-            </li>`;
-        }
-
-        // Next Button
-        const nextClass = currentPage === totalPages ? 'disabled' : '';
-        paginationEl.innerHTML += `
-          <li class="page-item ${nextClass}">
-            <a class="page-link rounded-end-pill px-3" href="#" data-page="${currentPage + 1}">Next &raquo;</a>
-          </li>`;
-
-        // Attach click events
-        paginationEl.querySelectorAll('.page-link').forEach(link => {
-          link.addEventListener('click', function(e) {
-            e.preventDefault();
-            const targetPage = parseInt(this.getAttribute('data-page'));
-            if (!isNaN(targetPage) && targetPage > 0 && targetPage <= totalPages) {
-              currentPage = targetPage;
-              updateTable();
+      const table = $('#altAdlTable').DataTable({
+        pageLength: 10,
+        lengthMenu: [[5, 10, 25, 50, -1], [5, 10, 25, 50, "All"]],
+        ordering: true,
+        responsive: true,
+        dom: '<"row mb-3 align-items-center"<"col-md-6"l><"col-md-6 text-end"f>>rt<"row mt-3 align-items-center"<"col-md-5"i><"col-md-7 text-end"p>>',
+        columnDefs: [
+          { targets: [3, 4, 5, 6, 7, 8, 9, 10, 11], className: 'text-end' },
+          {
+            targets: [3],
+            render: function (data) {
+              let num = parseInt((data || '0').replace(/,/g, ''));
+              return isNaN(num) ? '0' : num.toLocaleString('en-US');
             }
-          });
-        });
-      }
+          },
+          {
+            targets: [4, 5, 6, 7, 8, 9, 10, 11],
+            render: function (data) {
+              let num = parseFloat((data || '0').replace(/[^0-9.-]+/g, ""));
+              return isNaN(num) ? '0.00' : num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            }
+          }
+        ],
+        buttons: [
+          {
+            extend: 'excelHtml5',
+            text: '<i class="bi bi-file-earmark-excel me-1"></i> Download Excel',
+            className: 'btn btn-success btn-sm shadow-sm',
+            title: '',
+            filename: 'DOLE_Region3_eTUPAD_ADL_Report',
+            exportOptions: {
+              columns: ':visible'
+            },
 
-      // Event bindings
-      searchInput.addEventListener('input', () => {
-        currentPage = 1;
-        updateTable();
+
+customize: function (xlsx) {
+              var sheet = xlsx.xl.worksheets['sheet1.xml'];
+              var styles = xlsx.xl['styles.xml'];
+
+              // 1. Inject custom number formats into styles.xml (Date format ID 176, Currency ID 175)
+              var numFmts = styles.getElementsByTagName('numFmts');
+              var numFmtIdCurrency = 175;
+              var numFmtIdDate = 176;
+
+              if (numFmts.length === 0) {
+                var stylesheet = styles.getElementsByTagName('styleSheet')[0];
+                var newNumFmts = styles.createElement('numFmts');
+                newNumFmts.setAttribute('count', '2');
+                
+                var newNumFmtCurr = styles.createElement('numFmt');
+                newNumFmtCurr.setAttribute('numFmtId', numFmtIdCurrency);
+                newNumFmtCurr.setAttribute('formatCode', '#,##0.00');
+                newNumFmts.appendChild(newNumFmtCurr);
+
+                var newNumFmtDate = styles.createElement('numFmt');
+                newNumFmtDate.setAttribute('numFmtId', numFmtIdDate);
+                newNumFmtDate.setAttribute('formatCode', 'yyyy-mm-dd');
+                newNumFmts.appendChild(newNumFmtDate);
+
+                stylesheet.insertBefore(newNumFmts, stylesheet.firstChild);
+              } else {
+                var stylesheet = styles.getElementsByTagName('styleSheet')[0];
+                var existingNumFmts = numFmts[0];
+                
+                var newNumFmtCurr = styles.createElement('numFmt');
+                newNumFmtCurr.setAttribute('numFmtId', numFmtIdCurrency);
+                newNumFmtCurr.setAttribute('formatCode', '#,##0.00');
+                existingNumFmts.appendChild(newNumFmtCurr);
+
+                var newNumFmtDate = styles.createElement('numFmt');
+                newNumFmtDate.setAttribute('numFmtId', numFmtIdDate);
+                newNumFmtDate.setAttribute('formatCode', 'yyyy-mm-dd');
+                existingNumFmts.appendChild(newNumFmtDate);
+
+                existingNumFmts.setAttribute('count', parseInt(existingNumFmts.getAttribute('count') || 0) + 2);
+              }
+
+              // 2. Create custom cell styles utilizing index 25 borders
+              var cellXfs = styles.getElementsByTagName('cellXfs')[0];
+              var borderStyleRef = cellXfs.childNodes[25];
+
+              // Custom Currency Style Index
+              var customCurrencyStyleIndex = cellXfs.childNodes.length;
+              var newXfCurr = borderStyleRef.cloneNode(true);
+              newXfCurr.setAttribute('numFmtId', numFmtIdCurrency);
+              newXfCurr.setAttribute('applyNumberFormat', '1');
+              cellXfs.appendChild(newXfCurr);
+
+              // Custom Date Style Index
+              var customDateStyleIndex = cellXfs.childNodes.length;
+              var newXfDate = borderStyleRef.cloneNode(true);
+              newXfDate.setAttribute('numFmtId', numFmtIdDate);
+              newXfDate.setAttribute('applyNumberFormat', '1');
+              cellXfs.appendChild(newXfDate);
+
+              cellXfs.setAttribute('count', cellXfs.childNodes.length);
+
+              // Calculate column totals from applied search filter with safe fallbacks
+              var totalBenefs = 0, totalSubsidy = 0, totalPpes = 0, totalGsis = 0, totalCompleted = 0, totalPayout = 0, totalMaf = 0, totalDeductions = 0, totalBalance = 0;
+
+              table.rows({ search: 'applied' }).every(function () {
+                var data = this.data();
+                totalBenefs += parseInt((data[3] || '0').toString().replace(/[^0-9]/g, '')) || 0;
+                totalSubsidy += parseFloat((data[4] || '0').toString().replace(/[^0-9.-]+/g, "")) || 0;
+                totalPpes += parseFloat((data[5] || '0').toString().replace(/[^0-9.-]+/g, "")) || 0;
+                totalGsis += parseFloat((data[6] || '0').toString().replace(/[^0-9.-]+/g, "")) || 0;
+                totalCompleted += parseFloat((data[7] || '0').toString().replace(/[^0-9.-]+/g, "")) || 0;
+                totalPayout += parseFloat((data[8] || '0').toString().replace(/[^0-9.-]+/g, "")) || 0;
+                totalMaf += parseFloat((data[9] || '0').toString().replace(/[^0-9.-]+/g, "")) || 0;
+                totalDeductions += parseFloat((data[10] || '0').toString().replace(/[^0-9.-]+/g, "")) || 0;
+                totalBalance += parseFloat((data[11] || '0').toString().replace(/[^0-9.-]+/g, "")) || 0;
+              });
+
+              // Shift rows down by 2 to accommodate title block
+              $('row', sheet).each(function () {
+                var r = parseInt($(this).attr('r')) + 2;
+                $(this).attr('r', r);
+                $(this).find('c').each(function () {
+                  var cellRef = $(this).attr('r');
+                  var col = cellRef.replace(/[0-9]/g, '');
+                  $(this).attr('r', col + r);
+                });
+              });
+
+              // Format data rows
+              $('row', sheet).each(function () {
+                var r = parseInt($(this).attr('r'));
+                if (r === 3) {
+                  $(this).find('c').each(function () { $(this).attr('s', '25'); });
+                } else if (r > 3) {
+                  $(this).find('c').each(function (index) {
+                    var cell = $(this);
+                    var rawText = cell.text().replace(/,/g, '').trim();
+
+                    if (index === 1 || index === 2) {
+                      // Format columns B and C as proper Excel serial dates if valid format (YYYY-MM-DD)
+                      cell.attr('s', customDateStyleIndex);
+                      if (rawText.match(/^\d{4}-\d{2}-\d{2}$/)) {
+                        var d = new Date(rawText);
+                        if (!isNaN(d.getTime())) {
+                          // Excel base date calculation offset
+                          var excelDateSerial = Math.floor((d - new Date(1899, 11, 30)) / (1000 * 60 * 60 * 24));
+                          cell.attr('t', 'n');
+                          cell.empty().append('<v>' + excelDateSerial + '</v>');
+                        }
+                      }
+                    } else if (index >= 4 && index <= 11) {
+                      cell.attr('s', customCurrencyStyleIndex);
+                      var numVal = parseFloat(rawText.replace(/[^0-9.-]+/g, ""));
+                      if (!isNaN(numVal)) {
+                        cell.attr('t', 'n');
+                        cell.empty().append('<v>' + numVal + '</v>');
+                      }
+                    } else if (index === 3) {
+                      cell.attr('s', '25');
+                      var intVal = parseInt(rawText);
+                      cell.attr('t', 'n');
+                      cell.empty().append('<v>' + (isNaN(intVal) ? 0 : intVal) + '</v>');
+                    } else {
+                      cell.attr('s', '25');
+                    }
+                  });
+                }
+              });
+
+              // Add Dynamic Title Header at Row 1
+              var titleText = 'DOLE REGION III - eTUPAD ADL TRANSACTIONS OVERVIEW REPORT';
+              var row1 = '<row r="1"><c t="inlineStr" r="A1" s="51"><is><t>' + titleText + '</t></is></c></row>';
+              $('sheetData', sheet).prepend(row1);
+
+              // Merge title cells across columns A to L
+              var mergeCells = sheet.getElementsByTagName('mergeCells');
+              if (mergeCells.length === 0) {
+                sheet.getElementsByTagName('worksheet')[0].appendChild(sheet.createElement('mergeCells'));
+                mergeCells = sheet.getElementsByTagName('mergeCells');
+              }
+              var mergeCell = sheet.createElement('mergeCell');
+              mergeCell.setAttribute('ref', 'A1:L1');
+              mergeCells[0].appendChild(mergeCell);
+              mergeCells[0].setAttribute('count', parseInt(mergeCells[0].getAttribute('count') || 0) + 1);
+
+              // Append Grand Total row at the end
+              var lastRowElem = $('row', sheet).last();
+              var lastRowIdx = lastRowElem.length > 0 ? parseInt(lastRowElem.attr('r')) + 1 : 4;
+
+              var totalRow = '<row r="' + lastRowIdx + '">' +
+                               '<c t="inlineStr" r="A' + lastRowIdx + '" s="25"><is><t>GRAND TOTAL</t></is></c>' +
+                               '<c t="inlineStr" r="B' + lastRowIdx + '" s="25"><is><t></t></is></c>' +
+                               '<c t="inlineStr" r="C' + lastRowIdx + '" s="25"><is><t></t></is></c>' +
+                               '<c t="n" r="D' + lastRowIdx + '" s="25"><v>' + totalBenefs + '</v></c>' +
+                               '<c t="n" r="E' + lastRowIdx + '" s="' + customCurrencyStyleIndex + '"><v>' + totalSubsidy + '</v></c>' +
+                               '<c t="n" r="F' + lastRowIdx + '" s="' + customCurrencyStyleIndex + '"><v>' + totalPpes + '</v></c>' +
+                               '<c t="n" r="G' + lastRowIdx + '" s="' + customCurrencyStyleIndex + '"><v>' + totalGsis + '</v></c>' +
+                               '<c t="n" r="H' + lastRowIdx + '" s="' + customCurrencyStyleIndex + '"><v>' + totalCompleted + '</v></c>' +
+                               '<c t="n" r="I' + lastRowIdx + '" s="' + customCurrencyStyleIndex + '"><v>' + totalPayout + '</v></c>' +
+                               '<c t="n" r="J' + lastRowIdx + '" s="' + customCurrencyStyleIndex + '"><v>' + totalMaf + '</v></c>' +
+                               '<c t="n" r="K' + lastRowIdx + '" s="' + customCurrencyStyleIndex + '"><v>' + totalDeductions + '</v></c>' +
+                               '<c t="n" r="L' + lastRowIdx + '" s="' + customCurrencyStyleIndex + '"><v>' + totalBalance + '</v></c>' +
+                           '</row>';
+
+              $('sheetData', sheet).append(totalRow);
+            }
+          }
+        ]
       });
 
-      limitSelect.addEventListener('change', () => {
-        currentPage = 1;
-        updateTable();
-      });
-
-      // Run initial execution
-      updateTable();
+      // Append buttons container to target header wrapper
+      table.buttons().container().appendTo('#exportButtonContainer');
     });
 
+    // Security Controls
     document.addEventListener('contextmenu', function (e) {
-    e.preventDefault();
-});
+      e.preventDefault();
+    });
 
-document.addEventListener('keydown', function (e) {
-    // Disable F12
-    //if (e.key === 'F12') {
-        //e.preventDefault();
-    //}
-    
-    // Disable Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+Shift+C, Ctrl+U
-    if (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i' || e.key === 'J' || e.key === 'j' || e.key === 'C' || e.key === 'c')) {
+    document.addEventListener('keydown', function (e) {
+      if (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i' || e.key === 'J' || e.key === 'j' || e.key === 'C' || e.key === 'c')) {
         e.preventDefault();
-    }
-    
-    if (e.ctrlKey && (e.key === 'U' || e.key === 'u')) {
+      }
+      if (e.ctrlKey && (e.key === 'U' || e.key === 'u')) {
         e.preventDefault();
-    }
-});
+      }
+    });
   </script>
 </body>
 </html>
