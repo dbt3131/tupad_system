@@ -108,7 +108,7 @@ public function update_last_activity($user_id)
 public function get_online_users()
 {
     // Change threshold from 5 minutes to 2 minutes for faster drop-offs
-    $threshold = date('Y-m-d H:i:s', strtotime('-2 minutes'));
+    $threshold = date('Y-m-d H:i:s', strtotime('-60 minutes'));
     
     return $this->db->where('last_activity >=', $threshold)
                     ->order_by('reg_fname', 'ASC')

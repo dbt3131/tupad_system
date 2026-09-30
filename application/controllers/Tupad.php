@@ -1752,10 +1752,10 @@ public function get_wage_rate() {
 
 public function export_gsis_sequences_excel()
 {
-    $start_date       = $this->input->get('start_date');
-    $end_date         = $this->input->get('end_date');
+    $start_date         = $this->input->get('start_date');
+    $end_date           = $this->input->get('end_date');
     $date_effectivity = $this->input->get('date_effectivity');
-    $no_of_days       = $this->input->get('no_of_days');
+    $no_of_days         = $this->input->get('no_of_days');
 
     if (empty($start_date) || empty($end_date)) {
         $start_date = date('Y-m-01');
@@ -1765,7 +1765,7 @@ public function export_gsis_sequences_excel()
     // Fetch summary records within date range
     $summary_records = $this->Tupad_model->get_gsis_summary_by_date($start_date, $end_date);
     
-    // 1. Calculate the grand total count of actual beneficiary entries across all groups
+    // 1. Calculate the grand total count of actual active beneficiary entries across all groups
     $total_entries = 0;
     if (!empty($summary_records)) {
         foreach ($summary_records as $summary) {
@@ -1774,7 +1774,8 @@ public function export_gsis_sequences_excel()
 
             $group_count = $this->db->where([
                 'reference_no'           => $reference_no,
-                'area_of_implementation' => $implementor
+                'area_of_implementation' => $implementor,
+                'tupad_active'           => 0 // Exclude inactive records from count
             ])->count_all_results('tbl_tupad_list');
 
             $total_entries += $group_count;
@@ -1829,10 +1830,11 @@ public function export_gsis_sequences_excel()
             $adl_no       = $summary['adl_no'] ?? $summary['adl_number'] ?? '';
             $nature_work  = $summary['nature_of_work'] ?? $summary['type_of_work'] ?? '';
 
-            // Fetch records for this specific group from tbl_tupad_list
+            // Fetch records for this specific group from tbl_tupad_list where tupad_active = 0
             $records = $this->db->get_where('tbl_tupad_list', [
                 'reference_no'           => $reference_no,
-                'area_of_implementation' => $implementor
+                'area_of_implementation' => $implementor,
+                'tupad_active'           => 0 // Exclude inactive records from rows
             ])->result_array();
 
             // Pull period coverage checking every possible column variant in summary or records

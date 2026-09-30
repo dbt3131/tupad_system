@@ -55,10 +55,17 @@ class Tupad_model extends CI_Model {
     return $this->db->query($sql)->result_array();
 }
 
+
+
+
+
+
+
 public function forward_to_gsis_letter($file_name, $user_name, $override = false) {
         $file_name = urldecode($file_name);
         
         $this->db->where('file_name', $file_name);
+        $this->db->where('tupad_active', 0);
         $records = $this->db->get($this->table)->result_array();
         
         if (empty($records)) {
@@ -128,6 +135,12 @@ public function forward_to_gsis_letter($file_name, $user_name, $override = false
         
         return $this->db->insert('gsis_letters', $data) ? 'success' : 'failed';
     }
+
+
+
+
+
+
 
     public function get_records_by_filename($file_name) {
         $this->db->select('tbl_tupad_list.*, users.reg_fname as uploader_fname, users.reg_lname as uploader_lname');
@@ -760,6 +773,7 @@ public function find_city_code_by_desc($desc, $provCode) {
         return $this->db->update($this->table, ['tupad_active' => 1]);
     }
 
+
 public function get_gsis_summary_by_date($start_date, $end_date)
 {
     // Return an empty array immediately if either date is missing
@@ -773,6 +787,8 @@ public function get_gsis_summary_by_date($start_date, $end_date)
     $this->db->order_by('gsis_letter_id', 'ASC');
     return $this->db->get()->result_array();
 }
+
+
 
 public function remove_from_gsis_letter($file_name) {
     $file_name = urldecode($file_name);
