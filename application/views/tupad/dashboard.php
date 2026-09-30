@@ -184,8 +184,10 @@
 
       <tr class="adl-row">
         <td class="ps-4 fw-bold text-dark">
-          <a href="#" class="text-decoration-none text-primary"><?= html_escape($row['adl_no'] ?? ''); ?></a>
-        </td>
+    <a href="<?= site_url('adl/adl_report'); ?>?adl_no=<?= urlencode($row['adl_no'] ?? ''); ?>" class="text-decoration-none text-primary">
+      <?= html_escape($row['adl_no'] ?? ''); ?>
+    </a>
+  </td>
         <td class="text-secondary"><?= html_escape($row['adl_date'] ?? ''); ?></td>
         <td class="text-secondary"><?= html_escape($row['date_received'] ?? ''); ?></td>
         <td class="text-end">
@@ -259,7 +261,6 @@
     }
 
     // Safely capture PHP JSON from your database query
- // Safely capture PHP JSON from your database query
     let municipalityData = [];
     try {
       municipalityData = <?php echo isset($map_json_data) && !empty($map_json_data) ? json_encode($map_json_data) : '[]'; ?>;
@@ -326,17 +327,6 @@ console.log("Municipality Map Data:", municipalityData);
             }
           }
         ],
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -434,8 +424,7 @@ customize: function (xlsx) {
               // Shift rows down by 2 to accommodate title block
               $('row', sheet).each(function () {
                 var r = parseInt($(this).attr('r')) + 2;
-                $(this).attr('r', r);
-                $(this).find('c').each(function () {
+                $(this).attr('r', r);$(this).find('c').each(function () {
                   var cellRef = $(this).attr('r');
                   var col = cellRef.replace(/[0-9]/g, '');
                   $(this).attr('r', col + r);
@@ -446,9 +435,7 @@ customize: function (xlsx) {
               $('row', sheet).each(function () {
                 var r = parseInt($(this).attr('r'));
                 if (r === 3) {
-                  $(this).find('c').each(function () { $(this).attr('s', '25'); });
-                } else if (r > 3) {
-                  $(this).find('c').each(function (index) {
+                  $(this).find('c').each(function () { $(this).attr('s', '25'); });                 } else if (r > 3) {$(this).find('c').each(function (index) {
                     var cell = $(this);
                     var rawText = cell.text().replace(/,/g, '').trim();
 
@@ -504,18 +491,18 @@ customize: function (xlsx) {
               var lastRowIdx = lastRowElem.length > 0 ? parseInt(lastRowElem.attr('r')) + 1 : 4;
 
               var totalRow = '<row r="' + lastRowIdx + '">' +
-                               '<c t="inlineStr" r="A' + lastRowIdx + '" s="25"><is><t>GRAND TOTAL</t></is></c>' +
-                               '<c t="inlineStr" r="B' + lastRowIdx + '" s="25"><is><t></t></is></c>' +
-                               '<c t="inlineStr" r="C' + lastRowIdx + '" s="25"><is><t></t></is></c>' +
-                               '<c t="n" r="D' + lastRowIdx + '" s="25"><v>' + totalBenefs + '</v></c>' +
-                               '<c t="n" r="E' + lastRowIdx + '" s="' + customCurrencyStyleIndex + '"><v>' + totalSubsidy + '</v></c>' +
-                               '<c t="n" r="F' + lastRowIdx + '" s="' + customCurrencyStyleIndex + '"><v>' + totalPpes + '</v></c>' +
-                               '<c t="n" r="G' + lastRowIdx + '" s="' + customCurrencyStyleIndex + '"><v>' + totalGsis + '</v></c>' +
-                               '<c t="n" r="H' + lastRowIdx + '" s="' + customCurrencyStyleIndex + '"><v>' + totalCompleted + '</v></c>' +
-                               '<c t="n" r="I' + lastRowIdx + '" s="' + customCurrencyStyleIndex + '"><v>' + totalPayout + '</v></c>' +
-                               '<c t="n" r="J' + lastRowIdx + '" s="' + customCurrencyStyleIndex + '"><v>' + totalMaf + '</v></c>' +
-                               '<c t="n" r="K' + lastRowIdx + '" s="' + customCurrencyStyleIndex + '"><v>' + totalDeductions + '</v></c>' +
-                               '<c t="n" r="L' + lastRowIdx + '" s="' + customCurrencyStyleIndex + '"><v>' + totalBalance + '</v></c>' +
+                             '<c t="inlineStr" r="A' + lastRowIdx + '" s="25"><is><t>GRAND TOTAL</t></is></c>' +
+                             '<c t="inlineStr" r="B' + lastRowIdx + '" s="25"><is><t></t></is></c>' +
+                             '<c t="inlineStr" r="C' + lastRowIdx + '" s="25"><is><t></t></is></c>' +
+                             '<c t="n" r="D' + lastRowIdx + '" s="25"><v>' + totalBenefs + '</v></c>' +
+                             '<c t="n" r="E' + lastRowIdx + '" s="' + customCurrencyStyleIndex + '"><v>' + totalSubsidy + '</v></c>' +
+                             '<c t="n" r="F' + lastRowIdx + '" s="' + customCurrencyStyleIndex + '"><v>' + totalPpes + '</v></c>' +
+                             '<c t="n" r="G' + lastRowIdx + '" s="' + customCurrencyStyleIndex + '"><v>' + totalGsis + '</v></c>' +
+                             '<c t="n" r="H' + lastRowIdx + '" s="' + customCurrencyStyleIndex + '"><v>' + totalCompleted + '</v></c>' +
+                             '<c t="n" r="I' + lastRowIdx + '" s="' + customCurrencyStyleIndex + '"><v>' + totalPayout + '</v></c>' +
+                             '<c t="n" r="J' + lastRowIdx + '" s="' + customCurrencyStyleIndex + '"><v>' + totalMaf + '</v></c>' +
+                             '<c t="n" r="K' + lastRowIdx + '" s="' + customCurrencyStyleIndex + '"><v>' + totalDeductions + '</v></c>' +
+                             '<c t="n" r="L' + lastRowIdx + '" s="' + customCurrencyStyleIndex + '"><v>' + totalBalance + '</v></c>' +
                            '</row>';
 
               $('sheetData', sheet).append(totalRow);
@@ -540,6 +527,43 @@ customize: function (xlsx) {
       if (e.ctrlKey && (e.key === 'U' || e.key === 'u')) {
         e.preventDefault();
       }
+    });
+
+    $(document).ready(function () {
+        // Initialize Select2 with Bootstrap 5 Theme
+        $('#filter_province, #filter_proponent, #filter_district').on('change', function () {
+            const adlNo = $('#filter_adl_no').val();
+            const provCode = $('#filter_province').val();
+            const proponentName = $('#filter_proponent').val();
+            const districtNo = $('#filter_district').val();
+
+            if (adlNo) {
+                loadReportData(adlNo, provCode, proponentName, districtNo);
+            }
+        });
+
+        // === DEBUG & AUTO-SELECT ADL FROM URL ===
+        const urlParams = new URLSearchParams(window.location.search);
+        const paramAdlNo = urlParams.get('adl_no');
+
+        console.log("URL param adl_no found:", paramAdlNo);
+
+        if (paramAdlNo) {
+            // Verify option exists in dropdown first
+            const optionExists = $('#filter_adl_no option').filter(function() {
+                return $(this).val().trim() === paramAdlNo.trim();
+            }).length > 0;
+
+            console.log("Does option exist in dropdown?", optionExists);
+
+            if (optionExists) {
+                // Set value and trigger change safely
+                $('#filter_adl_no').val(paramAdlNo).trigger('change').trigger('change.select2');
+            } else {
+                console.warn("ADL No '" + paramAdlNo + "' was not found in the dropdown list options.");
+            }
+        }
+        // ==========================================
     });
   </script>
 </body>

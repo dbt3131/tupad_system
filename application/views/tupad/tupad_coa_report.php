@@ -161,6 +161,16 @@
                 </div>
             </div>
 
+                       <!-- Reminder Notice -->
+            <div class="alert alert-info border-0 shadow-sm mb-4 no-print bg-white border-start border-primary border-4" role="alert">
+                <div class="d-flex align-items-center">
+                    <i class="bi bi-info-circle-fill text-primary fs-5 me-2"></i>
+                    <div class="small">
+                        <strong>Reminder:</strong> Start Date and End Date filters are based on the <strong>Implementation Period</strong> field found in the <strong>Payment and Payout Tab</strong>.
+                    </div>
+                </div>
+            </div>
+
             <!-- Modern Filter & Action Form Card -->
             <div class="card border-0 mb-4 no-print">
                 <div class="card-body p-4">

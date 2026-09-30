@@ -107,9 +107,6 @@
                     </h3>
                     <p class="text-muted small mb-0">Filter by ADL number to review transaction distributions</p>
                 </div>
-                <button onclick="window.print()" class="btn btn-outline-secondary btn-sm shadow-sm">
-                    <i class="bi bi-printer me-1"></i> Print Report
-                </button>
             </div>
 
             <!-- Filter Selection Card -->
@@ -649,6 +646,38 @@
                 loadReportData(adlNo, provCode, proponentName, districtNo);
             }
         });
+        // === ROBUST URL PARAMETER AUTO-SELECT & LOAD ===
+        const urlParams = new URLSearchParams(window.location.search);
+        const paramAdlNo = urlParams.get('adl_no');
+
+        if (paramAdlNo) {
+            console.log("URL param adl_no found:", paramAdlNo);
+
+            function attemptSelectAdl() {
+                let matchedVal = '';
+                $('#filter_adl_no option').each(function() {
+                    const optVal = $(this).val();
+                    const optText = $(this).text();
+                    // Match either the exact option value or text containing the ADL number
+                    if (optVal && (optVal.trim() === paramAdlNo.trim() || optText.includes(paramAdlNo.trim()))) {
+                        matchedVal = optVal;
+                        return false; // break loop
+                    }
+                });
+
+                if (matchedVal) {
+                    console.log("Matching option found, selecting:", matchedVal);
+                    $('#filter_adl_no').val(matchedVal).trigger('change').trigger('change.select2');
+                    return true;
+                }
+                return false;
+            }
+
+            // Try immediately; if options are still rendering, retry after a short delay
+            if (!attemptSelectAdl()) {
+                setTimeout(attemptSelectAdl, 300);
+            }
+        }
     });
     </script>
 </body>
