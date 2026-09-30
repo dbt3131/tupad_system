@@ -200,7 +200,9 @@ public function update_adl($original_adl_no, $data) {
 
 
 
-
+public function get_fund_sources() {
+    return $this->db->get('code_fund_source')->result_array();
+}
 
 
 

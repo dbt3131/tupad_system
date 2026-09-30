@@ -190,8 +190,23 @@
                                     <?php endif; ?>
                                 </select>
                             </div>
-                           <div class="col-md-5">
-                                <label class="form-label fw-semibold small">Audrey Reference No.</label>
+
+                            <div class="col-md-3">
+    <label class="form-label fw-semibold small">Fund Source</label>
+    <select name="fund_source" id="fund_source" class="form-select" style="width: 100%;" required>
+        <option value="" selected disabled>-- Select Fund Source --</option>
+        <?php if (!empty($fund_sources)): ?>
+            <?php foreach ($fund_sources as $fs): ?>
+                <option value="<?= html_escape($fs['fund_source_id']); ?>" <?= set_select('fund_source', $fs['fund_source_id']); ?>>
+                    <?= html_escape($fs['fund_source_desc']); ?>
+                </option>
+            <?php endforeach; ?>
+        <?php endif; ?>
+    </select>
+</div>
+                            
+                           <div class="col-md-2">
+                                <label class="form-label fw-semibold small">Audrey Ref No.</label>
                                 <input type="text" name="audrey_reference_no" id="audrey_reference_no" oninput="this.value = this.value.toUpperCase();" placeholder="Manual Reference No" class="form-control" autocomplete='OFF' required>
                                 <input type="hidden" name="implementation_reference_no" id="implementation_reference_no" class="form-control" placeholder="Auto-generated" readonly required>
                             </div>
@@ -213,6 +228,10 @@
                                 <label class="form-label fw-semibold small">Reformulated Target</label>
                                 <input type="text" name="reformulated_target" class="form-control" placeholder="0" autocomplete="OFF">
                             </div> -->
+
+
+
+
                             <div class="col-md-3">
                                 <label class="form-label fw-semibold small">Implementation Province</label>
                                 <select name="implementation_province" id="implementation_province" class="form-select" required>
@@ -657,6 +676,12 @@
             }
         });
     }
+
+    $('#fund_source').select2({
+    theme: 'bootstrap-5',
+    placeholder: '-- Select Fund Source --',
+    allowClear: true
+});
 
     $(document).on('change', '#adl_no', function () {
         validateTargetLimit();

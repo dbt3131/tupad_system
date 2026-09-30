@@ -74,6 +74,7 @@ public function ADL_encode() {
         $data['proponents'] = $this->ADL_Model->get_proponents(); 
         $data['districts'] = $this->ADL_Model->get_districts();     
         $data['payoutSite'] = $this->Tupad_Payroll_Model->get_payout_site();
+        $data['fund_sources'] = $this->ADL_Model->get_fund_sources();
         $this->load->view('tupad/ADL_Imp_encoding', $data);
     }
 
@@ -195,6 +196,7 @@ if (($target_info['encoded_target'] + $target_input) > $target_info['max_target'
 
             $data = [
                 'adl_no'                            => $this->input->post('adl_no', true),
+                'fund_source'                       => $this->input->post('fund_source', true),
                 'audrey_reference_no'               => $this->input->post('audrey_reference_no', true),
                 'implementation_reference_no'       => $ref_no,
                 'implementation_province'           => $this->input->post('implementation_province', true),
@@ -371,6 +373,7 @@ public function get_generated_reference_no() {
         $data['selected_area'] = $area;
         $data['selected_proponent'] = $proponent;
         $data['selected_district'] = $district;
+        $data['fund_sources'] = $this->ADL_Model->get_fund_sources();
 
         $this->load->view('tupad/ADL_Imp_List', $data);
     }
@@ -436,6 +439,7 @@ public function get_generated_reference_no() {
                 'implementation_province'           => $province,
                 'implementation_brgy'               => $area_brgy,
                 'implementation_area'               => $area,
+                'fund_source'                       => strtoupper($this->input->post('fund_source', true)),
                 'implementation_district'           => strtoupper($this->input->post('implementation_district', true)),
                 'implementation_classification'     => strtoupper($this->input->post('implementation_classification', true)),
                 'implementation_proponent'          => strtoupper($this->input->post('imp_proponent', true)),

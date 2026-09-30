@@ -469,6 +469,22 @@
                                             <label class="form-label fw-semibold small">Reformulated Target</label>
                                             <input type="text" id="edit_reformulated_target" name="reformulated_target" class="form-control" placeholder="0">
                                         </div>
+
+
+<div class="col-md-3">
+    <label class="form-label fw-semibold small">Fund Source</label>
+    <select name="fund_source" id="edit_fund_source" class="form-select" style="width: 100%;" required>
+        <option value="" selected disabled>-- Select Fund Source --</option>
+        <?php if (!empty($fund_sources)): ?>
+            <?php foreach ($fund_sources as $fs): ?>
+                <option value="<?= html_escape($fs['fund_source_id']); ?>">
+                    <?= html_escape($fs['fund_source_desc']); ?>
+                </option>
+            <?php endforeach; ?>
+        <?php endif; ?>
+    </select>
+</div>
+
                                         <div class="col-md-3">
                                             <label class="form-label fw-semibold small">Implementation Province</label>
                                             <select name="implementation_province" id="edit_implementation_province" class="form-select" required>
@@ -536,7 +552,7 @@
                                             <input type="text" id="edit_implementation_classification" name="implementation_classification" class="form-control" placeholder="LGU Class" required>
                                         </div>
 
-                                        <div class="col-md-4">
+                                        <div class="col-md-3">
                                             <label class="form-label fw-semibold small">Proponent</label>
                                             <select name="imp_proponent" id="edit_imp_proponent" class="form-select" style="width: 100%;" required>
                                                 <option value="" selected disabled>-- Select or type Proponent --</option>
@@ -550,11 +566,11 @@
                                             </select>
                                         </div>
 
-                                        <div class="col-md-5">
+                                        <div class="col-md-3">
                                             <label class="form-label fw-semibold small">Sponsor</label>
                                             <input type="text" id="edit_implementation_sponsor" name="imp_sponsor" class="form-control" placeholder="Sponsor" required>
                                         </div>
-                                        <div class="col-md-7">
+                                        <div class="col-md-6">
                                             <label class="form-label fw-semibold small">Overall Remarks</label>
                                             <input type="text" id="edit_remarks" name="remarks" class="form-control" placeholder="Remarks">
                                         </div>
@@ -1147,6 +1163,7 @@
 
                         $('#edit_implementation_district').val(d.implementation_district).trigger('change');
                         $('#edit_imp_proponent').val(d.implementation_proponent).trigger('change');
+                        $('#edit_fund_source').val(d.fund_source).trigger('change');
 
                         $('#edit_wage_percentage').val(d.wage_percentage);
                         $('#edit_gpai_info').val(d.gpai_info);
@@ -1468,6 +1485,12 @@ $(document).on('click', 'button[id^="btn_override_"]', function() {
     setTimeout(applyAutoBadges, 50);
 });
 
+$('#edit_fund_source').select2({
+    theme: 'bootstrap-5',
+    placeholder: '-- Select Fund Source --',
+    allowClear: true,
+    dropdownParent: $('#editModal')
+});
 
     </script>
 </body>
