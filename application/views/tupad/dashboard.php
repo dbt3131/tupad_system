@@ -136,7 +136,7 @@
                 <h5 class="fw-bold mb-1 text-dark">
                   <i class="bi bi-file-earmark-text text-primary me-2"></i>ADL Transactions Overview
                 </h5>
-                <p class="text-muted small mb-0">Active Authorized Disbursement List (ADL) records, deductions breakdown, and fund balances[cite: 8].</p>
+                <p class="text-muted small mb-0">Active Authorized Disbursement List (ADL) records, deductions breakdown, and fund balances.</p>
               </div>
               
               <!-- Target container for the Excel download button -->
@@ -259,13 +259,14 @@
     }
 
     // Safely capture PHP JSON from your database query
+ // Safely capture PHP JSON from your database query
     let municipalityData = [];
     try {
-      municipalityData = <?php echo isset($map_json_data) && !empty($map_json_data) ?$map_json_data : '[]'; ?>;
+      municipalityData = <?php echo isset($map_json_data) && !empty($map_json_data) ? json_encode($map_json_data) : '[]'; ?>;
     } catch(e) {
       console.error("JSON Parse Error:", e);
     }
-
+console.log("Municipality Map Data:", municipalityData);
     // Initialize Leaflet Map centered over Central Luzon (Region III)
     const map = L.map('centralLuzonMap').setView([15.35, 120.75], 8);
 
@@ -297,7 +298,7 @@
 
       L.marker([item.lat, item.lng], { icon: customIcon })
         .addTo(map)
-        .bindPopup(`<b>${item.name}</b> (${item.province})<br>Workers: <b>${workersCount.toLocaleString()}</b>`);
+        .bindPopup(`<b>${item.province_name}</b> (${item.municipality_name})<br>Workers: <b>${workersCount.toLocaleString()}</b>`);
     });
 
     // Initialize DataTables with Excel Button Integration
@@ -325,6 +326,20 @@
             }
           }
         ],
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         buttons: [
           {
             extend: 'excelHtml5',
@@ -336,6 +351,7 @@
               columns: ':visible'
             },
 
+            
 
 customize: function (xlsx) {
               var sheet = xlsx.xl.worksheets['sheet1.xml'];
