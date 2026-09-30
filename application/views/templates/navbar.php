@@ -119,3 +119,25 @@ html {
     </div>
   </div>
 </nav>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    // Ping the server every 60 seconds (60000 milliseconds)
+    setInterval(function() {
+        fetch('<?= site_url("dashboard/update_heartbeat"); ?>', {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'unauthorized') {
+                // Optional: Redirect to login if session expired
+                window.location.href = '<?= site_url("auth/login"); ?>';
+            }
+        })
+        .catch(error => console.error('Heartbeat error:', error));
+    }, 60000);
+});
+</script>

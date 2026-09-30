@@ -256,7 +256,21 @@ public function login()
 
 
 
+public function update_heartbeat()
+{
+    // Ensure it's an AJAX request for security
+    if (!$this->input->is_ajax_request()) {
+        show_404();
+    }
 
+    if ($this->session->userdata('logged_in') && $this->session->userdata('user_id')) {
+        $this->load->model('User_model');
+        $this->User_model->update_last_activity($this->session->userdata('user_id'));
+        echo json_encode(['status' => 'success']);
+    } else {
+        echo json_encode(['status' => 'unauthorized']);
+    }
+}
 
 
 
@@ -286,5 +300,6 @@ public function logout()
     $this->session->sess_destroy();
     redirect('auth/login', 'refresh');
 }
+
 
 }
