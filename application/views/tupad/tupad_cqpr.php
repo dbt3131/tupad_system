@@ -136,6 +136,12 @@
                                     <i class="bi bi-arrow-counterclockwise"></i>
                                 </a>
                             </div>
+
+                                                           <div class="col-md-12 text-end mt-2">
+    <a href="<?= site_url('tupad_cqpr/export_xlsx?' . $_SERVER['QUERY_STRING']) ?>" class="btn btn-success btn-sm">
+        <i class="bi bi-file-earmark-excel"></i> Export to XLSX
+    </a>
+</div>
                         </form>
                     </div>
                 </div>
