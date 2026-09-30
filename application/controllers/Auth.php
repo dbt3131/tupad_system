@@ -14,6 +14,12 @@ class Auth extends CI_Controller
         $this->load->model('User_model');
         $this->load->library('form_validation');
         $this->load->library('encryption'); 
+
+        if ($this->session->userdata('logged_in') && $this->session->userdata('user_id')) {
+            $this->User_model->update_last_activity($this->session->userdata('user_id'));
+        }
+
+        $data['online_users'] = $this->User_model->get_online_users();
     }
 
     /**
@@ -213,6 +219,7 @@ public function login()
                     'email'           => $user->email,
                     'logged_in'       => TRUE
                 ));
+                $this->User_model->update_last_activity($user->id);
 
                 redirect('dashboard/index');
             }
@@ -266,10 +273,18 @@ public function login()
      * User Logout Method
      * Process: Destroys all active session variables and redirects the user to the login page.
      */
-    public function logout()
-    {
-        $this->session->sess_destroy();
-        redirect('auth/login', 'refresh');
+// Inside application/controllers/Auth.php[cite: 2]
+
+public function logout()
+{
+    // Clear last_activity immediately upon logout
+    if ($this->session->userdata('user_id')) {
+        $this->load->model('User_model');
+        $this->User_model->update_last_activity_null($this->session->userdata('user_id'));
     }
+
+    $this->session->sess_destroy();
+    redirect('auth/login', 'refresh');
+}
 
 }

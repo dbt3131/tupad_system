@@ -97,6 +97,34 @@ public function get_user_profile($user_id)
     return $this->db->get()->row_array();
 }
 
+// Add inside application/models/User_model.php[cite: 3]
+
+public function update_last_activity($user_id)
+{
+    $this->db->where('id', $user_id);
+    return $this->db->update('users', array('last_activity' => date('Y-m-d H:i:s')));
+}
+
+public function get_online_users()
+{
+    // Change threshold from 5 minutes to 2 minutes for faster drop-offs
+    $threshold = date('Y-m-d H:i:s', strtotime('-2 minutes'));
+    
+    return $this->db->where('last_activity >=', $threshold)
+                    ->order_by('reg_fname', 'ASC')
+                    ->get('users')
+                    ->result();
+}
+
+
+// Add to application/models/User_model.php[cite: 3]
+
+public function update_last_activity_null($user_id)
+{
+    $this->db->where('id', $user_id);
+    return $this->db->update('users', array('last_activity' => NULL));
+}
+
 
 
 
