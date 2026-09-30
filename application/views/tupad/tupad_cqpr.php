@@ -158,6 +158,7 @@
                                         <th>Work Period<br>(Long Term)</th>
                                         <th>Total</th>
                                         <th>No. of Females</th>
+                                        <th>Type</th>
                                         <th>Amount Released</th>
                                         <th>Date Released</th>
                                         <th>Fund Source</th>
@@ -180,6 +181,7 @@
                                                 <td><?= $row['long_term'] ?></td>
                                                 <td><strong><?= $row['total_term'] ?></strong></td>
                                                 <td><?= $row['female_count'] ?></td>
+                                                <td><?= html_escape($row['tupad_types']) ?></td>
                                                 <td class="text-end"><?= number_format($row['amount_released'], 2) ?></td>
                                                 <td><?= html_escape($row['payout_date']) ?></td>
                                                 <td><?= html_escape($row['fund_source']) ?></td>

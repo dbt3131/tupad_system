@@ -41,31 +41,34 @@ class Tupad_CQPR_model extends CI_Model {
                 WHEN trans.implementation_brgy IS NULL OR TRIM(trans.implementation_brgy) = "" THEN "VARIOUS"
                 ELSE cb.brgyDesc 
             END AS implementation_barangay_name,
-            (SELECT COUNT(*) FROM tbl_tupad_list sub_tl WHERE sub_tl.reference_no = trans.implementation_reference_no AND (sub_tl.tupad_gender = "Female" OR sub_tl.tupad_gender = "F")) as female_count
+            (SELECT COUNT(*) FROM tbl_tupad_list sub_tl WHERE sub_tl.reference_no = trans.implementation_reference_no AND (sub_tl.tupad_gender = "Female" OR sub_tl.tupad_gender = "F")) as female_count,
+            (SELECT GROUP_CONCAT(DISTINCT tb.bene_type_desc SEPARATOR ", ") 
+             FROM tbl_tupad_list tl_type 
+             JOIN code_type_bene tb ON tb.bene_type_id = tl_type.tupad_type 
+             WHERE tl_type.reference_no = trans.implementation_reference_no) as tupad_types
         ');
     }
 
     private function apply_joins() {
         $this->db->from('adl_transactions trans');
         
-        // Province Join[cite: 13]
+        // Province Join
         $this->db->join('refprovince prov', 'prov.provCode = trans.implementation_province', 'left');
         
-        // City/Municipality Join[cite: 13]
+        // City/Municipality Join
         $this->db->join('refcitymun city', 'city.cityCode = trans.implementation_area', 'left');
 
-        // District Join (displays district_no instead of district_id)
+        // District Join
         $this->db->join('code_district cd', 'cd.district_id = trans.implementation_district', 'left');
 
-        // Barangay Join (displays barangay name or Various if empty)
+        // Barangay Join
         $this->db->join('refbrgy cb', 'cb.brgyCode = trans.implementation_brgy', 'left');
 
-        // Fund Source Join (maps fund_source ID to its text description)
+        // Fund Source Join
         $this->db->join('code_fund_source fs', 'fs.fund_source_id = trans.fund_source', 'left');
     }
 
     private function apply_filters($start_date, $end_date, $province) {
-        // Allow filtering if at least one date is provided, or both
         if (!empty($start_date)) {
             $this->db->where('trans.payout_date >=', $start_date);
         }
@@ -83,7 +86,7 @@ class Tupad_CQPR_model extends CI_Model {
         $target = isset($row['target']) ? (int)$row['target'] : 0;
         $no_of_days = isset($row['no_of_days']) ? (int)$row['no_of_days'] : 0;
 
-        // Work Period: Short Term (<31 days) vs Long Term (>30 days)[cite: 13]
+        // Work Period: Short Term (<31 days) vs Long Term (>30 days)
         if ($no_of_days < 31) {
             $row['short_term'] = $target;
             $row['long_term'] = 0;
@@ -92,13 +95,33 @@ class Tupad_CQPR_model extends CI_Model {
             $row['long_term'] = $target;
         }
 
-        // Total = Short Term + Long Term[cite: 13]
+        // Total = Short Term + Long Term
         $row['total_term'] = $row['short_term'] + $row['long_term'];
 
-        // Project Status Rule[cite: 13]
+        // Clean and deduplicate tupad types (removes repeating words/categories across comma & slash separators)
+        if (!empty($row['tupad_types'])) {
+            // Replace slashes with commas to unify separators
+            $normalized = str_replace('/', ',', $row['tupad_types']);
+            $items = explode(',', $normalized);
+            
+            $clean_items = [];
+            foreach ($items as $item) {
+                $item = trim($item);
+                if (!empty($item)) {
+                    // Use uppercase as key to ensure case-insensitive uniqueness
+                    $clean_items[strtoupper($item)] = $item;
+                }
+            }
+            // Rejoin unique items cleanly with a comma and space
+            $row['tupad_types'] = implode(', ', $clean_items);
+        } else {
+            $row['tupad_types'] = '';
+        }
+
+        // Project Status Rule
         $row['project_status'] = "ASSISTANCE AWARDED OR RELEASED TO BENEFICIARIES";
 
-        // Convergence Initiative Rule[cite: 13]
+        // Convergence Initiative Rule
         $row['convergence_initiative'] = "";
     }
 
