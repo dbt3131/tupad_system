@@ -29,6 +29,7 @@ public function get_filtered_beneficiaries($start_date = null, $end_date = null,
 
     $this->db->where('adl_transactions.payout_date >=', $start_date);
     $this->db->where('adl_transactions.payout_date <=', $end_date);
+    $this->db->where('tbl_tupad_list.tupad_active', 0);
 
     // Only apply the province filter if a specific province is selected
     if (!empty($province_code)) {
