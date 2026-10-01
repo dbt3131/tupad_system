@@ -555,7 +555,7 @@
                         const formattedTotalSubsidy = formatSubsidyVal(cachedTotalAdlSubsidy);
                         
                         // Combine base reference with smart decimal-trimmed subsidy costs
-                        const finalRefNo = response.ref_no + '_' + formattedTransSubsidy + '/' + formattedTotalSubsidy;
+                        const finalRefNo = response.ref_no + '_' + formattedTransSubsidy + '_' + formattedTotalSubsidy;
                         $('#implementation_reference_no').val(finalRefNo);
                     }
                 }
