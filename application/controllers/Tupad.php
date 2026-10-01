@@ -250,6 +250,58 @@ public function upload_tupad_excel()
         }
     }
 
+
+
+
+// 1. Get the override flag sent from your AJAX request first
+$override_target = filter_var($this->input->post('override_target'), FILTER_VALIDATE_BOOLEAN);
+
+// 2. Now your condition will work safely without throwing a PHP warning
+if (!empty($reference_no) && !$override_target) {
+        // Calculate active/valid data rows (excluding header)
+        $excel_row_count = 0;
+        for ($i = 1; $i < count($rows); $i++) {
+            if (!empty(array_filter($rows[$i]))) {
+                $excel_row_count++;
+            }
+        }
+
+        $target_count = $this->Tupad_model->get_adl_target($reference_no);
+
+        if ($target_count !== null && $excel_row_count !== $target_count) {
+            @unlink($filePath);
+            echo json_encode([
+                'status'       => 'target_mismatch',
+                'excel_count'  => $excel_row_count,
+                'target_count' => $target_count,
+                'message'      => "Count Mismatch: The uploaded Excel file contains <b>{$excel_row_count}</b> record(s), but the ADL target recorded is <b>{$target_count}</b>."
+            ]);
+            return;
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     // ==========================================
     // TEMPLATE HEADER VALIDATION CHECK
     // ==========================================

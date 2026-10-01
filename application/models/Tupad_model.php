@@ -889,6 +889,15 @@ public function get_municipal_worker_stats() {
     return $query->result_array();
 }
 
+public function get_adl_target($reference_no) {
+    $this->db->select('target');
+    $this->db->where('implementation_reference_no', $reference_no);
+    $row = $this->db->get('adl_transactions')->row_array();
+    return $row ? (int)$row['target'] : null;
+}
+
+
+
 
 
 

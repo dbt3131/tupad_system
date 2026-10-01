@@ -140,7 +140,7 @@
         }
 
         .introjs-tooltip-title {
-            color: #a855f7 !important; /* Modern Neon Purple / Violet */
+            color: #a855f7 !important;
             font-size: 1.1rem !important;
             font-weight: 700 !important;
             letter-spacing: -0.01em;
@@ -155,7 +155,7 @@
         }
 
         .introjs-bullets ul li a.active {
-            background: #a855f7 !important; /* Violet active bar */
+            background: #a855f7 !important;
             width: 24px !important;
             border-radius: 4px !important;
         }
@@ -195,7 +195,6 @@
             opacity: 0.3 !important;
         }
 
-        /* Glassmorphism Spotlight Layer */
         .introjs-helperLayer {
             border-radius: 12px !important;
             box-shadow: 0 0 0 9999px rgba(15, 23, 42, 0.65), 0 0 20px rgba(168, 85, 247, 0.5) !important;
@@ -270,7 +269,7 @@
                     </button>   
 
                     <!-- Modal Trigger Button -->
-                  <?php $isDisabled = ($this->session->userdata('assigned_prov') == 0) ? 'disabled' : ''; ?>
+                    <?php $isDisabled = ($this->session->userdata('assigned_prov') == 0) ? 'disabled' : ''; ?>
                     <button type="button" class="btn btn-success px-3 py-2 fw-semibold mb-0 cursor-pointer shadow-sm <?= $isDisabled; ?>" id="btnOpenModal" <?= $isDisabled; ?>>
                       <i class="bi bi-cloud-arrow-up-fill me-1"></i> Upload New Excel
                     </button>
@@ -462,6 +461,26 @@
         </div>
     </div>
 
+    <!-- TARGET MISMATCH MODAL -->
+    <div class="modal fade" id="targetMismatchModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-danger-subtle">
+                    <h5 class="modal-title fw-bold text-dark"><i class="bi bi-exclamation-triangle-fill text-danger me-2"></i> Record Count Mismatch</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p id="mismatchMessage" class="mb-0 text-secondary"></p>
+                    <p class="mt-2 text-dark fw-semibold">Do you want to continue uploading anyway?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal" id="btnCancelUpload">Cancel</button>
+                    <button type="button" id="btnContinueUpload" class="btn btn-dark btn-sm">Continue Upload</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Bootstrap JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
@@ -504,16 +523,20 @@ $(document).ready(function () {
         // Sidebar toggle
         $(document).on('click', '#sidebarToggle', function (e) {
             e.preventDefault();
-            if ($(window).width() < 992) {
-                $('#sidebar').toggleClass('show-mobile');
+            if ($(window).width() < 992) {$('#sidebar').toggleClass('show-mobile');
             } else {
                 $('#sidebar').toggleClass('collapsed');
                 $('#main-content').toggleClass('expanded');
             }
         });
 
-        // Modal Open Trigger
+        // Modal Open Trigger with Province Check
         $('#btnOpenModal').on('click', function() {
+            <?php if ($this->session->userdata('assigned_prov') == 0): ?>
+                showCustomAlert('Unauthorized action: Your account is not assigned to a valid province.', 'Access Denied');
+                return;
+            <?php endif; ?>
+
             $('#uploadBatchForm')[0].reset();
             var uploadModalEl = document.getElementById('uploadModal');
             var uploadModal = bootstrap.Modal.getOrCreateInstance(uploadModalEl);
@@ -606,8 +629,9 @@ $(document).ready(function () {
             tour.start();
         });
 
-        // Submit Form via AJAX (Upload Modal with fallback cleanups)
-        $('#btnSubmitBatch').on('click', function() {
+        // Submit Form via AJAX (Upload Modal with Override Support for Target Mismatch)
+        $('#btnSubmitBatch').on('click', function(e) {
+            e.preventDefault();
             var form = $('#uploadBatchForm')[0];
             if (!form.checkValidity()) {
                 form.reportValidity();
@@ -615,60 +639,87 @@ $(document).ready(function () {
             }
 
             var formData = new FormData(form);
-            var $btn = $(this);
-            $btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-1"></span> Uploading...');
+            var $btn = $(this);$btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-1"></span> Uploading...');
 
-            $.ajax({
-                url: "<?php echo site_url('tupad/upload_tupad_excel'); ?>",
-                type: "POST",
-                data: formData,
-                processData: false,
-                contentType: false,
-                dataType: "json",
-                success: function(response) {
-                    $btn.prop('disabled', false).html('<i class="bi bi-check-circle me-1"></i> Save & Upload');
-                    
-                    if (response.status === 'success' || response.success === true) {
-                        var uploadModalEl = document.getElementById('uploadModal');
-                        var uploadModal = bootstrap.Modal.getOrCreateInstance(uploadModalEl);
-                        uploadModal.hide();
-                        location.reload();
-                    } else {
-                        $('#uploadModal').modal('hide');
-                        $('.modal-backdrop').remove();
-                        $('body').removeClass('modal-open').css('overflow', '');
+            function submitBatchWithOverride(overrideVal) {
+                formData.set('override_target', overrideVal);
 
-                        if (response.reload === true) {
+                $.ajax({
+                    url: "<?php echo site_url('tupad/upload_tupad_excel'); ?>",
+                    type: "POST",
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    dataType: "json",
+                    success: function(response) {
+                        $btn.prop('disabled', false).html('<i class="bi bi-check-circle me-1"></i> Save & Upload');
+                        
+                        var status = response.status;
+                        var isSuccess = (status === 'success' || response.success === true);
+                        var isMismatch = (status === 'target_mismatch' || status === 'count_mismatch');
+
+                        if (isSuccess) {
+                            var uploadModalEl = document.getElementById('uploadModal');
+                            var uploadModal = bootstrap.Modal.getOrCreateInstance(uploadModalEl);
+                            uploadModal.hide();
                             location.reload();
-                        } else {
-                            var errorMsg = response.message || response.error || response.msg || 'An error occurred during upload.';
-                            showCustomAlert(errorMsg, 'Upload Notice');
-                        }
-                    }
-                },
-                error: function(xhr) {
-                    $btn.prop('disabled', false).html('<i class="bi bi-check-circle me-1"></i> Save & Upload');
-                    
-                    var errorMsg = 'An error occurred during file upload.';
-                    if (xhr.responseJSON) {
-                        errorMsg = xhr.responseJSON.message || xhr.responseJSON.error || xhr.responseJSON.msg || errorMsg;
-                    }
-                    
-                    $('#uploadModal').modal('hide');
-                    $('.modal-backdrop').remove();
-                    $('body').removeClass('modal-open').css('overflow', '');
+                        } else if (isMismatch) {
+                            // Hide upload modal
+                            var uploadModalEl = document.getElementById('uploadModal');
+                            var uploadModal = bootstrap.Modal.getOrCreateInstance(uploadModalEl);
+                            uploadModal.hide();
+                            $('.modal-backdrop').not('#targetMismatchModal').remove();
 
-                    showCustomAlert(errorMsg, 'System Error');
-                }
-            });
+                            // Show mismatch warning modal
+                            $('#mismatchMessage').html(response.message);
+                            var mismatchModalEl = document.getElementById('targetMismatchModal');
+                            var mismatchModal = bootstrap.Modal.getOrCreateInstance(mismatchModalEl);
+                            mismatchModal.show();
+
+                            // Handle Continue Button Click
+                            $('#btnContinueUpload').off('click').on('click', function() {
+                                mismatchModal.hide();
+                                $btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-1"></span> Uploading...');
+                                submitBatchWithOverride(true); // Re-submit with override flag set to true
+                            });
+                        } else {
+                            var uploadModalEl = document.getElementById('uploadModal');
+                            var uploadModal = bootstrap.Modal.getOrCreateInstance(uploadModalEl);
+                            uploadModal.hide();
+                            $('.modal-backdrop').remove();$('body').removeClass('modal-open').css('overflow', '');
+
+                            if (response.reload === true) {
+                                location.reload();
+                            } else {
+                                var errorMsg = response.message || response.error || response.msg || 'An error occurred during upload.';
+                                showCustomAlert(errorMsg, 'Upload Notice');
+                            }
+                        }
+                    },
+             error: function(xhr) {
+    $btn.prop('disabled', false).html('<i class="bi bi-check-circle me-1"></i> Save & Upload');
+    
+    var uploadModalEl = document.getElementById('uploadModal');
+    var uploadModal = bootstrap.Modal.getOrCreateInstance(uploadModalEl);
+    uploadModal.hide();
+    $('.modal-backdrop').remove();
+    $('body').removeClass('modal-open').css('overflow', '');
+
+    // This will show the exact HTML or PHP error traceback in your custom modal so we can see what went wrong
+    var errorDetails = xhr.responseText ? xhr.responseText : 'An error occurred during file upload.';
+    showCustomAlert('<div style="max-height: 300px; overflow-y: auto; text-align: left;"><small>' + errorDetails + '</small></div>', 'Server Error Response');
+}
+                });
+            }
+
+            submitBatchWithOverride(false);
         });
 
         // MAIN REUSABLE FORWARD FUNCTION WITH OVERRIDE SUPPORT
         window.forwardFile = function(fileName, overrideFlag = false, $btnElement = null) {
             console.log("Forwarding file:", fileName, "| Override:", overrideFlag);
             
-            if ($btnElement) {
-                $btnElement.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-1"></span> Forwarding...');
+            if ($btnElement) {$btnElement.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-1"></span> Forwarding...');
             }
 
             $.ajax({
@@ -685,15 +736,13 @@ $(document).ready(function () {
                     var isSuccess = (response.status === 'success' || response.success === true || response.status === true);
                     
                     if (isSuccess) {
-                        if ($btnElement) {
-                            $btnElement.prop('disabled', false).html('<i class="bi bi-send-fill me-1"></i> GSIS Letter');
+                        if ($btnElement) {$btnElement.prop('disabled', false).html('<i class="bi bi-send-fill me-1"></i> GSIS Letter');
                         }
                         showCustomAlert(response.message || 'Successfully forwarded to GSIS Letter.', 'GSIS Forward');
                         $('#filesTable').DataTable().ajax.reload(null, false);
                     } 
                     else if (response.status === 'exists') {
-                        if ($btnElement) {
-                            $btnElement.prop('disabled', true)
+                        if ($btnElement) {$btnElement.prop('disabled', true)
                                 .addClass('disabled btn-secondary')
                                 .removeClass('btn-warning')
                                 .html('<i class="bi bi-check-circle-fill me-1"></i> Forwarded');
@@ -702,11 +751,9 @@ $(document).ready(function () {
                         $('#filesTable').DataTable().ajax.reload(null, false);
                     } 
                     else if (response.status === 'limit_exceeded') {
-                        if ($btnElement) {
-                            $btnElement.prop('disabled', false).html('<i class="bi bi-send-fill me-1"></i> GSIS Letter');
+                        if ($btnElement) {$btnElement.prop('disabled', false).html('<i class="bi bi-send-fill me-1"></i> GSIS Letter');
                         }
                         
-                        // Populate your existing reusable modal with limit warning & remaining slots
                         $('#appModalLabel').text('Limit Exceeded Warning');
                         $('#appModalBody').html(`
                             <p class="text-danger fw-semibold mb-2">${response.message}</p>
@@ -715,7 +762,6 @@ $(document).ready(function () {
                             </div>
                         `);
                         
-                        // Add an explicit "Proceed Anyway (Override)" button inside the modal footer next to Close
                         $('#appModalFooter').html(`
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                             <button type="button" id="btnOverrideForward" class="btn btn-danger">
@@ -727,24 +773,20 @@ $(document).ready(function () {
                         var appModal = bootstrap.Modal.getOrCreateInstance(appModalEl);
                         appModal.show();
                         
-                        // Bind click listener for the dynamically generated override button
                         $('#btnOverrideForward').off('click').on('click', function() {
                             console.log("Override button clicked. Resending request with override = true...");
                             appModal.hide();
-                            // Run the function again with override set to true
                             forwardFile(fileName, true, $btnElement); 
                         });
                     } 
                     else {
-                        if ($btnElement) {
-                            $btnElement.prop('disabled', false).html('<i class="bi bi-send-fill me-1"></i> GSIS Letter');
+                        if ($btnElement) {$btnElement.prop('disabled', false).html('<i class="bi bi-send-fill me-1"></i> GSIS Letter');
                         }
                         showCustomAlert(response.message || response.error || 'Notice encountered.', 'Notice');
                     }
                 },
                 error: function(xhr, status, error) {
-                    if ($btnElement) {
-                        $btnElement.prop('disabled', false).html('<i class="bi bi-send-fill me-1"></i> GSIS Letter');
+                    if ($btnElement) {$btnElement.prop('disabled', false).html('<i class="bi bi-send-fill me-1"></i> GSIS Letter');
                     }
                     console.error("AJAX Error:", error);
                     showCustomAlert("An error occurred while processing your request.", "System Error");
@@ -754,7 +796,7 @@ $(document).ready(function () {
 
         // Forward to GSIS Letter Button Click Handler
         $(document).on('click', '.btn-forward-gsis', function() {
-            var $btn = $(this);
+            var $btn =$(this);
             var fileName = $btn.data('filename');
             
             showCustomConfirm('Are you sure you want to forward the details of "' + fileName + '" to the GSIS Letter table?', function() {
@@ -764,7 +806,7 @@ $(document).ready(function () {
 
         // Revert / Delete GSIS Letter Button Handler via AJAX
         $(document).on('click', '.btn-delete-gsis', function() {
-            var $btn = $(this);
+            var $btn =$(this);
             var fileName = $btn.data('filename');
             
             showCustomConfirm('Are you sure you want to remove "' + fileName + '" from the GSIS Letter table? This will revert its status.', function() {
@@ -833,39 +875,6 @@ $(document).ready(function () {
             table.search(this.value).draw();
         });
     });
-
-    // Modal Open Trigger
-$('#btnOpenModal').on('click', function() {
-    <?php if ($this->session->userdata('assigned_prov') == 0): ?>
-        showCustomAlert('Unauthorized action: Your account is not assigned to a valid province.', 'Access Denied');
-        return;
-    <?php endif; ?>
-
-    $('#uploadBatchForm')[0].reset();
-    var uploadModalEl = document.getElementById('uploadModal');
-    var uploadModal = bootstrap.Modal.getOrCreateInstance(uploadModalEl);
-    uploadModal.show();
-});
-
-document.addEventListener('contextmenu', function (e) {
-    e.preventDefault();
-});
-
-document.addEventListener('keydown', function (e) {
-    // Disable F12
-    if (e.key === 'F12') {
-        e.preventDefault();
-    }
-    
-    // Disable Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+Shift+C, Ctrl+U
-    if (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i' || e.key === 'J' || e.key === 'j' || e.key === 'C' || e.key === 'c')) {
-        e.preventDefault();
-    }
-    
-    if (e.ctrlKey && (e.key === 'U' || e.key === 'u')) {
-        e.preventDefault();
-    }
-});
 </script>
 
 </body>

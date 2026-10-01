@@ -165,6 +165,16 @@
 
             <div class="card border-0 shadow-sm">
                 <div class="card-body p-4">
+
+                                    <!-- Reminder Notice -->
+            <div class="alert alert-info border-0 shadow-sm mb-4 no-print bg-white border-start border-primary border-4" role="alert">
+                <div class="d-flex align-items-center">
+                    <i class="bi bi-info-circle-fill text-primary fs-5 me-2"></i>
+                    <div class="small">
+                        <strong>Reminder:</strong> Pede rin po province lang ang i filter dito</strong>.
+                    </div>
+                </div>
+            </div>
                     
                     <div class="card border-0 shadow-sm mb-4">
                         <div class="card-body">
