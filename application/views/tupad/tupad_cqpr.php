@@ -163,23 +163,23 @@
                             <table id="cqprTable" class="table table-bordered table-striped table-hover align-middle mb-0 text-center" style="font-size: 11px; width: 100%;">
                                 <thead class="table-dark text-uppercase">
                                     <tr>
-                                        <th>Name & Nature of Project</th>
-                                        <th>Name of Implementer</th>
-                                        <th>Barangay</th>
-                                        <th>City/Municipality</th>
-                                        <th>Province</th>
-                                        <th>District</th>
-                                        <th>Income Class</th>
-                                        <th>Work Period<br>(Short Term)</th>
-                                        <th>Work Period<br>(Long Term)</th>
-                                        <th>Total</th>
-                                        <th>No. of Females</th>
-                                        <th>Type</th>
-                                        <th>Amount Released</th>
-                                        <th>Date Released</th>
-                                        <th>Fund Source</th>
-                                        <th>Project Status</th>
-                                        <th>Convergence Initiative</th>
+                                        <th>Name & Nature of Project</th>           <!-- 1 -->
+                                        <th>Name of Implementer</th>              <!-- 2 -->
+                                        <th>Barangay</th>                         <!-- 3 -->
+                                        <th>City/Municipality</th>                  <!-- 4 -->
+                                        <th>Province</th>                         <!-- 5 -->
+                                        <th>District</th>                         <!-- 6 -->
+                                        <th>Income Class</th>                     <!-- 7 -->
+                                        <th>Work Period<br>(Short Term)</th>      <!-- 8 -->
+                                        <th>Work Period<br>(Long Term)</th>       <!-- 9 -->
+                                        <th>Total</th>                            <!-- 10 -->
+                                        <th>No. of Females</th>                   <!-- 11 -->
+                                        <th>Type</th>                             <!-- 12 -->
+                                        <th>Amount Released</th>                  <!-- 13 -->
+                                        <th>Date Released</th>                    <!-- 14 -->
+                                        <th>Fund Source</th>                      <!-- 15 -->
+                                        <th>Project Status</th>                   <!-- 16 -->
+                                        <th>Convergence Initiative</th>           <!-- 17 -->
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -205,8 +205,6 @@
                                                 <td><?= html_escape($row['convergence_initiative']) ?></td>
                                             </tr>
                                         <?php endforeach; ?>
-                                    <?php else: ?>
-                                        <!-- Note: DataTables handles empty table messages nicely, but fallback is kept -->
                                     <?php endif; ?>
                                 </tbody>
                             </table>
@@ -230,7 +228,7 @@
     <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.8/js/dataTables.bootstrap5.min.js"></script>
 
-    <script>
+  <script>
     $(document).ready(function () {
         // Toggle Sidebar
         $(document).on('click', '#sidebarToggle', function (e) {
@@ -243,7 +241,7 @@
             }
         });
 
-        // Initialize DataTables for Search, Sorting, and Pagination
+        // Initialize DataTables
         $('#cqprTable').DataTable({
             "pageLength": 25,
             "lengthMenu": [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
@@ -251,7 +249,8 @@
             "scrollX": true,
             "language": {
                 "search": "Search table:",
-                "lengthMenu": "Show _MENU_ entries per page"
+                "lengthMenu": "Show _MENU_ entries per page",
+                "emptyTable": "Please select a Date Range or Province filter to view report records."
             }
         });
     });

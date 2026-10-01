@@ -15,20 +15,30 @@ class Tupad_CQPR extends CI_Controller {
         $this->load->helper(['url', 'form']);
     }
 
-    public function index() {
-        $start_date = $this->input->get('start_date');
-        $end_date   = $this->input->get('end_date');
-        $province   = $this->input->get('province');
+public function index() {
+    $start_date = $this->input->get('start_date');
+    $end_date   = $this->input->get('end_date');
+    $province   = $this->input->get('province');
 
-        $data['provinces'] = $this->Tupad_CQPR_model->get_provinces();
-        $data['reports']   = $this->Tupad_CQPR_model->get_tupad_report($start_date, $end_date, $province);
-        
-        $data['start_date'] = $start_date;
-        $data['end_date']   = $end_date;
-        $data['selected_province'] = $province;
+    $data['provinces'] = $this->Tupad_CQPR_model->get_provinces();
 
-        $this->load->view('tupad/tupad_cqpr', $data);
+    // STRICT CHECK: Only fetch records if at least one filter is selected
+    if (!empty($start_date) || !empty($end_date) || !empty($province)) {
+        $data['reports'] = $this->Tupad_CQPR_model->get_tupad_report($start_date, $end_date, $province);
+    } else {
+        $data['reports'] = []; // Passes an empty array so no rows display
     }
+    
+    $data['start_date'] = $start_date;
+    $data['end_date']   = $end_date;
+    $data['selected_province'] = $province;
+
+    $this->load->view('tupad/tupad_cqpr', $data);
+}
+
+
+
+
 
     public function export_xlsx() {
         $start_date = $this->input->get('start_date');

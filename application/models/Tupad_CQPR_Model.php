@@ -8,21 +8,25 @@ class Tupad_CQPR_model extends CI_Model {
         $this->load->database();
     }
 
-    public function get_tupad_report($start_date = null, $end_date = null, $province = null) {
-        $this->select_report_fields();
-        $this->apply_joins();
-        $this->apply_filters($start_date, $end_date, $province);
-        
-        $query = $this->db->get();
-        $results = $query->result_array();
-
-        // Process dynamic calculations per row
-        foreach ($results as &$row) {
-            $this->calculate_dynamic_fields($row);
-        }
-
-        return $results;
+public function get_tupad_report($start_date = null, $end_date = null, $province = null) {
+    // If no filters are provided at all, stop here and return nothing
+    if (empty($start_date) && empty($end_date) && empty($province)) {
+        return [];
     }
+
+    $this->select_report_fields();
+    $this->apply_joins();
+    $this->apply_filters($start_date, $end_date, $province);
+    
+    $query = $this->db->get();
+    $results = $query->result_array();
+
+    foreach ($results as &$row) {
+        $this->calculate_dynamic_fields($row);
+    }
+
+    return $results;
+}
 
     private function select_report_fields() {
         $this->db->select('
