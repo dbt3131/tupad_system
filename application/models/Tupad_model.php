@@ -142,9 +142,12 @@ public function forward_to_gsis_letter($file_name, $user_name, $override = false
 
 
 
-    public function get_records_by_filename($file_name) {
-        $this->db->select('tbl_tupad_list.*, users.reg_fname as uploader_fname, users.reg_lname as uploader_lname');
+   public function get_records_by_filename($file_name) {
+        $this->db->select('tbl_tupad_list.*, users.reg_fname as uploader_fname, users.reg_lname as uploader_lname, refprovince.provDesc as province_text, refcitymun.citymunDesc as municipality_text, refbrgy.brgyDesc as barangay_text');
         $this->db->from($this->table);
+         $this->db->join('refprovince', 'refprovince.provCode = tbl_tupad_list.tupad_province', 'left');
+         $this->db->join('refcitymun', 'refcitymun.cityCode = tbl_tupad_list.tupad_municipality', 'left');
+        $this->db->join('refbrgy', 'refbrgy.brgyCode = tbl_tupad_list.tupad_barangay', 'left');
         $this->db->join('users', 'users.id = tbl_tupad_list.user_id', 'left'); 
         $this->db->where('tbl_tupad_list.file_name', urldecode($file_name));
         

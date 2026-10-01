@@ -304,12 +304,12 @@
                             
                             <div class="col-md-2">
                                 <label class="form-label fw-semibold small">LGU Classification</label>
-                                <input type="text" name="implementation_classification" class="form-control" placeholder="LGU Class" title="Put N/A if the municipality is VARIOUS" autocomplete="OFF" required>
+                                <input type="text" name="implementation_classification" class="form-control" placeholder="LGU Class" oninput="this.value = this.value.toUpperCase();" title="Put N/A if the municipality is VARIOUS" autocomplete="OFF" required>
                             </div>
 
                             <div class="col-md-3">
                                 <label class="form-label fw-semibold small">Proponent</label>
-                                <select name="imp_proponent" id="imp_proponent" class="form-select" style="width: 100%;" required>
+                                <select name="imp_proponent" id="imp_proponent" class="form-select"  style="width: 100%;" required>
                                     <option value="" selected disabled>-- Select or type Proponent --</option>
                                     <?php if (!empty($proponents)): ?>
                                         <?php foreach ($proponents as $prop): ?>

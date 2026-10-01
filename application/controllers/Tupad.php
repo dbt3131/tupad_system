@@ -4,6 +4,10 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use Shuchkin\SimpleXLSX;
 
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+
+
 require_once APPPATH . 'libraries/SimpleXLSX.php';
 
 class Tupad extends CI_Controller
@@ -961,6 +965,28 @@ if (!empty($reference_no) && !$override_target) {
         $this->load->view('tupad/profile_view', $data);
     }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 public function get_files_json()
     {
         $draw   = intval($this->input->post('draw'));
@@ -1022,26 +1048,35 @@ public function get_files_json()
                     <button type="button" class="btn btn-sm btn-secondary me-1 disabled" disabled title="Action Restricted">
                         <i class="bi bi-file-earmark-excel-fill me-1"></i> GPAI
                     </button>
+                    <button type="button" class="btn btn-sm btn-secondary me-1 disabled" disabled title="Action Restricted">
+                        <i class="bi bi-file-earmark-spreadsheet me-1"></i> Template
+                    </button>
                     <button type="button" class="btn btn-sm btn-secondary disabled" disabled title="Action Restricted">
                         <i class="bi bi-slash-circle me-1"></i> Restricted
                     </button>';
             } else {
-                $actionButtons = '
-                    <a href="' . site_url('tupad/view_file_data?file_name=' . $encoded_filename) . '" class="btn btn-sm btn-primary me-1">
-                        <i class="bi bi-eye me-1"></i> View
-                    </a>
-                    <a href="' . site_url('tupad/export_excel?file_name=' . $encoded_filename) . '" class="btn btn-sm btn-success me-1">
-                        <i class="bi bi-file-earmark-excel-fill me-1"></i> GPAI
-                    </a>' . $gsisButton;
+                // Added Template Export button linked to reference_no or file_name
+                $reference_no = isset($f['reference_no']) ? $f['reference_no'] : '';
+                
+              $actionButtons = '
+    <a href="' . site_url('tupad/view_file_data?file_name=' . $encoded_filename) . '" class="btn btn-sm btn-primary me-1">
+        <i class="bi bi-eye me-1"></i> View
+    </a>
+    <a href="' . site_url('tupad/export_excel?file_name=' . $encoded_filename) . '" class="btn btn-sm btn-success me-1" title="GPAI Export">
+        <i class="bi bi-file-earmark-excel-fill me-1"></i> GPAI
+    </a>
+    <a href="' . site_url('tupad/export_gsis_template?file_name=' . $encoded_filename) . '" class="btn btn-sm btn-info me-1 text-white" title="TEMPORARY">
+        <i class="bi bi-file-earmark-spreadsheet-fill me-1"></i> Lumang Dedup File
+    </a>' . $gsisButton;
             }
 
             $data[] = [
                 '<i class="bi bi-file-earmark-excel me-1 text-success"></i>' . htmlspecialchars($f['file_name']),
                 htmlspecialchars($f['reference_no'] ?? 'N/A'), 
-                $status_badge,                             
+                $status_badge,                         
                 htmlspecialchars($uploader_display),         
                 htmlspecialchars($date_uploaded),            
-                $actionButtons                             
+                $actionButtons                         
             ];
         }
 
@@ -1061,6 +1096,111 @@ public function get_files_json()
 
         echo json_encode($output);
     }
+
+
+
+public function export_gsis_template()
+{
+    $file_name = $this->input->get('file_name');
+    if (empty($file_name)) {
+        show_error('File name is required.');
+    }
+
+    $data = $this->Tupad_model->get_records_by_filename($file_name);
+    if (empty($data)) {
+        show_error('No records found for this file.');
+    }
+
+    $spreadsheet = new Spreadsheet();
+    $sheet = $spreadsheet->getActiveSheet();
+
+    // Headers
+    $headers = [
+        'A1' => 'EFFECTIVE DATE',
+        'B1' => 'ADL NO.',
+        'C1' => 'Reference Number',
+        'D1' => 'No.',
+        'E1' => 'Name of Insured (Family Name, First Name, Middle Name)',
+        'F1' => 'SEX',
+        'G1' => 'Birthdate (MM/DD/YYYY)',
+        'H1' => 'Age',
+        'I1' => 'Street',
+        'J1' => 'Barangay',
+        'K1' => 'Municipality',
+        'L1' => 'Province',
+        'M1' => 'Beneficiary'
+    ];
+
+    foreach ($headers as $cell => $text) {
+        $sheet->setCellValue($cell, $text);
+        $sheet->getStyle($cell)->getFont()->setBold(true);
+    }
+
+    $rowNum = 2; 
+    $counter = 1;
+
+    foreach ($data as $row) {
+        $fullName = strtoupper(trim($row['tupad_lname'])) . ', ' . 
+                    strtoupper(trim($row['tupad_fname'])) . ' ' . 
+                    strtoupper(trim($row['tupad_mname']));
+
+        $dob = !empty($row['tupad_dob_month']) && !empty($row['tupad_dob_day']) && !empty($row['tupad_dob_year']) 
+               ? $row['tupad_dob_month'] . '/' . $row['tupad_dob_day'] . '/' . $row['tupad_dob_year'] 
+               : '';
+
+        // Format Sex to strictly 'M' or 'F'
+        $rawGender = strtoupper(trim($row['tupad_gender'] ?? ''));
+        $gender = ($rawGender === 'MALE' || $rawGender === 'M') ? 'M' : (($rawGender === 'FEMALE' || $rawGender === 'F') ? 'F' : $rawGender);
+
+        $sheet->setCellValue('A' . $rowNum, $row['effective_date'] ?? '');
+        $sheet->setCellValue('B' . $rowNum, $row['adl_no'] ?? '');
+        $sheet->setCellValue('C' . $rowNum, $row['reference_no'] ?? '');
+        $sheet->setCellValue('D' . $rowNum, $counter++);
+        $sheet->setCellValue('E' . $rowNum, $fullName);
+        $sheet->setCellValue('F' . $rowNum, $gender);
+        $sheet->setCellValue('G' . $rowNum, $dob);
+        $sheet->setCellValue('H' . $rowNum, $row['tupad_age'] ?? '');
+        $sheet->setCellValue('I' . $rowNum, $row['tupad_street'] ?? '');
+        // Use text fields from joined query instead of PSGC codes
+        $sheet->setCellValue('J' . $rowNum, $row['barangay_text'] ?? $row['tupad_barangay']);
+        $sheet->setCellValue('K' . $rowNum, $row['municipality_text'] ?? $row['tupad_municipality']);
+        $sheet->setCellValue('L' . $rowNum, $row['province_text'] ?? $row['tupad_province']);
+        $sheet->setCellValue('M' . $rowNum, $row['tupad_dependent'] ?? '');
+
+        $rowNum++;
+    }
+
+    $filename = 'GSIS_Report_' . date('Ymd_His') . '.xlsx';
+    header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    header('Content-Disposition: attachment;filename="' . $filename . '"');
+    header('Cache-Control: max-age=0');
+
+    $writer = new Xlsx($spreadsheet);
+    $writer->save('php://output');
+    exit;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2025,7 +2165,55 @@ public function check_gpai_count()
 
 
 
+public function export_to_template($reference_no) 
+{
+    $data = $this->Tupad_model->get_report_data($reference_no);
+    
+    // Path to your target Excel template
+    $templatePath = FCPATH . 'assets/templates/tupad_target_template.xlsx';
+    
+    if (!file_exists($templatePath)) {
+        show_error('Template file not found.');
+    }
 
+    $spreadsheet = IOFactory::load($templatePath);
+    $sheet = $spreadsheet->getActiveSheet();
+
+    // Assuming data rows start at row 10 in your template
+    $rowNum = 10; 
+    $counter = 1;
+
+    foreach ($data as $row) {
+        // Format Date of Birth
+        $dob = $row['tupad_dob_month'] . '/' . $row['tupad_dob_day'] . '/' . $row['tupad_dob_year'];
+        
+        // Map fields to specific columns (Adjust column letters based on your template layout)
+        $sheet->setCellValue('A' . $rowNum, $counter++);
+        $sheet->setCellValue('B' . $rowNum, $row['tupad_id_no']);
+        $sheet->setCellValue('C' . $rowNum, $row['tupad_lname']);
+        $sheet->setCellValue('D' . $rowNum, $row['tupad_fname']);
+        $sheet->setCellValue('E' . $rowNum, $row['tupad_mname']);
+        $sheet->setCellValue('F' . $rowNum, $row['tupad_ext']);
+        $sheet->setCellValue('G' . $rowNum, $dob);
+        $sheet->setCellValue('H' . $rowNum, $row['tupad_gender']);
+        $sheet->setCellValue('I' . $rowNum, $row['tupad_civil_status']);
+        $sheet->setCellValue('J' . $rowNum, $row['tupad_age']);
+        $sheet->setCellValue('K' . $rowNum, $row['tupad_street'] . ', Brgy. ' . $row['tupad_barangay']);
+        $sheet->setCellValue('L' . $rowNum, $row['tupad_dependent']);
+        
+        $rowNum++;
+    }
+
+    // Set header for download
+    $filename = 'TUPAD_Report_' . date('Ymd') . '.xlsx';
+    header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    header('Content-Disposition: attachment;filename="' . $filename . '"');
+    header('Cache-Control: max-age=0');
+
+    $writer = IOFactory::createWriter($spreadsheet, 'Xlsx');
+    $writer->save('php://output');
+    exit;
+}
 
 
 
