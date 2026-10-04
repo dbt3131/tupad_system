@@ -117,7 +117,7 @@ public function get_online_users()
 }
 
 
-// Add to application/models/User_model.php[cite: 3]
+// reset password
 
 public function update_last_activity_null($user_id)
 {
@@ -125,7 +125,38 @@ public function update_last_activity_null($user_id)
     return $this->db->update('users', array('last_activity' => NULL));
 }
 
+// Save reset token and expiration for a user
+    public function set_reset_token($email, $token, $expires)
+    {
+        $data = array(
+            'reset_token'   => $token,
+            'reset_expires' => $expires
+        );
+        $this->db->where('email', $email);
+        return $this->db->update('users', $data);
+    }
 
+    // Get user by valid, unexpired reset token
+    public function get_user_by_reset_token($token)
+    {
+        $current_time = date('Y-m-d H:i:s');
+        return $this->db->where('reset_token', $token)
+                        ->where('reset_expires >=', $current_time)
+                        ->get('users')
+                        ->row();
+    }
+
+    // Update password and clear reset token
+    public function update_password($user_id, $hashed_password)
+    {
+        $data = array(
+            'password'      => $hashed_password,
+            'reset_token'   => NULL,
+            'reset_expires' => NULL
+        );
+        $this->db->where('id', $user_id);
+        return $this->db->update('users', $data);
+    }
 
 
 

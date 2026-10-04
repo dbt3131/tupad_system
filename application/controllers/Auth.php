@@ -302,4 +302,146 @@ public function logout()
 }
 
 
+
+
+/**
+     * Forgot Password Method
+     * Process: Handles email input, checks if user exists, generates a secure token, 
+     * and sends a reset link via CodeIgniter's email library.
+     */
+public function forgot_password()
+    {
+        if ($this->session->userdata('logged_in')) {
+            redirect('dashboard');
+        }
+
+        if ($this->input->server('REQUEST_METHOD') === 'POST') {
+            $this->form_validation->set_rules('email', 'Email Address', 'required|trim|valid_email');
+
+            if ($this->form_validation->run() === TRUE) {
+                // Clear any old flash messages first
+                $this->session->unset_userdata('success');
+                $this->session->unset_userdata('error');
+
+                $email = trim($this->input->post('email', TRUE));
+                $user = $this->User_model->get_user_by_email($email);
+
+                if ($user) {
+                    // Generate a secure random token
+                    $token = bin2hex(random_bytes(32));
+                    $expires = date('Y-m-d H:i:s', strtotime('+1 hour')); // Token valid for 1 hour
+
+                    // Save token to database
+                    $this->User_model->set_reset_token($email, $token, $expires);
+
+                    // Configure and send Email
+                    $this->load->library('email');
+
+                    $config = array(
+                        'protocol'    => 'smtp',
+                        'smtp_host'   => 'smtp.googlemail.com',
+                        'smtp_port'   => 465,
+                        'smtp_user'   => 'dbtdbt31dole@gmail.com',
+                        'smtp_pass'   => 'whamfpzstbreniqa',
+                        'smtp_crypto' => 'ssl',
+                        'mailtype'    => 'html',
+                        'charset'     => 'utf-8',
+                        'wordwrap'    => TRUE
+                    );
+                    $this->email->initialize($config);
+                    $this->email->set_newline("\r\n");
+
+                    $this->email->from('your_email@domain.com', 'DOLE PRISM Support');
+                    $this->email->to($email);
+                    $this->email->subject('Password Reset Request - PRISM');
+                    
+                    $reset_link = site_url('auth/reset_password/' . $token);
+                    $message = "<p>Hi {$user->reg_fname},</p>";
+                    $message .= "<p>You requested a password reset for your PRISM account.</p>";
+                    $message .= "<p>Click the link below to reset your password (valid for 1 hour):</p>";
+                    $message .= "<p><a href='{$reset_link}'>Reset Password</a></p>";
+                    $message .= "<p>If you did not request this, please ignore this email.</p>";
+
+                    $this->email->message($message);
+
+                    if ($this->email->send()) {
+                        $this->session->set_flashdata('success', 'Password reset instructions have been sent to your email.');
+                    } else {
+                        // Single Dev Mode notification link
+                        $this->session->set_flashdata('success', 'Please try again or contact Dustin Torres ISA II');
+                    }
+                } else {
+                    // Generic message for security (prevents user enumeration)
+                    $this->session->set_flashdata('success', 'If that email exists in our system, reset instructions have been sent.');
+                }
+                
+                redirect('auth/forgot_password');
+            }
+        }
+
+        $this->load->view('auth/forgot_password');
+    }
+
+    /**
+     * Reset Password Method
+     * Process: Validates the token from the URL, validates the new password strength, 
+     * updates the password in the database, and redirects to login.
+     */
+    public function reset_password($token = NULL)
+    {
+        if (!$token) {
+            show_404();
+        }
+
+        // Verify token validity
+        $user = $this->User_model->get_user_by_reset_token($token);
+        if (!$user) {
+            $this->session->set_flashdata('error', 'The password reset link is invalid or has expired.');
+            redirect('auth/login');
+        }
+
+        if ($this->input->server('REQUEST_METHOD') === 'POST') {
+            $this->form_validation->set_rules(
+                'password', 
+                'New Password', 
+                'required|min_length[8]|callback_check_password_strength',
+                array('min_length' => 'The %s must be at least 8 characters long.')
+            );
+            $this->form_validation->set_rules('password_confirm', 'Confirm Password', 'required|matches[password]');
+
+            if ($this->form_validation->run() === TRUE) {
+                $new_password = password_hash($this->input->post('password'), PASSWORD_DEFAULT);
+                
+                if ($this->User_model->update_password($user->id, $new_password)) {
+                    $this->session->set_flashdata('success', 'Your password has been successfully updated. You can now login.');
+                    redirect('auth/login');
+                } else {
+                    $this->session->set_flashdata('error', 'Failed to update password. Please try again.');
+                }
+            }
+        }
+
+        $data['token'] = $token;
+        $this->load->view('auth/reset_password', $data);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }

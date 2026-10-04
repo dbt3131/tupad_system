@@ -147,8 +147,8 @@
                             </div>
                         </div>
 
-                        <!-- Password -->
-                        <div class="mb-4">
+                               <!-- Password -->
+                        <div class="mb-3">
                             <label for="password" class="form-label fw-semibold">Password</label>
                             <div class="input-group">
                                 <span class="input-group-text"><i class="bi bi-lock"></i></span>
@@ -175,6 +175,13 @@
                             <i class="bi bi-box-arrow-in-right me-2"></i>Login
                         </button>
                     </form>
+
+          
+
+                        <!-- Forgot Password Link -->
+                        <div class="mb-4 text-end">
+                            <a href="<?= site_url('auth/forgot_password'); ?>" class="text-decoration-none small fw-semibold">Forgot Password?</a>
+                        </div>
 
                     <!-- Register Link -->
                     <p class="text-center mt-4 mb-0">
