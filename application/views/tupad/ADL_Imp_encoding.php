@@ -284,7 +284,7 @@
 
                             <div class="col-md-2">
                                 <label class="form-label fw-semibold small">Subsidy Cost</label>
-                                <input type="text" name="subsidy_cost" class="form-control" step="0.01" placeholder="Subsidy Cost" required autocomplete="OFF">
+                                <input type="number" name="subsidy_cost" class="form-control" step="0.01" placeholder="Subsidy Cost" required autocomplete="OFF">
                             </div>
 
                             <div class="col-md-2">

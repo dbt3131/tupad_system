@@ -766,7 +766,7 @@
                                         </div>
                                         <div class="col-md-4">
                                             <label class="form-label fw-semibold small">Service Cost</label>
-                                            <input type="text" id="edit_payout_service_cost" name="payout_service_cost" class="form-control" placeholder="0.00" readonly>
+                                            <input type="text" id="edit_payout_service_cost" name="payout_service_cost" class="form-control" placeholder="0.00" readonly title="Fomula: Count(Payrolled Benefs)*Payout Method Rate(Service Cost Rate Table)">
                                         </div>
                                     </div>
                                 </div>
