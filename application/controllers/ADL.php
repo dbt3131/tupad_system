@@ -25,8 +25,7 @@ class ADL extends CI_Controller {
         }
     }
 
- 
-        
+  
     /**
      * ADL Encode View
      * Fetches province options and existing ADL records to load the monitoring view.
@@ -160,33 +159,33 @@ public function ADL_encode() {
             }
 
 
-$adl_no = $this->input->post('adl_no', true);
+            $adl_no = $this->input->post('adl_no', true);
 
-// Clean amount helper closure (already exists in your controller)
-$clean_amount = function($field) {
-    $val = $this->input->post($field, true);
-    return $val !== null && $val !== '' ? (float) str_replace(',', '', $val) : 0.00;
-};
-$subsidy_input = $clean_amount('subsidy_cost');
+            // Clean amount helper closure (already exists in your controller)
+            $clean_amount = function($field) {
+                $val = $this->input->post($field, true);
+                return $val !== null && $val !== '' ? (float) str_replace(',', '', $val) : 0.00;
+            };
+            $subsidy_input = $clean_amount('subsidy_cost');
 
-// SERVER-SIDE SUBSIDY LIMIT CHECK
-$subsidy_info = $this->ADL_Model->get_remaining_subsidy_by_adl($adl_no);
-if (($subsidy_info['encoded_subsidy'] + $subsidy_input) > $subsidy_info['max_subsidy']) {
-    $this->session->set_flashdata('error', 'Security Block: Total encoded subsidy costs exceed the maximum allowed subsidy amount (' . number_format($subsidy_info['max_subsidy'], 2) . ') for ADL No: ' . $adl_no);
-    redirect('adl/Implementation_encode');
-    return;
-}
+            // SERVER-SIDE SUBSIDY LIMIT CHECK
+            $subsidy_info = $this->ADL_Model->get_remaining_subsidy_by_adl($adl_no);
+            if (($subsidy_info['encoded_subsidy'] + $subsidy_input) > $subsidy_info['max_subsidy']) {
+                $this->session->set_flashdata('error', 'Security Block: Total encoded subsidy costs exceed the maximum allowed subsidy amount (' . number_format($subsidy_info['max_subsidy'], 2) . ') for ADL No: ' . $adl_no);
+                redirect('adl/Implementation_encode');
+                return;
+            }
 
-$adl_no = $this->input->post('adl_no', true);
-$target_input = (int) $this->input->post('target', true);
+            $adl_no = $this->input->post('adl_no', true);
+            $target_input = (int) $this->input->post('target', true);
 
-// SERVER-SIDE TARGET LIMIT CHECK
-$target_info = $this->ADL_Model->get_remaining_target_by_adl($adl_no);
-if (($target_info['encoded_target'] + $target_input) > $target_info['max_target']) {
-    $this->session->set_flashdata('error', 'Security Block: Total encoded targets exceed the maximum allowed target beneficiaries (' . $target_info['max_target'] . ') for ADL No: ' . $adl_no);
-    redirect('adl/Implementation_encode');
-    return;
-}
+            // SERVER-SIDE TARGET LIMIT CHECK
+            $target_info = $this->ADL_Model->get_remaining_target_by_adl($adl_no);
+            if (($target_info['encoded_target'] + $target_input) > $target_info['max_target']) {
+                $this->session->set_flashdata('error', 'Security Block: Total encoded targets exceed the maximum allowed target beneficiaries (' . $target_info['max_target'] . ') for ADL No: ' . $adl_no);
+                redirect('adl/Implementation_encode');
+                return;
+            }
 
             // Helper closure to safely clean and parse decimal/currency inputs with commas
             $clean_amount = function($field) {
@@ -236,8 +235,7 @@ if (($target_info['encoded_target'] + $target_input) > $target_info['max_target'
     }
 
 
-
-
+//Create a ADL Implementation Reference No    
 public function get_generated_reference_no() {
     $adl_no = $this->input->get('adl_no');
     $province = trim($this->input->get('province'));
@@ -280,25 +278,6 @@ public function get_generated_reference_no() {
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     /**
      * ADL Report View
      * Compiles filters and source lists (provinces, proponents, districts) to render the tracking/reporting dashboard.
@@ -329,6 +308,7 @@ public function get_generated_reference_no() {
      * Get Report Breakdown Data (AJAX)
      * Returns structured report metrics filtered by a specific ADL number and auxiliary criteria.
      */
+    //ADL individual deductions reporting
     public function get_report_data() {
         $adl_no = $this->input->get('adl_no');
         $province = $this->input->get('province'); 
@@ -347,6 +327,7 @@ public function get_generated_reference_no() {
      * Transaction Report List View
      * Loads implementation transaction listings based on applied parameter filters and assigns regional user rights.
      */
+    //Display all data encoded in the ADL Implentation
     public function transaction_report() {
         
         $province = $this->input->get('implementation_province');
@@ -608,16 +589,16 @@ public function get_generated_reference_no() {
         };
 
         $transact_id = $this->input->post('adl_transact_id', true);
-$adl_no = $this->input->post('adl_no', true); // Note: Make sure edit_adl_no is enabled or passed as a hidden input if disabled fields don't submit via POST
-$target_input = (int) $this->input->post('target', true);
+        $adl_no = $this->input->post('adl_no', true); // Note: Make sure edit_adl_no is enabled or passed as a hidden input if disabled fields don't submit via POST
+        $target_input = (int) $this->input->post('target', true);
 
-// SERVER-SIDE TARGET LIMIT CHECK (EDIT)
-$target_info = $this->ADL_Model->get_remaining_target_by_adl_except($adl_no, $transact_id);
-if (($target_info['encoded_target'] + $target_input) > $target_info['max_target']) {
-    $this->session->set_flashdata('error', 'Security Block: Updated target exceeds the maximum allowed target beneficiaries (' . $target_info['max_target'] . ') for ADL No: ' . $adl_no);
-    redirect('adl/transaction_report');
-    return;
-}
+        // SERVER-SIDE TARGET LIMIT CHECK (EDIT)
+        $target_info = $this->ADL_Model->get_remaining_target_by_adl_except($adl_no, $transact_id);
+        if (($target_info['encoded_target'] + $target_input) > $target_info['max_target']) {
+         $this->session->set_flashdata('error', 'Security Block: Updated target exceeds the maximum allowed target beneficiaries (' . $target_info['max_target'] . ') for ADL No: ' . $adl_no);
+         redirect('adl/transaction_report');
+         return;
+        }
 
         $headers = [
             'ADL Number', 'Reference No', 'Audrey Reference No', 'Province', 'Area / Municipality', 'Barangay', 
@@ -705,47 +686,47 @@ if (($target_info['encoded_target'] + $target_input) > $target_info['max_target'
 
 
 
-// Add method to store the MAF record
-public function store_adl_maf() {
-    if ($this->input->method() === 'post') {
-        $data = [
-            'adl_source'  => $this->input->post('adl_no', true), // Linked to ADL record
-            'maf_amount'  => $this->input->post('maf_amount', true),
-            'maf_program' => $this->input->post('maf_program', true),
-            'maf_no'      => $this->input->post('maf_no', true),
-            'maf_remarks' => strtoupper($this->input->post('maf_remarks', true)),
-            'maf_date'    => date('Y-m-d H:i:s'),
-            'maf_by'      => $this->session->userdata('user_id') ?? 1
-        ];
+    // Add method to store the MAF record
+    public function store_adl_maf() {
+        if ($this->input->method() === 'post') {
+            $data = [
+                'adl_source'  => $this->input->post('adl_no', true), // Linked to ADL record
+                'maf_amount'  => $this->input->post('maf_amount', true),
+                'maf_program' => $this->input->post('maf_program', true),
+                'maf_no'      => $this->input->post('maf_no', true),
+                'maf_remarks' => strtoupper($this->input->post('maf_remarks', true)),
+                'maf_date'    => date('Y-m-d H:i:s'),
+                'maf_by'      => $this->session->userdata('user_id') ?? 1
+            ];
+    
+            $insert = $this->ADL_Model->insert_adl_maf($data);
+            $adl_no = $this->input->post('adl_no', true);
+    
+            if ($insert) {
+                    $this->load->model('Activity_Model');
+                    $user_id = $this->session->userdata('user_id');
+                    $this->Activity_Model->log_activity($adl_no, $user_id, 8); 
+                $this->session->set_flashdata('success', 'MAF record successfully saved!');
+            } else {
+                $this->session->set_flashdata('error', 'Failed to save MAF record. Please try again.');
+            }
+        }
+        redirect('adl/ADL_encode');
+    }
 
-        $insert = $this->ADL_Model->insert_adl_maf($data);
-        $adl_no = $this->input->post('adl_no', true);
-
-        if ($insert) {
-                $this->load->model('Activity_Model');
-                $user_id = $this->session->userdata('user_id');
-                $this->Activity_Model->log_activity($adl_no, $user_id, 8); 
-            $this->session->set_flashdata('success', 'MAF record successfully saved!');
+    /**
+     * Get ADL Details (AJAX)
+     * Fetches record details for the edit modal.
+     */
+    public function get_adl_details() {
+        $adl_no = $this->input->get('adl_no');
+        if ($adl_no) {
+            $adl = $this->ADL_Model->get_adl_by_no($adl_no);
+            echo json_encode(['status' => true, 'data' => $adl]);
         } else {
-            $this->session->set_flashdata('error', 'Failed to save MAF record. Please try again.');
+            echo json_encode(['status' => false, 'data' => null]);
         }
     }
-    redirect('adl/ADL_encode');
-}
-
-/**
- * Get ADL Details (AJAX)
- * Fetches record details for the edit modal.
- */
-public function get_adl_details() {
-    $adl_no = $this->input->get('adl_no');
-    if ($adl_no) {
-        $adl = $this->ADL_Model->get_adl_by_no($adl_no);
-        echo json_encode(['status' => true, 'data' => $adl]);
-    } else {
-        echo json_encode(['status' => false, 'data' => null]);
-    }
-}
 
 /**
  * Update ADL Record

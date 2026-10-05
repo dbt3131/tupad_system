@@ -40,6 +40,7 @@ class Tupad extends CI_Controller
         return $val;
     }
 
+    //Display all registered users
     public function tupad_list()
     {
         $data['users'] = $this->User_model->get_all_users();
@@ -47,12 +48,7 @@ class Tupad extends CI_Controller
         $this->load->view('tupad/list', $data);
     }
 
-
-
-
-
-
-
+    //Display all forwarded uploaded list from files_list php file
    public function gsis_letter() {
     // Retrieve GET parameters safely; leave them null or empty if not submitted
     $start_date       = $this->input->get('start_date', TRUE);
@@ -75,44 +71,7 @@ class Tupad extends CI_Controller
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+//Uploading function for profilling and GSIS enrollment
 public function upload_tupad_excel()
 {
     if (!$this->session->userdata('logged_in')) {
@@ -188,7 +147,7 @@ public function upload_tupad_excel()
 
    
 
-// Duplicate reference no check in tbl_tupad_list
+    // Reference no existence validation in tbl_tupad_list
     if (!empty($reference_no) && $this->Tupad_model->reference_no_exists($reference_no)) {
         @unlink($filePath);  
         echo json_encode([
@@ -209,9 +168,7 @@ public function upload_tupad_excel()
     }
 
 
-
-
- // Duplicate File Check
+    // Duplicate File Check
     if ($this->Tupad_model->file_exists($originalFileName)) {
         @unlink($filePath);  
         echo json_encode([
@@ -254,57 +211,32 @@ public function upload_tupad_excel()
         }
     }
 
+    // 1. Get the override flag sent from your AJAX request first
+    $override_target = filter_var($this->input->post('override_target'), FILTER_VALIDATE_BOOLEAN);
 
+    // 2. Now your condition will work safely without throwing a PHP warning
+    if (!empty($reference_no) && !$override_target) {
+            // Calculate active/valid data rows (excluding header)
+            $excel_row_count = 0;
+            for ($i = 1; $i < count($rows); $i++) {
+                if (!empty(array_filter($rows[$i]))) {
+                    $excel_row_count++;
+                }
+            }
 
+            $target_count = $this->Tupad_model->get_adl_target($reference_no);
 
-// 1. Get the override flag sent from your AJAX request first
-$override_target = filter_var($this->input->post('override_target'), FILTER_VALIDATE_BOOLEAN);
-
-// 2. Now your condition will work safely without throwing a PHP warning
-if (!empty($reference_no) && !$override_target) {
-        // Calculate active/valid data rows (excluding header)
-        $excel_row_count = 0;
-        for ($i = 1; $i < count($rows); $i++) {
-            if (!empty(array_filter($rows[$i]))) {
-                $excel_row_count++;
+            if ($target_count !== null && $excel_row_count !== $target_count) {
+                @unlink($filePath);
+                echo json_encode([
+                    'status'       => 'target_mismatch',
+                    'excel_count'  => $excel_row_count,
+                    'target_count' => $target_count,
+                    'message'      => "Count Mismatch: The uploaded Excel file contains <b>{$excel_row_count}</b> record(s), but the ADL target recorded is <b>{$target_count}</b>."
+                ]);
+                return;
             }
         }
-
-        $target_count = $this->Tupad_model->get_adl_target($reference_no);
-
-        if ($target_count !== null && $excel_row_count !== $target_count) {
-            @unlink($filePath);
-            echo json_encode([
-                'status'       => 'target_mismatch',
-                'excel_count'  => $excel_row_count,
-                'target_count' => $target_count,
-                'message'      => "Count Mismatch: The uploaded Excel file contains <b>{$excel_row_count}</b> record(s), but the ADL target recorded is <b>{$target_count}</b>."
-            ]);
-            return;
-        }
-    }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     // ==========================================
     // TEMPLATE HEADER VALIDATION CHECK
@@ -666,60 +598,21 @@ if (!empty($reference_no) && !$override_target) {
     }
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    // Display all uploaded profilling/gsis enrollment list
     public function view_files()
     {
         $data['files'] = $this->Tupad_model->get_uploaded_files();
         $this->load->view('tupad/files_list', $data);
     }
 
+    // Duplicate checking of list during uploading of profilling and gsis enrollment
     public function duplicity_check()
     {
         $data['files'] = $this->Tupad_model->get_uploaded_files();
         $this->load->view('tupad/duplicity_checking', $data);
     }
 
+    // Display all list in the uploaded file of proffiling/gsis enrollment    
     public function view_file_data()
     {
         $file_name = $this->input->get('file_name');
@@ -738,6 +631,7 @@ if (!empty($reference_no) && !$override_target) {
         $this->load->view('tupad/file_details', $data);
     }
 
+    // Display the data in the data management page
     public function view_files_official()
     {
         $data['provinces'] = $this->Tupad_model->get_provinces();
@@ -747,6 +641,7 @@ if (!empty($reference_no) && !$override_target) {
         $this->load->view('tupad/official_list', $data);
     }
 
+    // Data Management Data table pagination and other informations
     public function get_records_json()
     {
         $search_data  = $this->input->post('search');
@@ -784,8 +679,7 @@ if (!empty($reference_no) && !$override_target) {
         echo json_encode($output);
     }
 
-    
-
+    // Data table for uploaded profilling/gsis enrollment (details list per filename)
     public function get_records_by_file_json()
     {
         $draw   = intval($this->input->post('draw'));
@@ -811,11 +705,8 @@ if (!empty($reference_no) && !$override_target) {
     }
 
 
-
-
-
-
-    
+    /*
+    // No use so far
     public function file_records($file_name = NULL)
     {
         $data['provinces'] = $this->Tupad_model->get_provinces();
@@ -829,6 +720,7 @@ if (!empty($reference_no) && !$override_target) {
         
         $this->load->view('file_records', $data);
     }
+        */
 
     public function get_cities()
     {
