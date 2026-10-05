@@ -372,7 +372,7 @@ public function forgot_password()
                     }
                 } else {
                     // Generic message for security (prevents user enumeration)
-                    $this->session->set_flashdata('success', 'If that email exists in our system, reset instructions have been sent.');
+                    $this->session->set_flashdata('success', 'Invalid Email Address');
                 }
                 
                 redirect('auth/forgot_password');

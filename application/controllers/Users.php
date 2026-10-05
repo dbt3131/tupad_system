@@ -122,6 +122,41 @@ class Users extends CI_Controller
 
 
 
+public function export_db()
+{
+    // Check if role is 1
+    $user_id = $this->session->userdata('user_id');
+    $user = $this->User_model->get_user($user_id);
+
+    if (!$user || (int)$user->role !== 1) {
+        $this->session->set_flashdata('error', 'Unauthorized access.');
+        redirect('dashboard');
+    }
+
+    $this->load->dbutil();
+
+    $prefs = array(
+        'format'      => 'sql',
+        'filename'    => 'dole_tupad_db_backup_' . date('Y-m-d_H-i-s') . '.sql',
+        'add_drop'    => TRUE,
+        'add_insert'  => TRUE,
+        'newline'     => "\n"
+    );
+
+    $backup = $this->dbutil->backup($prefs);
+
+    $this->load->helper('download');
+    force_download($prefs['filename'], $backup);
+}
+
+
+
+
+
+
+
+
+
 
 
 }

@@ -36,6 +36,31 @@ html {
 
   <!-- Right Navbar Elements -->
   <div class="d-flex align-items-center gap-3">
+
+
+<!-- Right Navbar Elements -->
+  <div class="d-flex align-items-center gap-3">
+    
+    <!-- Database Export Button (Visible only if role == 1) -->
+    <?php 
+      $CI =& get_instance();
+      $CI->load->model('User_model');
+      $user_id = $CI->session->userdata('user_id');
+      $logged_in_user = $CI->User_model->get_user($user_id); // Or get_user_profile depending on your model
+
+      if ($logged_in_user && isset($logged_in_user->role) && (int)$logged_in_user->role === 1): 
+    ?>
+      <a href="<?= site_url('users/export_db'); ?>" class="btn btn-outline-danger btn-sm d-flex align-items-center gap-1 shadow-sm" title="Export dole_tupad_db">
+        <i class="bi bi-database-down fs-5"></i>
+        <span class="d-none d-lg-inline">Export DB</span>
+      </a>
+      <div class="vr mx-1"></div>
+    <?php endif; ?>
+
+
+
+
+
     
     <!-- Online Users Dropdown -->
     <div class="dropdown">
