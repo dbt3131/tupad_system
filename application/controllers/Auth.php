@@ -367,12 +367,13 @@ public function forgot_password()
                     if ($this->email->send()) {
                         $this->session->set_flashdata('success', 'Password reset instructions have been sent to your email.');
                     } else {
-                        // Single Dev Mode notification link
-                        $this->session->set_flashdata('success', 'Please try again or contact Dustin Torres ISA II');
+                        // Fixed: Changed from 'success' to 'error'
+                        $this->session->set_flashdata('error', 'Please try again or contact Dustin Torres ISA II');
                     }
-                } else {
+                } 
+                else {
                     // Generic message for security (prevents user enumeration)
-                    $this->session->set_flashdata('success', 'Invalid Email Address');
+                    $this->session->set_flashdata('error', 'Invalid Email Address');
                 }
                 
                 redirect('auth/forgot_password');
@@ -381,6 +382,9 @@ public function forgot_password()
 
         $this->load->view('auth/forgot_password');
     }
+
+
+
 
     /**
      * Reset Password Method

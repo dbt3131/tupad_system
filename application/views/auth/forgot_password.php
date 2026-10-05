@@ -30,6 +30,13 @@
                     </div>
                 <?php endif; ?>
 
+                 <?php if ($this->session->flashdata('error')): ?>
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <i class="bi bi-check-circle me-2"></i><?= html_escape($this->session->flashdata('error')); ?>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                <?php endif; ?>
+
                 <?= validation_errors('<div class="alert alert-danger"><i class="bi bi-exclamation-circle me-2"></i>', '</div>'); ?>
 
                 <form method="post" action="<?= site_url('auth/forgot_password'); ?>">
