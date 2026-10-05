@@ -199,7 +199,7 @@ public function index() {
                 $sheet->setCellValue('N' . $row_num, $row['payout_date']);
                 $sheet->setCellValue('O' . $row_num, $row['fund_source']);
                 $sheet->setCellValue('P' . $row_num, $row['project_status']);
-                $sheet->setCellValue('Q' . $row_num, $row['convergence_initiative']);
+                $sheet->setCellValue('Q' . $row_num, $row['tupad_convergence']);
 
                 // Enable text wrapping across all data cells for a clean professional appearance
                 $sheet->getStyle('A' . $row_num . ':Q' . $row_num)->getAlignment()->setWrapText(true);

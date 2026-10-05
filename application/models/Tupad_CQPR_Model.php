@@ -30,6 +30,8 @@ public function get_tupad_report($start_date = null, $end_date = null, $province
 
     private function select_report_fields() {
         $this->db->select('
+            (SELECT GROUP_CONCAT(DISTINCT cc.convergence_desc  SEPARATOR ", ") 
+             FROM tbl_tupad_list tl JOIN code_convergence cc ON cc.convergence_id = tl.tupad_convergence WHERE tl.reference_no = trans.implementation_reference_no) as tupad_convergence,
             (SELECT tl.nature_of_work FROM tbl_tupad_list tl WHERE tl.reference_no = trans.implementation_reference_no LIMIT 1) as nature_of_works,
             prov.provDesc as implementation_province_desc,
             city.citymunDesc as implementation_city_desc,

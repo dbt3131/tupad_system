@@ -202,7 +202,7 @@
                                                 <td><?= html_escape($row['payout_date']) ?></td>
                                                 <td><?= html_escape($row['fund_source']) ?></td>
                                                 <td><?= html_escape($row['project_status']) ?></td>
-                                                <td><?= html_escape($row['convergence_initiative']) ?></td>
+                                                <td><?= html_escape($row['tupad_convergence']) ?></td>
                                             </tr>
                                         <?php endforeach; ?>
                                     <?php endif; ?>
