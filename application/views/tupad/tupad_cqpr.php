@@ -110,7 +110,7 @@
                 <div class="d-flex align-items-center">
                     <i class="bi bi-info-circle-fill text-primary fs-5 me-2"></i>
                     <div class="small">
-                        <strong>Reminder:</strong> Start Date and End Date filters are based on the <strong>Payout Date</strong> field found in the <strong>Payment and Payout Tab</strong>.
+                        <strong>Reminder:</strong> Start Date and End Date filters are based on the <strong>Payout Date</strong> field found in the <strong>Payment and Payout Tab</strong>. All ADL Implementation without uploaded benefs list will not be displayed here.
                     </div>
                 </div>
             </div>
