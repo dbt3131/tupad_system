@@ -276,6 +276,16 @@
                 </div>
             </div>
 
+        <!-- Reminder Notice -->
+            <div class="alert alert-info border-0 shadow-sm mb-4 no-print bg-white border-start border-primary border-4" role="alert">
+                <div class="d-flex align-items-center">
+                    <i class="bi bi-info-circle-fill text-primary fs-5 me-2"></i>
+                    <div class="small">
+                        Reminder: Make sure na tama po ang template na i a upload. Ang pinakaunang sheet po dapat ay yung sheet <strong>UPLOADING_SHEET</strong>.
+                    </div>
+                </div>
+            </div>
+
             <!-- User Guide Modal -->
             <div class="modal fade" id="guideModal" tabindex="-1" aria-labelledby="guideModalLabel" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered modal-lg">
