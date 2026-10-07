@@ -362,6 +362,61 @@
 
         </main>
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         <!-- REMINDER / GUIDELINES MODAL -->
         <div class="modal fade" id="reminderModal" tabindex="-1" aria-labelledby="reminderModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered modal-lg">
@@ -391,6 +446,53 @@
                 </div>
             </div>
         </div>
+
+
+
+
+        
+<!-- BACKOUTS GUIDE MODAL -->
+<div class="modal fade" id="backoutsGuideModal" tabindex="-1" aria-labelledby="backoutsGuideModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header text-white" style="background-color: #0f172a;">
+                <h5 class="modal-title" id="backoutsGuideModalLabel">
+                    <i class="bi bi-journal-code me-2"></i>Guide: Handling Backouts
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <p class="small text-muted mb-3">To update records for backouts, please follow this workflow:</p>
+                
+                <div class="card border-0 bg-light p-3 mb-3">
+                    <h6 class="fw-bold text-primary small mb-2"><i class="bi bi-1-circle-fill me-1"></i> Step 1: Appraisal & PPEs Tab</h6>
+                    <p class="small text-dark mb-0">
+                        Go to the <strong>Appraisal & PPEs</strong> tab. Click the <strong>Override</strong> buttons for <strong>PPES Count</strong> and <strong>PPES Female</strong> to adjust the values.
+                    </p>
+                </div>
+
+                <div class="card border-0 bg-light p-3 mb-3">
+                    <h6 class="fw-bold text-primary small mb-2"><i class="bi bi-2-circle-fill me-1"></i> Step 2: Implementation Status Tab</h6>
+                    <p class="small text-dark mb-0">
+                        Go to the <strong>Implementation Status</strong> tab and update the <strong>Payroll Beneficiaries</strong> input field.
+                    </p>
+                </div>
+
+                <div class="alert alert-warning border-0 small mb-0" role="alert">
+                    <i class="bi bi-exclamation-triangle-fill me-1"></i> <strong>Important Reminder:</strong> All these input fields should be updated based on the <strong>actual beneficiaries paid</strong>.
+                </div>
+            </div>
+            <div class="modal-footer bg-light">
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close Guide</button>
+                <button type="button" class="btn btn-sm text-white" style="background-color: #0f172a;" onclick="navigateToAppraisalTab()">
+                    <i class="bi bi-arrow-right-circle me-1"></i> Go to Appraisal & PPEs
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 
         <!-- EDIT TRANSACTION MODAL -->
         <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
@@ -775,6 +877,12 @@
                         </div>
 
                         <div class="modal-footer bg-light">
+
+<button type="button" class="btn btn-link text-decoration-none text-primary p-0 fw-semibold" data-bs-toggle="modal" data-bs-target="#backoutsGuideModal">
+        <i class="bi bi-question-circle-fill me-1"></i> Backouts?
+    </button>
+
+
                             <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">Cancel</button>
                             <button type="submit" id="updateTransactionBtn" class="btn px-4 text-white" style="background-color: #0f172a;">
                                 <i class="bi bi-save me-1"></i> Save Changes
@@ -784,6 +892,42 @@
                 </div>
             </div>
         </div>
+
+
+
+
+
+
+
+
+
+
+
+
+        <div class="modal fade" id="overrideConfirmModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-warning text-dark">
+                <h5 class="modal-title fw-bold">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>Warning
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <p class="mb-0 text-dark">Using this feature will make the report inaccurate. You must upload the actual beneficiaries list in the uploading page[cite: 1].</p>
+            </div>
+            <div class="modal-footer bg-light">
+                <button type="button" class="btn btn-secondary btn-sm px-3" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary btn-sm px-3" id="btnOverrideContinue" style="background-color: #0f172a;">Continue</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
 
         <footer class="bg-white border-top p-3 text-center text-muted small no-print">
             &copy; 2026 Department of Labor and Employment. All rights reserved.
@@ -795,24 +939,22 @@
     <script src="https://cdn.jsdelivr.net/npm/datatables.net@1.13.8/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/datatables.net-bs5@1.13.8/js/dataTables.bootstrap5.min.js"></script>
 
-    <script>
+  <script>
     $(document).ready(function () {
         // Prevent Multiple Form Submissions for Edit Transaction Modal
         $('#editTransactionForm').on('submit', function (e) {
             e.preventDefault(); // Temporarily stop standard submission
 
-            const $form = $(this);
-            const $submitBtn = $('#updateTransactionBtn');
+            const $form =$(this);
+            const $submitBtn =$('#updateTransactionBtn');
 
             // Check HTML5 form validation validity
-            if ($form[0].checkValidity() === false) {
-                $form[0].reportValidity();
+            if ($form[0].checkValidity() === false) {$form[0].reportValidity();
                 return;
             }
 
             // Disable button and swap text for a loading spinner
-            $submitBtn.prop('disabled', true);
-            $submitBtn.html(`
+            $submitBtn.prop('disabled', true);$submitBtn.html(`
                 <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
                 Saving Changes...
             `);
@@ -861,81 +1003,66 @@
         let overrideGsisFemale = false;
         let overrideGsisAmount = false;
 
+        // OVERRIDE BUTTON HANDLERS: Do NOT clear or recalculate automatically when clicked.
+        // This keeps whatever current value is in the field intact.
         $('#btn_override_ppes_count').on('click', function() {
             overridePpesCount = !overridePpesCount;
-            const $input = $('#edit_ppes_count');
+            const $input =$('#edit_ppes_count');
             if (overridePpesCount) {
-                $input.prop('readonly', false).focus();
-                $(this).removeClass('btn-outline-secondary').addClass('btn-warning text-dark');
+                $input.prop('readonly', false).focus();$(this).removeClass('btn-outline-secondary').addClass('btn-warning text-dark');
             } else {
-                $input.prop('readonly', true);
-                $(this).removeClass('btn-warning text-dark').addClass('btn-outline-secondary');
-                evaluatePPESAutoValues();
+                $input.prop('readonly', true);$(this).removeClass('btn-warning text-dark').addClass('btn-outline-secondary');
+                // Removed evaluatePPESAutoValues() call here so current field data remains unchanged
             }
         });
 
         $('#btn_override_ppes_female').on('click', function() {
             overridePpesFemale = !overridePpesFemale;
-            const $input = $('#edit_ppes_female');
+            const $input =$('#edit_ppes_female');
             if (overridePpesFemale) {
-                $input.prop('readonly', false).focus();
-                $(this).removeClass('btn-outline-secondary').addClass('btn-warning text-dark');
+                $input.prop('readonly', false).focus();$(this).removeClass('btn-outline-secondary').addClass('btn-warning text-dark');
             } else {
-                $input.prop('readonly', true);
-                $(this).removeClass('btn-warning text-dark').addClass('btn-outline-secondary');
-                evaluatePPESAutoValues();
+                $input.prop('readonly', true);$(this).removeClass('btn-warning text-dark').addClass('btn-outline-secondary');
             }
         });
 
         $('#btn_override_ppes_amount').on('click', function() {
             overridePpesAmount = !overridePpesAmount;
-            const $input = $('#edit_ppes_amount');
+            const $input =$('#edit_ppes_amount');
             if (overridePpesAmount) {
-                $input.prop('readonly', false).focus();
-                $(this).removeClass('btn-outline-secondary').addClass('btn-warning text-dark');
+                $input.prop('readonly', false).focus();$(this).removeClass('btn-outline-secondary').addClass('btn-warning text-dark');
             } else {
-                $input.prop('readonly', true);
-                $(this).removeClass('btn-warning text-dark').addClass('btn-outline-secondary');
-                evaluatePPESAutoValues();
+                $input.prop('readonly', true);$(this).removeClass('btn-warning text-dark').addClass('btn-outline-secondary');
             }
         });
 
         $('#btn_override_gsis_benefs').on('click', function() {
             overrideGsisBenefs = !overrideGsisBenefs;
-            const $input = $('#edit_gsis_enrollment_benefs');
+            const $input =$('#edit_gsis_enrollment_benefs');
             if (overrideGsisBenefs) {
-                $input.prop('readonly', false).focus();
-                $(this).removeClass('btn-outline-secondary').addClass('btn-warning text-dark');
+                $input.prop('readonly', false).focus();$(this).removeClass('btn-outline-secondary').addClass('btn-warning text-dark');
             } else {
-                $input.prop('readonly', true);
-                $(this).removeClass('btn-warning text-dark').addClass('btn-outline-secondary');
-                evaluateGSISAutoValues();
+                $input.prop('readonly', true);$(this).removeClass('btn-warning text-dark').addClass('btn-outline-secondary');
             }
         });
 
         $('#btn_override_gsis_female').on('click', function() {
             overrideGsisFemale = !overrideGsisFemale;
-            const $input = $('#edit_gsis_enrollment_female');
+            const $input =$('#edit_gsis_enrollment_female');
             if (overrideGsisFemale) {
-                $input.prop('readonly', false).focus();
-                $(this).removeClass('btn-outline-secondary').addClass('btn-warning text-dark');
+                $input.prop('readonly', false).focus();$(this).removeClass('btn-outline-secondary').addClass('btn-warning text-dark');
             } else {
-                $input.prop('readonly', true);
-                $(this).removeClass('btn-warning text-dark').addClass('btn-outline-secondary');
-                evaluateGSISAutoValues();
+                $input.prop('readonly', true);$(this).removeClass('btn-warning text-dark').addClass('btn-outline-secondary');
             }
         });
 
         $('#btn_override_gsis_amount').on('click', function() {
             overrideGsisAmount = !overrideGsisAmount;
-            const $input = $('#edit_gsis_enrollment_amount');
+            const $input =$('#edit_gsis_enrollment_amount');
             if (overrideGsisAmount) {
-                $input.prop('readonly', false).focus();
-                $(this).removeClass('btn-outline-secondary').addClass('btn-warning text-dark');
+                $input.prop('readonly', false).focus();$(this).removeClass('btn-outline-secondary').addClass('btn-warning text-dark');
             } else {
-                $input.prop('readonly', true);
-                $(this).removeClass('btn-warning text-dark').addClass('btn-outline-secondary');
-                evaluateGSISAutoValues();
+                $input.prop('readonly', true);$(this).removeClass('btn-warning text-dark').addClass('btn-outline-secondary');
             }
         });
 
@@ -961,6 +1088,7 @@
             const isDateValid = dateVal && dateVal.trim() !== '' && dateVal !== '0000-00-00' && dateVal !== '0000.00.00';
 
             if (isRisValid && isDateValid) {
+                // Only overwrite if override is NOT enabled for each specific field
                 if (!overridePpesCount) {
                     $('#edit_ppes_count').val(currentTupadTotalCount);
                 }
@@ -992,6 +1120,7 @@
             const isDateValid = dateVal && dateVal.trim() !== '' && dateVal !== '0000-00-00' && dateVal !== '0000.00.00';
 
             if (isDateValid) {
+                // Only overwrite if override is NOT enabled for each specific field
                 if (!overrideGsisBenefs) {
                     $('#edit_gsis_enrollment_benefs').val(currentTupadTotalCount);
                 }
@@ -1057,7 +1186,7 @@
         }
 
         function loadModalBarangays(citymunCode, selectedBrgy = '') {
-            const $brgySelect = $('#edit_implementation_brgy');
+            const $brgySelect =$('#edit_implementation_brgy');
             if (citymunCode) {
                 $brgySelect.prop('disabled', true).html('<option value="">Loading barangays...</option>');
                 $.ajax({
@@ -1088,7 +1217,7 @@
         }
 
         function loadModalMunicipalities(provCode, selectedArea = '', selectedBrgy = '') {
-            const $cityMunSelect = $('#edit_implementation_area');
+            const $cityMunSelect =$('#edit_implementation_area');
             if (provCode) {
                 $.ajax({
                     url: "<?= site_url('adl/get_municipalities_by_province'); ?>",
@@ -1115,8 +1244,7 @@
         }
 
         $('#edit_implementation_province').change(function () {
-            loadModalMunicipalities($(this).val());
-            $('#edit_implementation_brgy').empty().append('<option value="" selected disabled>Select Municipality First</option>');
+            loadModalMunicipalities($(this).val());$('#edit_implementation_brgy').empty().append('<option value="" selected disabled>Select Municipality First</option>');
         });
 
         $('#edit_implementation_area').change(function () {
@@ -1124,8 +1252,7 @@
         });
 
         $(document).on('click', '.edit-btn', function () {
-            const transactionId = $(this).data('id');
-            $('.text-danger.d-block').addClass('d-none');
+            const transactionId = $(this).data('id');$('.text-danger.d-block').addClass('d-none');
 
             overridePpesCount = false;
             overridePpesFemale = false;
@@ -1249,8 +1376,7 @@
 
     $(document).on('click', '#sidebarToggle', function (e) {
         e.preventDefault();
-        if ($(window).width() < 992) {
-            $('#sidebar').toggleClass('show-mobile');
+        if ($(window).width() < 992) {$('#sidebar').toggleClass('show-mobile');
         } else {
             $('#sidebar').toggleClass('collapsed');
             $('#main-content').toggleClass('expanded');
@@ -1276,7 +1402,7 @@
         const currentInputTarget = parseFloat($('#target').val()) || 0;
         const $noticeContainer = $('#editTargetNoticeContainer');
         const $noticeText = $('#editTargetNoticeText');
-        const $targetInput = $('#target');
+        const $targetInput =$('#target');
 
         if (!adlNo || !transactId) {
             $noticeContainer.hide();
@@ -1360,88 +1486,71 @@
         e.preventDefault();
     });
 
-    document.addEventListener('keydown', function (e) {
-        if (e.key === 'F12') {
-            e.preventDefault();
-        }
-        
-        if (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i' || e.key === 'J' || e.key === 'j' || e.key === 'C' || e.key === 'c')) {
-            e.preventDefault();
-        }
-        
-        if (e.ctrlKey && (e.key === 'U' || e.key === 'u')) {
-            e.preventDefault();
-        }
-    });
-
     $(document).ready(function() {
-    function calculateAmounts() {
-    let beneficiaries = parseFloat($('#edit_completed_employment_benefs').val()) || 0;
-    let noOfDays = parseFloat($('#no_of_days').val()) || 0; 
-    let absentDays = parseFloat($('#edit_absent_days').val()) || 0;
-    
-    console.log("Beneficiaries:", beneficiaries, "| Days:", noOfDays, "| Absent Days:", absentDays);
-
-    $.ajax({
-        url: '<?= site_url("tupad/get_wage_rate"); ?>',
-        type: 'GET',
-        dataType: 'json',
-        success: function(response) {
-            let wageAmount = parseFloat(response.wage_amount) || 0;
-            console.log("Wage Amount from DB:", wageAmount);
+        function calculateAmounts() {
+            let beneficiaries = parseFloat($('#edit_completed_employment_benefs').val()) || 0;
+            let noOfDays = parseFloat($('#no_of_days').val()) || 0; 
+            let absentDays = parseFloat($('#edit_absent_days').val()) || 0;
             
-            // Formula updated to account for absent days (Total Person-Days minus Absent Days)
-            let totalPersonDays = (beneficiaries * noOfDays) - absentDays;
-            if (totalPersonDays < 0) totalPersonDays = 0; // Prevent negative totals
-            
-            let totalAmount = totalPersonDays * wageAmount;
-            let formattedAmount = totalAmount.toFixed(2);
-            
-            $('#edit_completed_employment_amount').val(formattedAmount);
-            checkAndSetPaymentAmount(formattedAmount);
-        },
-        error: function(xhr, status, error) {
-            console.error("Error fetching wage amount:", error);
+            $.ajax({
+                url: '<?= site_url("tupad/get_wage_rate"); ?>',
+                type: 'GET',
+                dataType: 'json',
+                success: function(response) {
+                    let wageAmount = parseFloat(response.wage_amount) || 0;
+                    
+                    let totalPersonDays = (beneficiaries * noOfDays) - absentDays;
+                    if (totalPersonDays < 0) totalPersonDays = 0; 
+                    
+                    let totalAmount = totalPersonDays * wageAmount;
+                    let formattedAmount = totalAmount.toFixed(2);
+                    
+                    $('#edit_completed_employment_amount').val(formattedAmount);
+                    checkAndSetPaymentAmount(formattedAmount);
+                },
+                error: function(xhr, status, error) {
+                    console.error("Error fetching wage amount:", error);
+                }
+            });
         }
-    });
-}
 
-
-$('#edit_completed_employment_benefs, #no_of_days, #edit_absent_days').on('input change', function() {
-    calculateAmounts();
-});
-
-    function checkAndSetPaymentAmount(amount) {
-        let alobNo = $('#edit_payment_alob_no').length ? $('#edit_payment_alob_no').val().trim() : '';
-        let dvNo = $('#edit_payment_dv_no').length ? $('#edit_payment_dv_no').val().trim() : '';
-        let checkNo = $('#edit_payment_check_no').length ? $('#edit_payment_check_no').val().trim() : '';
-        let paymentDate = $('#edit_payment_date').length ? $('#edit_payment_date').val().trim() : '';
-
-        let isAlobValid = alobNo !== '' && alobNo !== '0';
-        let isDvValid = dvNo !== '' && dvNo !== '0';
-        let isCheckValid = checkNo !== '' && checkNo !== '0';
-        let isDateValid = paymentDate !== '' && paymentDate !== '0000-00-00';
-
-        if (isAlobValid && isDvValid && isCheckValid && isDateValid) {
-            $('#edit_payment_amount').val(amount);
-        } else {
-            $('#edit_payment_amount').val('');
-        }
-    }
-
-    $('#edit_completed_employment_benefs, #no_of_days').on('input change', function() {
-        calculateAmounts();
-    });
-
-    $('#edit_payment_alob_no, #edit_payment_dv_no, #edit_payment_check_no, #edit_payment_date').on('input change', function() {
-        let currentPayrollAmount = $('#edit_completed_employment_amount').val();
-        if (currentPayrollAmount) {
-            checkAndSetPaymentAmount(currentPayrollAmount);
-        } else {
+        $('#edit_completed_employment_benefs, #no_of_days, #edit_absent_days').on('input change', function() {
             calculateAmounts();
+        });
+
+        function checkAndSetPaymentAmount(amount) {
+            let alobNo = $('#edit_payment_alob_no').length ? $('#edit_payment_alob_no').val().trim() : '';
+            let dvNo = $('#edit_payment_dv_no').length ? $('#edit_payment_dv_no').val().trim() : '';
+            let checkNo = $('#edit_payment_check_no').length ? $('#edit_payment_check_no').val().trim() : '';
+            let paymentDate = $('#edit_payment_date').length ? $('#edit_payment_date').val().trim() : '';
+
+            let isAlobValid = alobNo !== '' && alobNo !== '0';
+            let isDvValid = dvNo !== '' && dvNo !== '0';
+            let isCheckValid = checkNo !== '' && checkNo !== '0';
+            let isDateValid = paymentDate !== '' && paymentDate !== '0000-00-00';
+
+            if (isAlobValid && isDvValid && isCheckValid && isDateValid) {
+                $('#edit_payment_amount').val(amount);
+            } else {
+                $('#edit_payment_amount').val('');
+            }
         }
+
+        $('#edit_payment_alob_no, #edit_payment_dv_no, #edit_payment_check_no, #edit_payment_date').on('input change', function() {
+            let currentPayrollAmount = $('#edit_completed_employment_amount').val();
+            if (currentPayrollAmount) {
+                checkAndSetPaymentAmount(currentPayrollAmount);
+            } else {
+                calculateAmounts();
+            }
+        });
     });
-});
+
+
+
+
+
+
 
 // Automatically append a modern 'Auto' badge to all read-only inputs
 function applyAutoBadges() {
@@ -1501,6 +1610,48 @@ $('#edit_fund_source').select2({
     allowClear: true,
     dropdownParent: $('#editModal')
 });
+
+
+
+
+function navigateToAppraisalTab() {
+    const guideModalEl = document.getElementById('backoutsGuideModal');
+    const guideModal = bootstrap.Modal.getInstance(guideModalEl);
+    
+    if (guideModal) {
+        $(guideModalEl).off('hidden.bs.modal').on('hidden.bs.modal', function () {
+            // 1. Open the main edit modal first (replace 'editModal' with your actual HTML modal ID)
+            const editModalEl = document.getElementById('editModal'); 
+            if (editModalEl) {
+                const editModal = bootstrap.Modal.getOrCreateInstance(editModalEl);
+                editModal.show();
+            } else {
+                console.error("Could not find main edit modal element.");
+            }
+            
+            // 2. Once the modal is open, activate the target tab
+            const tabEl = document.querySelector('#edit-appraisal-tab');
+            if (tabEl) {
+                const tab = bootstrap.Tab.getOrCreateInstance(tabEl);
+                tab.show();
+            } else {
+                console.error("Could not find tab trigger with ID #edit-appraisal-tab");
+            }
+        });
+
+        // Hide the guide modal to trigger the chain
+        guideModal.hide();
+    }
+}
+
+
+
+
+
+
+
+
+
 
     </script>
 </body>
