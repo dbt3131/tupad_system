@@ -598,59 +598,127 @@ public function find_city_code_by_desc($desc, $provCode) {
         return '';
     }
 
-    public function find_barangay_code_by_desc($desc, $citymunCode = null) {
-        if (empty($desc) || empty($citymunCode)) {
-            // Strictly fail if no valid municipality code is passed
-            return '';
+
+
+
+
+
+
+
+
+
+
+
+
+    public function find_barangay_code_by_desc($brgyDesc, $citymunCode) {
+        if (empty($brgyDesc) || empty($citymunCode)) {
+            return null;
         }
-        $desc = trim($desc);
 
-        // Explicitly filter by citymunCode to guarantee it belongs to this municipality
-        $this->db->where('citymunCode', $citymunCode);
-        $barangays = $this->db->select('brgyCode, brgyDesc, citymunCode')->get('refbrgy')->result_array();
+        $cleanDesc = trim($brgyDesc);
+        $target = strtolower($cleanDesc);
+        $targetLength = strlen($target);
 
+        // Fetch official barangays for this municipality
+        $barangays = $this->get_barangays_by_city($citymunCode);
         if (empty($barangays)) {
-            return '';
+            return null;
         }
 
-        $closestCode = '';
-        $shortestDistance = -1;
+        // Flexible field grabbers
+        $getDesc = function($brgy) {
+            return isset($brgy['brgyDesc']) ? $brgy['brgyDesc'] : (isset($brgy['brgy_name']) ? $brgy['brgy_name'] : '');
+        };
+        $getCode = function($brgy) {
+            return isset($brgy['brgyCode']) ? $brgy['brgyCode'] : (isset($brgy['brgy_code']) ? $brgy['brgy_code'] : '');
+        };
 
-        $cleanSearchBrgy = preg_replace('/^(brgy|barangay|poblacion)\.?\s+/i', '', $desc);
-
-        foreach ($barangays as $b) {
-            $cleanDbBrgy = preg_replace('/^(brgy|barangay|poblacion)\.?\s+/i', '', $b['brgyDesc']);
-
-            // Exact case-insensitive match check first
-            if (strcasecmp(trim($cleanSearchBrgy), trim($cleanDbBrgy)) === 0) {
-                return $b['brgyCode'];
-            }
-
-            $distance = levenshtein(strtolower(trim($cleanSearchBrgy)), strtolower(trim($cleanDbBrgy)));
-            if ($distance < $shortestDistance || $shortestDistance < 0) {
-                $closestCode = $b['brgyCode'];
-                $shortestDistance = $distance;
+        // 1. ABSOLUTE EXACT MATCH (Case-insensitive & space-normalized)
+        foreach ($barangays as $brgy) {
+            $candidate = strtolower(trim($getDesc($brgy)));
+            if ($candidate === $target) {
+                return $getCode($brgy);
             }
         }
 
-        // Return code only if it's a tight match (distance <= 2) AND text length is close
-        if ($shortestDistance >= 0 && $shortestDistance <= 2) {
-            $matchedBrgyName = '';
-            foreach ($barangays as $b) {
-                if ($b['brgyCode'] === $closestCode) {
-                    $matchedBrgyName = preg_replace('/^(brgy|barangay|poblacion)\.?\s+/i', '', $b['brgyDesc']);
-                    break;
+        // 2. EXACT WORD-START / CLEAN ROOT MATCH 
+        foreach ($barangays as $brgy) {
+            $candidate = strtolower(trim($getDesc($brgy)));
+            $baseCandidate = trim(str_replace(['(pob.)', '(pob)', 'pob.'], '', $candidate));
+            $baseTarget = trim(str_replace(['(pob.)', '(pob)', 'pob.'], '', $target));
+
+            if ($baseCandidate === $baseTarget) {
+                return $getCode($brgy);
+            }
+        }
+
+        // 3. SHORT STRING GUARD (< 4 chars like "ssd")
+        if ($targetLength < 4) {
+            return null;
+        }
+
+        // 4. CONTROLLED FUZZY MATCH WITH SMART SECOND-WORD CHECK
+        $closestCode = null;
+        $minDistance = PHP_INT_MAX;
+        $maxAllowedDistance = max(4, floor($targetLength * 0.4));
+
+        $targetParts = explode(' ', $target);
+
+        foreach ($barangays as $brgy) {
+            $desc = $getDesc($brgy);
+            if (empty($desc)) continue;
+
+            $candidate = strtolower(trim($desc));
+            $candParts = explode(' ', $candidate);
+
+            $distance = levenshtein($target, $candidate);
+
+            // SMART CROSS-CONTAMINATION CHECK:
+            // If both start with the same prefix (e.g., "san"), check how different the second words are.
+            if (isset($targetParts[1]) && isset($candParts[1]) && $targetParts[0] === $candParts[0]) {
+                $secondWordDist = levenshtein($targetParts[1], $candParts[1]);
+                
+                // If the second words are completely different (e.g., "jose" vs "nicolas", distance is large), apply a penalty.
+                // If it's just a typo/extra characters attached (e.g., "nicolasfgd" vs "nicolas"), allow it with minimal penalty!
+                if ($secondWordDist > 5) {
+                    $distance += 6; 
                 }
             }
 
-            // Prevent short names from loosely matching long unrelated barangay names
-            if (abs(strlen($cleanSearchBrgy) - strlen($matchedBrgyName)) <= 2) {
-                return $closestCode;
+            if ($distance < $minDistance) {
+                $minDistance = $distance;
+                $closestCode = $getCode($brgy);
             }
         }
 
-        return '';
+        // 5. FINAL SAFETY GUARD
+        if ($minDistance <= $maxAllowedDistance) {
+            return $closestCode;
+        }
+
+        return null;
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     public function find_bene_type_id_by_desc($desc) {
         if (empty($desc)) return 0;
