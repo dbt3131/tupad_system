@@ -732,7 +732,7 @@
                                                 <label class="form-label fw-semibold small mb-0">PPES Amount</label>
                                                 <button type="button" class="btn btn-outline-secondary btn-sm py-0 px-1" id="btn_override_ppes_amount" style="font-size: 0.65rem;" title="Click to override auto-calculation">Override</button>
                                             </div>
-                                            <input type="text" id="edit_ppes_amount" name="ppes_amount" class="form-control" placeholder="0.00" readonly>
+                                            <input type="number" id="edit_ppes_amount" name="ppes_amount" class="form-control" placeholder="0.00" readonly>
                                             <small class="text-danger d-none mt-1 d-block" id="note_ppes_amount" style="font-size: 0.65rem; line-height: 1.1;">THIS VALUE IS NOT YET RECORDED IN THE ADL TRANSACTION TABLE. CLICK SAVE CHANGES TO RECORD</small>
                                         </div>
                                     </div>
@@ -781,7 +781,7 @@
                                                 <label class="form-label fw-semibold small mb-0">GSIS Amount</label>
                                                 <button type="button" class="btn btn-outline-secondary btn-sm py-0 px-1" id="btn_override_gsis_amount" style="font-size: 0.65rem;" title="Click to override auto-calculation">Override</button>
                                             </div>
-                                            <input type="text" id="edit_gsis_enrollment_amount" name="gsis_enrollment_amount" class="form-control" placeholder="0.00" readonly>
+                                            <input type="number" id="edit_gsis_enrollment_amount" name="gsis_enrollment_amount" class="form-control" placeholder="0.00" readonly>
                                             <small class="text-danger d-none mt-1 d-block" id="note_gsis_amount" style="font-size: 0.65rem; line-height: 1.1;">THIS VALUE IS NOT YET RECORDED IN THE ADL TRANSACTION TABLE. CLICK SAVE CHANGES TO RECORD</small>
                                         </div>    
                                     </div>
