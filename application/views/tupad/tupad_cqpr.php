@@ -170,8 +170,8 @@
                                         <th>Province</th>                         <!-- 5 -->
                                         <th>District</th>                         <!-- 6 -->
                                         <th>Income Class</th>                     <!-- 7 -->
-                                        <th>Work Period<br>(Short Term)</th>      <!-- 8 -->
-                                        <th>Work Period<br>(Long Term)</th>       <!-- 9 -->
+                                        <th>Work Period<br>(Short Term) <br><font color="yellow" size="0.8px">(completed_employment_benefs - adl_transactions)</font></th>      <!-- 8 -->
+                                        <th>Work Period<br>(Long Term) <br><font color="yellow" size="0.8px">(completed_employment_benefs - adl_transactions)</font></th>       <!-- 9 -->
                                         <th>Total</th>                            <!-- 10 -->
                                         <th>No. of Females</th>                   <!-- 11 -->
                                         <th>Type</th>                             <!-- 12 -->

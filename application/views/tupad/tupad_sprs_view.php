@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>DOLE TUPAD - CQPR Report</title>
+    <title>DOLE TUPAD - SPRS Report</title>
 
     <!-- Google Fonts: Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -172,15 +172,17 @@
                     <div class="card-body">
                         <div class="table-responsive">
                             <table class="table table-bordered table-sm text-center align-middle cqpr-table">
-                                <thead class="table-light">
-                                    <tr>
-                                        <!-- SUBSIDY HEADERS -->
-                                        <th colspan="6" class="bg-secondary text-white">SUBSIDY</th>
-                                        <!-- TOTAL BENEFS HEADERS -->
-                                        <th colspan="6" class="bg-dark text-white">TOTAL BENEFS</th>
-                                        <!-- FEMALE BENEFS HEADERS -->
-                                        <th colspan="6" class="bg-secondary text-white">FEMALE BENEFS</th>
-                                    </tr>
+                               <thead class="table-light">
+    <tr>
+        <!-- SUBSIDY HEADERS -->
+        <th colspan="6" class="bg-secondary text-white">SUBSIDY <br> <font color="yellow">(From adl_transactions)</font></th>
+        <!-- TOTAL BENEFS HEADERS -->
+        <th colspan="6" class="bg-dark text-white">TOTAL BENEFS <br> <font color="yellow">(From adl_transactions)</font></th>
+        <!-- FEMALE BENEFS HEADERS -->
+        <th colspan="6" class="bg-secondary text-white">FEMALE BENEFS <br> <font color="yellow">(From adl_transactions)</font></th>
+    </tr>
+    <!-- Rest of your header rows remain the same -->
+...
                                     <tr>
                                         <!-- Subsidy Subheaders -->
                                         <th rowspan="2">PROVINCE</th>

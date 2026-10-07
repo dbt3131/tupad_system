@@ -91,10 +91,7 @@
 
     <div id="main-content">
         <main class="p-3 p-md-4 flex-grow-1">
-  
-
-
-
+            
 
 <!-- ================= REPORTS HUB PAGE ================= -->
 <div class="container-fluid px-4 py-4">
@@ -114,7 +111,7 @@
     <!-- Reports Grid -->
     <div class="row g-4">
         
-        <!-- Report 1: ADL Distribution Report -->
+        <!-- Report 1: ADL Distribution Report (Blue) -->
         <div class="col-md-6 col-xl-3">
             <div class="card border-0 shadow-sm h-100 report-card">
                 <div class="card-body d-flex flex-column p-4">
@@ -131,7 +128,7 @@
             </div>
         </div>
 
-        <!-- Report 2: COA Quarterly Report -->
+        <!-- Report 2: COA Quarterly Report (Green) -->
         <div class="col-md-6 col-xl-3">
             <div class="card border-0 shadow-sm h-100 report-card">
                 <div class="card-body d-flex flex-column p-4">
@@ -148,7 +145,7 @@
             </div>
         </div>
 
-        <!-- Report 3: Implementation Status -->
+        <!-- Report 3: Implementation Status (Warning Amber) -->
         <div class="col-md-6 col-xl-3">
             <div class="card border-0 shadow-sm h-100 report-card">
                 <div class="card-body d-flex flex-column p-4">
@@ -165,7 +162,7 @@
             </div>
         </div>
 
-        <!-- Report 4: Beneficiaries Summary -->
+        <!-- Report 4: Beneficiaries Summary (Cyan) -->
         <div class="col-md-6 col-xl-3">
             <div class="card border-0 shadow-sm h-100 report-card">
                 <div class="card-body d-flex flex-column p-4">
@@ -182,17 +179,17 @@
             </div>
         </div>
 
-
-<!-- Report 3: Implementation Status -->
-<div class="col-md-6 col-xl-3">
+        <!-- Report 5: Transparency Report (Pink) -->
+        <div class="col-md-6 col-xl-3">
             <div class="card border-0 shadow-sm h-100 report-card">
                 <div class="card-body d-flex flex-column p-4">
                     <div class="icon-box rounded-3 mb-3 d-flex align-items-center justify-content-center" style="width: 48px; height: 48px; background-color: rgba(236, 72, 153, 0.1); color: #db2777;">
-                        <i class="bi bi-people fs-4"></i>
+                        <i class="bi bi-shield-lock fs-4"></i>
                     </div>
                     <h5 class="fw-bold text-dark mb-2">Transparency Report</h5>
-                    <p class="text-muted small mb-4 flex-grow-1">List of TUPAD beneficiaries.</p>
-                    <a href="<?= site_url('tupad_transparency/index'); ?>" class="btn btn-sm w-100 d-flex align-items-center justify-content-center gap-2 text-dark" style="border-color: #db2777; background-color: #fff; color: #db2777 !important; transition: all 0.2s;" onmouseover="this.style.backgroundColor='#db2777'; this.style.color='#ffffff';" onmouseout="this.style.backgroundColor='#fff'; this.style.color='#db2777';">
+                    <p class="text-muted small mb-2 flex-grow-1">List of TUPAD beneficiaries.</p>
+                    <p class="text-muted small mb-3"><font color="RED">(This report is based on the uploaded active TUPAD benefs list.)</font></p>
+                    <a href="<?= site_url('tupad_transparency/index'); ?>" class="btn btn-sm w-100 d-flex align-items-center justify-content-center gap-2 report-btn-pink" style="border-color: #db2777; background-color: #fff; color: #db2777 !important; transition: all 0.2s;" onmouseover="this.style.backgroundColor='#db2777'; this.style.color='#ffffff';" onmouseout="this.style.backgroundColor='#fff'; this.style.color='#db2777';">
                         <span>Open Report</span>
                         <i class="bi bi-arrow-right"></i>
                     </a>
@@ -200,17 +197,17 @@
             </div>
         </div>
 
-        
-<!-- Report 3: Implementation Status -->
-<div class="col-md-6 col-xl-3">
+        <!-- Report 6: CQPR Report (Indigo) -->
+        <div class="col-md-6 col-xl-3">
             <div class="card border-0 shadow-sm h-100 report-card">
                 <div class="card-body d-flex flex-column p-4">
-                    <div class="icon-box rounded-3 mb-3 d-flex align-items-center justify-content-center" style="width: 48px; height: 48px; background-color: rgba(236, 72, 153, 0.1); color: #db2777;">
-                        <i class="bi bi-people fs-4"></i>
+                    <div class="icon-box rounded-3 mb-3 d-flex align-items-center justify-content-center" style="width: 48px; height: 48px; background-color: rgba(99, 102, 241, 0.1); color: #6366f1;">
+                        <i class="bi bi-file-earmark-spreadsheet fs-4"></i>
                     </div>
                     <h5 class="fw-bold text-dark mb-2">CQPR Report</h5>
-                    <p class="text-muted small mb-4 flex-grow-1">List of ADL Implemented.</p>
-                    <a href="<?= site_url('tupad_cqpr/index'); ?>" class="btn btn-sm w-100 d-flex align-items-center justify-content-center gap-2 text-dark" style="border-color: #5cd668; background-color: #fff; color: #72db5a !important; transition: all 0.2s;" onmouseover="this.style.backgroundColor='#77ee5c'; this.style.color='#ffffff';" onmouseout="this.style.backgroundColor='#fff'; this.style.color='#5fe56d';">
+                    <p class="text-muted small mb-2 flex-grow-1">List of ADL Implemented.</p>
+                    <p class="text-muted small mb-3"><font color="RED">(This report is based on the encoded ADL Implementation and  uploaded active TUPAD benefs list for Beneficiaries and Convergence Type.)</font></p>
+                    <a href="<?= site_url('tupad_cqpr/index'); ?>" class="btn btn-sm w-100 d-flex align-items-center justify-content-center gap-2" style="border-color: #6366f1; background-color: #fff; color: #6366f1 !important; transition: all 0.2s;" onmouseover="this.style.backgroundColor='#6366f1'; this.style.color='#ffffff';" onmouseout="this.style.backgroundColor='#fff'; this.style.color='#6366f1';">
                         <span>Open Report</span>
                         <i class="bi bi-arrow-right"></i>
                     </a>
@@ -218,25 +215,23 @@
             </div>
         </div>
 
-        <!-- Report 3: Implementation Status -->
-<div class="col-md-6 col-xl-3">
+        <!-- Report 7: SPRS Report (Teal) -->
+        <div class="col-md-6 col-xl-3">
             <div class="card border-0 shadow-sm h-100 report-card">
                 <div class="card-body d-flex flex-column p-4">
-                    <div class="icon-box rounded-3 mb-3 d-flex align-items-center justify-content-center" style="width: 48px; height: 48px; background-color: rgba(236, 72, 153, 0.1); color: #db2777;">
-                        <i class="bi bi-people fs-4"></i>
+                    <div class="icon-box rounded-3 mb-3 d-flex align-items-center justify-content-center" style="width: 48px; height: 48px; background-color: rgba(13, 148, 136, 0.1); color: #0d9488;">
+                        <i class="bi bi-bar-chart-steps fs-4"></i>
                     </div>
                     <h5 class="fw-bold text-dark mb-2">SPRS Report</h5>
-                    <p class="text-muted small mb-4 flex-grow-1">List of ADL Implemented.</p>
-                    <a href="<?= site_url('tupad_sprs/index'); ?>" class="btn btn-sm w-100 d-flex align-items-center justify-content-center gap-2 text-dark" style="border-color: #5cd668; background-color: #fff; color: #72db5a !important; transition: all 0.2s;" onmouseover="this.style.backgroundColor='#77ee5c'; this.style.color='#ffffff';" onmouseout="this.style.backgroundColor='#fff'; this.style.color='#5fe56d';">
+                    <p class="text-muted small mb-2 flex-grow-1">List of ADL Implemented.</p>
+                    <p class="text-muted small mb-3"><font color="RED">(This report is based on the encoded ADL Implementation.)</font></p>
+                    <a href="<?= site_url('tupad_sprs/index'); ?>" class="btn btn-sm w-100 d-flex align-items-center justify-content-center gap-2" style="border-color: #0d9488; background-color: #fff; color: #0d9488 !important; transition: all 0.2s;" onmouseover="this.style.backgroundColor='#0d9488'; this.style.color='#ffffff';" onmouseout="this.style.backgroundColor='#fff'; this.style.color='#0d9488';">
                         <span>Open Report</span>
                         <i class="bi bi-arrow-right"></i>
                     </a>
                 </div>
             </div>
         </div>
-
-
-
 
     </div>
 </div>
@@ -250,33 +245,6 @@
         box-shadow: 0 .5rem 1.5rem rgba(0,0,0,.08) !important;
     }
 </style>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
         </main>
 
