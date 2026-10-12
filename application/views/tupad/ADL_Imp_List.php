@@ -15,8 +15,6 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/dataTables.bootstrap5.min.css">
-
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 
     <style>
@@ -166,15 +164,15 @@
             <div class="card border-0 shadow-sm">
                 <div class="card-body p-4">
 
-                                    <!-- Reminder Notice -->
-            <div class="alert alert-info border-0 shadow-sm mb-4 no-print bg-white border-start border-primary border-4" role="alert">
-                <div class="d-flex align-items-center">
-                    <i class="bi bi-info-circle-fill text-primary fs-5 me-2"></i>
-                    <div class="small">
-                        <strong>Reminder:</strong> Pede rin po province lang ang i filter dito</strong>.
+                    <!-- Reminder Notice -->
+                    <div class="alert alert-info border-0 shadow-sm mb-4 no-print bg-white border-start border-primary border-4" role="alert">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-info-circle-fill text-primary fs-5 me-2"></i>
+                            <div class="small">
+                                <strong>Reminder:</strong> Pede rin po province lang ang i filter dito
+                            </div>
+                        </div>
                     </div>
-                </div>
-            </div>
                     
                     <div class="card border-0 shadow-sm mb-4">
                         <div class="card-body">
@@ -206,216 +204,229 @@
                         </div>
                     </div>
 
-                    <div class="card border-0 shadow-sm">
-                        <div class="card-body">
-                            <div class="table-responsive">
-                                <table id="transactionTable" class="table table-hover align-middle w-100">
-                                    <thead class="table-light text-uppercase fs-7 text-muted border-bottom">
-                                        <tr>
-                                            <th class="py-3">Transaction Details</th>
-                                            <th class="py-3">Location & Stakeholders</th>
-                                            <th class="py-3">Progress Pipeline</th>
-                                            <th class="py-3 text-center">Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <?php if (!empty($transactions)): ?>
-                                            <?php foreach ($transactions as $row): ?>
-                                                <?php 
-                                                    $isValidDate = function($date) {
-                                                        return !empty($date) && $date !== '0000-00-00';
-                                                    };
-
-                                                    $c1  = $isValidDate($row['date_coordinated']);
-                                                    $c2  = $isValidDate($row['appraisal_date_submitted']);
-                                                    $c3  = $isValidDate($row['appraisal_date_approved']);
-                                                    $c4  = !empty($row['ppes_issuance_ris']) && $isValidDate($row['ppes_date_issued']) && intval($row['ppes_count']) !== 0 && floatval($row['ppes_amount']) !== 0.0;
-                                                    $c5  = $isValidDate($row['orientation_date']) && !empty($row['orientation_employment_period']);
-                                                    $c6  = $isValidDate($row['gsis_enrollment_date']) && intval($row['gsis_enrollment_benefs']) !== 0 && floatval($row['gsis_enrollment_amount']) !== 0.0;
-                                                    $c7  = $isValidDate($row['ongoing_implementation_start_date']) && $isValidDate($row['ongoing_implementation_end_date']) && intval($row['ongoing_implementation_benefs']) !== 0;
-                                                    $c8  = !empty($row['completed_employment_period']) && intval($row['completed_employment_benefs']) !== 0 && !empty($row['completed_employment_amount']);
-                                                    $c9  = !empty($row['payment_alob_no']) && !empty($row['payment_dv_no']) && !empty($row['payment_check_no']) && !empty($row['payment_amount']) && $isValidDate($row['payment_date']);
-                                                    $c10 = $isValidDate($row['payout_date']) && !empty($row['payout_service_cost']) && !empty($row['payout_method']);
-
-                                                    $is_fully_complete = ($c1 && $c2 && $c3 && $c4 && $c5 && $c6 && $c7 && $c8 && $c9 && $c10);
-                                                ?>
-                                                <tr>
-                                                    <td>
-    <div class="d-flex flex-column">
-        <div class="d-flex align-items-center gap-2 mb-1">
-            <span class="fw-bold text-primary fs-6"><?= html_escape($row['adl_no']); ?></span>
-            <?php if ($is_fully_complete): ?>
-                <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-2 py-1">
-                    <i class="bi bi-check-circle-fill me-1"></i> Completed
-                </span>
-            <?php else: ?>
-                <span class="badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25 px-2 py-1">
-                    In Progress
-                </span>
-            <?php endif; ?>
-        </div>
-        <span class="text-muted small mb-1 font-monospace">Ref: <?= html_escape($row['implementation_reference_no']); ?></span>
-        <span class="text-secondary small mb-1"><i class="bi bi-calendar3 me-1"></i>Encoded: <?= html_escape($row['encoded_date'] ?? 'N/A'); ?></span>
-        
-        <div class="d-flex gap-3 mt-1 pt-1 border-top border-light small text-dark fw-medium">
-            <span><i class="bi bi-people me-1 text-primary"></i>Target: <?= number_format($row['target']); ?></span>
-            <span><i class="bi bi-clock-history me-1 text-secondary"></i>Days: <?= html_escape($row['no_of_days']); ?></span>
-        </div>
-
-        <!-- TUPAD Target Count Match Label -->
-        <?php 
-            $target_val = intval($row['target'] ?? 0);
-            $tupad_count = intval($row['tupad_list_count'] ?? 0);
-            $is_matched = ($target_val === $tupad_count);
-        ?>
-        <div class="mt-2">
-            <?php if ($is_matched): ?>
-                <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-2 py-1" title="TUPAD benefs list count matches target">
-                    <i class="bi bi-check-circle-fill me-1"></i> List Matched (<?= number_format($tupad_count); ?>/<?= number_format($target_val); ?>)
-                </span>
-            <?php else: ?>
-                <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 px-2 py-1" title="TUPAD benefs list count does not match target">
-                    <i class="bi bi-exclamation-triangle-fill me-1"></i> List Mismatch (<?= number_format($tupad_count); ?>/<?= number_format($target_val); ?>)
-                </span>
-            <?php endif; ?>
-        </div>
-    </div>
-</td>
-
-                                                    <td>
-                                                        <div class="d-flex flex-column">
-                                                            <span class="fw-semibold text-dark mb-1">
-                                                                <i class="bi bi-geo-alt text-danger me-1"></i><?= html_escape($row['implementation_area_name'] ?? 'N/A'); ?>, <?= html_escape($row['implementation_province_name'] ?? 'N/A'); ?>
-                                                            </span>
-                                                            <span class="text-muted small"><strong>Proponent:</strong> <?= html_escape($row['implementation_proponent_name'] ?? 'N/A'); ?></span>
-                                                            <span class="text-muted small"><strong>Sponsor:</strong> <?= html_escape($row['implementation_sponsor'] ?: 'None'); ?></span>
-                                                        </div>
-                                                    </td>
-
-                                                    <td style="max-width: 320px;">
-                                                        <div class="d-flex flex-wrap gap-1 align-items-center">
-                                                            <span class="badge <?= $c1 ? 'bg-success bg-opacity-10 text-success border border-success border-opacity-25' : 'bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25'; ?>" title="Coordinated">
-                                                                <i class="bi <?= $c1 ? 'bi-check text-success' : 'bi-x text-danger'; ?>"></i> Coordinated
-                                                            </span>
-                                                            <span class="badge <?= $c2 ? 'bg-success bg-opacity-10 text-success border border-success border-opacity-25' : 'bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25'; ?>" title="Appraisal Submitted">
-                                                                <i class="bi <?= $c2 ? 'bi-check text-success' : 'bi-x text-danger'; ?>"></i> Appraisal Sub.
-                                                            </span>
-                                                            <span class="badge <?= $c3 ? 'bg-success bg-opacity-10 text-success border border-success border-opacity-25' : 'bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25'; ?>" title="Appraisal Approved">
-                                                                <i class="bi <?= $c3 ? 'bi-check text-success' : 'bi-x text-danger'; ?>"></i> Appraisal App.
-                                                            </span>
-                                                            <span class="badge <?= $c4 ? 'bg-success bg-opacity-10 text-success border border-success border-opacity-25' : 'bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25'; ?>" title="Issued PPEs">
-                                                                <i class="bi <?= $c4 ? 'bi-check text-success' : 'bi-x text-danger'; ?>"></i> PPEs
-                                                            </span>
-                                                            <span class="badge <?= $c5 ? 'bg-success bg-opacity-10 text-success border border-success border-opacity-25' : 'bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25'; ?>" title="Oriented">
-                                                                <i class="bi <?= $c5 ? 'bi-check text-success' : 'bi-x text-danger'; ?>"></i> Oriented
-                                                            </span>
-                                                            <span class="badge <?= $c6 ? 'bg-success bg-opacity-10 text-success border border-success border-opacity-25' : 'bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25'; ?>" title="GSIS Enrolled">
-                                                                <i class="bi <?= $c6 ? 'bi-check text-success' : 'bi-x text-danger'; ?>"></i> GSIS
-                                                            </span>
-                                                            <span class="badge <?= $c7 ? 'bg-success bg-opacity-10 text-success border border-success border-opacity-25' : 'bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25'; ?>" title="Implemented">
-                                                                <i class="bi <?= $c7 ? 'bi-check text-success' : 'bi-x text-danger'; ?>"></i> Implemented
-                                                            </span>
-                                                            <span class="badge <?= $c8 ? 'bg-success bg-opacity-10 text-success border border-success border-opacity-25' : 'bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25'; ?>" title="Completed">
-                                                                <i class="bi <?= $c8 ? 'bi-check text-success' : 'bi-x text-danger'; ?>"></i> Finished
-                                                            </span>
-                                                            <span class="badge <?= $c9 ? 'bg-success bg-opacity-10 text-success border border-success border-opacity-25' : 'bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25'; ?>" title="Funding Processed">
-                                                                <i class="bi <?= $c9 ? 'bi-check text-success' : 'bi-x text-danger'; ?>"></i> Funded
-                                                            </span>
-                                                            <span class="badge <?= $c10 ? 'bg-success bg-opacity-10 text-success border border-success border-opacity-25' : 'bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25'; ?>" title="For payout">
-                                                                <i class="bi <?= $c10 ? 'bi-check text-success' : 'bi-x text-danger'; ?>"></i> Payout
-                                                            </span>
-                                                        </div>
-                                                    </td>
-
-                                                    <td class="text-center">
-                                                        <div class="dropdown">
-                                                            <button class="btn btn-light btn-sm border dropdown-toggle px-2 py-1" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                                                Actions
-                                                            </button>
-                                                            <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0">
-                                                                <?php if (isset($user_assigned_prov) && $user_assigned_prov === $row['implementation_province']): ?>
-                                                                    <li>
-                                                                        <button type="button" class="dropdown-item edit-btn py-2" data-id="<?= html_escape($row['adl_transact_id']); ?>">
-                                                                            <i class="bi bi-pencil-square text-primary me-2"></i> Update Record
-                                                                        </button>
-                                                                    </li>
-                                                                <?php endif; ?>
-                                                                <li>
-                                                                    <a href="<?= site_url('adl/view_pdf/' . html_escape($row['adl_transact_id'])); ?>" target="_blank" class="dropdown-item py-2">
-                                                                        <i class="bi bi-file-earmark-pdf text-danger me-2"></i> View PDF Details
-                                                                    </a>
-                                                                </li>
-                                                            </ul>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            <?php endforeach; ?>
-                                        <?php endif; ?>
-                                    </tbody>
-                                </table>
+                    <!-- Search and Pagination Controls Bar -->
+                    <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-3 gap-3">
+                        <div class="d-flex align-items-center gap-2">
+                            <label class="small text-muted mb-0">Show</label>
+                            <select id="itemsPerPageSelect" class="form-select form-select-sm" style="width: 80px;">
+                                <option value="5">5</option>
+                                <option value="10" selected>10</option>
+                                <option value="25">25</option>
+                                <option value="50">50</option>
+                            </select>
+                            <label class="small text-muted mb-0">entries</label>
+                        </div>
+                        <div class="w-100 w-md-auto" style="max-width: 300px;">
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+                                <input type="text" id="customSearchInput" class="form-control" placeholder="Search records...">
                             </div>
                         </div>
+                    </div>
+
+                    <!-- GROUPED TRANSACTIONS BY AUDREY REFERENCE NO -->
+                    <?php 
+                        $grouped_transactions = [];
+                        if (!empty($transactions)) {
+                            foreach ($transactions as $row) {
+                                $audrey_ref = !empty($row['audrey_reference_no']) ? $row['audrey_reference_no'] : 'NO AUDREY REF';
+                                $grouped_transactions[$audrey_ref][] = $row;
+                            }
+                        }
+                    ?>
+
+                    <div id="groupedTransactionsContainer">
+                        <?php if (!empty($grouped_transactions)): ?>
+                            <?php foreach ($grouped_transactions as $audrey_ref => $group_rows): ?>
+                                
+                                <!-- Audrey Reference Group Container Card -->
+                                <div class="card border mb-4 shadow-sm audrey-group-card" data-group-text="<?= strtolower(html_escape($audrey_ref)); ?>">
+                                    <div class="card-header py-2 px-3 d-flex justify-content-between align-items-center text-white" style="background-color: #1e3a8a;">
+                                        <span class="fw-bold">
+                                            <i class="bi bi-tag-fill me-2"></i> Audrey Reference No: <?= html_escape($audrey_ref); ?>
+                                        </span>
+                                        <span class="badge bg-white text-dark fw-semibold">
+                                            Total Entries: <?= count($group_rows); ?>
+                                        </span>
+                                    </div>
+                                    <div class="card-body p-0">
+                                        <div class="table-responsive">
+                                            <table class="table table-hover align-middle mb-0 w-100">
+                                                <thead class="table-light text-uppercase fs-7 text-muted border-bottom">
+                                                    <tr>
+                                                        <th class="py-3 ps-3">Transaction Details</th>
+                                                        <th class="py-3">Location & Stakeholders</th>
+                                                        <th class="py-3">Progress Pipeline</th>
+                                                        <th class="py-3 text-center">Actions</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <?php foreach ($group_rows as $row): ?>
+                                                        <?php 
+                                                            $isValidDate = function($date) {
+                                                                return !empty($date) && $date !== '0000-00-00';
+                                                            };
+
+                                                            $c1  = $isValidDate($row['date_coordinated']);
+                                                            $c2  = $isValidDate($row['appraisal_date_submitted']);
+                                                            $c3  = $isValidDate($row['appraisal_date_approved']);
+                                                            $c4  = !empty($row['ppes_issuance_ris']) && $isValidDate($row['ppes_date_issued']) && intval($row['ppes_count']) !== 0 && floatval($row['ppes_amount']) !== 0.0;
+                                                            $c5  = $isValidDate($row['orientation_date']) && !empty($row['orientation_employment_period']);
+                                                            $c6  = $isValidDate($row['gsis_enrollment_date']) && intval($row['gsis_enrollment_benefs']) !== 0 && floatval($row['gsis_enrollment_amount']) !== 0.0;
+                                                            $c7  = $isValidDate($row['ongoing_implementation_start_date']) && $isValidDate($row['ongoing_implementation_end_date']) && intval($row['ongoing_implementation_benefs']) !== 0;
+                                                            $c8  = !empty($row['completed_employment_period']) && intval($row['completed_employment_benefs']) !== 0 && !empty($row['completed_employment_amount']);
+                                                            $c9  = !empty($row['payment_alob_no']) && !empty($row['payment_dv_no']) && !empty($row['payment_check_no']) && !empty($row['payment_amount']) && $isValidDate($row['payment_date']);
+                                                            $c10 = $isValidDate($row['payout_date']) && !empty($row['payout_service_cost']) && !empty($row['payout_method']);
+
+                                                            $is_fully_complete = ($c1 && $c2 && $c3 && $c4 && $c5 && $c6 && $c7 && $c8 && $c9 && $c10);
+
+                                                            $search_blob = strtolower(
+                                                                $audrey_ref . ' ' . 
+                                                                $row['adl_no'] . ' ' . 
+                                                                $row['implementation_reference_no'] . ' ' . 
+                                                                ($row['implementation_area_name'] ?? '') . ' ' . 
+                                                                ($row['implementation_province_name'] ?? '') . ' ' . 
+                                                                ($row['implementation_proponent_name'] ?? '') . ' ' . 
+                                                                ($row['implementation_sponsor'] ?? '')
+                                                            );
+                                                        ?>
+                                                        <tr class="transaction-card-row" data-search-content="<?= html_escape($search_blob); ?>">
+                                                            <td class="ps-3">
+                                                                <div class="d-flex flex-column">
+                                                                    <div class="d-flex align-items-center gap-2 mb-1">
+                                                                        <span class="fw-bold text-primary fs-6"><?= html_escape($row['adl_no']); ?></span>
+                                                                        <?php if ($is_fully_complete): ?>
+                                                                            <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-2 py-1">
+                                                                                <i class="bi bi-check-circle-fill me-1"></i> Completed
+                                                                            </span>
+                                                                        <?php else: ?>
+                                                                            <span class="badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25 px-2 py-1">
+                                                                                In Progress
+                                                                            </span>
+                                                                        <?php endif; ?>
+                                                                    </div>
+                                                                    <span class="text-muted small mb-1 font-monospace">System Ref: <?= html_escape($row['implementation_reference_no']); ?></span>
+                                                                    <span class="text-secondary small mb-1"><i class="bi bi-calendar3 me-1"></i>Encoded: <?= html_escape($row['encoded_date'] ?? 'N/A'); ?></span>
+                                                                    
+                                                                    <div class="d-flex gap-3 mt-1 pt-1 border-top border-light small text-dark fw-medium">
+                                                                        <span><i class="bi bi-people me-1 text-primary"></i>Target: <?= number_format($row['target']); ?></span>
+                                                                        <span><i class="bi bi-clock-history me-1 text-secondary"></i>Days: <?= html_escape($row['no_of_days']); ?></span>
+                                                                    </div>
+
+                                                                    <!-- TUPAD Target Count Match Label -->
+                                                                    <?php 
+                                                                        $target_val = intval($row['target'] ?? 0);
+                                                                        $tupad_count = intval($row['tupad_list_count'] ?? 0);
+                                                                        $is_matched = ($target_val === $tupad_count);
+                                                                    ?>
+                                                                    <div class="mt-2">
+                                                                        <?php if ($is_matched): ?>
+                                                                            <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-2 py-1" title="TUPAD benefs list count matches target">
+                                                                                <i class="bi bi-check-circle-fill me-1"></i> List Matched (<?= number_format($tupad_count); ?>/<?= number_format($target_val); ?>)
+                                                                            </span>
+                                                                        <?php else: ?>
+                                                                            <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 px-2 py-1" title="TUPAD benefs list count does not match target">
+                                                                                <i class="bi bi-exclamation-triangle-fill me-1"></i> List Mismatch (<?= number_format($tupad_count); ?>/<?= number_format($target_val); ?>)
+                                                                            </span>
+                                                                        <?php endif; ?>
+                                                                    </div>
+                                                                </div>
+                                                            </td>
+
+                                                            <td>
+                                                                <div class="d-flex flex-column">
+                                                                    <span class="fw-semibold text-dark mb-1">
+                                                                        <i class="bi bi-geo-alt text-danger me-1"></i><?= html_escape($row['implementation_area_name'] ?? 'N/A'); ?>, <?= html_escape($row['implementation_province_name'] ?? 'N/A'); ?>
+                                                                    </span>
+                                                                    <span class="text-muted small"><strong>Proponent:</strong> <?= html_escape($row['implementation_proponent_name'] ?? 'N/A'); ?></span>
+                                                                    <span class="text-muted small"><strong>Sponsor:</strong> <?= html_escape($row['implementation_sponsor'] ?: 'None'); ?></span>
+                                                                    <span class="text-muted small"><strong>Remarks:</strong> <?= html_escape($row['remarks'] ?: 'None'); ?></span>
+                                                                </div>
+                                                            </td>
+
+                                                            <td style="max-width: 320px;">
+                                                                <div class="d-flex flex-wrap gap-1 align-items-center">
+                                                                    <span class="badge <?= $c1 ? 'bg-success bg-opacity-10 text-success border border-success border-opacity-25' : 'bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25'; ?>" title="Coordinated">
+                                                                        <i class="bi <?= $c1 ? 'bi-check text-success' : 'bi-x text-danger'; ?>"></i> Coordinated
+                                                                    </span>
+                                                                    <span class="badge <?= $c2 ? 'bg-success bg-opacity-10 text-success border border-success border-opacity-25' : 'bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25'; ?>" title="Appraisal Submitted">
+                                                                        <i class="bi <?= $c2 ? 'bi-check text-success' : 'bi-x text-danger'; ?>"></i> Appraisal Sub.
+                                                                    </span>
+                                                                    <span class="badge <?= $c3 ? 'bg-success bg-opacity-10 text-success border border-success border-opacity-25' : 'bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25'; ?>" title="Appraisal Approved">
+                                                                        <i class="bi <?= $c3 ? 'bi-check text-success' : 'bi-x text-danger'; ?>"></i> Appraisal App.
+                                                                    </span>
+                                                                    <span class="badge <?= $c4 ? 'bg-success bg-opacity-10 text-success border border-success border-opacity-25' : 'bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25'; ?>" title="Issued PPEs">
+                                                                        <i class="bi <?= $c4 ? 'bi-check text-success' : 'bi-x text-danger'; ?>"></i> PPEs
+                                                                    </span>
+                                                                    <span class="badge <?= $c5 ? 'bg-success bg-opacity-10 text-success border border-success border-opacity-25' : 'bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25'; ?>" title="Oriented">
+                                                                        <i class="bi <?= $c5 ? 'bi-check text-success' : 'bi-x text-danger'; ?>"></i> Oriented
+                                                                    </span>
+                                                                    <span class="badge <?= $c6 ? 'bg-success bg-opacity-10 text-success border border-success border-opacity-25' : 'bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25'; ?>" title="GSIS Enrolled">
+                                                                        <i class="bi <?= $c6 ? 'bi-check text-success' : 'bi-x text-danger'; ?>"></i> GSIS
+                                                                    </span>
+                                                                    <span class="badge <?= $c7 ? 'bg-success bg-opacity-10 text-success border border-success border-opacity-25' : 'bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25'; ?>" title="Implemented">
+                                                                        <i class="bi <?= $c7 ? 'bi-check text-success' : 'bi-x text-danger'; ?>"></i> Implemented
+                                                                    </span>
+                                                                    <span class="badge <?= $c8 ? 'bg-success bg-opacity-10 text-success border border-success border-opacity-25' : 'bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25'; ?>" title="Completed">
+                                                                        <i class="bi <?= $c8 ? 'bi-check text-success' : 'bi-x text-danger'; ?>"></i> Finished
+                                                                    </span>
+                                                                    <span class="badge <?= $c9 ? 'bg-success bg-opacity-10 text-success border border-success border-opacity-25' : 'bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25'; ?>" title="Funding Processed">
+                                                                        <i class="bi <?= $c9 ? 'bi-check text-success' : 'bi-x text-danger'; ?>"></i> Funded
+                                                                    </span>
+                                                                    <span class="badge <?= $c10 ? 'bg-success bg-opacity-10 text-success border border-success border-opacity-25' : 'bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25'; ?>" title="For payout">
+                                                                        <i class="bi <?= $c10 ? 'bi-check text-success' : 'bi-x text-danger'; ?>"></i> Payout
+                                                                    </span>
+                                                                </div>
+                                                            </td>
+
+                                                            <td class="text-center">
+                                                                <div class="dropdown">
+                                                                    <button class="btn btn-light btn-sm border dropdown-toggle px-2 py-1" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                                        Actions
+                                                                    </button>
+                                                                    <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0">
+                                                                        <?php if (isset($user_assigned_prov) && $user_assigned_prov === $row['implementation_province']): ?>
+                                                                            <li>
+                                                                                <button type="button" class="dropdown-item edit-btn py-2" data-id="<?= html_escape($row['adl_transact_id']); ?>">
+                                                                                    <i class="bi bi-pencil-square text-primary me-2"></i> Update Record
+                                                                                </button>
+                                                                            </li>
+                                                                        <?php endif; ?>
+                                                                        <li>
+                                                                            <a href="<?= site_url('adl/view_pdf/' . html_escape($row['adl_transact_id'])); ?>" target="_blank" class="dropdown-item py-2">
+                                                                                <i class="bi bi-file-earmark-pdf text-danger me-2"></i> View PDF Details
+                                                                            </a>
+                                                                        </li>
+                                                                    </ul>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                    <?php endforeach; ?>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <div class="text-center text-muted py-4" id="noRecordsFoundMsg">No transaction records found. Please select a filtered area.</div>
+                        <?php endif; ?>
+                    </div>
+
+                    <!-- Pagination Controls Foot -->
+                    <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mt-4 gap-3">
+                        <div class="small text-muted" id="paginationInfo">Showing 0 to 0 of 0 entries</div>
+                        <nav>
+                            <ul class="pagination pagination-sm mb-0" id="customPaginationNav">
+                                <!-- Dynamic Pagination Links -->
+                            </ul>
+                        </nav>
                     </div>
 
                 </div>
             </div>
 
         </main>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
         <!-- REMINDER / GUIDELINES MODAL -->
         <div class="modal fade" id="reminderModal" tabindex="-1" aria-labelledby="reminderModalLabel" aria-hidden="true">
@@ -447,52 +458,46 @@
             </div>
         </div>
 
+        <!-- BACKOUTS GUIDE MODAL -->
+        <div class="modal fade" id="backoutsGuideModal" tabindex="-1" aria-labelledby="backoutsGuideModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content border-0 shadow">
+                    <div class="modal-header text-white" style="background-color: #0f172a;">
+                        <h5 class="modal-title" id="backoutsGuideModalLabel">
+                            <i class="bi bi-journal-code me-2"></i>Guide: Handling Backouts
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body p-4">
+                        <p class="small text-muted mb-3">To update records for backouts, please follow this workflow:</p>
+                        
+                        <div class="card border-0 bg-light p-3 mb-3">
+                            <h6 class="fw-bold text-primary small mb-2"><i class="bi bi-1-circle-fill me-1"></i> Step 1: Appraisal & PPEs Tab</h6>
+                            <p class="small text-dark mb-0">
+                                Go to the <strong>Appraisal & PPEs</strong> tab. Click the <strong>Override</strong> buttons for <strong>PPES Count</strong> and <strong>PPES Female</strong> to adjust the values.
+                            </p>
+                        </div>
 
+                        <div class="card border-0 bg-light p-3 mb-3">
+                            <h6 class="fw-bold text-primary small mb-2"><i class="bi bi-2-circle-fill me-1"></i> Step 2: Implementation Status Tab</h6>
+                            <p class="small text-dark mb-0">
+                                Go to the <strong>Implementation Status</strong> tab and update the <strong>Payroll Beneficiaries</strong> input field.
+                            </p>
+                        </div>
 
-
-        
-<!-- BACKOUTS GUIDE MODAL -->
-<div class="modal fade" id="backoutsGuideModal" tabindex="-1" aria-labelledby="backoutsGuideModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow">
-            <div class="modal-header text-white" style="background-color: #0f172a;">
-                <h5 class="modal-title" id="backoutsGuideModalLabel">
-                    <i class="bi bi-journal-code me-2"></i>Guide: Handling Backouts
-                </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body p-4">
-                <p class="small text-muted mb-3">To update records for backouts, please follow this workflow:</p>
-                
-                <div class="card border-0 bg-light p-3 mb-3">
-                    <h6 class="fw-bold text-primary small mb-2"><i class="bi bi-1-circle-fill me-1"></i> Step 1: Appraisal & PPEs Tab</h6>
-                    <p class="small text-dark mb-0">
-                        Go to the <strong>Appraisal & PPEs</strong> tab. Click the <strong>Override</strong> buttons for <strong>PPES Count</strong> and <strong>PPES Female</strong> to adjust the values.
-                    </p>
+                        <div class="alert alert-warning border-0 small mb-0" role="alert">
+                            <i class="bi bi-exclamation-triangle-fill me-1"></i> <strong>Important Reminder:</strong> All these input fields should be updated based on the <strong>actual beneficiaries paid</strong>.
+                        </div>
+                    </div>
+                    <div class="modal-footer bg-light">
+                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close Guide</button>
+                        <button type="button" class="btn btn-sm text-white" style="background-color: #0f172a;" onclick="navigateToAppraisalTab()">
+                            <i class="bi bi-arrow-right-circle me-1"></i> Go to Appraisal & PPEs
+                        </button>
+                    </div>
                 </div>
-
-                <div class="card border-0 bg-light p-3 mb-3">
-                    <h6 class="fw-bold text-primary small mb-2"><i class="bi bi-2-circle-fill me-1"></i> Step 2: Implementation Status Tab</h6>
-                    <p class="small text-dark mb-0">
-                        Go to the <strong>Implementation Status</strong> tab and update the <strong>Payroll Beneficiaries</strong> input field.
-                    </p>
-                </div>
-
-                <div class="alert alert-warning border-0 small mb-0" role="alert">
-                    <i class="bi bi-exclamation-triangle-fill me-1"></i> <strong>Important Reminder:</strong> All these input fields should be updated based on the <strong>actual beneficiaries paid</strong>.
-                </div>
-            </div>
-            <div class="modal-footer bg-light">
-                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close Guide</button>
-                <button type="button" class="btn btn-sm text-white" style="background-color: #0f172a;" onclick="navigateToAppraisalTab()">
-                    <i class="bi bi-arrow-right-circle me-1"></i> Go to Appraisal & PPEs
-                </button>
             </div>
         </div>
-    </div>
-</div>
-
-
 
         <!-- EDIT TRANSACTION MODAL -->
         <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
@@ -583,19 +588,19 @@
                                         </div>
 
 
-<div class="col-md-3">
-    <label class="form-label fw-semibold small">Fund Source</label>
-    <select name="fund_source" id="edit_fund_source" class="form-select" style="width: 100%;" required>
-        <option value="" selected disabled>-- Select Fund Source --</option>
-        <?php if (!empty($fund_sources)): ?>
-            <?php foreach ($fund_sources as $fs): ?>
-                <option value="<?= html_escape($fs['fund_source_id']); ?>">
-                    <?= html_escape($fs['fund_source_desc']); ?>
-                </option>
-            <?php endforeach; ?>
-        <?php endif; ?>
-    </select>
-</div>
+                                        <div class="col-md-3">
+                                            <label class="form-label fw-semibold small">Fund Source</label>
+                                            <select name="fund_source" id="edit_fund_source" class="form-select" style="width: 100%;" required>
+                                                <option value="" selected disabled>-- Select Fund Source --</option>
+                                                <?php if (!empty($fund_sources)): ?>
+                                                    <?php foreach ($fund_sources as $fs): ?>
+                                                        <option value="<?= html_escape($fs['fund_source_id']); ?>">
+                                                            <?= html_escape($fs['fund_source_desc']); ?>
+                                                        </option>
+                                                    <?php endforeach; ?>
+                                                <?php endif; ?>
+                                            </select>
+                                        </div>
 
                                         <div class="col-md-3">
                                             <label class="form-label fw-semibold small">Implementation Province</label>
@@ -733,7 +738,7 @@
                                                 <button type="button" class="btn btn-outline-secondary btn-sm py-0 px-1" id="btn_override_ppes_amount" style="font-size: 0.65rem;" title="Click to override auto-calculation">Override</button>
                                             </div>
                                             <input type="number" id="edit_ppes_amount" name="ppes_amount" class="form-control" placeholder="0.00" readonly>
-                                            <small class="text-danger d-none mt-1 d-block" id="note_ppes_amount" style="font-size: 0.65rem; line-height: 1.1;">THIS VALUE IS NOT YET RECORDED IN THE ADL TRANSACTION TABLE. CLICK SAVE CHANGES TO RECORD</small>
+                                            <small class="text-danger d-none mt-1 d-block" id="note_ppes_amount" step="0.01" style="font-size: 0.65rem; line-height: 1.1;">THIS VALUE IS NOT YET RECORDED IN THE ADL TRANSACTION TABLE. CLICK SAVE CHANGES TO RECORD</small>
                                         </div>
                                     </div>
                                 </div>
@@ -782,7 +787,7 @@
                                                 <button type="button" class="btn btn-outline-secondary btn-sm py-0 px-1" id="btn_override_gsis_amount" style="font-size: 0.65rem;" title="Click to override auto-calculation">Override</button>
                                             </div>
                                             <input type="number" id="edit_gsis_enrollment_amount" name="gsis_enrollment_amount" class="form-control" placeholder="0.00" readonly>
-                                            <small class="text-danger d-none mt-1 d-block" id="note_gsis_amount" style="font-size: 0.65rem; line-height: 1.1;">THIS VALUE IS NOT YET RECORDED IN THE ADL TRANSACTION TABLE. CLICK SAVE CHANGES TO RECORD</small>
+                                            <small class="text-danger d-none mt-1 d-block" id="note_gsis_amount" step="0.01" style="font-size: 0.65rem; line-height: 1.1;">THIS VALUE IS NOT YET RECORDED IN THE ADL TRANSACTION TABLE. CLICK SAVE CHANGES TO RECORD</small>
                                         </div>    
                                     </div>
                                 </div>
@@ -878,10 +883,9 @@
 
                         <div class="modal-footer bg-light">
 
-<button type="button" class="btn btn-link text-decoration-none text-primary p-0 fw-semibold" data-bs-toggle="modal" data-bs-target="#backoutsGuideModal">
-        <i class="bi bi-question-circle-fill me-1"></i> Backouts?
-    </button>
-
+                            <button type="button" class="btn btn-link text-decoration-none text-primary p-0 fw-semibold" data-bs-toggle="modal" data-bs-target="#backoutsGuideModal">
+                                <i class="bi bi-question-circle-fill me-1"></i> Backouts?
+                            </button>
 
                             <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">Cancel</button>
                             <button type="submit" id="updateTransactionBtn" class="btn px-4 text-white" style="background-color: #0f172a;">
@@ -893,41 +897,25 @@
             </div>
         </div>
 
-
-
-
-
-
-
-
-
-
-
-
         <div class="modal fade" id="overrideConfirmModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow">
-            <div class="modal-header bg-warning text-dark">
-                <h5 class="modal-title fw-bold">
-                    <i class="bi bi-exclamation-triangle-fill me-2"></i>Warning
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body p-4">
-                <p class="mb-0 text-dark">Using this feature will make the report inaccurate. You must upload the actual beneficiaries list in the uploading page[cite: 1].</p>
-            </div>
-            <div class="modal-footer bg-light">
-                <button type="button" class="btn btn-secondary btn-sm px-3" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary btn-sm px-3" id="btnOverrideContinue" style="background-color: #0f172a;">Continue</button>
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content border-0 shadow">
+                    <div class="modal-header bg-warning text-dark">
+                        <h5 class="modal-title fw-bold">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i>Warning
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body p-4">
+                        <p class="mb-0 text-dark">Using this feature will make the report inaccurate. You must upload the actual beneficiaries list in the uploading page[cite: 1].</p>
+                    </div>
+                    <div class="modal-footer bg-light">
+                        <button type="button" class="btn btn-secondary btn-sm px-3" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-primary btn-sm px-3" id="btnOverrideContinue" style="background-color: #0f172a;">Continue</button>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
-</div>
-
-
-
-
-
 
         <footer class="bg-white border-top p-3 text-center text-muted small no-print">
             &copy; 2026 Department of Labor and Employment. All rights reserved.
@@ -936,25 +924,135 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/datatables.net@1.13.8/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/datatables.net-bs5@1.13.8/js/dataTables.bootstrap5.min.js"></script>
 
   <script>
     $(document).ready(function () {
+        // CLIENT-SIDE SEARCH AND PAGINATION FOR GROUPED CARDS
+        let currentPage = 1;
+        let itemsPerPage = parseInt($('#itemsPerPageSelect').val()) || 10;
+
+        function updateCardPagination() {
+            const searchTerm = $('#customSearchInput').val().toLowerCase();
+            const $cards = $('.audrey-group-card');
+            let visibleCards = [];
+
+            // 1. Filter cards based on search input
+            $cards.each(function() {
+                const $card = $(this);
+                let matchedInCard = false;
+
+                $card.find('.transaction-card-row').each(function() {
+                    const $row = $(this);
+                    const content = $row.data('search-content') || '';
+                    if (content.includes(searchTerm)) {
+                        $row.show();
+                        matchedInCard = true;
+                    } else {
+                        $row.hide();
+                    }
+                });
+
+                if (matchedInCard) {
+                    $cards.index($card);
+                    visibleCards.push($card);
+                    $card.show();
+                } else {
+                    $card.hide();
+                }
+            });
+
+            const totalVisible = visibleCards.length;
+            const totalPages = Math.ceil(totalVisible / itemsPerPage) || 1;
+            if (currentPage > totalPages) currentPage = totalPages;
+            if (currentPage < 1) currentPage = 1;
+
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+
+            // 2. Hide/Show cards based on current page slice
+            visibleCards.forEach(function($card, index) {
+                if (index >= startIndex && index < endIndex) {
+                    $card.show();
+                } else {
+                    $card.hide();
+                }
+            });
+
+            // 3. Update footer info text
+            if (totalVisible === 0) {
+                $('#paginationInfo').text('Showing 0 to 0 of 0 entries');
+                $('#customPaginationNav').html('');
+            } else {
+                const displayStart = startIndex + 1;
+                const displayEnd = Math.min(endIndex, totalVisible);
+                $('#paginationInfo').text(`Showing ${displayStart} to ${displayEnd} of ${totalVisible} entries`);
+
+                // 4. Build custom pagination buttons
+                let paginationHtml = '';
+                
+                // Previous button
+                paginationHtml += `<li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+                    <a class="page-link" href="#" data-page="${currentPage - 1}">Previous</a>
+                </li>`;
+
+                for (let i = 1; i <= totalPages; i++) {
+                    if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
+                        paginationHtml += `<li class="page-item ${i === currentPage ? 'active' : ''}">
+                            <a class="page-link" href="#" data-page="${i}">${i}</a>
+                        </li>`;
+                    } else if (i === currentPage - 2 || i === currentPage + 2) {
+                        paginationHtml += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
+                    }
+                }
+
+                // Next button
+                paginationHtml += `<li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
+                    <a class="page-link" href="#" data-page="${currentPage + 1}">Next</a>
+                </li>`;
+
+                $('#customPaginationNav').html(paginationHtml);
+            }
+        }
+
+        $('#customSearchInput').on('keyup', function() {
+            currentPage = 1;
+            updateCardPagination();
+        });
+
+        $('#itemsPerPageSelect').on('change', function() {
+            itemsPerPage = parseInt($(this).val()) || 10;
+            currentPage = 1;
+            updateCardPagination();
+        });
+
+        $(document).on('click', '#customPaginationNav .page-link', function(e) {
+            e.preventDefault();
+            const targetPage = $(this).closest('.page-item').hasClass('disabled') ? null : $(this).data('page');
+            if (targetPage) {
+                currentPage = targetPage;
+                updateCardPagination();
+            }
+        });
+
+        // Run initial card pagination setup on load
+        updateCardPagination();
+
         // Prevent Multiple Form Submissions for Edit Transaction Modal
         $('#editTransactionForm').on('submit', function (e) {
             e.preventDefault(); // Temporarily stop standard submission
 
-            const $form =$(this);
-            const $submitBtn =$('#updateTransactionBtn');
+            const $form = $(this);
+            const $submitBtn = $('#updateTransactionBtn');
 
             // Check HTML5 form validation validity
-            if ($form[0].checkValidity() === false) {$form[0].reportValidity();
+            if ($form[0].checkValidity() === false) {
+                $form[0].reportValidity();
                 return;
             }
 
             // Disable button and swap text for a loading spinner
-            $submitBtn.prop('disabled', true);$submitBtn.html(`
+            $submitBtn.prop('disabled', true);
+            $submitBtn.html(`
                 <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
                 Saving Changes...
             `);
@@ -963,15 +1061,6 @@
             setTimeout(function() {
                 $form.get(0).submit();
             }, 200);
-        });
-
-        $('#transactionTable').DataTable({
-            "language": {
-                "emptyTable": "No transaction records found. Please select a filtered area."
-            },
-            "pageLength": 10,
-            "lengthMenu": [5, 10, 25, 50, 100],
-            "order": [[0, "desc"]]
         });
 
         $('#edit_imp_proponent').select2({
@@ -1007,62 +1096,73 @@
         // This keeps whatever current value is in the field intact.
         $('#btn_override_ppes_count').on('click', function() {
             overridePpesCount = !overridePpesCount;
-            const $input =$('#edit_ppes_count');
+            const $input = $('#edit_ppes_count');
             if (overridePpesCount) {
-                $input.prop('readonly', false).focus();$(this).removeClass('btn-outline-secondary').addClass('btn-warning text-dark');
+                $input.prop('readonly', false).focus();
+                $(this).removeClass('btn-outline-secondary').addClass('btn-warning text-dark');
             } else {
-                $input.prop('readonly', true);$(this).removeClass('btn-warning text-dark').addClass('btn-outline-secondary');
-                // Removed evaluatePPESAutoValues() call here so current field data remains unchanged
+                $input.prop('readonly', true);
+                $(this).removeClass('btn-warning text-dark').addClass('btn-outline-secondary');
             }
         });
 
         $('#btn_override_ppes_female').on('click', function() {
             overridePpesFemale = !overridePpesFemale;
-            const $input =$('#edit_ppes_female');
+            const $input = $('#edit_ppes_female');
             if (overridePpesFemale) {
-                $input.prop('readonly', false).focus();$(this).removeClass('btn-outline-secondary').addClass('btn-warning text-dark');
+                $input.prop('readonly', false).focus();
+                $(this).removeClass('btn-outline-secondary').addClass('btn-warning text-dark');
             } else {
-                $input.prop('readonly', true);$(this).removeClass('btn-warning text-dark').addClass('btn-outline-secondary');
+                $input.prop('readonly', true);
+                $(this).removeClass('btn-warning text-dark').addClass('btn-outline-secondary');
             }
         });
 
         $('#btn_override_ppes_amount').on('click', function() {
             overridePpesAmount = !overridePpesAmount;
-            const $input =$('#edit_ppes_amount');
+            const $input = $('#edit_ppes_amount');
             if (overridePpesAmount) {
-                $input.prop('readonly', false).focus();$(this).removeClass('btn-outline-secondary').addClass('btn-warning text-dark');
+                $input.prop('readonly', false).focus();
+                $(this).removeClass('btn-outline-secondary').addClass('btn-warning text-dark');
             } else {
-                $input.prop('readonly', true);$(this).removeClass('btn-warning text-dark').addClass('btn-outline-secondary');
+                $input.prop('readonly', true);
+                $(this).removeClass('btn-warning text-dark').addClass('btn-outline-secondary');
             }
         });
 
         $('#btn_override_gsis_benefs').on('click', function() {
             overrideGsisBenefs = !overrideGsisBenefs;
-            const $input =$('#edit_gsis_enrollment_benefs');
+            const $input = $('#edit_gsis_enrollment_benefs');
             if (overrideGsisBenefs) {
-                $input.prop('readonly', false).focus();$(this).removeClass('btn-outline-secondary').addClass('btn-warning text-dark');
+                $input.prop('readonly', false).focus();
+                $(this).removeClass('btn-outline-secondary').addClass('btn-warning text-dark');
             } else {
-                $input.prop('readonly', true);$(this).removeClass('btn-warning text-dark').addClass('btn-outline-secondary');
+                $input.prop('readonly', true);
+                $(this).removeClass('btn-warning text-dark').addClass('btn-outline-secondary');
             }
         });
 
         $('#btn_override_gsis_female').on('click', function() {
             overrideGsisFemale = !overrideGsisFemale;
-            const $input =$('#edit_gsis_enrollment_female');
+            const $input = $('#edit_gsis_enrollment_female');
             if (overrideGsisFemale) {
-                $input.prop('readonly', false).focus();$(this).removeClass('btn-outline-secondary').addClass('btn-warning text-dark');
+                $input.prop('readonly', false).focus();
+                $(this).removeClass('btn-outline-secondary').addClass('btn-warning text-dark');
             } else {
-                $input.prop('readonly', true);$(this).removeClass('btn-warning text-dark').addClass('btn-outline-secondary');
+                $input.prop('readonly', true);
+                $(this).removeClass('btn-warning text-dark').addClass('btn-outline-secondary');
             }
         });
 
         $('#btn_override_gsis_amount').on('click', function() {
             overrideGsisAmount = !overrideGsisAmount;
-            const $input =$('#edit_gsis_enrollment_amount');
+            const $input = $('#edit_gsis_enrollment_amount');
             if (overrideGsisAmount) {
-                $input.prop('readonly', false).focus();$(this).removeClass('btn-outline-secondary').addClass('btn-warning text-dark');
+                $input.prop('readonly', false).focus();
+                $(this).removeClass('btn-outline-secondary').addClass('btn-warning text-dark');
             } else {
-                $input.prop('readonly', true);$(this).removeClass('btn-warning text-dark').addClass('btn-outline-secondary');
+                $input.prop('readonly', true);
+                $(this).removeClass('btn-warning text-dark').addClass('btn-outline-secondary');
             }
         });
 
@@ -1088,7 +1188,6 @@
             const isDateValid = dateVal && dateVal.trim() !== '' && dateVal !== '0000-00-00' && dateVal !== '0000.00.00';
 
             if (isRisValid && isDateValid) {
-                // Only overwrite if override is NOT enabled for each specific field
                 if (!overridePpesCount) {
                     $('#edit_ppes_count').val(currentTupadTotalCount);
                 }
@@ -1120,7 +1219,6 @@
             const isDateValid = dateVal && dateVal.trim() !== '' && dateVal !== '0000-00-00' && dateVal !== '0000.00.00';
 
             if (isDateValid) {
-                // Only overwrite if override is NOT enabled for each specific field
                 if (!overrideGsisBenefs) {
                     $('#edit_gsis_enrollment_benefs').val(currentTupadTotalCount);
                 }
@@ -1186,7 +1284,7 @@
         }
 
         function loadModalBarangays(citymunCode, selectedBrgy = '') {
-            const $brgySelect =$('#edit_implementation_brgy');
+            const $brgySelect = $('#edit_implementation_brgy');
             if (citymunCode) {
                 $brgySelect.prop('disabled', true).html('<option value="">Loading barangays...</option>');
                 $.ajax({
@@ -1217,7 +1315,7 @@
         }
 
         function loadModalMunicipalities(provCode, selectedArea = '', selectedBrgy = '') {
-            const $cityMunSelect =$('#edit_implementation_area');
+            const $cityMunSelect = $('#edit_implementation_area');
             if (provCode) {
                 $.ajax({
                     url: "<?= site_url('adl/get_municipalities_by_province'); ?>",
@@ -1244,7 +1342,8 @@
         }
 
         $('#edit_implementation_province').change(function () {
-            loadModalMunicipalities($(this).val());$('#edit_implementation_brgy').empty().append('<option value="" selected disabled>Select Municipality First</option>');
+            loadModalMunicipalities($(this).val());
+            $('#edit_implementation_brgy').empty().append('<option value="" selected disabled>Select Municipality First</option>');
         });
 
         $('#edit_implementation_area').change(function () {
@@ -1252,7 +1351,8 @@
         });
 
         $(document).on('click', '.edit-btn', function () {
-            const transactionId = $(this).data('id');$('.text-danger.d-block').addClass('d-none');
+            const transactionId = $(this).data('id');
+            $('.text-danger.d-block').addClass('d-none');
 
             overridePpesCount = false;
             overridePpesFemale = false;
@@ -1376,7 +1476,8 @@
 
     $(document).on('click', '#sidebarToggle', function (e) {
         e.preventDefault();
-        if ($(window).width() < 992) {$('#sidebar').toggleClass('show-mobile');
+        if ($(window).width() < 992) {
+            $('#sidebar').toggleClass('show-mobile');
         } else {
             $('#sidebar').toggleClass('collapsed');
             $('#main-content').toggleClass('expanded');
@@ -1402,7 +1503,7 @@
         const currentInputTarget = parseFloat($('#target').val()) || 0;
         const $noticeContainer = $('#editTargetNoticeContainer');
         const $noticeText = $('#editTargetNoticeText');
-        const $targetInput =$('#target');
+        const $targetInput = $('#target');
 
         if (!adlNo || !transactId) {
             $noticeContainer.hide();
@@ -1546,12 +1647,6 @@
         });
     });
 
-
-
-
-
-
-
 // Automatically append a modern 'Auto' badge to all read-only inputs
 function applyAutoBadges() {
     $('.readonly-field-wrapper').each(function() {
@@ -1611,16 +1706,12 @@ $('#edit_fund_source').select2({
     dropdownParent: $('#editModal')
 });
 
-
-
-
 function navigateToAppraisalTab() {
     const guideModalEl = document.getElementById('backoutsGuideModal');
     const guideModal = bootstrap.Modal.getInstance(guideModalEl);
     
     if (guideModal) {
         $(guideModalEl).off('hidden.bs.modal').on('hidden.bs.modal', function () {
-            // 1. Open the main edit modal first (replace 'editModal' with your actual HTML modal ID)
             const editModalEl = document.getElementById('editModal'); 
             if (editModalEl) {
                 const editModal = bootstrap.Modal.getOrCreateInstance(editModalEl);
@@ -1629,7 +1720,6 @@ function navigateToAppraisalTab() {
                 console.error("Could not find main edit modal element.");
             }
             
-            // 2. Once the modal is open, activate the target tab
             const tabEl = document.querySelector('#edit-appraisal-tab');
             if (tabEl) {
                 const tab = bootstrap.Tab.getOrCreateInstance(tabEl);
@@ -1639,21 +1729,10 @@ function navigateToAppraisalTab() {
             }
         });
 
-        // Hide the guide modal to trigger the chain
         guideModal.hide();
     }
 }
-
-
-
-
-
-
-
-
-
-
-    </script>
+  </script>
 </body>
 
 </html>
