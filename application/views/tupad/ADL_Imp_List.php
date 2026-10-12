@@ -561,7 +561,7 @@
                                 <!-- TAB 1: GENERAL INFORMATION -->
                                 <div class="tab-pane fade show active" id="edit-general-pane" role="tabpanel">
                                     <div class="row g-3">
-                                        <div class="col-md-2">
+                                        <div class="col-md-3">
                                             <label class="form-label fw-semibold small">ADL Number</label>
                                             <input type="text" id="edit_adl_no" name="adl_no" class="form-control" readonly title="Cannot be edited">
                                         </div>
@@ -574,7 +574,7 @@
                                             <label class="form-label fw-semibold small">Date Coordinated</label>
                                             <input type="text" id="edit_date_coordinated" name="status_date" class="form-control" placeholder="Date Coordinated" onfocus="this.type='date'" onblur="if(!this.value)this.type='text'" required>
                                         </div>
-                                        <div class="col-md-1">
+                                        <div class="col-md-2">
                                             <label class="form-label fw-semibold small">No of Days</label>
                                             <input type="text" id="no_of_days" name="no_of_days" class="form-control" placeholder="0" required>
                                         </div>
@@ -582,10 +582,12 @@
                                             <label class="form-label fw-semibold small">Target</label>
                                             <input type="text" id="target" name="target" class="form-control" placeholder="0" required>
                                         </div>
+                                        <!--
                                         <div class="col-md-2">
                                             <label class="form-label fw-semibold small">Reformulated Target</label>
                                             <input type="text" id="edit_reformulated_target" name="reformulated_target" class="form-control" placeholder="0">
                                         </div>
+                        -->
 
 
                                         <div class="col-md-3">
@@ -1414,7 +1416,7 @@
                         $('#edit_implementation_sponsor').val(d.implementation_sponsor);
                         $('#no_of_days').val(d.no_of_days);
                         $('#target').val(d.target);
-                        $('#edit_reformulated_target').val(d.reformulated_target);
+                        //$('#edit_reformulated_target').val(d.reformulated_target);
 
                         $('#edit_ppes_issuance_ris').val(d.ppes_issuance_ris);
                         
