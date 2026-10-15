@@ -17,7 +17,14 @@ class Tupad_model extends CI_Model {
         return $this->db->insert_batch($this->table, $data);
     }
 
-  public function get_uploaded_files() {
+
+
+
+
+
+
+//DISPLAY UPLOADED EXCEL FILES DATA
+public function get_uploaded_files() {
     $CI =& get_instance();
     $user_id = $CI->session->userdata('user_id');
     
@@ -29,6 +36,7 @@ class Tupad_model extends CI_Model {
 
     $sql = "SELECT t.file_name, 
                    t.reference_no, 
+                   at.audrey_reference_no,
                    COUNT(t.id) as total_records, 
                    SUM(CASE WHEN t.tupad_active = 0 THEN 1 ELSE 0 END) as active_records,
                    SUM(CASE WHEN t.tupad_active = 1 THEN 1 ELSE 0 END) as inactive_records,
@@ -38,22 +46,27 @@ class Tupad_model extends CI_Model {
                    CASE WHEN g.gsis_letter_id IS NOT NULL THEN 1 ELSE 0 END as is_forwarded
                    FROM tbl_tupad_list t
                    LEFT JOIN users u ON u.id = t.user_id
-                   LEFT JOIN gsis_letters g 
-                   ON g.reference_no = t.reference_no 
-                  AND g.adl_no = t.adl_no 
-                  AND g.implementor = t.area_of_implementation
-                  WHERE t.file_name IS NOT NULL";
+                   LEFT JOIN gsis_letters g ON g.reference_no = t.reference_no 
+                        AND g.adl_no = t.adl_no 
+                        AND g.implementor = t.area_of_implementation
+                   LEFT JOIN adl_transactions at ON at.implementation_reference_no = t.reference_no
+                   WHERE t.file_name IS NOT NULL";
 
     // Filter by the logged-in user's assigned province if set
     if (!empty($assigne_prov)) {
         $sql .= " AND t.tupad_province = " . $this->db->escape($assigne_prov);
     }
 
-    $sql .= " GROUP BY t.file_name, t.reference_no, u.reg_fname, u.reg_lname, g.gsis_letter_id
-              ORDER BY t.file_name ASC";
+    // Group by and sort by latest uploaded descending
+    $sql .= " GROUP BY t.file_name, t.reference_no, at.audrey_reference_no, u.reg_fname, u.reg_lname, g.gsis_letter_id
+              ORDER BY MAX(t.uploaded_at) DESC";
 
     return $this->db->query($sql)->result_array();
 }
+
+
+
+
 
 
 

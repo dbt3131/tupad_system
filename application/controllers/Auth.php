@@ -217,6 +217,7 @@ public function login()
                     'assigned_prov'   => $user->assigned_prov,
                     'reg_fname'       => $user->reg_fname,
                     'email'           => $user->email,
+                    'role'            => $user->role,
                     'logged_in'       => TRUE
                 ));
                 $this->User_model->update_last_activity($user->id);

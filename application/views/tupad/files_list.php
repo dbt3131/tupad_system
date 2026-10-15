@@ -433,6 +433,7 @@
                             <tr>
                                 <th>File Name</th>
                                 <th>Reference No.</th> 
+                                <th>Audrey Reference No.</th>
                                 <th>Total Records</th>
                                 <th>Uploaded By</th>  
                                 <th>Date Uploaded</th> 
@@ -846,7 +847,7 @@ $(document).ready(function () {
             }, 'Confirm Revert');
         });
 
-        const table = $('#filesTable').DataTable({
+const table = $('#filesTable').DataTable({
             processing: true,
             serverSide: true,
             serverMethod: 'post',
@@ -856,17 +857,18 @@ $(document).ready(function () {
             columns: [
                 { orderable: true },  // Col 0: File Name
                 { orderable: true },  // Col 1: Reference No.
-                { orderable: true },  // Col 2: Total Records
-                { orderable: false }, // Col 3: Uploaded By
-                { orderable: false }, // Col 4: Date Uploaded
-                { orderable: false }  // Col 5: Action
+                { orderable: true },  // Col 2: Audrey Ref. NOI
+                { orderable: true },  // Col 3: Status / Records
+                { orderable: false }, // Col 4: Uploaded By
+                { orderable: false }, // Col 5: Date Uploaded
+                { orderable: false }  // Col 6: Action
             ],
             pageLength: 10,
             lengthMenu: [
                 [10, 25, 50, 100, -1],
                 [10, 25, 50, 100, "All"]
             ],
-            order: [[0, 'asc']],
+            order: [[5, 'desc']], // Orders by Date Uploaded descending by default
             dom: 'rtip',
             language: {
                 processing: '<div class="spinner-border spinner-border-sm text-primary" role="status"></div> Loading files...',

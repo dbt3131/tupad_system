@@ -965,6 +965,7 @@ public function get_files_json()
             $data[] = [
                 '<i class="bi bi-file-earmark-excel me-1 text-success"></i>' . htmlspecialchars($f['file_name']),
                 htmlspecialchars($f['reference_no'] ?? 'N/A'), 
+                htmlspecialchars($f['audrey_reference_no'] ?? 'N/A'), 
                 $status_badge,                         
                 htmlspecialchars($uploader_display),         
                 htmlspecialchars($date_uploaded),            

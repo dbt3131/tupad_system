@@ -215,6 +215,17 @@ $is_report_active  = in_array($current_controller, ['ADL', 'tupad_report', 'tupa
       </a>
     </li>
 
+    <!-- User Management (Visible only to Admin / role == 1) -->
+    <?php if ($this->session->userdata('role') == 1): ?>
+    <li class="nav-item">
+      <a href="<?= site_url('user_management/users_management'); ?>" 
+         class="nav-link <?= ($current_controller === 'user_management') ? 'active' : ''; ?>">
+        <i class="bi bi-people"></i>
+        <span>User Management</span>
+      </a>
+    </li>
+    <?php endif; ?>
+
     <!-- TUPAD Workers Dropdown -->
     <li class="nav-item">
       <a href="#tupadSubmenu" 
