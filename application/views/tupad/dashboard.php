@@ -276,19 +276,26 @@ console.log("Municipality Map Data:", municipalityData);
       attribution: '&copy; OpenStreetMap contributors'
     }).addTo(map);
 
-    // Plot Municipality Circles and Pins
+
+
+
+
+
+
+// Plot Municipality Circles and Pins
     municipalityData.forEach(item => {
       const workersCount = Number(item.workers) || 0;
       if (workersCount <= 0 || !item.lat || !item.lng) return;
 
       const radiusSize = Math.max(workersCount * 25, 2000);
 
+      // Use municipality_name and province_name consistently
       L.circle([item.lat, item.lng], {
         color: item.color || '#2563eb',
         fillColor: item.color || '#2563eb',
         fillOpacity: 0.4,
         radius: radiusSize
-      }).addTo(map).bindPopup(`<strong>${item.name}, ${item.province}</strong><br>Active Workers: <strong>${workersCount.toLocaleString()}</strong>`);
+      }).addTo(map).bindPopup(`<strong>${item.municipality_name || 'Unknown Area'}</strong><br>Active Workers: <strong>${workersCount.toLocaleString()}</strong>`);
 
       const markerHtml = `<div style="background-color: ${item.color || '#2563eb'}; width: 12px; height: 12px; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 4px rgba(0,0,0,0.4);"></div>`;
       const customIcon = L.divIcon({
@@ -299,8 +306,15 @@ console.log("Municipality Map Data:", municipalityData);
 
       L.marker([item.lat, item.lng], { icon: customIcon })
         .addTo(map)
-        .bindPopup(`<b>${item.province_name}</b> (${item.municipality_name})<br>Workers: <b>${workersCount.toLocaleString()}</b>`);
+        .bindPopup(`<b>${item.province_name || 'Region III'}</b> (${item.municipality_name || 'Unknown Area'})<br>Workers: <b>${workersCount.toLocaleString()}</b>`);
     });
+
+
+
+
+
+
+
 
     // Initialize DataTables with Excel Button Integration
     document.addEventListener("DOMContentLoaded", function () {
