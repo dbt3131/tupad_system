@@ -445,7 +445,9 @@
                                                                         <i class="bi bi-geo-alt text-danger me-1"></i><?= html_escape($row['implementation_area_name'] ?? 'N/A'); ?>, <?= html_escape($row['implementation_province_name'] ?? 'N/A'); ?>
                                                                     </span>
                                                                     <span style="font-size: 0.65rem;" class="text-muted"><strong>Proponent:</strong> <?= html_escape($row['implementation_proponent_name'] ?? 'N/A'); ?> <span>|</span> <strong>Sponsor:</strong> <?= html_escape($row['implementation_sponsor'] ?: 'None'); ?></span>
+                                                                    <span style="font-size: 0.65rem;" class="text-muted"><strong>Subsidy:</strong> <?= !empty($row['subsidy_cost']) ? html_escape(number_format($row['subsidy_cost'], 2)) : 'None'; ?> | <strong>Admin Cost:</strong> <?= !empty($row['admin_cost']) ? html_escape(number_format($row['admin_cost'], 2)) : 'None'; ?></span>
                                                                     <span style="font-size: 0.65rem;" class="text-muted"><strong>Remarks:</strong> <?= html_escape($row['remarks'] ?: 'None'); ?></span>
+                                                                    
                                                                 </div>
                                                             </td>
 
