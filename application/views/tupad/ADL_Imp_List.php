@@ -120,6 +120,100 @@
             background-color: #f8fafc;
             color: var(--text-muted);
         }
+
+/* Edit Modal Desktop/General Styling */
+#editModal .modal-dialog {
+    margin: 1.75rem auto;
+}
+
+#editModal .modal-content {
+    height: auto;
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+}
+
+#editModal form {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    flex: 1 1 auto;
+}
+
+#editModal .modal-body {
+    overflow-y: auto !important;
+    flex: 1 1 auto;
+    max-height: calc(85vh - 130px); /* Keeps modal content compact on desktop */
+}
+
+#editModal .modal-header,
+#editModal .modal-footer {
+    flex-shrink: 0;
+    background-color: #f8fafc;
+}
+
+/* Edit Modal Mobile Styling (Applies ONLY on small screens) */
+@media (max-width: 767.98px) {
+    #editModal .modal-dialog {
+        margin: 0.5rem;
+        max-width: calc(100% - 1rem);
+    }
+
+    #editModal .modal-content {
+        height: calc(100vh - 1rem);
+        max-height: 95vh;
+    }
+
+    #editModal .modal-body {
+        max-height: none;
+    }
+
+    #editModal .modal-footer {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        justify-content: space-between !important;
+    }
+
+    #editModal .modal-footer .btn {
+        flex: 1;
+        min-width: 100px;
+    }
+}
+
+        /* Card header wrap fixes for mobile */
+.audrey-group-card .card-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+}
+
+.audrey-group-card .card-header .audrey-ref-title {
+    flex: 1 1 auto;
+    min-width: 0; /* Prevents flex items from overflowing parent container */
+    word-break: break-word;
+    overflow-wrap: anywhere;
+}
+
+.audrey-group-card .card-header .total-entries-badge {
+    flex-shrink: 0;
+    white-space: nowrap;
+}
+
+@media (max-width: 767.98px) {
+    .audrey-group-card .card-header {
+        flex-direction: column;
+        align-items: flex-start !important;
+    }
+
+    .audrey-group-card .card-header .total-entries-badge {
+        align-self: flex-start;
+        margin-top: 0.25rem;
+    }
+}
     </style>
 </head>
 
@@ -239,16 +333,22 @@
                         <?php if (!empty($grouped_transactions)): ?>
                             <?php foreach ($grouped_transactions as $audrey_ref => $group_rows): ?>
                                 
-                                <!-- Audrey Reference Group Container Card -->
-                                <div class="card border mb-4 shadow-sm audrey-group-card" data-group-text="<?= strtolower(html_escape($audrey_ref)); ?>">
-                                    <div class="card-header py-2 px-3 d-flex justify-content-between align-items-center text-white" style="background-color: #1e3a8a;">
-                                        <span class="fw-bold">
-                                            <i class="bi bi-tag-fill me-2"></i> Audrey Reference No: <?= html_escape($audrey_ref); ?>
-                                        </span>
-                                        <span class="badge bg-white text-dark fw-semibold">
-                                            Total Entries: <?= count($group_rows); ?>
-                                        </span>
-                                    </div>
+
+
+
+
+                        <!-- Audrey Reference Group Container Card -->
+<div class="card border mb-4 shadow-sm audrey-group-card" data-group-text="<?= strtolower(html_escape($audrey_ref)); ?>">
+    <div class="card-header py-2 px-3 text-white" style="background-color: #1e3a8a;">
+        <span class="fw-bold audrey-ref-title">
+            <i class="bi bi-tag-fill me-2"></i> Audrey Reference No: <?= html_escape($audrey_ref); ?>
+        </span>
+        <span class="badge bg-white text-dark fw-semibold total-entries-badge">
+            Total Entries: <?= count($group_rows); ?>
+        </span>
+    </div>
+
+
                                     <div class="card-body p-0">
                                         <div class="table-responsive">
                                             <table class="table table-hover align-middle mb-0 w-100">
