@@ -214,6 +214,15 @@
         margin-top: 0.25rem;
     }
 }
+
+/* --- FIX TABLE DROPDOWN OVERFLOW CLIP --- */
+        .table-responsive {
+            overflow: visible !important; /* Allows dropdowns to drop outside the table wrapper */
+        }
+        
+        .audrey-group-card {
+            overflow: visible !important; /* Prevents card container from cutting off dropdowns */
+        }
     </style>
 </head>
 
@@ -329,35 +338,28 @@
                         }
                     ?>
 
-                    <div id="groupedTransactionsContainer">
-                        <?php if (!empty($grouped_transactions)): ?>
-                            <?php foreach ($grouped_transactions as $audrey_ref => $group_rows): ?>
-                                
-
-
-
-
-                        <!-- Audrey Reference Group Container Card -->
-<div class="card border mb-4 shadow-sm audrey-group-card" data-group-text="<?= strtolower(html_escape($audrey_ref)); ?>">
-    <div class="card-header py-2 px-3 text-white" style="background-color: #1e3a8a;">
-        <span class="fw-bold audrey-ref-title">
-            <i class="bi bi-tag-fill me-2"></i> Audrey Reference No: <?= html_escape($audrey_ref); ?>
-        </span>
-        <span class="badge bg-white text-dark fw-semibold total-entries-badge">
-            Total Entries: <?= count($group_rows); ?>
-        </span>
-    </div>
-
-
-                                    <div class="card-body p-0">
+               <div id="groupedTransactionsContainer">
+    <?php if (!empty($grouped_transactions)): ?>
+        <?php foreach ($grouped_transactions as $audrey_ref => $group_rows): ?>
+            <!-- Audrey Reference Group Container Card -->
+            <div class="card border mb-4 shadow-sm audrey-group-card" data-group-text="<?= strtolower(html_escape($audrey_ref)); ?>">
+                <div class="card-header py-2 px-3 text-white" style="background-color: #1e3a8a;">
+                    <span class="fw-bold audrey-ref-title" style="font-size: 0.65rem;">
+                        <i class="bi bi-tag-fill me-2"></i> Audrey Reference No: <?= html_escape($audrey_ref); ?>
+                    </span>
+                    <span style="font-size: 0.55rem;" class="badge bg-white text-dark fw-semibold total-entries-badge">
+                        Total Entries: <?= count($group_rows); ?>
+                    </span>
+                </div>
+                <div class="card-body p-0">
                                         <div class="table-responsive">
                                             <table class="table table-hover align-middle mb-0 w-100">
                                                 <thead class="table-light text-uppercase fs-7 text-muted border-bottom">
                                                     <tr>
-                                                        <th class="py-3 ps-3">Transaction Details</th>
-                                                        <th class="py-3">Location & Stakeholders</th>
-                                                        <th class="py-3">Progress Pipeline</th>
-                                                        <th class="py-3 text-center">Actions</th>
+                                                    <th class="py-3 ps-3" style="width: 32%;">Transaction Details</th>
+                                                    <th class="py-3" style="width: 28%;">Location & Stakeholders</th>
+                                                    <th class="py-3" style="width: 28%;">Progress Pipeline</th>
+                                                    <th class="py-3 text-center" style="width: 12%;">Actions</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
@@ -393,25 +395,22 @@
                                                         <tr class="transaction-card-row" data-search-content="<?= html_escape($search_blob); ?>">
                                                             <td class="ps-3">
                                                                 <div class="d-flex flex-column">
-                                                                    <div class="d-flex align-items-center gap-2 mb-1">
-                                                                        <span class="fw-bold text-primary fs-6"><?= html_escape($row['adl_no']); ?></span>
+                                                                    <div class="d-flex align-items-center gap-2 mb-0">
+                                                                        <span style="font-size: 0.65rem;" class="fw-bold text-primary"><?= html_escape($row['adl_no']); ?></span>
                                                                         <?php if ($is_fully_complete): ?>
-                                                                            <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-2 py-1">
+                                                                            <span style="font-size: 0.65rem;" class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-2 py-1">
                                                                                 <i class="bi bi-check-circle-fill me-1"></i> Completed
                                                                             </span>
                                                                         <?php else: ?>
-                                                                            <span class="badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25 px-2 py-1">
+                                                                            <span style="font-size: 0.65rem;" class="badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25 px-2 py-1">
                                                                                 In Progress
                                                                             </span>
                                                                         <?php endif; ?>
                                                                     </div>
-                                                                    <span class="text-muted small mb-1 font-monospace">System Ref: <?= html_escape($row['implementation_reference_no']); ?></span>
-                                                                    <span class="text-secondary small mb-1"><i class="bi bi-calendar3 me-1"></i>Encoded: <?= html_escape($row['encoded_date'] ?? 'N/A'); ?></span>
+                                                                    <span class="text-muted small mb-1 font-monospace" style="font-size: 0.65rem;">System Ref: <?= html_escape($row['implementation_reference_no']); ?></span>
+                                                                    <span class="text-secondary small mb-1" style="font-size: 0.65rem;"><i class="bi bi-calendar3 me-1"></i>Encoded: <?= html_escape($row['encoded_date'] ?? 'N/A'); ?> | <i class="bi bi-people me-1 text-primary"></i>Target: <?= number_format($row['target']); ?> | <i class="bi bi-clock-history me-1 text-secondary"></i>Days: <?= html_escape($row['no_of_days']); ?></span>
                                                                     
-                                                                    <div class="d-flex gap-3 mt-1 pt-1 border-top border-light small text-dark fw-medium">
-                                                                        <span><i class="bi bi-people me-1 text-primary"></i>Target: <?= number_format($row['target']); ?></span>
-                                                                        <span><i class="bi bi-clock-history me-1 text-secondary"></i>Days: <?= html_escape($row['no_of_days']); ?></span>
-                                                                    </div>
+                                
 
                                                                     <!-- TUPAD Target Count Match Label -->
                                                                     <?php 
@@ -419,13 +418,13 @@
                                                                         $tupad_count = intval($row['tupad_list_count'] ?? 0);
                                                                         $is_matched = ($target_val === $tupad_count);
                                                                     ?>
-                                                                    <div class="mt-2">
+                                                                    <div class="mt-1">
                                                                         <?php if ($is_matched): ?>
-                                                                            <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-2 py-1" title="TUPAD benefs list count matches target">
+                                                                            <span style="font-size: 0.55rem;" class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-2 py-1" title="TUPAD benefs list count matches target">
                                                                                 <i class="bi bi-check-circle-fill me-1"></i> List Matched (<?= number_format($tupad_count); ?>/<?= number_format($target_val); ?>)
                                                                             </span>
                                                                         <?php else: ?>
-                                                                            <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 px-2 py-1" title="TUPAD benefs list count does not match target">
+                                                                            <span style="font-size: 0.55rem;" class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 px-2 py-1" title="TUPAD benefs list count does not match target">
                                                                                 <i class="bi bi-exclamation-triangle-fill me-1"></i> List Mismatch (<?= number_format($tupad_count); ?>/<?= number_format($target_val); ?>)
                                                                             </span>
                                                                         <?php endif; ?>
@@ -435,71 +434,72 @@
 
                                                             <td>
                                                                 <div class="d-flex flex-column">
-                                                                    <span class="fw-semibold text-dark mb-1">
+                                                                    <span class="fw-semibold text-dark mb-0"  style="font-size: 0.65rem;">
                                                                         <i class="bi bi-geo-alt text-danger me-1"></i><?= html_escape($row['implementation_area_name'] ?? 'N/A'); ?>, <?= html_escape($row['implementation_province_name'] ?? 'N/A'); ?>
                                                                     </span>
-                                                                    <span class="text-muted small"><strong>Proponent:</strong> <?= html_escape($row['implementation_proponent_name'] ?? 'N/A'); ?></span>
-                                                                    <span class="text-muted small"><strong>Sponsor:</strong> <?= html_escape($row['implementation_sponsor'] ?: 'None'); ?></span>
-                                                                    <span class="text-muted small"><strong>Remarks:</strong> <?= html_escape($row['remarks'] ?: 'None'); ?></span>
+                                                                    <span style="font-size: 0.65rem;" class="text-muted small"><strong>Proponent:</strong> <?= html_escape($row['implementation_proponent_name'] ?? 'N/A'); ?> | <strong>Sponsor:</strong> <?= html_escape($row['implementation_sponsor'] ?: 'None'); ?></span>
+                                                                    <span style="font-size: 0.65rem;" class="text-muted small"><strong>Subsidy Cost:</strong> <?= !empty($row['subsidy_cost']) ? html_escape(number_format($row['subsidy_cost'], 2)) : 'None'; ?> | <strong>Admin Cost:</strong> <?= !empty($row['admin_cost']) ? html_escape(number_format($row['admin_cost'], 2)) : 'None'; ?> </span>
+                                                                    <span style="font-size: 0.65rem;" class="text-muted small"><strong>Remarks:</strong> <?= html_escape($row['remarks'] ?: 'None'); ?></span>
                                                                 </div>
                                                             </td>
 
                                                             <td style="max-width: 320px;">
                                                                 <div class="d-flex flex-wrap gap-1 align-items-center">
-                                                                    <span class="badge <?= $c1 ? 'bg-success bg-opacity-10 text-success border border-success border-opacity-25' : 'bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25'; ?>" title="Coordinated">
+                                                                    <span style="font-size: 0.55rem;" class="badge <?= $c1 ? 'bg-success bg-opacity-10 text-success border border-success border-opacity-25' : 'bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25'; ?>" title="Coordinated">
                                                                         <i class="bi <?= $c1 ? 'bi-check text-success' : 'bi-x text-danger'; ?>"></i> Coordinated
                                                                     </span>
-                                                                    <span class="badge <?= $c2 ? 'bg-success bg-opacity-10 text-success border border-success border-opacity-25' : 'bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25'; ?>" title="Appraisal Submitted">
+                                                                    <span style="font-size: 0.55rem;" class="badge <?= $c2 ? 'bg-success bg-opacity-10 text-success border border-success border-opacity-25' : 'bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25'; ?>" title="Appraisal Submitted">
                                                                         <i class="bi <?= $c2 ? 'bi-check text-success' : 'bi-x text-danger'; ?>"></i> Appraisal Sub.
                                                                     </span>
-                                                                    <span class="badge <?= $c3 ? 'bg-success bg-opacity-10 text-success border border-success border-opacity-25' : 'bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25'; ?>" title="Appraisal Approved">
+                                                                    <span style="font-size: 0.55rem;" class="badge <?= $c3 ? 'bg-success bg-opacity-10 text-success border border-success border-opacity-25' : 'bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25'; ?>" title="Appraisal Approved">
                                                                         <i class="bi <?= $c3 ? 'bi-check text-success' : 'bi-x text-danger'; ?>"></i> Appraisal App.
                                                                     </span>
-                                                                    <span class="badge <?= $c4 ? 'bg-success bg-opacity-10 text-success border border-success border-opacity-25' : 'bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25'; ?>" title="Issued PPEs">
+                                                                    <span style="font-size: 0.55rem;" class="badge <?= $c4 ? 'bg-success bg-opacity-10 text-success border border-success border-opacity-25' : 'bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25'; ?>" title="Issued PPEs">
                                                                         <i class="bi <?= $c4 ? 'bi-check text-success' : 'bi-x text-danger'; ?>"></i> PPEs
                                                                     </span>
-                                                                    <span class="badge <?= $c5 ? 'bg-success bg-opacity-10 text-success border border-success border-opacity-25' : 'bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25'; ?>" title="Oriented">
+                                                                    <span style="font-size: 0.55rem;" class="badge <?= $c5 ? 'bg-success bg-opacity-10 text-success border border-success border-opacity-25' : 'bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25'; ?>" title="Oriented">
                                                                         <i class="bi <?= $c5 ? 'bi-check text-success' : 'bi-x text-danger'; ?>"></i> Oriented
                                                                     </span>
-                                                                    <span class="badge <?= $c6 ? 'bg-success bg-opacity-10 text-success border border-success border-opacity-25' : 'bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25'; ?>" title="GSIS Enrolled">
+                                                                    <span style="font-size: 0.55rem;" class="badge <?= $c6 ? 'bg-success bg-opacity-10 text-success border border-success border-opacity-25' : 'bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25'; ?>" title="GSIS Enrolled">
                                                                         <i class="bi <?= $c6 ? 'bi-check text-success' : 'bi-x text-danger'; ?>"></i> GSIS
                                                                     </span>
-                                                                    <span class="badge <?= $c7 ? 'bg-success bg-opacity-10 text-success border border-success border-opacity-25' : 'bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25'; ?>" title="Implemented">
+                                                                    <span style="font-size: 0.55rem;" class="badge <?= $c7 ? 'bg-success bg-opacity-10 text-success border border-success border-opacity-25' : 'bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25'; ?>" title="Implemented">
                                                                         <i class="bi <?= $c7 ? 'bi-check text-success' : 'bi-x text-danger'; ?>"></i> Implemented
                                                                     </span>
-                                                                    <span class="badge <?= $c8 ? 'bg-success bg-opacity-10 text-success border border-success border-opacity-25' : 'bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25'; ?>" title="Completed">
+                                                                    <span style="font-size: 0.55rem;" class="badge <?= $c8 ? 'bg-success bg-opacity-10 text-success border border-success border-opacity-25' : 'bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25'; ?>" title="Completed">
                                                                         <i class="bi <?= $c8 ? 'bi-check text-success' : 'bi-x text-danger'; ?>"></i> Finished
                                                                     </span>
-                                                                    <span class="badge <?= $c9 ? 'bg-success bg-opacity-10 text-success border border-success border-opacity-25' : 'bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25'; ?>" title="Funding Processed">
+                                                                    <span style="font-size: 0.55rem;" class="badge <?= $c9 ? 'bg-success bg-opacity-10 text-success border border-success border-opacity-25' : 'bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25'; ?>" title="Funding Processed">
                                                                         <i class="bi <?= $c9 ? 'bi-check text-success' : 'bi-x text-danger'; ?>"></i> Funded
                                                                     </span>
-                                                                    <span class="badge <?= $c10 ? 'bg-success bg-opacity-10 text-success border border-success border-opacity-25' : 'bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25'; ?>" title="For payout">
+                                                                    <span style="font-size: 0.55rem;" class="badge <?= $c10 ? 'bg-success bg-opacity-10 text-success border border-success border-opacity-25' : 'bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25'; ?>" title="For payout">
                                                                         <i class="bi <?= $c10 ? 'bi-check text-success' : 'bi-x text-danger'; ?>"></i> Payout
                                                                     </span>
                                                                 </div>
                                                             </td>
 
-                                                            <td class="text-center">
-                                                                <div class="dropdown">
-                                                                    <button class="btn btn-light btn-sm border dropdown-toggle px-2 py-1" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                                                        Actions
-                                                                    </button>
-                                                                    <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0">
-                                                                        <?php if (isset($user_assigned_prov) && $user_assigned_prov === $row['implementation_province']): ?>
-                                                                            <li>
-                                                                                <button type="button" class="dropdown-item edit-btn py-2" data-id="<?= html_escape($row['adl_transact_id']); ?>">
-                                                                                    <i class="bi bi-pencil-square text-primary me-2"></i> Update Record
-                                                                                </button>
-                                                                            </li>
-                                                                        <?php endif; ?>
-                                                                        <li>
-                                                                            <a href="<?= site_url('adl/view_pdf/' . html_escape($row['adl_transact_id'])); ?>" target="_blank" class="dropdown-item py-2">
-                                                                                <i class="bi bi-file-earmark-pdf text-danger me-2"></i> View PDF Details
-                                                                            </a>
-                                                                        </li>
-                                                                    </ul>
-                                                                </div>
-                                                            </td>
+                                                            <<td class="text-center">
+    <div class="dropdown">
+        <!-- Added data-bs-boundary="viewport" below -->
+        <button class="btn btn-light btn-sm border dropdown-toggle px-2 py-1" type="button" data-bs-toggle="dropdown" data-bs-boundary="viewport" aria-expanded="false">
+            Actions
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0">
+            <?php if (isset($user_assigned_prov) && $user_assigned_prov === $row['implementation_province']): ?>
+                <li>
+                    <button type="button" class="dropdown-item edit-btn py-2" data-id="<?= html_escape($row['adl_transact_id']); ?>">
+                        <i class="bi bi-pencil-square text-primary me-2"></i> Update Record
+                    </button>
+                </li>
+            <?php endif; ?>
+            <li>
+                <a href="<?= site_url('adl/view_pdf/' . html_escape($row['adl_transact_id'])); ?>" target="_blank" class="dropdown-item py-2">
+                    <i class="bi bi-file-earmark-pdf text-danger me-2"></i> View PDF Details
+                </a>
+            </li>
+        </ul>
+    </div>
+</td>
                                                         </tr>
                                                     <?php endforeach; ?>
                                                 </tbody>
@@ -752,11 +752,11 @@
                                         </div>
                                         <div class="col-md-3">
                                             <label class="form-label fw-semibold small">Subsidy Cost</label>
-                                            <input type="text" id="edit_subsidy_cost" name="subsidy_cost" class="form-control" placeholder="GPAI Funding" required>
+                                            <input type="number" id="edit_subsidy_cost" name="subsidy_cost" class="form-control" placeholder="GPAI Funding" step="any" required>
                                         </div>
                                         <div class="col-md-3">
                                             <label class="form-label fw-semibold small">Admin Cost</label>
-                                            <input type="text" id="edit_admin_cost" name="admin_cost" class="form-control" placeholder="GPAI Funding" required>
+                                            <input type="number" id="edit_admin_cost" name="admin_cost" class="form-control" placeholder="GPAI Funding" step="any" required>
                                         </div>
                                         <div class="col-md-4">
                                             <label class="form-label fw-semibold small">GPAI INFO (Funds)</label>
