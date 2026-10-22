@@ -200,6 +200,22 @@
             box-shadow: 0 0 0 9999px rgba(15, 23, 42, 0.65), 0 0 20px rgba(168, 85, 247, 0.5) !important;
             border: 2px solid #a855f7 !important;
         }
+
+
+                /* --- TINY FONT FOR DATATABLE & BUTTONS --- */
+        #filesTable th, 
+        #filesTable td,
+        #filesTable .btn,
+        #filesTable .badge {
+            font-size: 0.55rem !important;
+            padding-top: 0.25rem !important;
+            padding-bottom: 0.25rem !important;
+        }
+
+        #filesTable .btn {
+            padding-left: 0.5rem !important;
+            padding-right: 0.5rem !important;
+        }
     </style>
 </head>
 
@@ -587,7 +603,7 @@ $(document).ready(function () {
                     },
                     {
                         element: document.querySelector('#period_of_coverage'),
-                        intro: "<b>Period of Coverage:</b> Put the period coverage of the <b>GSIS INSURANCE</b> <font size='1px'><i>(eg. January 1, 2026 to January 1, 2027).</ofnt><i>",
+                        intro: "<b>Period of Coverage:</b> Put the implementation period. <font size='1px'><i>(eg. January 1, 2026 to January 12, 2026).</ofnt><i>",
                         position: 'right'
                     },
                     {
