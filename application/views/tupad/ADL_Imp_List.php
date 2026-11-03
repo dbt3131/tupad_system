@@ -922,8 +922,12 @@
                                             <input type="number" id="edit_absent_days" name="absent_days" class="form-control" autocomplete="OFF" placeholder="0" value="0">
                                         </div>
                                         <div class="col-md-2">
-                                            <label class="form-label fw-semibold small">Payroll Amount</label>
+                                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                                <label class="form-label fw-semibold small mb-0">Payroll Amount</label>
+                                                <button type="button" class="btn btn-outline-secondary btn-sm py-0 px-1" id="btn_override_completed_amount" style="font-size: 0.65rem;" title="Click to override auto-calculation">Override</button>
+                                            </div>
                                             <input type="text" id="edit_completed_employment_amount" name="completed_employment_amount" class="form-control" readonly placeholder="0.00">
+                                            <small class="text-danger d-none mt-1 d-block" id="note_completed_amount" style="font-size: 0.65rem; line-height: 1.1;">THIS VALUE IS NOT YET RECORDED IN THE ADL TRANSACTION TABLE. CLICK SAVE CHANGES TO RECORD</small>
                                         </div>
                                         <div class="col-md-4">
                                             <label class="form-label fw-semibold small">Documentation Status</label>
@@ -1027,7 +1031,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
-  <script>
+ <script>
     $(document).ready(function () {
         // CLIENT-SIDE SEARCH AND PAGINATION FOR GROUPED CARDS
         let currentPage = 1;
@@ -1193,9 +1197,9 @@
         let overrideGsisBenefs = false;
         let overrideGsisFemale = false;
         let overrideGsisAmount = false;
+        let overrideCompletedAmount = false; 
 
-        // OVERRIDE BUTTON HANDLERS: Do NOT clear or recalculate automatically when clicked.
-        // This keeps whatever current value is in the field intact.
+        // OVERRIDE BUTTON HANDLERS
         $('#btn_override_ppes_count').on('click', function() {
             overridePpesCount = !overridePpesCount;
             const $input = $('#edit_ppes_count');
@@ -1265,6 +1269,22 @@
             } else {
                 $input.prop('readonly', true);
                 $(this).removeClass('btn-warning text-dark').addClass('btn-outline-secondary');
+            }
+        });
+
+        // Toggle override for Payroll Amount: keeps the current typed value when turned off (does not recalculate)
+        $('#btn_override_completed_amount').on('click', function() {
+            overrideCompletedAmount = !overrideCompletedAmount;
+            const $input = $('#edit_completed_employment_amount');
+            if (overrideCompletedAmount) {
+                $input.prop('readonly', false).focus();
+                $(this).removeClass('btn-outline-secondary').addClass('btn-warning text-dark');
+                $('#note_completed_amount').removeClass('d-none');
+            } else {
+                $input.prop('readonly', true);
+                $(this).removeClass('btn-warning text-dark').addClass('btn-outline-secondary');
+                $('#note_completed_amount').addClass('d-none');
+                // Removed calculateAmounts() call here so it locks in the manual input instead of overwriting it
             }
         });
 
@@ -1462,7 +1482,9 @@
             overrideGsisBenefs = false;
             overrideGsisFemale = false;
             overrideGsisAmount = false;
-            $('#btn_override_ppes_count, #btn_override_ppes_female, #btn_override_ppes_amount, #btn_override_gsis_benefs, #btn_override_gsis_female, #btn_override_gsis_amount').removeClass('btn-warning text-dark').addClass('btn-outline-secondary');
+            overrideCompletedAmount = false;
+            $('#btn_override_ppes_count, #btn_override_ppes_female, #btn_override_ppes_amount, #btn_override_gsis_benefs, #btn_override_gsis_female, #btn_override_gsis_amount, #btn_override_completed_amount').removeClass('btn-warning text-dark').addClass('btn-outline-secondary');
+            $('#edit_completed_employment_amount').prop('readonly', true);
 
             $.ajax({
                 url: "<?= site_url('adl/get_transaction_details'); ?>",
@@ -1573,6 +1595,72 @@
                     alert('An error occurred while fetching the transaction record.');
                 }
             });
+        });
+
+        // WAGE AND PAYROLL AMOUNT CALCULATION LOGIC
+        function calculateAmounts() {
+            // Only auto-calculate if overrideCompletedAmount is false
+            if (overrideCompletedAmount) return;
+
+            let beneficiaries = parseFloat($('#edit_completed_employment_benefs').val()) || 0;
+            let noOfDays = parseFloat($('#no_of_days').val()) || 0; 
+            let absentDays = parseFloat($('#edit_absent_days').val()) || 0;
+            
+            $.ajax({
+                url: '<?= site_url("tupad/get_wage_rate"); ?>',
+                type: 'GET',
+                dataType: 'json',
+                success: function(response) {
+                    let wageAmount = parseFloat(response.wage_amount) || 0;
+                    
+                    let totalPersonDays = (beneficiaries * noOfDays) - absentDays;
+                    if (totalPersonDays < 0) totalPersonDays = 0; 
+                    
+                    let totalAmount = totalPersonDays * wageAmount;
+                    let formattedAmount = totalAmount.toFixed(2);
+                    
+                    if (!overrideCompletedAmount) {
+                        $('#edit_completed_employment_amount').val(formattedAmount);
+                    }
+                    
+                    let currentAmountForPayment = overrideCompletedAmount ? (parseFloat($('#edit_completed_employment_amount').val()) || 0) : formattedAmount;
+                    checkAndSetPaymentAmount(currentAmountForPayment);
+                },
+                error: function(xhr, status, error) {
+                    console.error("Error fetching wage amount:", error);
+                }
+            });
+        }
+
+        $('#edit_completed_employment_benefs, #no_of_days, #edit_absent_days').on('input change', function() {
+            calculateAmounts();
+        });
+
+        function checkAndSetPaymentAmount(amount) {
+            let alobNo = $('#edit_payment_alob_no').length ? $('#edit_payment_alob_no').val().trim() : '';
+            let dvNo = $('#edit_payment_dv_no').length ? $('#edit_payment_dv_no').val().trim() : '';
+            let checkNo = $('#edit_payment_check_no').length ? $('#edit_payment_check_no').val().trim() : '';
+            let paymentDate = $('#edit_payment_date').length ? $('#edit_payment_date').val().trim() : '';
+
+            let isAlobValid = alobNo !== '' && alobNo !== '0';
+            let isDvValid = dvNo !== '' && dvNo !== '0';
+            let isCheckValid = checkNo !== '' && checkNo !== '0';
+            let isDateValid = paymentDate !== '' && paymentDate !== '0000-00-00';
+
+            if (isAlobValid && isDvValid && isCheckValid && isDateValid) {
+                $('#edit_payment_amount').val(amount);
+            } else {
+                $('#edit_payment_amount').val('');
+            }
+        }
+
+        $('#edit_payment_alob_no, #edit_payment_dv_no, #edit_payment_check_no, #edit_payment_date').on('input change', function() {
+            let currentPayrollAmount = $('#edit_completed_employment_amount').val();
+            if (currentPayrollAmount) {
+                checkAndSetPaymentAmount(currentPayrollAmount);
+            } else {
+                calculateAmounts();
+            }
         });
     });
 
@@ -1689,151 +1777,91 @@
         e.preventDefault();
     });
 
-    $(document).ready(function() {
-        function calculateAmounts() {
-            let beneficiaries = parseFloat($('#edit_completed_employment_benefs').val()) || 0;
-            let noOfDays = parseFloat($('#no_of_days').val()) || 0; 
-            let absentDays = parseFloat($('#edit_absent_days').val()) || 0;
+    // Automatically append a modern 'Auto' badge to all read-only inputs
+    function applyAutoBadges() {
+        $('.readonly-field-wrapper').each(function() {
+            const $wrapper =$(this);
+            const $input = $wrapper.find('input');$wrapper.before($input);$wrapper.remove();
+        });
+
+        $('input[readonly]').filter(function() {
+            const $input =$(this);
+            const labelText = $input.closest('.form-group, .mb-3, div')
+                                    .find('label')
+                                    .text()
+                                    .trim();
+
+            const exclusions = [
+                "GSIS Enrollment Date", 
+                "PPES RIS No.", 
+                "PPES Date Issued", 
+                "Reference No.", 
+                "ADL Number"
+            ];
+
+            for (let i = 0; i < exclusions.length; i++) {
+                if (labelText.includes(exclusions[i])) {
+                    return false; 
+                }
+            }
             
-            $.ajax({
-                url: '<?= site_url("tupad/get_wage_rate"); ?>',
-                type: 'GET',
-                dataType: 'json',
-                success: function(response) {
-                    let wageAmount = parseFloat(response.wage_amount) || 0;
-                    
-                    let totalPersonDays = (beneficiaries * noOfDays) - absentDays;
-                    if (totalPersonDays < 0) totalPersonDays = 0; 
-                    
-                    let totalAmount = totalPersonDays * wageAmount;
-                    let formattedAmount = totalAmount.toFixed(2);
-                    
-                    $('#edit_completed_employment_amount').val(formattedAmount);
-                    checkAndSetPaymentAmount(formattedAmount);
-                },
-                error: function(xhr, status, error) {
-                    console.error("Error fetching wage amount:", error);
+            return true;
+        }).each(function () {
+            const $input =$(this);
+            
+            if (!$input.parent().hasClass('readonly-field-wrapper')) {$input.wrap('<div class="readonly-field-wrapper"></div>');
+                $input.after('<span class="auto-field-badge">Auto</span>');
+            }
+        });
+
+        $('input:not([readonly])').each(function () {
+            const $input =$(this);
+            if ($input.parent().hasClass('readonly-field-wrapper')) {
+                $input.siblings('.auto-field-badge').remove();$input.unwrap();
+            }
+        });
+    }
+
+    // Run on page load
+    applyAutoBadges();
+
+    $(document).on('click', 'button[id^="btn_override_"]', function() {
+        setTimeout(applyAutoBadges, 50);
+    });
+
+    $('#edit_fund_source').select2({
+        theme: 'bootstrap-5',
+        placeholder: '-- Select Fund Source --',
+        allowClear: true,
+        dropdownParent: $('#editModal')
+    });
+
+    function navigateToAppraisalTab() {
+        const guideModalEl = document.getElementById('backoutsGuideModal');
+        const guideModal = bootstrap.Modal.getInstance(guideModalEl);
+        
+        if (guideModal) {
+            $(guideModalEl).off('hidden.bs.modal').on('hidden.bs.modal', function () {
+                const editModalEl = document.getElementById('editModal'); 
+                if (editModalEl) {
+                    const editModal = bootstrap.Modal.getOrCreateInstance(editModalEl);
+                    editModal.show();
+                } else {
+                    console.error("Could not find main edit modal element.");
+                }
+                
+                const tabEl = document.querySelector('#edit-appraisal-tab');
+                if (tabEl) {
+                    const tab = bootstrap.Tab.getOrCreateInstance(tabEl);
+                    tab.show();
+                } else {
+                    console.error("Could not find tab trigger with ID #edit-appraisal-tab");
                 }
             });
+
+            guideModal.hide();
         }
-
-        $('#edit_completed_employment_benefs, #no_of_days, #edit_absent_days').on('input change', function() {
-            calculateAmounts();
-        });
-
-        function checkAndSetPaymentAmount(amount) {
-            let alobNo = $('#edit_payment_alob_no').length ? $('#edit_payment_alob_no').val().trim() : '';
-            let dvNo = $('#edit_payment_dv_no').length ? $('#edit_payment_dv_no').val().trim() : '';
-            let checkNo = $('#edit_payment_check_no').length ? $('#edit_payment_check_no').val().trim() : '';
-            let paymentDate = $('#edit_payment_date').length ? $('#edit_payment_date').val().trim() : '';
-
-            let isAlobValid = alobNo !== '' && alobNo !== '0';
-            let isDvValid = dvNo !== '' && dvNo !== '0';
-            let isCheckValid = checkNo !== '' && checkNo !== '0';
-            let isDateValid = paymentDate !== '' && paymentDate !== '0000-00-00';
-
-            if (isAlobValid && isDvValid && isCheckValid && isDateValid) {
-                $('#edit_payment_amount').val(amount);
-            } else {
-                $('#edit_payment_amount').val('');
-            }
-        }
-
-        $('#edit_payment_alob_no, #edit_payment_dv_no, #edit_payment_check_no, #edit_payment_date').on('input change', function() {
-            let currentPayrollAmount = $('#edit_completed_employment_amount').val();
-            if (currentPayrollAmount) {
-                checkAndSetPaymentAmount(currentPayrollAmount);
-            } else {
-                calculateAmounts();
-            }
-        });
-    });
-
-// Automatically append a modern 'Auto' badge to all read-only inputs
-function applyAutoBadges() {
-    $('.readonly-field-wrapper').each(function() {
-        const $wrapper =$(this);
-        const $input = $wrapper.find('input');$wrapper.before($input);$wrapper.remove();
-    });
-
-    $('input[readonly]').filter(function() {
-        const $input =$(this);
-        const labelText = $input.closest('.form-group, .mb-3, div')
-                                .find('label')
-                                .text()
-                                .trim();
-
-        const exclusions = [
-            "GSIS Enrollment Date", 
-            "PPES RIS No.", 
-            "PPES Date Issued", 
-            "Reference No.", 
-            "ADL Number"
-        ];
-
-        for (let i = 0; i < exclusions.length; i++) {
-            if (labelText.includes(exclusions[i])) {
-                return false; 
-            }
-        }
-        
-        return true;
-    }).each(function () {
-        const $input =$(this);
-        
-        if (!$input.parent().hasClass('readonly-field-wrapper')) {$input.wrap('<div class="readonly-field-wrapper"></div>');
-            $input.after('<span class="auto-field-badge">Auto</span>');
-        }
-    });
-
-    $('input:not([readonly])').each(function () {
-        const $input =$(this);
-        if ($input.parent().hasClass('readonly-field-wrapper')) {
-            $input.siblings('.auto-field-badge').remove();$input.unwrap();
-        }
-    });
-}
-
-// Run on page load
-applyAutoBadges();
-
-$(document).on('click', 'button[id^="btn_override_"]', function() {
-    setTimeout(applyAutoBadges, 50);
-});
-
-$('#edit_fund_source').select2({
-    theme: 'bootstrap-5',
-    placeholder: '-- Select Fund Source --',
-    allowClear: true,
-    dropdownParent: $('#editModal')
-});
-
-function navigateToAppraisalTab() {
-    const guideModalEl = document.getElementById('backoutsGuideModal');
-    const guideModal = bootstrap.Modal.getInstance(guideModalEl);
-    
-    if (guideModal) {
-        $(guideModalEl).off('hidden.bs.modal').on('hidden.bs.modal', function () {
-            const editModalEl = document.getElementById('editModal'); 
-            if (editModalEl) {
-                const editModal = bootstrap.Modal.getOrCreateInstance(editModalEl);
-                editModal.show();
-            } else {
-                console.error("Could not find main edit modal element.");
-            }
-            
-            const tabEl = document.querySelector('#edit-appraisal-tab');
-            if (tabEl) {
-                const tab = bootstrap.Tab.getOrCreateInstance(tabEl);
-                tab.show();
-            } else {
-                console.error("Could not find tab trigger with ID #edit-appraisal-tab");
-            }
-        });
-
-        guideModal.hide();
     }
-}
   </script>
 </body>
 
