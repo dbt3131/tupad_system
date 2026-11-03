@@ -478,7 +478,7 @@
                                                                 </div>
                                                             </td>
 
-                                                            <<td class="text-center">
+                                                            <td class="text-center">
     <div class="dropdown">
         <!-- Added data-bs-boundary="viewport" below -->
         <button class="btn btn-light btn-sm border dropdown-toggle px-2 py-1" type="button" data-bs-toggle="dropdown" data-bs-boundary="viewport" aria-expanded="false">
