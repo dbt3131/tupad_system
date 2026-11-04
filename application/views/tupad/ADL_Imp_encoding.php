@@ -715,6 +715,37 @@ document.addEventListener('keydown', function (e) {
         e.preventDefault();
     }
 });
+
+/**
+ * Automatically calculates and updates the Admin Cost field
+ * Formula: (Subsidy Cost / 0.95) * (Admin Cost Percentage / 100)
+ */
+function calculateAdminCost() {
+    const rawSubsidy = $('input[name="subsidy_cost"]').val() || "0";
+    const subsidyCost = parseFloat(rawSubsidy.toString().replace(/,/g, '')) || 0;
+    
+    // Get the selected Admin Cost % value (e.g., "2.5" or "3")
+    const adminCostPercent = parseFloat($('#wage_percentage').val()) || 0;
+
+    if (subsidyCost > 0 && adminCostPercent > 0) {
+        // Calculation: (subsidy / 0.95) * (percentage / 100)
+        let calculatedAdminCost = (subsidyCost / 0.95) * (adminCostPercent / 100);
+        
+        // Set the value into the admin_cost input, rounded to 2 decimal places
+        $('input[name="admin_cost"]').val(calculatedAdminCost.toFixed(2));
+    } else {
+        $('input[name="admin_cost"]').val('');
+    }
+}
+
+// Trigger calculation whenever Subsidy Cost or Admin Cost % changes
+$(document).on('input', 'input[name="subsidy_cost"]', function () {
+    calculateAdminCost();
+});
+
+$(document).on('change', '#wage_percentage', function () {
+    calculateAdminCost();
+});
 </script>
 </body>
 

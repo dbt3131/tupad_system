@@ -217,8 +217,7 @@ public function get_fund_sources() {
 
 
 
-// DATATABLE FOR IMPLEMENTATION LIST (Updated with TUPAD list count subquery)
-    public function get_filtered_transactions($province = null, $area = null, $proponent = null, $district = null) {
+public function get_filtered_transactions($province = null, $area = null, $proponent = null, $district = null) {
         if (empty($province)) {
             return [];
         }
@@ -228,12 +227,17 @@ public function get_fund_sources() {
             refcitymun.citymunDesc as implementation_area_name, 
             refprovince.provDesc as implementation_province_name,
             code_proponent.proponent_name as implementation_proponent_name,
-            (SELECT COUNT(*) FROM tbl_tupad_list WHERE tbl_tupad_list.reference_no = adl_transactions.implementation_reference_no) as tupad_list_count');
+            (SELECT COUNT(*) FROM tbl_tupad_list WHERE tbl_tupad_list.reference_no = adl_transactions.implementation_reference_no) as tupad_list_count
+        ');
         $this->db->from('adl_transactions');
         $this->db->join('refprovince', 'adl_transactions.implementation_province = refprovince.provCode', 'left');
         $this->db->join('refcitymun', 'adl_transactions.implementation_area = refcitymun.cityCode', 'left');
         $this->db->join('code_proponent', 'adl_transactions.implementation_proponent = code_proponent.proponent_id', 'left');
+        
+        // Sorted from latest to oldest ADL number
+        $this->db->order_by('adl_transactions.adl_no', 'DESC');
         $this->db->order_by('adl_transactions.encoded_date', 'DESC');
+        
         $this->db->where('adl_transactions.implementation_province', $province);
 
         if (!empty($area)) {
@@ -251,6 +255,7 @@ public function get_fund_sources() {
         $query = $this->db->get();
         return $query->result_array();
     }
+
 
 
 

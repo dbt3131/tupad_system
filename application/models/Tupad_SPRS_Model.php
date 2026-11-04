@@ -26,7 +26,7 @@ class Tupad_SPRS_model extends CI_Model {
                                " AND t.payment_amount IS NOT NULL AND t.payment_amount != ''" .
                                " AND t.ppes_amount IS NOT NULL AND t.ppes_amount != ''" .
                                " AND t.gsis_enrollment_amount IS NOT NULL AND t.gsis_enrollment_amount != ''" .
-                               " AND t.gsis_enrollment_female IS NOT NULL AND t.gsis_enrollment_female != ''";
+                              // " AND t.gsis_enrollment_female IS NOT NULL AND t.gsis_enrollment_female != ''";
 
         $full_join_clause = $date_clause . $completeness_clause;
 

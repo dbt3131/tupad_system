@@ -120,7 +120,7 @@
                     <div class="d-flex align-items-center">
                         <i class="bi bi-info-circle-fill text-primary fs-5 me-2"></i>
                         <div class="small">
-                            <strong>Reminder:</strong> Information needed for this report are PPEs, GSIS, Service Cost and Final Wages Amount.
+                            <strong>Reminder:</strong> Information needed for this report are PPEs, GSIS, Service Cost and Final Wages Amount. Filtered dates are based on Payout Date.
                     </div>
                 </div>
 

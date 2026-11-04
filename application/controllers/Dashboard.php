@@ -210,9 +210,9 @@ public function index() {
     'SANTA IGNACIA' => ['lat' => 15.6033, 'lng' => 120.4500],
     'CITY OF TARLAC' => ['lat' => 15.4802, 'lng' => 120.5979],
     'VICTORIA' => ['lat' => 15.5800, 'lng' => 120.6800],
+    'SAN JOSE' => ['lat' => 15.4781, 'lng' => 120.4639],
 
     // ZAMBALES
-    'SAN JOSE' => ['lat' => 15.7833, 'lng' => 119.9833],
     'BOTOLAN' => ['lat' => 15.2894, 'lng' => 120.0256],
     'CABANGAN' => ['lat' => 15.1764, 'lng' => 120.0353],
     'CANDELARIA' => ['lat' => 15.6333, 'lng' => 119.6500],

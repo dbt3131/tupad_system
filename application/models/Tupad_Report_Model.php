@@ -175,8 +175,8 @@ public function get_coa_report_data($start_date = null, $end_date = null) {
     $this->db->where('adl_transactions.gsis_enrollment_benefs IS NOT NULL');
     $this->db->where('adl_transactions.gsis_enrollment_benefs >', 0);
 
-    $this->db->where('adl_transactions.gsis_enrollment_female IS NOT NULL');
-    $this->db->where('adl_transactions.gsis_enrollment_female >', 0);
+    //$this->db->where('adl_transactions.gsis_enrollment_female IS NOT NULL');
+    //$this->db->where('adl_transactions.gsis_enrollment_female >', 0);
 
     $this->db->where('adl_transactions.gsis_enrollment_amount IS NOT NULL');
     $this->db->where('adl_transactions.gsis_enrollment_amount !=', '');
