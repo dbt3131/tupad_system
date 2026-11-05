@@ -21,6 +21,9 @@ class Activity extends CI_Controller {
         // Fetch activity logs from the database model
         $data['activities'] = $this->Activity_Model->get_activity_trail();    
         
+        // Fetch summary report data for the modal table
+        $data['summary_reports'] = $this->Activity_Model->get_summary_reports();
+
         // Load the user activity view template and pass the data array
         $this->load->view('users/user_activity', $data);
     }

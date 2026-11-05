@@ -8,11 +8,6 @@ class Activity_Model extends CI_Model {
         $this->load->database();
     }
 
-    /**
-     * Log user activity to the audit trail
-     * @param int $user_id
-     * @param int $activity_id (representing the type of action or ID)
-     */
     public function log_activity($reference_no, $user_id, $activity_id) {
         $uploadedDate = date('Y-m-d H:i:s'); 
         $data = [
@@ -25,7 +20,7 @@ class Activity_Model extends CI_Model {
         return $this->db->insert('audit_trail', $data);
     }
 
-public function get_activity_trail() {
+    public function get_activity_trail() {
         $sql = "SELECT 
                     audit_trail.trail_id, 
                     audit_trail.activity_date, 
@@ -46,22 +41,18 @@ public function get_activity_trail() {
         return $query->result_array();
     }
 
-    
+    public function get_summary_reports() {
+        $sql = "SELECT 
+                    u.reg_fname,
+                    COUNT(at.trail_id) AS transactions_made,
+                    GROUP_CONCAT(DISTINCT atc.activity_desc SEPARATOR ', ') AS type_of_transactions
+                FROM `audit_trail` at
+                JOIN `users` u ON u.id = at.user_id
+                LEFT JOIN `audit_trail_code` atc ON at.activity_id = atc.id
+                GROUP BY u.id, u.reg_fname
+                ORDER BY transactions_made DESC";
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        $query = $this->db->query($sql);
+        return $query->result_array();
+    }
 }
-

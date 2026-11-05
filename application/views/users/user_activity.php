@@ -138,6 +138,31 @@
             box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);
         }
 
+        /* Custom Modal Styling */
+        .modal-content {
+            border: none;
+            border-radius: 1rem;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            overflow: hidden;
+        }
+
+        .modal-header-custom {
+            background: #0f172a;
+            color: #ffffff;
+            padding: 1.25rem 1.75rem;
+            border-bottom: none;
+        }
+
+        .modal-table thead th {
+            background-color: #0f172a !important;
+            color: #ffffff !important;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            padding: 0.85rem 1rem;
+            border: none;
+        }
+
         @media print {
             body { background-color: #ffffff; }
             #sidebar, .top-navbar, .no-print { display: none !important; }
@@ -161,9 +186,10 @@
                         <p class="text-muted mb-0">Track and monitor all core operations and user workflows across the system.</p>
                     </div>
                     <div class="col-sm-4 text-sm-end mt-3 mt-sm-0">
-                        <span class="badge bg-white text-primary border px-3 py-2 shadow-sm rounded-pill fw-semibold">
-                            <i class="bi bi-shield-check me-1"></i> Secure System Log
-                        </span>
+                        <!-- Trigger Button to Open Report Modal -->
+                        <button type="button" class="btn btn-dark shadow-sm rounded-pill px-3 py-2 fw-semibold" data-bs-toggle="modal" data-bs-target="#reportModal">
+                            <i class="bi bi-file-earmark-bar-graph me-1"></i> View Transactions Summary
+                        </button>
                     </div>
                 </div>
 
@@ -238,6 +264,70 @@
         </footer>
     </div>
 
+    <!-- Redesigned Modal Structure -->
+    <div class="modal fade" id="reportModal" tabindex="-1" aria-labelledby="reportModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-xl">
+            <div class="modal-content">
+                <div class="modal-header modal-header-custom d-flex align-items-center justify-content-between">
+                    <h5 class="modal-title fw-bold m-0 d-flex align-items-center text-white" id="reportModalLabel">
+                        <div class="rounded-circle bg-primary bg-opacity-25 p-2 me-2 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+                            <i class="bi bi-file-earmark-bar-graph text-primary" style="font-size: 0.9rem;"></i>
+                        </div>
+                        Transactions Summary Report
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4 bg-light">
+                    <div class="table-responsive bg-white rounded-3 shadow-sm p-3 border">
+                        <table class="table modal-table table-hover align-middle w-100 mb-0">
+                            <thead>
+                                <tr>
+                                    <th style="width: 25%; border-top-left-radius: 0.5rem; border-bottom-left-radius: 0.5rem;">Name</th>
+                                    <th class="text-center" style="width: 25%;">Transactions Made</th>
+                                    <th style="width: 50%; border-top-right-radius: 0.5rem; border-bottom-right-radius: 0.5rem;">Type of Transactions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php if (!empty($summary_reports) && is_array($summary_reports)): ?>
+                                    <?php foreach ($summary_reports as $rep): ?>
+                                        <tr>
+                                            <td class="fw-bold text-dark text-uppercase py-3">
+                                                <div class="d-flex align-items-center">
+                                                    <i class="bi bi-person-circle text-muted me-2 fs-5"></i>
+                                                    <?= htmlspecialchars($rep['reg_fname'] ?? ''); ?>
+                                                </div>
+                                            </td>
+                                            <td class="text-center">
+                                                <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 px-3 py-2 rounded-pill fw-bold fs-6">
+                                                    <?= htmlspecialchars($rep['transactions_made'] ?? 0); ?>
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <span class="text-secondary small fw-medium">
+                                                    <?= htmlspecialchars($rep['type_of_transactions'] ?? ''); ?>
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
+                                    <tr>
+                                        <td colspan="3" class="text-center text-muted py-4">
+                                            <i class="bi bi-inbox fs-3 d-block mb-2 text-muted"></i>
+                                            No summary records found.
+                                        </td>
+                                    </tr>
+                                <?php endif; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer bg-white border-top px-4 py-3">
+                    <button type="button" class="btn btn-light border px-4 btn-sm fw-semibold" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Bootstrap JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     
@@ -279,24 +369,20 @@
     });
 
     document.addEventListener('contextmenu', function (e) {
-    e.preventDefault();
-});
+        e.preventDefault();
+    });
 
-document.addEventListener('keydown', function (e) {
-    // Disable F12
-    if (e.key === 'F12') {
-        e.preventDefault();
-    }
-    
-    // Disable Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+Shift+C, Ctrl+U
-    if (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i' || e.key === 'J' || e.key === 'j' || e.key === 'C' || e.key === 'c')) {
-        e.preventDefault();
-    }
-    
-    if (e.ctrlKey && (e.key === 'U' || e.key === 'u')) {
-        e.preventDefault();
-    }
-});
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'F12') {
+            e.preventDefault();
+        }
+        if (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i' || e.key === 'J' || e.key === 'j' || e.key === 'C' || e.key === 'c')) {
+            e.preventDefault();
+        }
+        if (e.ctrlKey && (e.key === 'U' || e.key === 'u')) {
+            e.preventDefault();
+        }
+    });
     </script>
 </body>
 
