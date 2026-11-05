@@ -896,14 +896,21 @@ public function get_files_json()
             $uploader          = trim(($f['uploader_fname'] ?? '') . ' ' . ($f['uploader_lname'] ?? ''));
             $uploader_display = !empty($uploader) ? $uploader : 'N/A';
             $date_uploaded    = !empty($f['uploaded_at']) ? date('M d, Y', strtotime($f['uploaded_at'])) : 'N/A';
+            $audrey_ref       = $f['audrey_reference_no'] ?? ''; // <--- Capture Audrey Reference No.
+            $file_name        = $f['file_name'] ?? '';
             
+            // Include $audrey_ref in the search condition
             if (!empty($search)) {
-                if (stripos($f['file_name'], $search) === false && stripos($uploader_display, $search) === false) {
+                if (stripos($file_name, $search) === false && 
+                    stripos($uploader_display, $search) === false && 
+                    stripos($audrey_ref, $search) === false &&
+                    stripos($f['reference_no'], $search) === false) { // Optional: also check regular reference no
                     continue;
                 }
             }
 
             $encoded_filename = urlencode($f['file_name']);
+          
 
             $status_badge = '
                 <div class="d-flex flex-column gap-1">
@@ -1035,7 +1042,8 @@ public function export_gsis_template()
     foreach ($data as $row) {
         $fullName = strtoupper(trim($row['tupad_lname'])) . ', ' . 
                     strtoupper(trim($row['tupad_fname'])) . ' ' . 
-                    strtoupper(trim($row['tupad_mname']));
+                    strtoupper(trim($row['tupad_mname'])) . ' ' . 
+                    strtoupper(trim($row['tupad_ext']));
 
         $dob = !empty($row['tupad_dob_month']) && !empty($row['tupad_dob_day']) && !empty($row['tupad_dob_year']) 
                ? $row['tupad_dob_month'] . '/' . $row['tupad_dob_day'] . '/' . $row['tupad_dob_year'] 
