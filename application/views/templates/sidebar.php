@@ -288,6 +288,13 @@ $is_report_active  = in_array($current_controller, ['ADL', 'tupad_report', 'tupa
             <span>Encode ADLs</span>
           </a>
         </li>
+           <li>
+          <a href="<?= site_url('NTP/ntp_encoding'); ?>" 
+             class="nav-sub-link <?= ($current_controller === 'NTP' && $current_method === 'ntp_encoding') ? 'active' : ''; ?>">
+            <i class="bi bi-circle-fill"></i>
+            <span>Encode NTPs</span>
+          </a>
+        </li>
         <li>
           <a href="<?= site_url('ADL/implementation_encode'); ?>" 
              class="nav-sub-link <?= ($current_controller === 'ADL' && $current_method === 'implementation_encode') ? 'active' : ''; ?>">

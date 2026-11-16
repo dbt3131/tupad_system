@@ -264,7 +264,7 @@
                     
                     <!-- Item 1 -->
                     <div class="col-12 resource-item">
-                        <a href="https://docs.google.com/spreadsheets/d/1uc9z9t3DH6IanGlyau1lQ6_tM99h2WuvRQiKQ3PQcKc/edit?gid=522341313#gid=522341313" target="_blank" class="resource-card-item p-3 text-decoration-none d-flex align-items-center justify-content-between">
+                        <a href="https://docs.google.com/spreadsheets/d/1B2vcXZonL0H2vGp8Ajjks00UEiTR9bwcXOQeu3-w2M8/edit?gid=1498179126#gid=1498179126" target="_blank" class="resource-card-item p-3 text-decoration-none d-flex align-items-center justify-content-between">
                             <div class="d-flex align-items-center">
                                 <div class="bg-success bg-opacity-10 p-3 rounded-3 text-success me-3">
                                     <i class="bi bi-file-earmark-spreadsheet fs-4"></i>
