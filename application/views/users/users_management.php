@@ -205,21 +205,21 @@
                                                 <td><?= htmlspecialchars($user->office_description ?? 'N/A'); ?></td>
                                                 <td><?= htmlspecialchars($user->division_description ?? 'N/A'); ?></td>
                                                 <td>
-                                                    <span class="badge <?= $user->activated == 1 ? 'bg-success' : 'bg-secondary'; ?>">
+                                                    <span class="badge <?= $user->activated == 1 ? 'bg-success' : 'bg-danger'; ?>">
                                                         <?= $user->activated == 1 ? 'Active' : 'Inactive'; ?>
                                                     </span>
                                                 </td>
                                                 <td><?= $user->role == 1 ? 'Admin' : 'User'; ?></td>
                                                 <td><?= htmlspecialchars($user->provDesc ?? 'None'); ?></td>
                                                 <td class="text-end">
-                                                    <button class="btn btn-sm btn-primary edit-btn" 
+                                                    <button class="btn btn-sm btn-dark edit-btn" 
                                                             data-bs-toggle="modal" 
                                                             data-bs-target="#editUserModal"
                                                             data-id="<?= $user->id; ?>"
                                                             data-activated="<?= $user->activated; ?>"
                                                             data-role="<?= $user->role; ?>"
                                                             data-prov="<?= $user->assigned_prov; ?>">
-                                                        <i class="bi bi-pencil-square"></i> Edit
+                                                        <i class="bi bi-pencil-square"></i> Manage Access
                                                     </button>
                                                 </td>
                                             </tr>
