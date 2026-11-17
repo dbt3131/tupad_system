@@ -307,7 +307,7 @@
                         </div>
                     </div>
 
-                    <!-- Search and Pagination Controls Bar -->
+                    <!-- Search, Progress Status Filter, and Pagination Controls Bar -->
                     <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-3 gap-3">
                         <div class="d-flex align-items-center gap-2">
                             <label class="small text-muted mb-0">Show</label>
@@ -319,7 +319,38 @@
                             </select>
                             <label class="small text-muted mb-0">entries</label>
                         </div>
-                        <div class="w-100 w-md-auto" style="max-width: 300px;">
+
+
+
+
+
+
+                       <!-- Progress Status Filter Dropdown with "NEW" Graphic Badge -->
+                        <div class="w-100 w-md-auto" id="statusFilterContainer" style="max-width: 220px; display: none;">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <span class="badge bg-danger text-white fw-bold px-1.5 py-0.5 shadow-sm" style="font-size: 0.80rem; letter-spacing: 0.5px; animation: pulseBadge 2s infinite;">
+                                    ✨ NEW
+                                </span>
+                            </div>
+                            <select id="progressStatusFilter" class="form-select form-select-sm">
+                                <option value="">-- Filter Progress Status --</option>
+                                <option value="coordinated">Coordinated</option>
+                                <option value="appraisal_sub">Appraisal Sub.</option>
+                                <option value="appraisal_app">Appraisal App.</option>
+                                <option value="ppes">PPEs</option>
+                                <option value="oriented">Oriented</option>
+                                <option value="gsis">GSIS</option>
+                                <option value="implemented">Implemented</option>
+                                <option value="finished">Finished</option>
+                                <option value="funded">Funded</option>
+                                <option value="payout">Payout</option>
+                            </select>
+                        </div>
+
+
+
+
+                        <div class="w-100 w-md-auto" style="max-width: 260px;">
                             <div class="input-group input-group-sm">
                                 <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
                                 <input type="text" id="customSearchInput" class="form-control" placeholder="Search records...">
@@ -382,6 +413,18 @@
 
                                                             $is_fully_complete = ($c1 && $c2 && $c3 && $c4 && $c5 && $c6 && $c7 && $c8 && $c9 && $c10);
 
+                                                            // Determine the last green checkmark in sequence (c10 down to c1)
+                                                            $last_green = '';
+                                                            $flags = [$c1, $c2, $c3, $c4, $c5, $c6, $c7, $c8, $c9, $c10];
+                                                            $keys  = ['coordinated', 'appraisal_sub', 'appraisal_app', 'ppes', 'oriented', 'gsis', 'implemented', 'finished', 'funded', 'payout'];
+                                                            
+                                                            for ($i = count($flags) - 1; $i >= 0; $i--) {
+                                                                if ($flags[$i]) {
+                                                                    $last_green = $keys[$i];
+                                                                    break;
+                                                                }
+                                                            }
+
                                                             $search_blob = strtolower(
                                                                 $audrey_ref . ' ' . 
                                                                 $row['adl_no'] . ' ' . 
@@ -392,7 +435,9 @@
                                                                 ($row['implementation_sponsor'] ?? '')
                                                             );
                                                         ?>
-                                                        <tr class="transaction-card-row" data-search-content="<?= html_escape($search_blob); ?>">
+                                                        <tr class="transaction-card-row" 
+                                                            data-search-content="<?= html_escape($search_blob); ?>"
+                                                            data-last-green="<?= $last_green; ?>">
                                                             <td class="ps-3">
                                                                 <div class="d-flex flex-column">
                                                                     <div class="d-flex align-items-center gap-2 mb-0">
@@ -1033,24 +1078,38 @@
 
  <script>
     $(document).ready(function () {
-        // CLIENT-SIDE SEARCH AND PAGINATION FOR GROUPED CARDS
+        // CLIENT-SIDE SEARCH, STATUS FILTER, AND PAGINATION FOR GROUPED CARDS
         let currentPage = 1;
         let itemsPerPage = parseInt($('#itemsPerPageSelect').val()) || 10;
 
         function updateCardPagination() {
             const searchTerm = $('#customSearchInput').val().toLowerCase();
+            const selectedStatus = $('#progressStatusFilter').val();
             const $cards = $('.audrey-group-card');
             let visibleCards = [];
+            let totalRowsCount = 0;
 
-            // 1. Filter cards based on search input
+            // 1. Filter cards based on search input and status filter ("last green" check)
             $cards.each(function() {
                 const $card = $(this);
                 let matchedInCard = false;
 
                 $card.find('.transaction-card-row').each(function() {
                     const $row = $(this);
+                    totalRowsCount++;
                     const content = $row.data('search-content') || '';
-                    if (content.includes(searchTerm)) {
+                    const lastGreen = $row.data('last-green') || '';
+                    
+                    // Check search match
+                    const matchesSearch = content.includes(searchTerm);
+
+                    // Check progress status filter match ("last green" requirement)
+                    let matchesStatus = true;
+                    if (selectedStatus) {
+                        matchesStatus = (lastGreen === selectedStatus);
+                    }
+
+                    if (matchesSearch && matchesStatus) {
                         $row.show();
                         matchedInCard = true;
                     } else {
@@ -1059,13 +1118,19 @@
                 });
 
                 if (matchedInCard) {
-                    $cards.index($card);
                     visibleCards.push($card);
                     $card.show();
                 } else {
                     $card.hide();
                 }
             });
+
+            // Toggle Progress Status Filter visibility based on whether data exists in the table
+            if (totalRowsCount > 0) {
+                $('#statusFilterContainer').show();
+            } else {
+                $('#statusFilterContainer').hide();
+            }
 
             const totalVisible = visibleCards.length;
             const totalPages = Math.ceil(totalVisible / itemsPerPage) || 1;
@@ -1096,7 +1161,6 @@
                 // 4. Build custom pagination buttons
                 let paginationHtml = '';
                 
-                // Previous button
                 paginationHtml += `<li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
                     <a class="page-link" href="#" data-page="${currentPage - 1}">Previous</a>
                 </li>`;
@@ -1111,7 +1175,6 @@
                     }
                 }
 
-                // Next button
                 paginationHtml += `<li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
                     <a class="page-link" href="#" data-page="${currentPage + 1}">Next</a>
                 </li>`;
@@ -1121,6 +1184,12 @@
         }
 
         $('#customSearchInput').on('keyup', function() {
+            currentPage = 1;
+            updateCardPagination();
+        });
+
+        // Trigger filter update when dropdown changes
+        $('#progressStatusFilter').on('change', function() {
             currentPage = 1;
             updateCardPagination();
         });
@@ -1284,7 +1353,6 @@
                 $input.prop('readonly', true);
                 $(this).removeClass('btn-warning text-dark').addClass('btn-outline-secondary');
                 $('#note_completed_amount').addClass('d-none');
-                // Removed calculateAmounts() call here so it locks in the manual input instead of overwriting it
             }
         });
 
@@ -1538,7 +1606,6 @@
                         $('#edit_implementation_sponsor').val(d.implementation_sponsor);
                         $('#no_of_days').val(d.no_of_days);
                         $('#target').val(d.target);
-                        //$('#edit_reformulated_target').val(d.reformulated_target);
 
                         $('#edit_ppes_issuance_ris').val(d.ppes_issuance_ris);
                         
@@ -1599,7 +1666,6 @@
 
         // WAGE AND PAYROLL AMOUNT CALCULATION LOGIC
         function calculateAmounts() {
-            // Only auto-calculate if overrideCompletedAmount is false
             if (overrideCompletedAmount) return;
 
             let beneficiaries = parseFloat($('#edit_completed_employment_benefs').val()) || 0;
