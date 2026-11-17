@@ -93,6 +93,7 @@ public function index() {
         $map_stats = $this->Tupad_model->get_municipal_worker_stats();
 
         // Region 3 Coordinate Lookup Dictionary (Add more municipalities as needed)
+// Region 3 Coordinate Lookup Dictionary
     $coordinates = [
     // BATAAN
     'ABUCAY' => ['lat' => 14.7265, 'lng' => 120.5376],
@@ -158,7 +159,7 @@ public function index() {
     'PEÑARANDA' => ['lat' => 15.3458, 'lng' => 120.9900],
     'QUEZON' => ['lat' => 15.5539, 'lng' => 120.7419],
     'RIZAL' => ['lat' => 15.6961, 'lng' => 121.1075],
-    'SAN ANTONIO' => ['lat' => 15.3400, 'lng' => 120.8256],
+    'SAN ANTONIO (Nueva Ecija)' => ['lat' => 15.3400, 'lng' => 120.8256],
     'SAN ISIDRO' => ['lat' => 15.2078, 'lng' => 120.8808],
     'SAN JOSE CITY' => ['lat' => 15.7894, 'lng' => 120.9717],
     'SAN LEONARDO' => ['lat' => 15.3619, 'lng' => 120.9550],
@@ -210,18 +211,18 @@ public function index() {
     'SANTA IGNACIA' => ['lat' => 15.6033, 'lng' => 120.4500],
     'CITY OF TARLAC' => ['lat' => 15.4802, 'lng' => 120.5979],
     'VICTORIA' => ['lat' => 15.5800, 'lng' => 120.6800],
-    'SAN JOSE' => ['lat' => 15.4781, 'lng' => 120.4639],
+    'SAN JOSE (Tarlac)' => ['lat' => 15.4781, 'lng' => 120.4639],
 
     // ZAMBALES
     'BOTOLAN' => ['lat' => 15.2894, 'lng' => 120.0256],
     'CABANGAN' => ['lat' => 15.1764, 'lng' => 120.0353],
     'CANDELARIA' => ['lat' => 15.6333, 'lng' => 119.6500],
     'CASTILLEJOS' => ['lat' => 14.9333, 'lng' => 120.2167],
-    'IBA' => ['lat' => 15.3283, 'lng' => 119.9811],
+    'IBA' => ['lat' => 15.3283, 'lng' => 119.9750],
     'MASINLOC' => ['lat' => 15.5765, 'lng' => 119.9572],
     'OLONGAPO CITY' => ['lat' => 14.8386, 'lng' => 120.2842],
     'PALAUIG' => ['lat' => 15.4333, 'lng' => 119.9000],
-    'SAN ANTONIO (Zambales)' => ['lat' => 14.9511, 'lng' => 120.2606],
+    'SAN ANTONIO (Zambales)' => ['lat' => 14.9488, 'lng' => 120.0889],
     'SAN FELIPE' => ['lat' => 15.0717, 'lng' => 120.0433],
     'SAN MARCELINO' => ['lat' => 14.9750, 'lng' => 120.1667],
     'SAN NARCISO' => ['lat' => 15.0167, 'lng' => 120.0833],
@@ -239,10 +240,18 @@ public function index() {
     'SAN LUIS (Aurora)' => ['lat' => 15.6833, 'lng' => 121.5167],
 ];
 
-        // Inject lat and lng properties into each row for the map
+// Inject lat and lng properties into each row for the map
         if (!empty($map_stats)) {
             foreach ($map_stats as &$row) {
                 $name = strtoupper(trim($row['municipality_name'] ?? ''));
+                
+                // Normalization fixes for overlapping or mismatched names
+                if ($name === 'SAN ANTONIO' || $name === 'SAN ANTONIO (ZAMBALES)') {
+                    $name = 'SAN ANTONIO (Zambales)';
+                } elseif (strpos($name, 'IBA') !== false) {
+                    $name = 'IBA';
+                }
+
                 if (isset($coordinates[$name])) {
                     $row['lat'] = $coordinates[$name]['lat'];
                     $row['lng'] = $coordinates[$name]['lng'];
@@ -257,9 +266,8 @@ public function index() {
 
         $data['map_json_data'] = $map_stats;
 
-        // Load your dashboard view file[cite: 8]
+        // Load your dashboard view file
         $this->load->view('tupad/dashboard', $data);
     }
-
 
 }

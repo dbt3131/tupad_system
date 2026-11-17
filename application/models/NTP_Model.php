@@ -11,7 +11,7 @@ class NTP_Model extends CI_Model {
     /**
      * Fetch all encoded NTP records ordered by latest ID
      */
-    public function get_all_ntp() {
+public function get_all_ntp() {
         $this->db->order_by('ntp_id', 'DESC');
         $query = $this->db->get('adl_ntp');
         return $query->result();
@@ -74,4 +74,15 @@ class NTP_Model extends CI_Model {
         $query = $this->db->get('refcitymun');
         return $query->result();
     }
+
+/**
+     * Fetch all signatories from adl_ntp_signatory table
+     */
+    public function get_signatories() {
+        $this->db->order_by('ntp_signatory_name', 'ASC');
+        $query =$this->db->get('adl_ntp_signatory');
+        return $query->result();
+    }
+
+
 }

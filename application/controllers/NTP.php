@@ -17,18 +17,21 @@ class NTP extends CI_Controller {
         $this->load->helper(['url', 'form']);
     }
 
-    public function ntp_encoding() {
+public function ntp_encoding() {
         // Fetch all NTP records to populate table
-        $data['ntp_list'] = $this->NTP_Model->get_all_ntp();
+        $data['ntp_list'] =$this->NTP_Model->get_all_ntp();
         
         // Fetch ADL records for dropdown selection
-        $data['adl_list'] = $this->NTP_Model->get_adl_list();
+        $data['adl_list'] =$this->NTP_Model->get_adl_list();
 
         // Fetch provinces for dropdown
-        $data['provinces'] = $this->NTP_Model->get_provinces();
+        $data['provinces'] =$this->NTP_Model->get_provinces();
+
+        // Fetch signatories for preview modal
+        $data['signatory_list'] =$this->NTP_Model->get_signatories();
 
         // Load the view template and pass the data array
-        $this->load->view('tupad/ADL_NTP', $data);
+        $this->load->view('tupad/ADL_NTP',$data);
     }
 
     /**

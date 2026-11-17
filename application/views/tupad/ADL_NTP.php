@@ -17,6 +17,10 @@
     
     <!-- DataTables CSS Bootstrap 5 Integration -->
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/dataTables.bootstrap5.min.css">
+
+    <!-- Select2 & Bootstrap 5 Theme CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
     
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
@@ -54,14 +58,14 @@
         }
 
         .form-control::placeholder, .form-select::placeholder {
-            font-size: 0.75rem;
+            font-size: 0.85rem;
             color: #94a3b8;
             text-transform: none;
         }
 
         .form-control, .form-select {
-            font-size: 0.875rem;
-            padding: 0.45rem 0.75rem;
+            font-size: 0.95rem;
+            padding: 0.5rem 0.8rem;
             text-transform: uppercase;
         }
 
@@ -71,7 +75,21 @@
         }
 
         .form-label {
-            font-size: 0.825rem;
+            font-size: 0.9rem;
+        }
+
+        /* Match Select2 styling & slightly larger font size */
+        .select2-container--bootstrap-5 .select2-selection {
+            font-size: 0.95rem !important;
+            min-height: calc(1.5em + 1rem + 2px) !important;
+            padding: 0.5rem 0.8rem !important;
+            text-transform: uppercase;
+        }
+
+        .select2-container--bootstrap-5 .select2-dropdown .select2-results__options .select2-results__option,
+        .select2-container--bootstrap-5 .select2-dropdown .select2-search .select2-search__field {
+            font-size: 0.95rem !important;
+            text-transform: uppercase;
         }
 
         .table {
@@ -194,7 +212,7 @@
         }
         .ntp-header-left-text h6 { 
             font-size: 9.5px; 
-            margin: 0 0 1px 0; 
+            margin: 0 0px 1px 0; 
             font-weight: normal; 
         }
         .ntp-header-left-text h5 { 
@@ -225,7 +243,7 @@
         }
         .ntp-title {
             font-weight: bold;
-            font-size: 14px;
+            font-size: 16px;
             margin: 0;
             text-decoration: none;
         }
@@ -364,7 +382,7 @@
                                 </div>
                                 <div class="col-md-4">
                                     <label class="form-label fw-semibold">ADL No.</label>
-                                    <select name="ADL_no" class="form-select" required>
+                                    <select name="ADL_no" id="adl_select" class="form-select" required>
                                         <option value="">Select ADL No.</option>
                                         <?php if(!empty($adl_list)): ?>
                                             <?php foreach($adl_list as $adl): ?>
@@ -445,6 +463,7 @@
                                 <thead>
                                     <tr>
                                         <th>ID</th>
+                                        <th>Date Encoded</th>
                                         <th>Ref No.</th>
                                         <th>ADL No.</th>
                                         <th>Location</th>
@@ -461,6 +480,7 @@
                                         <?php foreach($ntp_list as $row): ?>
                                             <tr>
                                                 <td><?= $row->ntp_id; ?></td>
+                                                <td><?= !empty($row->date_encoded) ? date('M d, Y', strtotime($row->date_encoded)) : '<span class="text-muted">—</span>'; ?></td>
                                                 <td class="fw-semibold text-primary"><?= htmlspecialchars($row->ntp_reference_no); ?></td>
                                                 <td><?= htmlspecialchars($row->ADL_no); ?></td>
                                                 <td><?= nl2br(htmlspecialchars($row->project_location)); ?></td>
@@ -495,6 +515,7 @@
                                                                 data-ref="<?= htmlspecialchars($row->ntp_reference_no); ?>"
                                                                 data-nature="<?= htmlspecialchars($row->nature_of_project); ?>"
                                                                 data-location="<?= htmlspecialchars($row->project_location); ?>"
+                                                                data-province="<?= htmlspecialchars($row->NTP_province); ?>"
                                                                 data-beneficiaries="<?= number_format($row->no_of_beneficiaries); ?>"
                                                                 data-period="<?= htmlspecialchars($row->period_of_work); ?>"
                                                                 data-amount="<?= number_format((float)$row->amount_of_assistance, 2); ?>"
@@ -550,8 +571,26 @@
     <div class="modal fade" id="ntpModal" tabindex="-1" aria-labelledby="ntpModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
-                <div class="modal-header no-print">
-                    <h5 class="modal-title fw-bold" id="ntpModalLabel">NTP Document Preview</h5>
+                <div class="modal-header no-print d-flex justify-content-between align-items-center flex-wrap gap-2">
+                    <h5 class="modal-title fw-bold" id="ntpModalLabel">NTP Preview</h5>
+                    &nbsp; &nbsp;
+                    <!-- Direct Signatory Selection Dropdown Toolbar -->
+   <!-- Modern Direct Signatory Selection Toolbar -->
+<div class="d-flex align-items-center gap-2 px-3 py-1.5 bg-light border border-opacity-75 rounded-pill shadow-sm">
+    <div class="d-flex align-items-center text-secondary small fw-bold text-uppercase tracking-wider">
+        <i class="bi bi-person-badge-fill text-primary fs-6 me-2"></i>
+        <span>Signatory:</span>
+    </div>
+    <select id="direct_signatory_select" class="form-select form-select-sm border-0 bg-transparent shadow-none text-dark fw-semibold text-uppercase py-1 cursor-pointer" style="width: 280px; font-size: 0.85rem;">
+        <option value="ATTY. SARAH BUENA S. MIRASOL" selected>ATTY. SARAH BUENA S. MIRASOL</option>
+        <?php if(!empty($signatory_list)): ?>
+            <?php foreach($signatory_list as $sig): ?>
+                <option value="<?= htmlspecialchars(strtoupper($sig->ntp_signatory_name)); ?>"><?= htmlspecialchars(strtoupper($sig->ntp_signatory_name)); ?></option>
+            <?php endforeach; ?>
+        <?php endif; ?>
+    </select>
+</div>
+
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body p-0">
@@ -562,26 +601,27 @@
                         <div class="ntp-header-container">
                             <table class="ntp-header-table">
                                 <tr>
-                                    <td style="width: 80px; text-align: left; vertical-align: middle; padding-right: 12px;">
-                                        <img src="<?= base_url('assets/images/dolelogo.png'); ?>" alt="DOLE Logo" style="width: 72px; height: auto; display: block;" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/f/f4/Department_of_Labor_and_Employment_%28DOLE%29.svg';">
+                                    <td style="width: 100px; text-align: left; vertical-align: middle; padding-right: 33px;">
+                                        <img src="<?= base_url('assets/images/dolelogo.png'); ?>" alt="DOLE Logo" style="width: 73px; height: auto; display: block;" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/f/f4/Department_of_Labor_and_Employment_%28DOLE%29.svg';">
                                     </td>
                                     <td class="ntp-header-left-text" style="vertical-align: middle;">
-                                        <h6>Republic of the Philippines</h6>
+                                        <h5>Republic of the Philippines</h5>
                                         <h5>DEPARTMENT OF LABOR AND EMPLOYMENT</h5>
                                         <p><strong>Regional Office No. III (Central Luzon)</strong></p>
                                         <p>Matalino cor. Mahusay St., DMGC, Maimpis, City of San Fernando, Pampanga 2000</p>
                                         <p>ro3.dole.gov.ph | ro3@dole.gov.ph | 0968 865 0303 | DOLE Central Luzon</p>
                                     </td>
                                     <td style="width: 140px; text-align: right; vertical-align: middle; padding-left: 12px; white-space: nowrap;">
-                                        <img src="<?= base_url('assets/images/bp_logo.png'); ?>" alt="Bagong Pilipinas Logo" style="height: 42px; width: auto; display: inline-block; vertical-align: middle; margin-right: 4px;" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/8/84/Bagong_Pilipinas_logo.svg';">
-                                        <img src="<?= base_url('assets/images/iso_logo.png'); ?>" alt="ISO Logo" style="height: 42px; width: auto; display: inline-block; vertical-align: middle;" onerror="this.style.display='none';">
+                                        <img src="<?= base_url('assets/images/bp_logo.png'); ?>" alt="Bagong Pilipinas Logo" style="height: 55px; width: auto; display: inline-block; vertical-align: middle; margin-right: 10px;" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/8/84/Bagong_Pilipinas_logo.svg';">
+                                        <img src="<?= base_url('assets/images/iso_logo.png'); ?>" alt="ISO Logo" style="height: 55px; width: auto; display: inline-block; vertical-align: middle; margin-right: 50px;" onerror="this.style.display='none';">
                                     </td>
                                 </tr>
                             </table>
                         </div>
-
+                        <br>
+                        <br>
                         <div id="print_ref_no" class="ntp-ref-no"></div>
-
+                        <br>
                         <!-- Title with solid dividing line underneath -->
                         <div class="ntp-title-wrapper">
                             <div class="ntp-title">
@@ -630,7 +670,7 @@
                         </table>
 
                         <div class="ntp-body-text">
-                            The DOLE Tarlac Field Office is advised to proceed with the implementation of the above-mentioned TUPAD project for a period of <span id="print_period_text_2"></span>, subject to existing rules and regulations.
+                            The DOLE <span id="print_field_office">Tarlac</span> Field Office is advised to proceed with the implementation of the above-mentioned TUPAD project for a period of <span id="print_period_text_2"></span>, subject to existing rules and regulations.
                         </div>
 
                         <div class="ntp-body-text" style="margin-bottom: 20px;">
@@ -642,8 +682,8 @@
                             <tr>
                                 <td style="width: 45%;"></td>
                                 <td style="width: 55%; text-align: center;">
-                                    <div style="font-weight: bold; font-size: 13.5px; text-decoration: underline; margin-bottom: 2px;">ALEJANDRO V. INZA CRUZ</div>
-                                    <div style="font-size: 13px; margin-bottom: 14px;">OIC - Regional Director</div>
+                                    <div id="print_signatory_name" style="font-weight: bold; font-size: 13.5px; text-decoration: underline; margin-bottom: 2px; margin-top: 20px">ATTY. SARAH BUENA S. MIRASOL</div>
+                                    <div id="print_signatory_title" style="font-size: 13px; margin-bottom: 14px;">REGIONAL DIRECTOR</div>
                                     <div style="font-weight: bold; font-size: 13px;">Date: <span id="print_date" style="border-bottom: 1px solid #000; display: inline-block; min-width: 150px; text-align: center; font-weight: normal;">&nbsp;</span></div>
                                 </td>
                             </tr>
@@ -665,9 +705,30 @@
     <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.8/js/dataTables.bootstrap5.min.js"></script>
 
+    <!-- Select2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
     <script>
     $(document).ready(function () {
-        $('#ntpTable').DataTable();
+        // Initialize DataTable sorted by column index 0 (ID) descending (Newest to Oldest)
+        $('#ntpTable').DataTable({
+            "order": [[0, "desc"]]
+        });
+
+        // Initialize searchable dropdown for ADL No.
+        $('#adl_select').select2({
+            theme: 'bootstrap-5',
+            placeholder: 'Select or search ADL No.',
+            allowClear: true,
+            width: '100%'
+        });
+
+        // Reset Select2 when the form Reset button is clicked
+        $('#ntpForm').on('reset', function () {
+            setTimeout(function () {
+                $('#adl_select').val('').trigger('change');
+            }, 0);
+        });
 
         // Auto-populate current date and time for date_received field
         var now = new Date();
@@ -777,18 +838,60 @@
             this.setSelectionRange(start, end);
         });
 
+        // Instant Signatory Change Listener
+        $('#direct_signatory_select').on('change', function() {
+            var selectedSig = $(this).val();
+            $('#print_signatory_name').text(selectedSig);
+
+            if (selectedSig === "ATTY. SARAH BUENA S. MIRASOL") {
+                $('#print_signatory_title').text("REGIONAL DIRECTOR");
+            } else {
+                $('#print_signatory_title').text("Officer In-Charge - REGIONAL DIRECTOR");
+            }
+        });
+
         // Populate modal with selected row details for PDF printing
         $(document).on('click', '.view-ntp-btn', function () {
             $('#print_ref_no').text($(this).data('ref'));
             $('#print_nature').text($(this).data('nature'));
             $('#print_location').text($(this).data('location'));
             $('#print_beneficiaries').text($(this).data('beneficiaries'));
-            $('#print_period').text($(this).data('period'));
-            $('#print_period_text_2').text($(this).data('period'));
+            
+            var periodOfWork = $(this).data('period');
+            $('#print_period').text(periodOfWork);
+            $('#print_period_text_2').text(periodOfWork);
+            
             $('#print_amount').text($(this).data('amount'));
             $('#print_mode').text($(this).data('mode'));
             $('#print_implref').text($(this).data('implref'));
             $('#print_adl').text($(this).data('adl'));
+
+            // Reset selector and print fields to default primary director on open
+            $('#direct_signatory_select').val("ATTY. SARAH BUENA S. MIRASOL");
+            $('#print_signatory_name').text("ATTY. SARAH BUENA S. MIRASOL");
+            $('#print_signatory_title').text("REGIONAL DIRECTOR");
+            
+            // Automatically determine Field Office based on Province
+            var province = $(this).data('province') ? $(this).data('province').toString().trim().toUpperCase() : '';
+            var fieldOfficeName = "Tarlac"; // Default fallback
+
+            if (province.includes('AURORA')) {
+                fieldOfficeName = "Aurora";
+            } else if (province.includes('BATAAN')) {
+                fieldOfficeName = "Bataan";
+            } else if (province.includes('BULACAN')) {
+                fieldOfficeName = "Bulacan";
+            } else if (province.includes('NUEVA ECIJA')) {
+                fieldOfficeName = "Nueva Ecija";
+            } else if (province.includes('PAMPANGA')) {
+                fieldOfficeName = "Pampanga";
+            } else if (province.includes('TARLAC')) {
+                fieldOfficeName = "Tarlac";
+            } else if (province.includes('ZAMBALES')) {
+                fieldOfficeName = "Zambales";
+            }
+
+            $('#print_field_office').text(fieldOfficeName);
             
             // Format and display approval date if available
             var rawApprovalDate = $(this).data('approvaldate');
