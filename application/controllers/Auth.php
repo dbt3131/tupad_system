@@ -18,8 +18,6 @@ class Auth extends CI_Controller
         if ($this->session->userdata('logged_in') && $this->session->userdata('user_id')) {
             $this->User_model->update_last_activity($this->session->userdata('user_id'));
         }
-
-        $data['online_users'] = $this->User_model->get_online_users();
     }
 
     /**
@@ -34,15 +32,14 @@ class Auth extends CI_Controller
         if ($this->session->userdata('logged_in')) {
             redirect('users');
         }
-        
 
-    // Personal Details Validation Rules
+        // Personal Details Validation Rules
         $this->form_validation->set_rules(
             'reg_empno', 
             'Employee No', 
             'required|trim|is_unique[users.reg_empno]',
             array(
-                'is_unique'   => 'This %s is already registered.'
+                'is_unique' => 'This %s is already registered.'
             )
         );
         $this->form_validation->set_rules('reg_fname', 'First Name', 'required|trim');
@@ -131,115 +128,97 @@ class Auth extends CI_Controller
         return TRUE;
     }
 
- 
+    public function login()
+    {
+        // Prevent browser caching of the login page
+        $this->output->set_header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+        $this->output->set_header('Cache-Control: post-check=0, pre-check=0', FALSE);
+        $this->output->set_header('Pragma: no-cache');
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-public function login()
-{
-    // Prevent browser caching of the login page
-    $this->output->set_header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
-    $this->output->set_header('Cache-Control: post-check=0, pre-check=0', FALSE);
-    $this->output->set_header('Pragma: no-cache');
-
-    // Redirect if already logged in
-    if ($this->session->userdata('logged_in')) {
-        redirect('dashboard');
-    }
-
-    // If form is submitted via POST
-    if ($this->input->server('REQUEST_METHOD') === 'POST') {
-        $user_captcha = trim($this->input->post('captcha'));
-        $num1 = $this->input->post('num1');
-        $num2 = $this->input->post('num2');
-
-        // Fallback check if hidden fields are somehow missing
-        if ($num1 === '' || $num2 === '') {
-            $this->session->set_flashdata('error', 'Security session expired. Please try again.');
-            redirect('auth/login');
-            return;
+        // Redirect if already logged in
+        if ($this->session->userdata('logged_in')) {
+            redirect('dashboard');
         }
 
-        $correct_answer = intval($num1) + intval($num2);
+        // If form is submitted via POST
+        if ($this->input->server('REQUEST_METHOD') === 'POST') {
+            $user_captcha = trim($this->input->post('captcha'));
+            $num1 = $this->input->post('num1');
+            $num2 = $this->input->post('num2');
 
-        // Verify CAPTCHA
-        if ($user_captcha === '' || intval($user_captcha) !== $correct_answer) {
-            $this->session->set_flashdata('error', 'Incorrect CAPTCHA answer. Please try again.');
-            redirect('auth/login');
-            return;
-        }
-
-        // Set Form Validation Rules for credentials
-        $this->form_validation->set_rules('email', 'Email', 'required|trim|valid_email');
-        $this->form_validation->set_rules('password', 'Password', 'required');
-
-        if ($this->form_validation->run() === TRUE) {
-            $email = trim($this->input->post('email', TRUE));
-            $password = $this->input->post('password');
-
-            // Fetch user record from database
-            $user = $this->User_model->get_user_by_email($email);
-
-            // Verify User Existence & Password
-            if ($user && password_verify($password, $user->password)) {
-
-                // --- BLOCK INACTIVE USERS ---
-                if ((int)$user->activated === 0) {
-                    $this->session->set_flashdata('error', 'Your account is inactive or pending approval. Please contact the Systems Analyst II.');
-                    redirect('auth/login');
-                    return;
-                }
-
-                // --- SUCCESSFUL LOGIN ---
-                $this->session->sess_regenerate(TRUE);
-
-                $this->session->set_userdata(array(
-                    'user_id'         => $user->id,
-                    'assigned_prov'   => $user->assigned_prov,
-                    'reg_fname'       => $user->reg_fname,
-                    'email'           => $user->email,
-                    'role'            => $user->role,
-                    'logged_in'       => TRUE
-                ));
-                $this->User_model->update_last_activity($user->id);
-
-                redirect('dashboard/index');
+            // Fallback check if hidden fields are somehow missing
+            if ($num1 === '' || $num2 === '') {
+                $this->session->set_flashdata('error', 'Security session expired. Please try again.');
+                redirect('auth/login');
+                return;
             }
 
-            // Invalid Credentials
-            $this->session->set_flashdata('error', 'Invalid email or password.');
-            redirect('auth/login');
+            $correct_answer = intval($num1) + intval($num2);
+
+            // Verify CAPTCHA
+            if ($user_captcha === '' || intval($user_captcha) !== $correct_answer) {
+                $this->session->set_flashdata('error', 'Incorrect CAPTCHA answer. Please try again.');
+                redirect('auth/login');
+                return;
+            }
+
+            // Set Form Validation Rules for credentials
+            $this->form_validation->set_rules('email', 'Email', 'required|trim|valid_email');
+            $this->form_validation->set_rules('password', 'Password', 'required');
+
+            if ($this->form_validation->run() === TRUE) {
+                $email = trim($this->input->post('email', TRUE));
+                $password = $this->input->post('password');
+
+                // Fetch user record from database
+                $user = $this->User_model->get_user_by_email($email);
+
+                // Verify User Existence & Password
+                if ($user && password_verify($password, $user->password)) {
+
+                    // --- BLOCK INACTIVE USERS ---
+                    if ((int)$user->activated === 0) {
+                        $this->session->set_flashdata('error', 'Your account is inactive or pending approval. Please contact the Systems Analyst II.');
+                        redirect('auth/login');
+                        return;
+                    }
+
+                    // --- SUCCESSFUL LOGIN ---
+                    $this->session->sess_regenerate(TRUE);
+
+                    $this->session->set_userdata(array(
+                        'user_id'       => $user->id,
+                        'assigned_prov' => $user->assigned_prov,
+                        'reg_fname'     => $user->reg_fname,
+                        'email'         => $user->email,
+                        'role'          => $user->role,
+                        'logged_in'     => TRUE
+                    ));
+                    $this->User_model->update_last_activity($user->id);
+
+                    redirect('dashboard/index');
+                }
+
+                // Invalid Credentials
+                $this->session->set_flashdata('error', 'Invalid email or password.');
+                redirect('auth/login');
+            }
         }
+
+        // Generate fresh CAPTCHA numbers
+        $data['num1'] = rand(1, 10);
+        $data['num2'] = rand(1, 10);
+        $data['captcha_question'] = "What is {$data['num1']} + {$data['num2']}?";
+
+        // Fetch online users and count for login page counter
+        $online_users = $this->User_model->get_online_users();
+        $data['online_users'] = $online_users;
+        $data['online_count'] = is_array($online_users) ? count($online_users) : 0;
+
+        $this->load->view('auth/login', $data);
     }
 
-    // Generate fresh CAPTCHA numbers
-    $data['num1'] = rand(1, 10);
-    $data['num2'] = rand(1, 10);
-    $data['captcha_question'] = "What is {$data['num1']} + {$data['num2']}?";
-    
-    $this->load->view('auth/login', $data);
-}
-
-/**
+    /**
      * Employee Number Validation Callback
      * Process: Ensures the Employee No only contains numbers and dashes.
      */
@@ -251,66 +230,44 @@ public function login()
         return TRUE;
     }
 
+    public function update_heartbeat()
+    {
+        // Ensure it's an AJAX request for security
+        if (!$this->input->is_ajax_request()) {
+            show_404();
+        }
 
-
-
-
-
-
-public function update_heartbeat()
-{
-    // Ensure it's an AJAX request for security
-    if (!$this->input->is_ajax_request()) {
-        show_404();
+        if ($this->session->userdata('logged_in') && $this->session->userdata('user_id')) {
+            $this->load->model('User_model');
+            $this->User_model->update_last_activity($this->session->userdata('user_id'));
+            echo json_encode(['status' => 'success']);
+        } else {
+            echo json_encode(['status' => 'unauthorized']);
+        }
     }
-
-    if ($this->session->userdata('logged_in') && $this->session->userdata('user_id')) {
-        $this->load->model('User_model');
-        $this->User_model->update_last_activity($this->session->userdata('user_id'));
-        echo json_encode(['status' => 'success']);
-    } else {
-        echo json_encode(['status' => 'unauthorized']);
-    }
-}
-
-
-
-
-
-
-
-
-
-
-
 
     /**
      * User Logout Method
      * Process: Destroys all active session variables and redirects the user to the login page.
      */
-// Inside application/controllers/Auth.php[cite: 2]
+    public function logout()
+    {
+        // Clear last_activity immediately upon logout
+        if ($this->session->userdata('user_id')) {
+            $this->load->model('User_model');
+            $this->User_model->update_last_activity_null($this->session->userdata('user_id'));
+        }
 
-public function logout()
-{
-    // Clear last_activity immediately upon logout
-    if ($this->session->userdata('user_id')) {
-        $this->load->model('User_model');
-        $this->User_model->update_last_activity_null($this->session->userdata('user_id'));
+        $this->session->sess_destroy();
+        redirect('auth/login', 'refresh');
     }
 
-    $this->session->sess_destroy();
-    redirect('auth/login', 'refresh');
-}
-
-
-
-
-/**
+    /**
      * Forgot Password Method
      * Process: Handles email input, checks if user exists, generates a secure token, 
      * and sends a reset link via CodeIgniter's email library.
      */
-public function forgot_password()
+    public function forgot_password()
     {
         if ($this->session->userdata('logged_in')) {
             redirect('dashboard');
@@ -368,11 +325,9 @@ public function forgot_password()
                     if ($this->email->send()) {
                         $this->session->set_flashdata('success', 'Password reset instructions have been sent to your email.');
                     } else {
-                        // Fixed: Changed from 'success' to 'error'
                         $this->session->set_flashdata('error', 'Please try again or contact Dustin Torres ISA II');
                     }
-                } 
-                else {
+                } else {
                     // Generic message for security (prevents user enumeration)
                     $this->session->set_flashdata('error', 'Invalid Email Address');
                 }
@@ -383,9 +338,6 @@ public function forgot_password()
 
         $this->load->view('auth/forgot_password');
     }
-
-
-
 
     /**
      * Reset Password Method
@@ -429,24 +381,4 @@ public function forgot_password()
         $data['token'] = $token;
         $this->load->view('auth/reset_password', $data);
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }

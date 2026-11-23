@@ -81,51 +81,45 @@ class User_model extends CI_Model
         return $this->db->update('users', array('activated' => 1));
     }
 
-public function get_user_profile($user_id)
-{
-    $this->db->select('users.*, 
-                       code_position.position_description, 
-                       code_office.office_description, 
-                       code_division.division_description, 
-                       refprovince.provDesc');
-    $this->db->from('users');
-    $this->db->join('code_position', 'code_position.position_id = users.position_id', 'left');
-    $this->db->join('code_office', 'code_office.office_id = users.office_id', 'left');
-    $this->db->join('code_division', 'code_division.division_id = users.division_id', 'left');
-    $this->db->join('refprovince', 'refprovince.provCode = users.assigned_prov', 'left');
-    $this->db->where('users.id', $user_id);
-    return $this->db->get()->row_array();
-}
+    public function get_user_profile($user_id)
+    {
+        $this->db->select('users.*, 
+                           code_position.position_description, 
+                           code_office.office_description, 
+                           code_division.division_description, 
+                           refprovince.provDesc');
+        $this->db->from('users');
+        $this->db->join('code_position', 'code_position.position_id = users.position_id', 'left');
+        $this->db->join('code_office', 'code_office.office_id = users.office_id', 'left');
+        $this->db->join('code_division', 'code_division.division_id = users.division_id', 'left');
+        $this->db->join('refprovince', 'refprovince.provCode = users.assigned_prov', 'left');
+        $this->db->where('users.id', $user_id);
+        return $this->db->get()->row_array();
+    }
 
-// Add inside application/models/User_model.php[cite: 3]
+    public function update_last_activity($user_id)
+    {
+        $this->db->where('id', $user_id);
+        return $this->db->update('users', array('last_activity' => date('Y-m-d H:i:s')));
+    }
 
-public function update_last_activity($user_id)
-{
-    $this->db->where('id', $user_id);
-    return $this->db->update('users', array('last_activity' => date('Y-m-d H:i:s')));
-}
+    public function get_online_users()
+    {
+        $threshold = date('Y-m-d H:i:s', strtotime('-720 minutes'));
+        
+        return $this->db->where('last_activity >=', $threshold)
+                        ->order_by('reg_fname', 'ASC')
+                        ->get('users')
+                        ->result();
+    }
 
-public function get_online_users()
-{
-    // Change threshold from 5 minutes to 2 minutes for faster drop-offs
-    $threshold = date('Y-m-d H:i:s', strtotime('-720 minutes'));
-    
-    return $this->db->where('last_activity >=', $threshold)
-                    ->order_by('reg_fname', 'ASC')
-                    ->get('users')
-                    ->result();
-}
+    public function update_last_activity_null($user_id)
+    {
+        $this->db->where('id', $user_id);
+        return $this->db->update('users', array('last_activity' => NULL));
+    }
 
-
-// reset password
-
-public function update_last_activity_null($user_id)
-{
-    $this->db->where('id', $user_id);
-    return $this->db->update('users', array('last_activity' => NULL));
-}
-
-// Save reset token and expiration for a user
+    // Save reset token and expiration for a user
     public function set_reset_token($email, $token, $expires)
     {
         $data = array(
@@ -157,9 +151,4 @@ public function update_last_activity_null($user_id)
         $this->db->where('id', $user_id);
         return $this->db->update('users', $data);
     }
-
-
-
-
-
 }

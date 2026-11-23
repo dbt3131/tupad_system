@@ -62,6 +62,115 @@
             padding: 30px;
         }
 
+        /* Redesigned Online Counter */
+        .online-counter-box {
+            background: linear-gradient(135deg, #f4fbf7 0%, #ebf7f0 100%);
+            border: 1px solid #ccebd8;
+            border-radius: 14px;
+            padding: 10px 14px;
+            margin-bottom: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 6px rgba(25, 135, 84, 0.06);
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .online-counter-box:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(25, 135, 84, 0.12);
+        }
+
+        .online-counter-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #1e4631;
+        }
+
+        .online-pulse-dot {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background-color: #198754;
+            box-shadow: 0 0 0 rgba(25, 135, 84, 0.55);
+            animation: pulseGreen 2s infinite;
+            flex-shrink: 0;
+        }
+
+        @keyframes pulseGreen {
+            0% {
+                box-shadow: 0 0 0 0 rgba(25, 135, 84, 0.55);
+            }
+            70% {
+                box-shadow: 0 0 0 7px rgba(25, 135, 84, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(25, 135, 84, 0);
+            }
+        }
+
+        .online-counter-pill {
+            background-color: #198754;
+            color: #ffffff;
+            font-size: 0.78rem;
+            font-weight: 700;
+            padding: 5px 12px;
+            border-radius: 999px;
+            letter-spacing: 0.2px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* Popover styling for online users list */
+        .popover.online-users-popover {
+            border-radius: 12px;
+            border: 1px solid #ccebd8;
+            box-shadow: 0 0.5rem 1.25rem rgba(0, 0, 0, 0.15);
+            max-width: 260px;
+        }
+
+        .popover.online-users-popover .popover-header {
+            background-color: #f4fbf7;
+            border-bottom: 1px solid #ccebd8;
+            color: #1e4631;
+            font-weight: 700;
+            font-size: 0.8rem;
+            border-top-left-radius: 12px;
+            border-top-right-radius: 12px;
+        }
+
+        .popover.online-users-popover .popover-body {
+            max-height: 200px;
+            overflow-y: auto;
+            font-size: 0.82rem;
+            padding: 0.6rem 0.85rem;
+        }
+
+        .online-user-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .online-user-list li {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 3px 0;
+            color: #212529;
+        }
+
+        .online-user-list li .bi-circle-fill {
+            color: #198754;
+            font-size: 0.45rem;
+            flex-shrink: 0;
+        }
+
         .form-control {
             height: 48px;
             border-radius: 10px;
@@ -92,10 +201,10 @@
             font-size: 13px;
         }
 
-        /* Modern Wide Modal Enhancements */
+        /* Compact Modern Modal Enhancements */
         .modal-modern .modal-content {
             border: none;
-            border-radius: 20px;
+            border-radius: 16px;
             box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.4);
             overflow: hidden;
         }
@@ -103,21 +212,55 @@
         .modal-modern .modal-header {
             background: linear-gradient(135deg, #f8f9fa, #e9ecef);
             border-bottom: 1px solid rgba(0,0,0,0.05);
-            padding: 1.25rem 1.5rem;
+            padding: 0.85rem 1.25rem;
+        }
+
+        .modal-modern .modal-body {
+            max-height: 60vh;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: #cbd5e1 transparent;
+        }
+
+        .modal-modern .modal-body::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .modal-modern .modal-body::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .modal-modern .modal-body::-webkit-scrollbar-thumb {
+            background-color: #cbd5e1;
+            border-radius: 999px;
+        }
+
+        .modal-modern .modal-body::-webkit-scrollbar-thumb:hover {
+            background-color: #94a3b8;
         }
 
         .resource-card-item {
             border: 1px solid #eef2f7;
-            border-radius: 12px;
-            transition: all 0.25s ease-in-out;
+            border-radius: 10px;
+            transition: all 0.2s ease-in-out;
             background: #ffffff;
         }
 
         .resource-card-item:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.08);
+            transform: translateY(-1px);
+            box-shadow: 0 0.35rem 0.75rem rgba(0, 0, 0, 0.06);
             border-color: #cbd5e1;
             background-color: #fafbfc;
+        }
+
+        .resource-card-title {
+            font-size: 0.88rem;
+            line-height: 1.25;
+        }
+
+        .resource-card-desc {
+            font-size: 0.76rem;
+            line-height: 1.3;
         }
     </style>
 </head>
@@ -141,6 +284,48 @@
 
                 <!-- Login Form -->
                 <div class="login-body">
+                    <!-- Redesigned Online Users Counter with Hover Popover -->
+                    <?php
+                        $count = (int) ($online_count ?? 0);
+                        $users_list = (!empty($online_users) && is_array($online_users)) ? $online_users : [];
+
+                        if (!empty($users_list)) {
+                            $items_html = '<ul class="online-user-list">';
+                            foreach ($users_list as $u) {
+                                $fname = trim($u->reg_fname ?? '');
+                                $lname = trim($u->reg_lname ?? '');
+                                $full_name = trim($fname . ' ' . $lname);
+                                if ($full_name === '') {
+                                    $full_name = $u->email ?? 'Active User';
+                                }
+                                $items_html .= '<li><i class="bi bi-circle-fill"></i><span>' . html_escape($full_name) . '</span></li>';
+                            }
+                            $items_html .= '</ul>';
+                        } else {
+                            $items_html = '<span class="text-muted">No users currently online.</span>';
+                        }
+                    ?>
+                    <div
+                        class="online-counter-box"
+                        id="onlineUsersTrigger"
+                        data-bs-toggle="popover"
+                        data-bs-trigger="hover focus"
+                        data-bs-placement="top"
+                        data-bs-html="true"
+                        data-bs-custom-class="online-users-popover"
+                        title="Currently Online (<?= $count; ?>)"
+                        data-bs-content="<?= html_escape($items_html); ?>"
+                    >
+                        <div class="online-counter-label">
+                            <span class="online-pulse-dot"></span>
+                            <i class="bi bi-people-fill"></i>
+                            <span>Active Users</span>
+                        </div>
+                        <span class="online-counter-pill">
+                            <?= $count; ?> Online
+                        </span>
+                    </div>
+
                     <!-- Flash Messages -->
                     <?php if ($this->session->flashdata('success')): ?>
                         <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -233,175 +418,174 @@
     </div>
 </div>
 
-<!-- Consolidated Links Modal (Wide, Modern, with Search Filter) -->
+<!-- Consolidated Links Modal (Compact, Modern, Scrollable, with Search Filter) -->
 <div class="modal fade modal-modern" id="consolidatedLinksModal" tabindex="-1" aria-labelledby="consolidatedLinksModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title fw-bold text-dark d-flex align-items-center" id="consolidatedLinksModalLabel">
-                    <div class="bg-primary bg-opacity-10 p-2 rounded-3 text-primary me-3 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                <h6 class="modal-title fw-bold text-dark d-flex align-items-center mb-0" id="consolidatedLinksModalLabel">
+                    <div class="bg-primary bg-opacity-10 rounded-3 text-primary me-2 d-flex align-items-center justify-content-center" style="width: 34px; height: 34px;">
                         <i class="bi bi-link-45deg fs-5"></i>
                     </div>
                     <div>
-                        <span>Consolidated Google Sheets & Drive Links</span>
-                        <div class="text-muted fw-normal" style="font-size: 0.8rem;">Centralized tracking databases and documentation portals</div>
+                        <div style="font-size: 0.95rem;">Consolidated Google Sheets & Drive Links</div>
+                        <div class="text-muted fw-normal" style="font-size: 0.74rem;">Centralized tracking databases and documentation portals</div>
                     </div>
-                </h5>
-                <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
+                </h6>
+                <button type="button" class="btn-close shadow-none" style="font-size: 0.8rem;" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             
-            <div class="modal-body p-4 bg-light">
+            <div class="modal-body p-3 bg-light">
                 <!-- Search Input Bar -->
-                <div class="mb-3">
-                    <div class="input-group shadow-sm" style="border-radius: 10px; overflow: hidden;">
-                        <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-search"></i></span>
-                        <input type="text" id="resourceSearchInput" class="form-control border-start-0 ps-0 shadow-none" placeholder="Search any keyword, title, description..." onkeyup="filterResourceLinks()" style="height: 44px; font-size: 0.95rem;">
+                <div class="mb-2">
+                    <div class="input-group shadow-sm" style="border-radius: 8px; overflow: hidden;">
+                        <span class="input-group-text bg-white border-end-0 text-muted py-1 px-2"><i class="bi bi-search" style="font-size: 0.82rem;"></i></span>
+                        <input type="text" id="resourceSearchInput" class="form-control border-start-0 ps-1 shadow-none" placeholder="Search any keyword, title, description..." onkeyup="filterResourceLinks()" style="height: 36px; font-size: 0.85rem;">
                     </div>
                 </div>
 
                 <!-- Links Container -->
-                <div class="row g-3" id="resourceLinksContainer">
+                <div class="row g-2" id="resourceLinksContainer">
                     
                     <!-- Item 1 -->
                     <div class="col-12 resource-item">
-                        <a href="https://docs.google.com/spreadsheets/d/1B2vcXZonL0H2vGp8Ajjks00UEiTR9bwcXOQeu3-w2M8/edit?gid=1498179126#gid=1498179126" target="_blank" class="resource-card-item p-3 text-decoration-none d-flex align-items-center justify-content-between">
+                        <a href="https://docs.google.com/spreadsheets/d/1B2vcXZonL0H2vGp8Ajjks00UEiTR9bwcXOQeu3-w2M8/edit?gid=1498179126#gid=1498179126" target="_blank" class="resource-card-item py-2 px-3 text-decoration-none d-flex align-items-center justify-content-between">
                             <div class="d-flex align-items-center">
-                                <div class="bg-success bg-opacity-10 p-3 rounded-3 text-success me-3">
-                                    <i class="bi bi-file-earmark-spreadsheet fs-4"></i>
+                                <div class="bg-success bg-opacity-10 p-2 rounded-2 text-success me-2 d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
+                                    <i class="bi bi-file-earmark-spreadsheet fs-5"></i>
                                 </div>
                                 <div>
-                                    <h6 class="mb-1 fw-bold text-dark">2026 TUPAD Monitoring Sheet</h6>
-                                    <p class="mb-0 text-muted small">Heto po yung sheet kung saan nilalagay mga newly coordinated ADLs.</p>
+                                    <div class="fw-bold text-dark resource-card-title">2026 TUPAD Monitoring Sheet</div>
+                                    <p class="mb-0 text-muted resource-card-desc">Heto po yung sheet kung saan nilalagay mga newly coordinated ADLs.</p>
                                 </div>
                             </div>
-                            <div class="text-muted ms-3"><i class="bi bi-chevron-right"></i></div>
+                            <div class="text-muted ms-2"><i class="bi bi-chevron-right small"></i></div>
                         </a>
                     </div>
                     
                     <!-- Item 2 -->
                     <div class="col-12 resource-item">
-                        <a href="https://docs.google.com/spreadsheets/d/1uc9z9t3DH6IanGlyau1lQ6_tM99h2WuvRQiKQ3PQcKc/edit?gid=522341313#gid=522341313" target="_blank" class="resource-card-item p-3 text-decoration-none d-flex align-items-center justify-content-between">
+                        <a href="https://docs.google.com/spreadsheets/d/1uc9z9t3DH6IanGlyau1lQ6_tM99h2WuvRQiKQ3PQcKc/edit?gid=522341313#gid=522341313" target="_blank" class="resource-card-item py-2 px-3 text-decoration-none d-flex align-items-center justify-content-between">
                             <div class="d-flex align-items-center">
-                                <div class="bg-success bg-opacity-10 p-3 rounded-3 text-success me-3">
-                                    <i class="bi bi-file-earmark-spreadsheet fs-4"></i>
+                                <div class="bg-success bg-opacity-10 p-2 rounded-2 text-success me-2 d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
+                                    <i class="bi bi-file-earmark-spreadsheet fs-5"></i>
                                 </div>
                                 <div>
-                                    <h6 class="mb-1 fw-bold text-dark">2026 TUPAD Implementation Status</h6>
-                                    <p class="mb-0 text-muted small">Heto po yung pinapasupply na report ni ms. CJ</p>
+                                    <div class="fw-bold text-dark resource-card-title">2026 TUPAD Implementation Status</div>
+                                    <p class="mb-0 text-muted resource-card-desc">Heto po yung pinapasupply na report ni ms. CJ</p>
                                 </div>
                             </div>
-                            <div class="text-muted ms-3"><i class="bi bi-chevron-right"></i></div>
-                        </a>
-                    </div>
-
-                                    <!-- Item 4 -->
-                    <div class="col-12 resource-item">
-                        <a href="https://docs.google.com/spreadsheets/d/1XrY8_lzSW3S8fN9GTey90EhgsFdEHXkRa2THWaTdDkA/edit?gid=195401770#gid=195401770" target="_blank" class="resource-card-item p-3 text-decoration-none d-flex align-items-center justify-content-between">
-                            <div class="d-flex align-items-center">
-                                <div class="bg-success bg-opacity-10 p-3 rounded-3 text-success me-3">
-                                    <i class="bi bi-file-earmark-spreadsheet fs-4"></i>
-                                </div>
-                                <div>
-                                    <h6 class="mb-1 fw-bold text-dark">TUPAD Flagship Innovations</h6>
-                                    <p class="mb-0 text-muted small">Heto po yung sheet kung saan makikita per Region Status of Implementation.</p>
-                                </div>
-                            </div>
-                            <div class="text-muted ms-3"><i class="bi bi-chevron-right"></i></div>
-                        </a>
-                    </div>
-
-                    <!-- Item 3 -->
-                    <div class="col-12 resource-item">
-                        <a href="https://docs.google.com/spreadsheets/d/1eNmQ2AYxFAUq3T2Cq-pXA6xJxEjReyoH6pF24m9_R0U/edit?gid=0#gid=0" target="_blank" class="resource-card-item p-3 text-decoration-none d-flex align-items-center justify-content-between">
-                            <div class="d-flex align-items-center">
-                                <div class="bg-success bg-opacity-10 p-3 rounded-3 text-success me-3">
-                                    <i class="bi bi-file-earmark-spreadsheet fs-4"></i>
-                                </div>
-                                <div>
-                                    <h6 class="mb-1 fw-bold text-dark">2026 Tupad Coordinators Directory</h6>
-                                    <p class="mb-0 text-muted small">Heto po yung sheet kung saan nandito lahat ng mga TCs.</p>
-                                </div>
-                            </div>
-                            <div class="text-muted ms-3"><i class="bi bi-chevron-right"></i></div>
+                            <div class="text-muted ms-2"><i class="bi bi-chevron-right small"></i></div>
                         </a>
                     </div>
 
                     <!-- Item 4 -->
                     <div class="col-12 resource-item">
-                        <a href="https://docs.google.com/spreadsheets/d/1QsAzwlI8aqMTaazxCRuyslHHr0zCx1OdvaHlPKcP_to/edit?gid=1617754366#gid=1617754366" target="_blank" class="resource-card-item p-3 text-decoration-none d-flex align-items-center justify-content-between">
+                        <a href="https://docs.google.com/spreadsheets/d/1eNmQ2AYxFAUq3T2Cq-pXA6xJxEjReyoH6pF24m9_R0U/edit?gid=0#gid=0" target="_blank" class="resource-card-item py-2 px-3 text-decoration-none d-flex align-items-center justify-content-between">
                             <div class="d-flex align-items-center">
-                                <div class="bg-success bg-opacity-10 p-3 rounded-3 text-success me-3">
-                                    <i class="bi bi-file-earmark-spreadsheet fs-4"></i>
+                                <div class="bg-success bg-opacity-10 p-2 rounded-2 text-success me-2 d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
+                                    <i class="bi bi-file-earmark-spreadsheet fs-5"></i>
                                 </div>
                                 <div>
-                                    <h6 class="mb-1 fw-bold text-dark">2026 Tupad Payout Schedules</h6>
-                                    <p class="mb-0 text-muted small">Heto po yung sheet kung saan makikita mga payrolls and schedules.</p>
+                                    <div class="fw-bold text-dark resource-card-title">2026 Tupad Coordinators Directory</div>
+                                    <p class="mb-0 text-muted resource-card-desc">Heto po yung sheet kung saan nandito lahat ng mga TCs.</p>
                                 </div>
                             </div>
-                            <div class="text-muted ms-3"><i class="bi bi-chevron-right"></i></div>
+                            <div class="text-muted ms-2"><i class="bi bi-chevron-right small"></i></div>
                         </a>
                     </div>
 
-                                        <!-- Item 5 -->
-                        <div class="col-12 resource-item">
-                            <a href="https://www.canva.com/design/DAHbIqDdwSg/VasY8dayGof6ZpwimNLovg/edit" target="_blank" class="resource-card-item p-3 text-decoration-none d-flex align-items-center justify-content-between">
-                                <div class="d-flex align-items-center">
-                                    <div class="bg-primary bg-opacity-10 p-3 rounded-3 text-primary me-3">
-                                        <i class="bi bi-palette fs-4"></i>
-                                    </div>
-                                    <div>
-                                        <h6 class="mb-1 fw-bold text-dark">TUPAD Flagship Layout</h6>
-                                        <p class="mb-0 text-muted small">Heto po yung canva for 7 TUPAD Flagship</p>
-                                    </div>
-                                </div>
-                                <div class="text-muted ms-3"><i class="bi bi-chevron-right"></i></div>
-                            </a>
-                        </div>
-
                     <!-- Item 5 -->
                     <div class="col-12 resource-item">
-                        <a href="https://drive.google.com/drive/folders/1f2r5i0ZmO97aWB3PGnLb9HbEtHn9-WfJ?usp=drive_link" target="_blank" class="resource-card-item p-3 text-decoration-none d-flex align-items-center justify-content-between">
+                        <a href="https://docs.google.com/spreadsheets/d/1QsAzwlI8aqMTaazxCRuyslHHr0zCx1OdvaHlPKcP_to/edit?gid=1617754366#gid=1617754366" target="_blank" class="resource-card-item py-2 px-3 text-decoration-none d-flex align-items-center justify-content-between">
                             <div class="d-flex align-items-center">
-                                <div class="bg-warning bg-opacity-10 p-3 rounded-3 text-warning me-3">
-                                    <i class="bi bi-folder-fill fs-4"></i>
+                                <div class="bg-success bg-opacity-10 p-2 rounded-2 text-success me-2 d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
+                                    <i class="bi bi-file-earmark-spreadsheet fs-5"></i>
                                 </div>
                                 <div>
-                                    <h6 class="mb-1 fw-bold text-dark">TUPAD Liquidation Drive</h6>
-                                    <p class="mb-0 text-muted small">Heto po yung drive na inaaccess ng COA.</p>
+                                    <div class="fw-bold text-dark resource-card-title">2026 Tupad Payout Schedules</div>
+                                    <p class="mb-0 text-muted resource-card-desc">Heto po yung sheet kung saan makikita mga payrolls and schedules.</p>
                                 </div>
                             </div>
-                            <div class="text-muted ms-3"><i class="bi bi-chevron-right"></i></div>
+                            <div class="text-muted ms-2"><i class="bi bi-chevron-right small"></i></div>
+                        </a>
+                    </div>
+
+                    <!-- Item 3 -->
+                    <div class="col-12 resource-item">
+                        <a href="https://docs.google.com/spreadsheets/d/1XrY8_lzSW3S8fN9GTey90EhgsFdEHXkRa2THWaTdDkA/edit?gid=195401770#gid=195401770" target="_blank" class="resource-card-item py-2 px-3 text-decoration-none d-flex align-items-center justify-content-between">
+                            <div class="d-flex align-items-center">
+                                <div class="bg-success bg-opacity-10 p-2 rounded-2 text-success me-2 d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
+                                    <i class="bi bi-file-earmark-spreadsheet fs-5"></i>
+                                </div>
+                                <div>
+                                    <div class="fw-bold text-dark resource-card-title">TUPAD Flagship Innovations</div>
+                                    <p class="mb-0 text-muted resource-card-desc">Heto po yung sheet kung saan makikita per Region Status of Implementation.</p>
+                                </div>
+                            </div>
+                            <div class="text-muted ms-2"><i class="bi bi-chevron-right small"></i></div>
                         </a>
                     </div>
 
                     <!-- Item 6 -->
                     <div class="col-12 resource-item">
-                        <a href="https://drive.google.com/drive/folders/1kDzDmWbqDRtRcTycbeyLoMDGf639Wvnq?usp=drive_link" target="_blank" class="resource-card-item p-3 text-decoration-none d-flex align-items-center justify-content-between">
+                        <a href="https://www.canva.com/design/DAHbIqDdwSg/VasY8dayGof6ZpwimNLovg/edit" target="_blank" class="resource-card-item py-2 px-3 text-decoration-none d-flex align-items-center justify-content-between">
                             <div class="d-flex align-items-center">
-                                <div class="bg-warning bg-opacity-10 p-3 rounded-3 text-warning me-3">
-                                    <i class="bi bi-folder-fill fs-4"></i>
+                                <div class="bg-primary bg-opacity-10 p-2 rounded-2 text-primary me-2 d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
+                                    <i class="bi bi-palette fs-5"></i>
                                 </div>
                                 <div>
-                                    <h6 class="mb-1 fw-bold text-dark">TUPAD Guidelines</h6>
-                                    <p class="mb-0 text-muted small">Heto po yung drive kung saan nandito lahat ng mga guidelines ng TUPAD.</p>
+                                    <div class="fw-bold text-dark resource-card-title">TUPAD Flagship Layout</div>
+                                    <p class="mb-0 text-muted resource-card-desc">Heto po yung canva for 7 TUPAD Flagship</p>
                                 </div>
                             </div>
-                            <div class="text-muted ms-3"><i class="bi bi-chevron-right"></i></div>
+                            <div class="text-muted ms-2"><i class="bi bi-chevron-right small"></i></div>
                         </a>
                     </div>
 
+                    <!-- Item 7 -->
+                    <div class="col-12 resource-item">
+                        <a href="https://drive.google.com/drive/folders/1f2r5i0ZmO97aWB3PGnLb9HbEtHn9-WfJ?usp=drive_link" target="_blank" class="resource-card-item py-2 px-3 text-decoration-none d-flex align-items-center justify-content-between">
+                            <div class="d-flex align-items-center">
+                                <div class="bg-warning bg-opacity-10 p-2 rounded-2 text-warning me-2 d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
+                                    <i class="bi bi-folder-fill fs-5"></i>
+                                </div>
+                                <div>
+                                    <div class="fw-bold text-dark resource-card-title">TUPAD Liquidation Drive</div>
+                                    <p class="mb-0 text-muted resource-card-desc">Heto po yung drive na inaaccess ng COA.</p>
+                                </div>
+                            </div>
+                            <div class="text-muted ms-2"><i class="bi bi-chevron-right small"></i></div>
+                        </a>
+                    </div>
+
+                    <!-- Item 8 -->
+                    <div class="col-12 resource-item">
+                        <a href="https://drive.google.com/drive/folders/1kDzDmWbqDRtRcTycbeyLoMDGf639Wvnq?usp=drive_link" target="_blank" class="resource-card-item py-2 px-3 text-decoration-none d-flex align-items-center justify-content-between">
+                            <div class="d-flex align-items-center">
+                                <div class="bg-warning bg-opacity-10 p-2 rounded-2 text-warning me-2 d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
+                                    <i class="bi bi-folder-fill fs-5"></i>
+                                </div>
+                                <div>
+                                    <div class="fw-bold text-dark resource-card-title">TUPAD Guidelines</div>
+                                    <p class="mb-0 text-muted resource-card-desc">Heto po yung drive kung saan nandito lahat ng mga guidelines ng TUPAD.</p>
+                                </div>
+                            </div>
+                            <div class="text-muted ms-2"><i class="bi bi-chevron-right small"></i></div>
+                        </a>
+                    </div>
                 </div>
 
                 <!-- No Results State (Hidden by default) -->
-                <div id="noSearchResults" class="text-center py-4 d-none">
-                    <i class="bi bi-search text-muted fs-2 mb-2 d-block"></i>
-                    <p class="text-muted mb-0 small">No matching resources found.</p>
+                <div id="noSearchResults" class="text-center py-3 d-none">
+                    <i class="bi bi-search text-muted fs-4 mb-1 d-block"></i>
+                    <p class="text-muted mb-0" style="font-size: 0.8rem;">No matching resources found.</p>
                 </div>
             </div>
 
-            <div class="modal-footer bg-white border-top py-3 px-4">
-                <span class="text-muted small me-auto"><i class="bi bi-shield-lock me-1"></i> Secure DOLE Internal Links</span>
-                <button type="button" class="btn btn-dark btn-sm rounded-pill px-4" data-bs-dismiss="modal">Close</button>
+            <div class="modal-footer bg-white border-top py-2 px-3">
+                <span class="text-muted me-auto" style="font-size: 0.76rem;"><i class="bi bi-shield-lock me-1"></i> Secure DOLE Internal Links</span>
+                <button type="button" class="btn btn-dark btn-sm rounded-pill px-3" style="font-size: 0.78rem;" data-bs-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
@@ -410,8 +594,15 @@
 <!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
 
-<!-- Password Toggle & Search Filtering Script -->
+<!-- Popover Initialization, Password Toggle & Search Filtering Script -->
 <script>
+document.addEventListener('DOMContentLoaded', function () {
+    const triggerEl = document.getElementById('onlineUsersTrigger');
+    if (triggerEl && typeof bootstrap !== 'undefined') {
+        new bootstrap.Popover(triggerEl);
+    }
+});
+
 function togglePassword() {
     const passwordInput = document.getElementById('password');
     const toggleIcon = document.getElementById('toggleIcon');
