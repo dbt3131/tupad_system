@@ -294,6 +294,22 @@
                         </a>
                     </div>
 
+                                    <!-- Item 4 -->
+                    <div class="col-12 resource-item">
+                        <a href="https://docs.google.com/spreadsheets/d/1XrY8_lzSW3S8fN9GTey90EhgsFdEHXkRa2THWaTdDkA/edit?gid=195401770#gid=195401770" target="_blank" class="resource-card-item p-3 text-decoration-none d-flex align-items-center justify-content-between">
+                            <div class="d-flex align-items-center">
+                                <div class="bg-success bg-opacity-10 p-3 rounded-3 text-success me-3">
+                                    <i class="bi bi-file-earmark-spreadsheet fs-4"></i>
+                                </div>
+                                <div>
+                                    <h6 class="mb-1 fw-bold text-dark">TUPAD Flagship Innovations</h6>
+                                    <p class="mb-0 text-muted small">Heto po yung sheet kung saan makikita per Region Status of Implementation.</p>
+                                </div>
+                            </div>
+                            <div class="text-muted ms-3"><i class="bi bi-chevron-right"></i></div>
+                        </a>
+                    </div>
+
                     <!-- Item 3 -->
                     <div class="col-12 resource-item">
                         <a href="https://docs.google.com/spreadsheets/d/1eNmQ2AYxFAUq3T2Cq-pXA6xJxEjReyoH6pF24m9_R0U/edit?gid=0#gid=0" target="_blank" class="resource-card-item p-3 text-decoration-none d-flex align-items-center justify-content-between">
@@ -325,6 +341,22 @@
                             <div class="text-muted ms-3"><i class="bi bi-chevron-right"></i></div>
                         </a>
                     </div>
+
+                                        <!-- Item 5 -->
+                        <div class="col-12 resource-item">
+                            <a href="https://www.canva.com/design/DAHbIqDdwSg/VasY8dayGof6ZpwimNLovg/edit" target="_blank" class="resource-card-item p-3 text-decoration-none d-flex align-items-center justify-content-between">
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-primary bg-opacity-10 p-3 rounded-3 text-primary me-3">
+                                        <i class="bi bi-palette fs-4"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-1 fw-bold text-dark">TUPAD Flagship Layout</h6>
+                                        <p class="mb-0 text-muted small">Heto po yung canva for 7 TUPAD Flagship</p>
+                                    </div>
+                                </div>
+                                <div class="text-muted ms-3"><i class="bi bi-chevron-right"></i></div>
+                            </a>
+                        </div>
 
                     <!-- Item 5 -->
                     <div class="col-12 resource-item">

@@ -25,7 +25,7 @@
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 
-    <style>
+<style>
         :root {
             --sidebar-width: 260px;
             --primary-gradient: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%);
@@ -179,17 +179,18 @@
         }
 
         /* --- 100% Exact Official DOLE NTP Document Styling (A4 Portrait Match) --- */
+/* --- 100% Exact Official DOLE NTP Document Styling (A4 Portrait Match) --- */
         @page {
             size: A4 portrait;
-            margin: 10mm 15mm;
+            margin: 16mm 20mm; /* Reduced page print margins */
         }
 
         .ntp-document {
             font-family: Arial, Helvetica, sans-serif;
             color: #000000;
-            padding: 6mm 8mm;
+            padding: 4mm 4mm; /* Reduced internal document padding to minimize square borders */
             background: #ffffff;
-            line-height: 1.35;
+            line-height: 1.15;
             font-size: 13px;
             width: 100%;
             max-width: 210mm;
@@ -201,36 +202,35 @@
             width: 100%;
             padding-bottom: 4px;
             margin-bottom: 12px;
+            font-family: 'Times New Roman', Times, serif; /* Applied Times New Roman exclusively to the header */
         }
         .ntp-header-table {
             width: 100%;
             border-collapse: collapse;
+            font-family: 'Times New Roman', Times, serif;
         }
         .ntp-header-table td {
             vertical-align: middle;
             padding: 0 6px;
         }
-        .ntp-header-left-text h6 { 
-            font-size: 9.5px; 
-            margin: 0 0px 1px 0; 
-            font-weight: normal; 
-        }
-        .ntp-header-left-text h5 { 
+        .ntp-header-left-text { 
             font-size: 11.5px; 
-            margin: 0 0 2px 0; 
-            font-weight: bold; 
+            margin: 0 0 0px 0; 
+            font-weight: normal; 
             letter-spacing: 0.2px; 
+            font-family: 'Times New Roman', Times, serif;
         }
-        .ntp-header-left-text p { 
+  .ntp-header-left-text p { 
             font-size: 8.5px; 
-            margin: 0 0 1px 0; 
+            margin: 0; 
             color: #111; 
+            white-space: nowrap; /* Forces all header paragraphs onto a single line */
         }
 
         .ntp-ref-no {
             text-align: right;
             font-weight: bold;
-            font-size: 14px;
+            font-size: 18px;
             margin-bottom: 8px;
             letter-spacing: 0.3px;
         }
@@ -243,26 +243,27 @@
         }
         .ntp-title {
             font-weight: bold;
-            font-size: 16px;
+            font-size: 20px;
             margin: 0;
             text-decoration: none;
         }
 
         .ntp-intro {
-            font-size: 13px;
-            margin-bottom: 10px;
+            font-size: 16px;
+            margin-bottom: 20px;
             text-align: justify;
         }
 
         .ntp-details-table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 10px;
+            margin-bottom: 20px;
         }
         .ntp-details-table td {
-            padding: 2px 0;
+            padding: 1px 0;
             vertical-align: top;
-            font-size: 13px;
+            font-size: 16px;
+            word-break: break-word;
         }
         .ntp-details-table td.label {
             font-weight: bold;
@@ -271,14 +272,14 @@
         }
 
         .ntp-body-text {
-            font-size: 13px;
-            margin-bottom: 10px;
+            font-size: 16px;
+            margin-bottom: 20px;
             text-align: justify;
         }
 
         .ntp-signatory-table {
             width: 100%;
-            margin-top: 12px;
+            margin-top: 15px;
             border-collapse: collapse;
         }
         .ntp-signatory-table td {
@@ -555,7 +556,6 @@
                         <div class="mb-3">
                             <label for="approval_date_input" class="form-label fw-semibold">Approval Date:</label>
                             <input type="date" name="approval_date" id="approval_date_input" class="form-control" required>
-                            <div class="form-text">This date will reflect on the printed document signature block.</div>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -590,34 +590,50 @@
         <?php endif; ?>
     </select>
 </div>
-
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body p-0">
                     <!-- Printed Document Area matching exact A4 size & layout -->
                     <div id="ntpPrintArea" class="ntp-document">
                         
                         <!-- Header Container -->
-                        <div class="ntp-header-container">
-                            <table class="ntp-header-table">
-                                <tr>
-                                    <td style="width: 100px; text-align: left; vertical-align: middle; padding-right: 33px;">
-                                        <img src="<?= base_url('assets/images/dolelogo.png'); ?>" alt="DOLE Logo" style="width: 73px; height: auto; display: block;" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/f/f4/Department_of_Labor_and_Employment_%28DOLE%29.svg';">
-                                    </td>
-                                    <td class="ntp-header-left-text" style="vertical-align: middle;">
-                                        <h5>Republic of the Philippines</h5>
-                                        <h5>DEPARTMENT OF LABOR AND EMPLOYMENT</h5>
-                                        <p><strong>Regional Office No. III (Central Luzon)</strong></p>
-                                        <p>Matalino cor. Mahusay St., DMGC, Maimpis, City of San Fernando, Pampanga 2000</p>
-                                        <p>ro3.dole.gov.ph | ro3@dole.gov.ph | 0968 865 0303 | DOLE Central Luzon</p>
-                                    </td>
-                                    <td style="width: 140px; text-align: right; vertical-align: middle; padding-left: 12px; white-space: nowrap;">
-                                        <img src="<?= base_url('assets/images/bp_logo.png'); ?>" alt="Bagong Pilipinas Logo" style="height: 55px; width: auto; display: inline-block; vertical-align: middle; margin-right: 10px;" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/8/84/Bagong_Pilipinas_logo.svg';">
-                                        <img src="<?= base_url('assets/images/iso_logo.png'); ?>" alt="ISO Logo" style="height: 55px; width: auto; display: inline-block; vertical-align: middle; margin-right: 50px;" onerror="this.style.display='none';">
-                                    </td>
-                                </tr>
-                            </table>
-                        </div>
+                     
+                        
+
+
+<!-- Header Container -->
+<div class="ntp-header-container" style="font-family: 'Times New Roman', Times, serif;">
+    <table class="ntp-header-table" style="font-family: 'Times New Roman', Times, serif; width: 100%; table-layout: fixed;">
+        <tr>
+            <td style="width: 85px; text-align: left; vertical-align: middle; padding-right: 4px;">
+                <img src="<?= base_url('assets/images/dolelogo.png'); ?>" alt="DOLE Logo" style="width: 90px; height: auto; display: block;" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/f/f4/Department_of_Labor_and_Employment_%28DOLE%29.svg';">
+            </td>
+            <td class="ntp-header-left-text" style="vertical-align: middle; font-family: 'Times New Roman', Times, serif; line-height: 1.05; padding-left: 18px;">
+                <div style="font-size: 11.8px; margin: 0;">Republic of the Philippines</div>
+                <div style="font-size: 14.8px; font-weight: bold; white-space: nowrap; margin: 0; letter-spacing: normal;">DEPARTMENT OF LABOR AND EMPLOYMENT</div>
+                <div style="font-size: 12.8px; font-weight: bold; margin: 0;">Regional Office No. III (Central Luzon)</div>
+                <div style="font-size: 9.3px; white-space: nowrap; margin: 0; margin-top: 1px;">Matalino cor. Mahusay St., DMGC, Maimpis, City of San Fernando, Pampanga 2000</div>
+                <div style="font-size: 8.8px; white-space: nowrap; margin: 0; margin-top: 1px;">
+                    <i class="bi bi-globe"></i> ro3.dole.gov.ph | 
+                    <i class="bi bi-envelope-fill"></i> ro3@dole.gov.ph | 
+                    <i class="bi bi-phone-fill"></i> 0968 865 0303 | 
+                    <i class="bi bi-facebook"></i> DOLE Central Luzon
+                </div>
+            </td>
+            <td style="width: 170px; text-align: left; vertical-align: middle; padding-left: 15px; white-space: nowrap;">
+                <img src="<?= base_url('assets/images/bp_logo.png'); ?>" alt="Bagong Pilipinas Logo" style="height: 61px; width: auto; display: inline-block; vertical-align: middle; margin-right: 4px;" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/8/84/Bagong_Pilipinas_logo.svg';">
+                <img src="<?= base_url('assets/images/iso_logo.png'); ?>" alt="ISO Logo" style="height: 59px; width: auto; display: inline-block; vertical-align: middle;" onerror="this.style.display='none';">
+            </td>
+        </tr>
+    </table>
+</div>
+
+
+
+
+
+
+
                         <br>
                         <br>
                         <div id="print_ref_no" class="ntp-ref-no"></div>
@@ -632,7 +648,8 @@
                         <div class="ntp-intro">
                             This pertains to the request for availment of the <strong>Tulong Panghanapbuhay sa Ating Disadvantaged Workers (TUPAD) Program</strong>, with the following details:
                         </div>
-
+                        
+                        <!-- Precise Details Table -->
                         <!-- Precise Details Table -->
                         <table class="ntp-details-table">
                             <tr>
@@ -661,7 +678,7 @@
                             </tr>
                             <tr>
                                 <td class="label">Ref No.:</td>
-                                <td><span id="print_implref"></span></td>
+                                <td style="word-break: break-all;"><span id="print_implref"></span></td>
                             </tr>
                             <tr>
                                 <td class="label">ADL No.:</td>
@@ -670,10 +687,10 @@
                         </table>
 
                         <div class="ntp-body-text">
-                            The DOLE <span id="print_field_office">Tarlac</span> Field Office is advised to proceed with the implementation of the above-mentioned TUPAD project for a period of <span id="print_period_text_2"></span>, subject to existing rules and regulations.
+                            The DOLE <span id="print_field_office">Tarlac</span> Field Office is advised to proceed with the implementation of the above-mentioned TUPAD project for a period of <span id="print_period_text_2"></span> days, subject to existing rules and regulations.
                         </div>
 
-                        <div class="ntp-body-text" style="margin-bottom: 20px;">
+                        <div class="ntp-body-text" style="margin-bottom: 28px;">
                             The implementation of TUPAD could be postponed or terminated if there are found deviations on the approved proposal.
                         </div>
 
@@ -682,9 +699,11 @@
                             <tr>
                                 <td style="width: 45%;"></td>
                                 <td style="width: 55%; text-align: center;">
-                                    <div id="print_signatory_name" style="font-weight: bold; font-size: 13.5px; text-decoration: underline; margin-bottom: 2px; margin-top: 20px">ATTY. SARAH BUENA S. MIRASOL</div>
-                                    <div id="print_signatory_title" style="font-size: 13px; margin-bottom: 14px;">REGIONAL DIRECTOR</div>
-                                    <div style="font-weight: bold; font-size: 13px;">Date: <span id="print_date" style="border-bottom: 1px solid #000; display: inline-block; min-width: 150px; text-align: center; font-weight: normal;">&nbsp;</span></div>
+                                    <br>
+                                    <div id="print_signatory_name" style="font-weight: bold; font-size: 16px; text-decoration: underline; margin-bottom: 2px; margin-top: 20px">ATTY. SARAH BUENA S. MIRASOL</div>
+                                    <div id="print_signatory_title" style="font-size: 16px; margin-bottom: 14px;">REGIONAL DIRECTOR</div>
+                                    <br>
+                                    <div style="font-weight: bold; font-size: 15px;">Date: <span id="print_date" style="border-bottom: 1px solid #000; display: inline-block; min-width: 150px; text-align: center; font-weight: normal;">&nbsp;</span></div>
                                 </td>
                             </tr>
                         </table>

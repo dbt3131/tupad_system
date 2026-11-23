@@ -216,7 +216,7 @@ public function index() {
     // ZAMBALES
     'BOTOLAN' => ['lat' => 15.2894, 'lng' => 120.0256],
     'CABANGAN' => ['lat' => 15.1764, 'lng' => 120.0353],
-    'CANDELARIA' => ['lat' => 15.6333, 'lng' => 119.6500],
+    'CANDELARIA' => ['lat' => 15.6389, 'lng' => 119.9291],
     'CASTILLEJOS' => ['lat' => 14.9333, 'lng' => 120.2167],
     'IBA' => ['lat' => 15.3283, 'lng' => 119.9750],
     'MASINLOC' => ['lat' => 15.5765, 'lng' => 119.9572],
